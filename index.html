@@ -184,10 +184,14 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      transition: background .4s, border-color .4s;
+      transition: background .4s, border-color .4s, opacity 0.3s var(--ease), transform 0.3s var(--ease);
     }
     #random-quote-card.hidden {
       display: none;
+    }
+    #random-quote-card.refresh-anim {
+      opacity: 0.3;
+      transform: scale(0.98);
     }
     .quote-content {
       font-size: 14px;
@@ -195,6 +199,7 @@
       color: var(--text-100);
       font-style: italic;
       word-break: keep-all;
+      transition: opacity 0.2s var(--ease);
     }
     .quote-content::before { content:'\201C'; color:var(--violet); font-size:18px; line-height:0; vertical-align:-3px; margin-right:2px; }
     .quote-content::after  { content:'\201D'; color:var(--violet); font-size:18px; line-height:0; vertical-align:-3px; margin-left:2px; }
@@ -2805,14 +2810,21 @@ function showRandomQuote() {
   }
 
   card.classList.remove('hidden');
-  const randIdx = Math.floor(Math.random() * allScraps.length);
-  const quote = allScraps[randIdx];
+  
+  // Trigger fluid refresh animation
+  card.classList.add('refresh-anim');
+  setTimeout(() => {
+    const randIdx = Math.floor(Math.random() * allScraps.length);
+    const quote = allScraps[randIdx];
 
-  textEl.textContent = quote.text;
-  let sourceText = `— ${quote.bookTitle}`;
-  if (quote.bookAuthor) sourceText += ` (${quote.bookAuthor})`;
-  if (quote.page) sourceText += `, p.${quote.page}`;
-  bookEl.textContent = sourceText;
+    textEl.textContent = quote.text;
+    let sourceText = `— ${quote.bookTitle}`;
+    if (quote.bookAuthor) sourceText += ` (${quote.bookAuthor})`;
+    if (quote.page) sourceText += `, p.${quote.page}`;
+    bookEl.textContent = sourceText;
+    
+    card.classList.remove('refresh-anim');
+  }, 180);
 }
 
 function switchStatsPeriod(period) {
