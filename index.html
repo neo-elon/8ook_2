@@ -3087,14 +3087,22 @@ function handleDetailSwipe() {
 
 function navigateToAdjacentBook(direction) {
   if (!currentBookId || books.length === 0) return;
-  const idx = books.findIndex(b => b.id === currentBookId);
+  
+  // Sort the books copy exactly like the gallery view
+  const sorted = [...books].sort((a, b) => {
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return new Date(b.date) - new Date(a.date);
+  });
+  
+  const idx = sorted.findIndex(b => b.id === currentBookId);
   if (idx === -1) return;
   
   const wrap = document.getElementById('detail-wrap');
   
   if (direction === 'next') {
-    if (idx < books.length - 1) {
-      showDetail(books[idx + 1].id, 'next');
+    if (idx < sorted.length - 1) {
+      showDetail(sorted[idx + 1].id, 'next');
       toast('👉 다음 도서');
     } else {
       // Bounce right (bounce back from right edge)
@@ -3105,7 +3113,7 @@ function navigateToAdjacentBook(direction) {
     }
   } else if (direction === 'prev') {
     if (idx > 0) {
-      showDetail(books[idx - 1].id, 'prev');
+      showDetail(sorted[idx - 1].id, 'prev');
       toast('👈 이전 도서');
     } else {
       // Bounce left (bounce back from left edge)
