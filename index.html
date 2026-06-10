@@ -3153,13 +3153,6 @@ function handleGallerySwipe() {
     showStats();
     toast('📊 통계 페이지로 이동');
   }
-  // Swipe down: Go to Stats page
-  else if (diffY > 70 && Math.abs(diffY) > Math.abs(diffX)) {
-    if (galleryScroll.scrollTop <= 5) {
-      showStats();
-      toast('📊 통계 페이지로 이동');
-    }
-  }
 }
 
 // Stats Touch Swipe Gestures
@@ -3194,11 +3187,16 @@ function handleStatsSwipe() {
     showGallery();
     toast('📚 내 서재로 이동');
   }
-  // Swipe up: Go back to Gallery
-  else if (diffY < -70 && Math.abs(diffY) > Math.abs(diffX)) {
+  // Swipe up: Go back to Gallery, Swipe down: Refresh quote
+  else if (Math.abs(diffY) > 70 && Math.abs(diffY) > Math.abs(diffX)) {
     if (statsEl.scrollTop <= 5) {
-      showGallery();
-      toast('📚 내 서재로 이동');
+      if (diffY < 0) {
+        showGallery();
+        toast('📚 내 서재로 이동');
+      } else {
+        showRandomQuote();
+        toast('🔄 오늘의 한 문장 새로고침');
+      }
     }
   }
 }
