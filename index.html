@@ -1574,7 +1574,7 @@ function showDetail(id, direction = null) {
   currentBookId = id;
 
   const wrap = document.getElementById('detail-wrap');
-  wrap.classList.remove('slide-from-left', 'slide-from-right');
+  wrap.classList.remove('slide-from-left', 'slide-from-right', 'bounce-left', 'bounce-right');
   void wrap.offsetWidth; // Force reflow
   if (direction === 'prev') {
     wrap.classList.add('slide-from-left');
