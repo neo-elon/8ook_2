@@ -903,7 +903,16 @@
        RESPONSIVE
     ====================================== */
     @media (max-width: 640px) {
-      :root { --sidebar-w: 240px; }
+      :root { 
+        --sidebar-w: 240px; 
+        --grid-min: 90px;
+      }
+      #gallery-scroll {
+        padding: 12px;
+      }
+      #gallery-grid {
+        gap: 8px;
+      }
       .detail-top { flex-direction:column; }
       .detail-thumb { width:100px; height:150px; }
     }
@@ -1259,7 +1268,7 @@ let currentRating = 0;
 let currentScrapBookId = null;
 let currentScrapTab = 'manual';
 let calDate = new Date();
-let gridMin = 170;
+let gridMin = window.innerWidth <= 640 ? 90 : 170;
 let zoomTimer = null;
 let sidebarOpen = false;
 let isDarkTheme = true;
