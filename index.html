@@ -151,52 +151,27 @@
     /* ======================================
        SIDEBAR
     ====================================== */
-    #sidebar {
-      width: var(--sidebar-w);
-      min-width: var(--sidebar-w);
-      height: 100vh;
-      background: var(--bg-surface);
-      border-right: 1px solid var(--border);
-      display:flex;
-      flex-direction:column;
-      transition: width var(--dur) var(--ease),
-                  min-width var(--dur) var(--ease),
-                  border-color var(--dur),
-                  background .4s;
-      overflow:hidden;
-      position:relative;
-      z-index:10;
-      flex-shrink:0;
+    #view-stats {
+      flex: 1;
+      overflow-y: auto;
+      display: none;
+      padding: 24px 24px 40px;
+      animation: slideDown .4s var(--ease) both;
     }
-    #sidebar.collapsed { width:0; min-width:0; border-color:transparent; }
-
-    .sidebar-inner {
-      width:var(--sidebar-w);
-      height:100%;
-      overflow-y:auto;
-      overflow-x:hidden;
-      padding:18px 14px 24px;
-      display:flex;
-      flex-direction:column;
-      gap:20px;
+    #view-stats.show {
+      display: block;
     }
-
-    /* Logo */
-    .sidebar-logo {
-      display:flex; align-items:center; gap:10px;
-      padding:4px 2px 10px;
+    .stats-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
     }
-    .logo-icon { font-size:26px; line-height:1; filter:drop-shadow(0 0 8px rgba(139,92,246,.5)); }
-    .logo-text {
-      font-family:'Playfair Display', serif;
-      font-size:22px; font-weight:700;
-      background: var(--grad-main);
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-      letter-spacing:.5px;
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-
-    /* Divider */
-    .sdivider { height:1px; background:var(--border); flex-shrink:0; }
 
     /* Section title */
     .sec-title {
@@ -547,9 +522,6 @@
       transform: translateY(-50%) scale(1.1);
     }
     .prev-arrow {
-      left: calc(var(--sidebar-w) + 24px);
-    }
-    #sidebar.collapsed + #main-content .prev-arrow {
       left: 24px;
     }
     .next-arrow {
@@ -1003,69 +975,15 @@
 </head>
 <body>
 
-<!-- ==================== SIDEBAR ==================== -->
-<aside id="sidebar" class="collapsed">
-  <div class="sidebar-inner">
 
-    <div class="sidebar-logo">
-      <span class="logo-icon">📚</span>
-      <span class="logo-text">8ook.</span>
-    </div>
-
-    <div class="sdivider"></div>
-
-    <!-- Stats -->
-    <div>
-      <div class="sec-title">📊 독서 통계</div>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-num" id="stat-books">0</div>
-          <div class="stat-label">완독 권수</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" id="stat-pages">0</div>
-          <div class="stat-label">총 페이지</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Monthly/Yearly Chart -->
-    <div>
-      <div class="sec-title-wrap" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-        <div class="sec-title" id="chart-title" style="margin-bottom:0;">📈 월별 독서량</div>
-        <div class="chart-toggle-btns" style="display:flex; gap:4px;">
-          <button id="chart-btn-month" class="btn btn-xs" onclick="switchChartMode('month')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--violet); color:#fff; border:none;">월별</button>
-          <button id="chart-btn-year" class="btn btn-xs" onclick="switchChartMode('year')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--glass); color:var(--text-300); border:1px solid var(--border);">연도별</button>
-        </div>
-      </div>
-      <div class="bar-chart" id="monthly-chart"></div>
-    </div>
-
-    <div class="sdivider"></div>
-
-    <!-- Calendar -->
-    <div>
-      <div class="sec-title">📅 완독 달력</div>
-      <div class="mini-cal">
-        <div class="cal-header">
-          <button class="cal-nav" id="cal-prev">‹</button>
-          <span class="cal-month-lbl" id="cal-lbl"></span>
-          <button class="cal-nav" id="cal-next">›</button>
-        </div>
-        <div class="cal-grid" id="cal-grid"></div>
-      </div>
-    </div>
-
-  </div>
-</aside>
 
 <!-- ==================== MAIN CONTENT ==================== -->
 <main id="main-content">
 
   <!-- Header -->
   <header id="app-header">
-    <button id="sidebar-toggle" title="메뉴 열기/닫기" aria-label="사이드바 토글">
-      <span id="toggle-icon">▶</span>
+    <button id="sidebar-toggle" title="통계 보기" aria-label="통계 보기">
+      <span id="toggle-icon">📊</span>
     </button>
     <button id="back-btn" onclick="showGallery()">
       <span class="btn-text">← 갤러리</span>
@@ -1092,6 +1010,54 @@
       <span class="btn-icon" style="display:none;">＋</span>
     </button>
   </header>
+
+  <!-- Stats View -->
+  <div id="view-stats">
+    <div class="stats-wrap">
+      <div class="stats-top-row" style="display:flex; gap:24px; flex-wrap:wrap;">
+        <div style="flex: 1; min-width: 280px; display:flex; flex-direction:column; gap:24px;">
+          <!-- Stats Cards -->
+          <div>
+            <div class="sec-title">📊 독서 통계</div>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-num" id="stat-books">0</div>
+                <div class="stat-label">완독 권수</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-num" id="stat-pages">0</div>
+                <div class="stat-label">총 페이지</div>
+              </div>
+            </div>
+          </div>
+          <!-- Chart -->
+          <div>
+            <div class="sec-title-wrap" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <div class="sec-title" id="chart-title" style="margin-bottom:0;">📈 월별 독서량</div>
+              <div class="chart-toggle-btns" style="display:flex; gap:4px;">
+                <button id="chart-btn-month" class="btn btn-xs" onclick="switchChartMode('month')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--violet); color:#fff; border:none;">월별</button>
+                <button id="chart-btn-year" class="btn btn-xs" onclick="switchChartMode('year')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--glass); color:var(--text-300); border:1px solid var(--border);">연도별</button>
+              </div>
+            </div>
+            <div class="bar-chart" id="monthly-chart"></div>
+          </div>
+        </div>
+        
+        <div style="flex: 1; min-width: 280px;">
+          <!-- Calendar -->
+          <div class="sec-title">📅 완독 달력</div>
+          <div class="mini-cal">
+            <div class="cal-header">
+              <button class="cal-nav" id="cal-prev">‹</button>
+              <span class="cal-month-lbl" id="cal-lbl"></span>
+              <button class="cal-nav" id="cal-next">›</button>
+            </div>
+            <div class="cal-grid" id="cal-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Gallery View -->
   <div id="view-gallery">
@@ -1690,11 +1656,24 @@ function editScrap(bookId, scrapId) {
 function showGallery() {
   document.getElementById('view-gallery').style.display = '';
   document.getElementById('view-detail').classList.remove('show');
+  document.getElementById('view-stats').classList.remove('show');
   document.getElementById('back-btn').classList.remove('show');
   document.getElementById('add-book-btn').style.display = '';
+  document.getElementById('sidebar-toggle').style.display = '';
   document.getElementById('view-label').textContent = '📚 내 서재';
   currentBookId = null;
   renderGallery();
+}
+
+function showStats() {
+  document.getElementById('view-gallery').style.display = 'none';
+  document.getElementById('view-detail').classList.remove('show');
+  document.getElementById('view-stats').classList.add('show');
+  document.getElementById('back-btn').classList.add('show');
+  document.getElementById('add-book-btn').style.display = 'none';
+  document.getElementById('sidebar-toggle').style.display = 'none';
+  document.getElementById('view-label').textContent = '📊 독서 통계';
+  updateSidebar();
 }
 
 /* ==============================================
@@ -2801,12 +2780,10 @@ document.getElementById('cal-next').addEventListener('click', () => {
 });
 
 /* ==============================================
-   SIDEBAR TOGGLE
+   SIDEBAR TOGGLE (STATS NAVIGATION)
 ============================================== */
 document.getElementById('sidebar-toggle').addEventListener('click', () => {
-  sidebarOpen = !sidebarOpen;
-  document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen);
-  document.getElementById('toggle-icon').textContent = sidebarOpen ? '☰' : '▶';
+  showStats();
 });
 
 /* ==============================================
@@ -2869,17 +2846,9 @@ function handleDetailSwipe() {
       navigateToAdjacentBook('prev');
     }
   } 
-  // Vertical swipe: Swipe down at the top to go back
-  else if (diffY > 70 && Math.abs(diffY) > Math.abs(diffX)) {
-    if (detailEl.scrollTop <= 5) {
-      showGallery();
-      toast('📚 내 서재로 이동');
-    }
-  }
-  // Vertical swipe: Swipe up at the bottom to go back
+  // Vertical swipe: Swipe up to go back
   else if (diffY < -70 && Math.abs(diffY) > Math.abs(diffX)) {
-    const isAtBottom = (detailEl.scrollHeight - detailEl.scrollTop - detailEl.clientHeight) <= 5;
-    if (isAtBottom) {
+    if (detailEl.scrollTop <= 5) {
       showGallery();
       toast('📚 내 서재로 이동');
     }
@@ -2905,8 +2874,18 @@ function navigateToAdjacentBook(direction) {
 const galleryScroll = document.getElementById('gallery-scroll');
 let pinchDist0 = null;
 
+let galleryTouchStartX = 0;
+let galleryTouchStartY = 0;
+let galleryTouchEndX = 0;
+let galleryTouchEndY = 0;
+
 galleryScroll.addEventListener('touchstart', e => {
-  if (e.touches.length === 2) pinchDist0 = pinchD(e);
+  if (e.touches.length === 2) {
+    pinchDist0 = pinchD(e);
+  } else if (e.touches.length === 1) {
+    galleryTouchStartX = e.touches[0].screenX;
+    galleryTouchStartY = e.touches[0].screenY;
+  }
 }, { passive: true });
 
 galleryScroll.addEventListener('touchmove', e => {
@@ -2919,8 +2898,64 @@ galleryScroll.addEventListener('touchmove', e => {
 }, { passive: false });
 
 galleryScroll.addEventListener('touchend', e => {
-  if (e.touches.length < 2) pinchDist0 = null;
-});
+  if (e.touches.length < 2) {
+    pinchDist0 = null;
+  }
+  if (e.changedTouches.length === 1) {
+    galleryTouchEndX = e.changedTouches[0].screenX;
+    galleryTouchEndY = e.changedTouches[0].screenY;
+    handleGallerySwipe();
+  }
+}, { passive: true });
+
+function handleGallerySwipe() {
+  const diffX = galleryTouchEndX - galleryTouchStartX;
+  const diffY = galleryTouchEndY - galleryTouchStartY;
+  
+  // Swipe down: Go to Stats page
+  if (diffY > 70 && Math.abs(diffY) > Math.abs(diffX)) {
+    if (galleryScroll.scrollTop <= 5) {
+      showStats();
+      toast('📊 통계 페이지로 이동');
+    }
+  }
+}
+
+// Stats Touch Swipe Gestures
+let statsTouchStartX = 0;
+let statsTouchStartY = 0;
+let statsTouchEndX = 0;
+let statsTouchEndY = 0;
+
+const statsEl = document.getElementById('view-stats');
+
+statsEl.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) {
+    statsTouchStartX = e.touches[0].screenX;
+    statsTouchStartY = e.touches[0].screenY;
+  }
+}, { passive: true });
+
+statsEl.addEventListener('touchend', e => {
+  if (e.changedTouches.length === 1) {
+    statsTouchEndX = e.changedTouches[0].screenX;
+    statsTouchEndY = e.changedTouches[0].screenY;
+    handleStatsSwipe();
+  }
+}, { passive: true });
+
+function handleStatsSwipe() {
+  const diffX = statsTouchEndX - statsTouchStartX;
+  const diffY = statsTouchEndY - statsTouchStartY;
+  
+  // Swipe up: Go back to Gallery
+  if (diffY < -70 && Math.abs(diffY) > Math.abs(diffX)) {
+    if (statsEl.scrollTop <= 5) {
+      showGallery();
+      toast('📚 내 서재로 이동');
+    }
+  }
+}
 
 galleryScroll.addEventListener('wheel', e => {
   if (e.ctrlKey || e.metaKey) {
