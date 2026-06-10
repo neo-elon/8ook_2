@@ -1670,7 +1670,75 @@ async function saveBook() {
         toast('✅ 책 정보가 수정되었습니다');
       }
     } else {
-  function getXmlNodeText(parent, localName) {
+      data.id = uid();
+      data.scraps = [];
+      data.created_at = new Date().toISOString();
+      if (supabaseClient) {
+        const { error } = await supabaseClient
+          .from('books')
+          .insert([data]);
+        if (error) throw error;
+      }
+      books.unshift(data);
+      toast('📚 책이 추가되었습니다');
+    }
+
+    saveData();
+    closeModal('book-modal');
+    updateSidebar();
+
+    if (currentBookId === editingBookId && editingBookId) {
+      showDetail(currentBookId);
+    } else if (currentBookId) {
+      showDetail(currentBookId);
+    } else {
+      renderGallery();
+    }
+  } catch (err) {
+    console.error(err);
+    toast('❌ 저장 실패: ' + err.message);
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = originalText;
+  }
+}
+
+async function doDeleteBook(id) {
+  if (!confirm('이 책을 삭제할까요?')) return;
+  try {
+    if (supabaseClient) {
+      const { error } = await supabaseClient
+        .from('books')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    }
+
+    books = books.filter(b => b.id !== id);
+    saveData();
+    toast('🗑️ 책이 삭제되었습니다');
+    showGallery();
+    updateSidebar();
+  } catch (err) {
+    console.error(err);
+    toast('❌ 삭제 실패: ' + err.message);
+  }
+}
+
+/* ==============================================
+   ALADIN API SEARCH
+============================================== */
+function getApiKey() {
+  return 'ttbparkq0072106001';
+}
+
+function hideSearchResults() {
+  const r = document.getElementById('aladin-results');
+  r.classList.remove('show');
+  r.innerHTML = '';
+}
+
+function getXmlNodeText(parent, localName) {
   if (!parent) return '';
   let node = parent.querySelector(localName);
   if (!node) {
