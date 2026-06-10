@@ -1085,6 +1085,8 @@
             placeholder="책 제목 입력"
             onkeydown="if(event.key==='Enter'){event.preventDefault();searchAladin();}">
           <button class="btn btn-ghost btn-sm" onclick="searchAladin()" id="search-btn">🔍 검색</button>
+          <input type="file" accept="image/*" capture="environment" id="camera-scan-file" style="display:none" onchange="handleCameraScan(this)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('camera-scan-file').click()" id="camera-scan-btn" title="바코드/표지 촬영 검색" style="display:flex; align-items:center; gap:4px; padding: 5px 8px;">📷 촬영 검색</button>
         </div>
       </div>
 
@@ -1265,6 +1267,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <!-- Tesseract.js -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<!-- ZXing Barcode Decoder -->
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.0/umd/index.min.js"></script>
 
 <script>
 'use strict';
@@ -1936,6 +1940,183 @@ function searchAladin() {
           runAladinJsonp(query, key, results);
         });
     });
+}
+
+function searchAladinByIsbn(isbn) {
+  const key = getApiKey();
+  const results = document.getElementById('aladin-results');
+  results.classList.add('show');
+  results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드로 도서 검색 중...</div>`;
+
+  const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?ttbkey=${key}&itemIdType=ISBN13&ItemId=${isbn}&output=xml&Version=20131101&Cover=Big&OptResult=subInfo`;
+  const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+  const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+
+  const processXml = (xmlText) => {
+    const parsed = parseAladinXml(xmlText);
+    if (parsed.error || !parsed.items || parsed.items.length === 0) {
+      const targetUrl10 = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?ttbkey=${key}&itemIdType=ISBN&ItemId=${isbn}&output=xml&Version=20131101&Cover=Big&OptResult=subInfo`;
+      fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl10)}`)
+        .then(res => res.text())
+        .then(xml => {
+          const parsed10 = parseAladinXml(xml);
+          if (!parsed10.error && parsed10.items && parsed10.items.length > 0) {
+            handleAladinResults(parsed10.items);
+          } else {
+            runAladinLookUpJsonp(isbn, key, results);
+          }
+        })
+        .catch(() => {
+          runAladinLookUpJsonp(isbn, key, results);
+        });
+      return;
+    }
+    handleAladinResults(parsed.items);
+  };
+
+  fetch(proxyUrl1)
+    .then(res => {
+      if (!res.ok) throw new Error('Proxy 1 failed');
+      return res.text();
+    })
+    .then(processXml)
+    .catch(() => {
+      fetch(proxyUrl2)
+        .then(res => res.json())
+        .then(data => processXml(data.contents))
+        .catch(() => {
+          runAladinLookUpJsonp(isbn, key, results);
+        });
+    });
+}
+
+function runAladinLookUpJsonp(isbn, key, results) {
+  const cbName = '_aladinCb_lookup_' + (++aladinCallbackCounter);
+  const script = document.createElement('script');
+  
+  const params = new URLSearchParams({
+    ttbkey: key,
+    itemIdType: 'ISBN13',
+    ItemId: isbn,
+    output: 'JS',
+    Version: '20131101',
+    Cover: 'Big',
+    OptResult: 'subInfo',
+    callback: cbName
+  });
+
+  script.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?${params}`;
+
+  window[cbName] = function(data) {
+    delete window[cbName];
+    script.remove();
+    if (data && data.item) {
+      handleAladinResults(data.item);
+    } else {
+      const cbName10 = '_aladinCb_lookup10_' + (++aladinCallbackCounter);
+      const script10 = document.createElement('script');
+      const params10 = new URLSearchParams({
+        ttbkey: key,
+        itemIdType: 'ISBN',
+        ItemId: isbn,
+        output: 'JS',
+        Version: '20131101',
+        Cover: 'Big',
+        OptResult: 'subInfo',
+        callback: cbName10
+      });
+      script10.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?${params10}`;
+      window[cbName10] = function(data10) {
+        delete window[cbName10];
+        script10.remove();
+        if (data10 && data10.item) {
+          handleAladinResults(data10.item);
+        } else {
+          results.innerHTML = `<div class="search-empty">❌ 바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})</div>`;
+        }
+      };
+      script10.onerror = function() {
+        delete window[cbName10];
+        script10.remove();
+        results.innerHTML = `<div class="search-empty">❌ 바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})</div>`;
+      };
+      document.body.appendChild(script10);
+    }
+  };
+
+  script.onerror = function() {
+    delete window[cbName];
+    script.remove();
+    results.innerHTML = `<div class="search-empty">❌ 검색 실패 — API 키 활성화 상태 또는 인터넷 연결을 확인해주세요.</div>`;
+  };
+
+  setTimeout(() => {
+    if (window[cbName]) {
+      delete window[cbName];
+      script.remove();
+      results.innerHTML = `<div class="search-empty">⏰ 응답 시간 초과</div>`;
+    }
+  }, 10000);
+
+  document.body.appendChild(script);
+}
+
+function handleCameraScan(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const results = document.getElementById('aladin-results');
+  results.classList.add('show');
+  results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드 인식 중...</div>`;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const imgUrl = e.target.result;
+    const img = new Image();
+    img.src = imgUrl;
+    img.onload = function () {
+      const codeReader = new ZXing.BrowserMultiFormatReader();
+      codeReader.decodeFromImageElement(img)
+        .then(result => {
+          const barcode = result.text;
+          toast(`🔍 바코드 인식 성공: ${barcode}`);
+          searchAladinByIsbn(barcode);
+        })
+        .catch(err => {
+          results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드 미인식. 표지 텍스트(OCR) 분석 중...</div>`;
+          runCoverOcr(imgUrl);
+        });
+    };
+  };
+  reader.readAsDataURL(file);
+}
+
+async function runCoverOcr(dataUrl) {
+  const results = document.getElementById('aladin-results');
+  try {
+    const worker = await Tesseract.createWorker('kor+eng');
+    const { data: { text } } = await worker.recognize(dataUrl);
+    await worker.terminate();
+
+    const lines = text.split('\n')
+      .map(line => line.trim().replace(/[^a-zA-Z0-9가-힣\s]/g, ''))
+      .filter(line => line.length > 1);
+
+    if (lines.length === 0) {
+      results.innerHTML = `<div class="search-empty">❌ 바코드 또는 도서 정보(표지 제목)를 인식하지 못했습니다. 직접 검색을 이용해주세요.</div>`;
+      return;
+    }
+
+    lines.sort((a, b) => b.length - a.length);
+    const bestQuery = lines[0];
+    
+    document.getElementById('bk-title').value = bestQuery;
+    toast(`🔍 표지 텍스트 추출 성공: "${bestQuery}"`);
+    searchAladin();
+  } catch (err) {
+    console.error(err);
+    results.innerHTML = `<div class="search-empty">❌ 바코드 또는 표지 텍스트 인식 실패. 직접 검색을 이용해주세요.</div>`;
+  }
 }
 
 function runAladinJsonp(query, key, results) {
