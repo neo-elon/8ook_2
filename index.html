@@ -1630,12 +1630,18 @@ function renderGallery() {
 
   if (!books.length) {
     empty.classList.add('show');
-    // We still show the addCard in the grid even if empty, or keep the empty layout. Let's show both!
   } else {
     empty.classList.remove('show');
   }
 
-  books.forEach((book, i) => {
+  // Sort books by completion date (date) descending. Empty dates go to the bottom.
+  const sortedBooks = [...books].sort((a, b) => {
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return new Date(b.date) - new Date(a.date);
+  });
+
+  sortedBooks.forEach((book, i) => {
     const card = document.createElement('div');
     card.className = 'book-card';
     card.style.animationDelay = ((i + 1) * 0.04) + 's';
