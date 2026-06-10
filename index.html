@@ -1032,14 +1032,14 @@
 
   <!-- Header -->
   <header id="app-header">
-    <button id="sidebar-toggle" title="통계 보기" aria-label="통계 보기">
+    <span class="header-logo" onclick="showGallery()">8ook.</span>
+    <button id="sidebar-toggle" title="통계 보기" aria-label="통계 보기" style="margin-left: 4px;">
       <span id="toggle-icon">📊</span>
     </button>
-    <button id="back-btn" onclick="showGallery()">
+    <button id="back-btn" onclick="showGallery()" style="margin-left: 4px;">
       <span class="btn-text">← 갤러리</span>
       <span class="btn-icon" style="display:none;">←</span>
     </button>
-    <span class="header-logo" onclick="showGallery()">8ook.</span>
     <div class="header-spacer"></div>
 
     <div id="auth-section" style="display:flex; align-items:center; gap:10px; margin-right:15px;">
