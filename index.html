@@ -981,7 +981,7 @@
     <!-- Monthly/Yearly Chart -->
     <div>
       <div class="sec-title-wrap" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-        <div class="sec-title" id="chart-title" style="margin-bottom:0;">📈 월별 독서량 (최근 6개월)</div>
+        <div class="sec-title" id="chart-title" style="margin-bottom:0;">📈 월별 독서량</div>
         <div class="chart-toggle-btns" style="display:flex; gap:4px;">
           <button id="chart-btn-month" class="btn btn-xs" onclick="switchChartMode('month')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--violet); color:#fff; border:none;">월별</button>
           <button id="chart-btn-year" class="btn btn-xs" onclick="switchChartMode('year')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--glass); color:var(--text-300); border:1px solid var(--border);">연도별</button>
@@ -1545,13 +1545,15 @@ function showDetail(id) {
         <div class="detail-title">${esc(book.title)}</div>
         <div class="detail-author">${esc(book.author||'저자 미상')}</div>
         <div class="meta-chips">${chips.join('')}</div>
-        <div class="detail-stars">${starsHtml(book.rating, 22)}</div>
-        ${book.sentence ? `<div class="detail-sentence">${esc(book.sentence)}</div>` : ''}
-        <div class="detail-actions">
-          <button class="btn btn-ghost" onclick="openEditModal('${book.id}')">✏️ 편집</button>
-          <button class="btn btn-primary" onclick="openScrapModal('${book.id}')">✂️ 문장 스크랩</button>
-          <button class="btn btn-danger" onclick="doDeleteBook('${book.id}')">🗑️ 삭제</button>
-        </div>
+      </div>
+    </div>
+    <div class="detail-body-sec" style="display:flex; flex-direction:column; gap:16px;">
+      <div class="detail-stars">${starsHtml(book.rating, 22)}</div>
+      ${book.sentence ? `<div class="detail-sentence">${esc(book.sentence)}</div>` : ''}
+      <div class="detail-actions">
+        <button class="btn btn-ghost" onclick="openEditModal('${book.id}')">✏️ 편집</button>
+        <button class="btn btn-primary" onclick="openScrapModal('${book.id}')">✂️ 문장 스크랩</button>
+        <button class="btn btn-danger" onclick="doDeleteBook('${book.id}')">🗑️ 삭제</button>
       </div>
     </div>
 
@@ -2397,10 +2399,11 @@ function renderChart() {
   const maxC = Math.max(...counts, 1);
 
   dataPoints.forEach((dp, i) => {
-    const pct = (counts[i] / maxC) * 100;
+    const pct = (counts[i] / maxC) * 70;
     const g = document.createElement('div');
     g.className = 'bar-group';
     g.innerHTML = `
+      <span style="font-size:9px; color:var(--text-300); font-weight:500; margin-bottom:-2px;">${counts[i]}</span>
       <div class="bar-col" style="height:${pct}%" data-tip="${dp.lbl}: ${counts[i]}권"></div>
       <div class="bar-lbl">${dp.lbl}</div>
     `;
@@ -2423,7 +2426,7 @@ function switchChartMode(mode) {
     btnYear.style.color = 'var(--text-300)';
     btnYear.style.border = '1px solid var(--border)';
     
-    title.textContent = '📈 월별 독서량 (최근 6개월)';
+    title.textContent = '📈 월별 독서량';
   } else {
     btnYear.style.background = 'var(--violet)';
     btnYear.style.color = '#fff';
@@ -2433,7 +2436,7 @@ function switchChartMode(mode) {
     btnMonth.style.color = 'var(--text-300)';
     btnMonth.style.border = '1px solid var(--border)';
     
-    title.textContent = '📈 연도별 독서량 (최근 5개년)';
+    title.textContent = '📈 연도별 독서량';
   }
   renderChart();
 }
