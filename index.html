@@ -337,14 +337,18 @@
 
     /* ── Header ── */
     #app-header {
-      height:var(--header-h);
-      background:var(--header-bg);
-      backdrop-filter:blur(12px);
-      border-bottom:1px solid var(--border);
-      display:flex; align-items:center;
-      padding:0 20px; gap:12px;
-      flex-shrink:0; z-index:5;
+      height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
+      padding: env(safe-area-inset-top, 0px) 20px 0;
+      background: var(--header-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+      z-index: 5;
       transition: background .4s, border-color .4s;
+      box-sizing: border-box;
     }
 
 
@@ -972,10 +976,11 @@
       .detail-thumb { width:100px; height:150px; }
 
       #app-header {
-        height: var(--header-h);
+        height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
         flex-direction: row;
-        padding: 0 16px;
+        padding: env(safe-area-inset-top, 0px) 16px 0;
         gap: 10px;
+        box-sizing: border-box;
       }
       #view-label {
         display: none !important;
