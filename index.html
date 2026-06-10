@@ -950,24 +950,6 @@
       </div>
     </div>
 
-    <div class="sdivider"></div>
-
-    <!-- Aladin API Key -->
-    <div class="api-section">
-      <div class="sec-title">🔑 알라딘 API</div>
-      <div class="api-row">
-        <input type="text" class="fi" id="api-key-input"
-          placeholder="TTBKey 입력" autocomplete="off">
-        <button class="btn btn-ghost btn-sm" onclick="saveApiKey()">저장</button>
-      </div>
-      <div id="api-key-status"></div>
-      <div class="api-help">
-        <a href="https://www.aladin.co.kr/ttb/apin.aspx" target="_blank" rel="noopener">
-          알라딘에서 TTBKey 발급받기 →
-        </a>
-      </div>
-    </div>
-
   </div>
 </aside>
 
@@ -1183,11 +1165,72 @@
   </div>
 </div>
 
+<!-- ==================== DATABASE SETUP MODAL ==================== -->
+<div class="modal-bg" id="db-modal" role="dialog" aria-modal="true">
+  <div class="modal-box modal-lg">
+    <div class="modal-hdr">
+      <div class="modal-ttl">⚙️ Supabase 테이블 설정 안내</div>
+      <button class="modal-x" onclick="closeModal('db-modal')" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px; margin-bottom:12px; line-height:1.6;">
+        Supabase 프로젝트에 <strong>books</strong> 테이블이 존재하지 않습니다.<br>
+        Supabase Dashboard의 <strong>SQL Editor</strong>에서 아래 쿼리를 실행하여 테이블을 생성해주세요.
+      </p>
+      <div class="fg">
+        <div class="flbl">SQL 스크립트</div>
+        <textarea class="fi" id="db-sql-code" readonly rows="8" style="font-family:monospace; font-size:12px; background:rgba(0,0,0,0.2);"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" onclick="copySqlCode()">📋 SQL 복사하기</button>
+      <button class="btn btn-ghost" onclick="closeModal('db-modal')">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <!-- Tesseract.js -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <script>
 'use strict';
+
+// Supabase Configuration
+const supabaseUrl = 'https://guaimwzlmdacerpvsxxw.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1YWltd3psbWRhY2VycHZzeHh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODM1NDIsImV4cCI6MjA5NjY1OTU0Mn0.zF8A_Ul3Y5aIPjZcVTYIj1gUkConuQ-b9eO7EjnoWUE';
+
+let supabaseClient = null;
+try {
+  if (window.supabase) {
+    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+  } else {
+    console.warn("Supabase SDK not loaded. Operating in LocalStorage-only mode.");
+  }
+} catch (e) {
+  console.error("Supabase initialization failed:", e);
+}
+
+const DB_SQL_SCRIPT = `create table books (
+  id text primary key,
+  title text not null,
+  author text,
+  pages integer default 0,
+  date text,
+  sentence text,
+  cover text,
+  rating integer default 0,
+  scraps jsonb default '[]'::jsonb,
+  created_at timestamptz default now()
+);
+
+alter table books enable row level security;
+create policy "Allow public read" on books for select using (true);
+create policy "Allow public insert" on books for insert with check (true);
+create policy "Allow public update" on books for update using (true);
+create policy "Allow public delete" on books for delete using (true);`;
+
 /* ==============================================
    STATE
 ============================================== */
@@ -1220,11 +1263,64 @@ let aladinCallbackCounter = 0;
 function saveData() {
   try { localStorage.setItem('rj_books', JSON.stringify(books)); } catch(e) {}
 }
-function loadData() {
+async function loadData() {
+  let localBooks = [];
   try {
     const d = localStorage.getItem('rj_books');
-    if (d) books = JSON.parse(d);
-  } catch(e) { books = []; }
+    if (d) localBooks = JSON.parse(d);
+  } catch(e) {}
+
+  if (!supabaseClient) {
+    books = localBooks;
+    return;
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('books')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      if (error.code === 'PGRST116' || error.message.includes('does not exist') || error.code === '42P01') {
+        showDbSetupModal();
+      }
+      throw error;
+    }
+    
+    const remoteBooks = data || [];
+    
+    // Migration: If Supabase is empty but we have local books, upload them to Supabase
+    if (remoteBooks.length === 0 && localBooks.length > 0) {
+      const { error: syncError } = await supabaseClient
+        .from('books')
+        .insert(localBooks);
+      if (!syncError) {
+        books = localBooks;
+        toast('✅ 기존 책장 데이터를 Supabase에 동기화했습니다!');
+      } else {
+        console.error('Failed to sync local books to Supabase:', syncError);
+        books = localBooks;
+      }
+    } else {
+      books = remoteBooks;
+    }
+  } catch(e) {
+    console.error('Supabase load error, using local storage backup:', e);
+    books = localBooks;
+  }
+}
+function showDbSetupModal() {
+  document.getElementById('db-sql-code').value = DB_SQL_SCRIPT;
+  openModal('db-modal');
+}
+function copySqlCode() {
+  const sql = document.getElementById('db-sql-code').value;
+  navigator.clipboard.writeText(sql).then(() => {
+    toast('📋 SQL 쿼리가 클립보드에 복사되었습니다');
+  }).catch(err => {
+    toast('❌ 복사 실패. 직접 드래그하여 복사해주세요.');
+  });
 }
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
@@ -1520,7 +1616,7 @@ function updateStarBtns(n) {
   });
 }
 
-function saveBook() {
+async function saveBook() {
   const title = document.getElementById('bk-title').value.trim();
   if (!title) { toast('❌ 제목을 입력해주세요'); return; }
 
@@ -1534,69 +1630,87 @@ function saveBook() {
     rating:   currentRating,
   };
 
-  if (editingBookId) {
-    const idx = books.findIndex(b => b.id === editingBookId);
-    if (idx !== -1) books[idx] = { ...books[idx], ...data };
-    toast('✅ 책 정보가 수정되었습니다');
-  } else {
-    data.id = uid();
-    data.scraps = [];
-    books.unshift(data);
-    toast('📚 책이 추가되었습니다');
-  }
+  const saveBtn = document.getElementById('book-save-btn');
+  const originalText = saveBtn.textContent;
+  saveBtn.disabled = true;
+  saveBtn.textContent = '저장 중...';
 
-  saveData();
-  closeModal('book-modal');
-  updateSidebar();
+  try {
+    if (editingBookId) {
+      const idx = books.findIndex(b => b.id === editingBookId);
+      if (idx !== -1) {
+        const updatedBook = { ...books[idx], ...data };
+        if (supabaseClient) {
+          const { error } = await supabaseClient
+            .from('books')
+            .update(updatedBook)
+            .eq('id', editingBookId);
+          if (error) throw error;
+        }
+        books[idx] = updatedBook;
+        toast('✅ 책 정보가 수정되었습니다');
+      }
+    } else {
+      data.id = uid();
+      data.scraps = [];
+      data.created_at = new Date().toISOString();
+      if (supabaseClient) {
+        const { error } = await supabaseClient
+          .from('books')
+          .insert([data]);
+        if (error) throw error;
+      }
+      books.unshift(data);
+      toast('📚 책이 추가되었습니다');
+    }
 
-  if (currentBookId === editingBookId && editingBookId) {
-    showDetail(currentBookId);
-  } else if (currentBookId) {
-    showDetail(currentBookId);
-  } else {
-    renderGallery();
+    saveData();
+    closeModal('book-modal');
+    updateSidebar();
+
+    if (currentBookId === editingBookId && editingBookId) {
+      showDetail(currentBookId);
+    } else if (currentBookId) {
+      showDetail(currentBookId);
+    } else {
+      renderGallery();
+    }
+  } catch (err) {
+    console.error(err);
+    toast('❌ 저장 실패: ' + err.message);
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = originalText;
   }
 }
 
-function doDeleteBook(id) {
+async function doDeleteBook(id) {
   if (!confirm('이 책을 삭제할까요?')) return;
-  books = books.filter(b => b.id !== id);
-  saveData();
-  toast('🗑️ 책이 삭제되었습니다');
-  showGallery();
-  updateSidebar();
+  try {
+    if (supabaseClient) {
+      const { error } = await supabaseClient
+        .from('books')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    }
+
+    books = books.filter(b => b.id !== id);
+    saveData();
+    toast('🗑️ 책이 삭제되었습니다');
+    showGallery();
+    updateSidebar();
+  } catch (err) {
+    console.error(err);
+    toast('❌ 삭제 실패: ' + err.message);
+  }
 }
 
 /* ==============================================
    ALADIN API SEARCH
 ============================================== */
 function getApiKey() {
-  return localStorage.getItem('rj_aladin_key') || '';
-}
-
-function saveApiKey() {
-  const key = document.getElementById('api-key-input').value.trim();
-  if (!key) {
-    localStorage.removeItem('rj_aladin_key');
-    toast('🔑 API 키가 삭제되었습니다');
-  } else {
-    localStorage.setItem('rj_aladin_key', key);
-    toast('✅ API 키가 저장되었습니다');
-  }
-  updateApiStatus();
-}
-
-function updateApiStatus() {
-  const key = getApiKey();
-  const el = document.getElementById('api-key-status');
-  const inp = document.getElementById('api-key-input');
-  if (key) {
-    el.innerHTML = `<span class="api-status ok">✅ 키 등록됨</span>`;
-    inp.value = key;
-  } else {
-    el.innerHTML = `<span class="api-status none">⚠️ 키 미등록 — 검색 불가</span>`;
-    inp.value = '';
-  }
+  return 'ttbparkq0072106001';
 }
 
 function hideSearchResults() {
@@ -1647,15 +1761,43 @@ function searchAladin() {
   script.onerror = function() {
     delete window[cbName];
     script.remove();
-    results.innerHTML = `<div class="search-empty">❌ 검색 실패 — API 키를 확인해주세요</div>`;
+    
+    // Fallback to HTTP (often works on file:// protocol when Aladin SSL has issues)
+    const httpCbName = '_aladinCb_http_' + aladinCallbackCounter;
+    const httpScript = document.createElement('script');
+    params.set('callback', httpCbName);
+    httpScript.src = `http://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${params}`;
+    
+    window[httpCbName] = function(data) {
+      delete window[httpCbName];
+      httpScript.remove();
+      handleAladinResults(data);
+    };
+    
+    httpScript.onerror = function() {
+      delete window[httpCbName];
+      httpScript.remove();
+      results.innerHTML = `<div class="search-empty">❌ 검색 실패 — API 키 또는 네트워크 상태를 확인해주세요</div>`;
+    };
+    
+    // Timeout for HTTP fallback
+    setTimeout(() => {
+      if (window[httpCbName]) {
+        delete window[httpCbName];
+        httpScript.remove();
+        results.innerHTML = `<div class="search-empty">⏰ 응답 시간 초과 (HTTP)</div>`;
+      }
+    }, 10000);
+    
+    document.body.appendChild(httpScript);
   };
 
-  // Timeout
+  // Timeout for HTTPS
   setTimeout(() => {
     if (window[cbName]) {
       delete window[cbName];
       script.remove();
-      results.innerHTML = `<div class="search-empty">⏰ 응답 시간 초과</div>`;
+      results.innerHTML = `<div class="search-empty">⏰ 응답 시간 초과 (HTTPS)</div>`;
     }
   }, 10000);
 
@@ -1750,7 +1892,7 @@ function switchTab(tab) {
   });
 }
 
-function saveScrap() {
+async function saveScrap() {
   const book = books.find(b => b.id === currentScrapBookId);
   if (!book) return;
 
@@ -1768,20 +1910,50 @@ function saveScrap() {
   if (!text) { toast('❌ 문장을 입력해주세요'); return; }
 
   if (!book.scraps) book.scraps = [];
-  book.scraps.push({ id: uid(), text, page, memo, at: new Date().toISOString() });
-  saveData();
-  closeScrapModal();
-  toast('✂️ 문장이 스크랩되었습니다');
-  if (currentBookId === currentScrapBookId) showDetail(currentBookId);
+  const updatedScraps = [...book.scraps, { id: uid(), text, page, memo, at: new Date().toISOString() }];
+
+  try {
+    if (supabaseClient) {
+      const { error } = await supabaseClient
+        .from('books')
+        .update({ scraps: updatedScraps })
+        .eq('id', currentScrapBookId);
+      if (error) throw error;
+    }
+
+    book.scraps = updatedScraps;
+    saveData();
+    closeScrapModal();
+    toast('✂️ 문장이 스크랩되었습니다');
+    if (currentBookId === currentScrapBookId) showDetail(currentBookId);
+  } catch (err) {
+    console.error(err);
+    toast('❌ 스크랩 저장 실패: ' + err.message);
+  }
 }
 
-function doDeleteScrap(bookId, scrapId) {
+async function doDeleteScrap(bookId, scrapId) {
   const book = books.find(b => b.id === bookId);
   if (!book) return;
-  book.scraps = (book.scraps||[]).filter(s => s.id !== scrapId);
-  saveData();
-  toast('🗑️ 스크랩이 삭제되었습니다');
-  showDetail(bookId);
+  const updatedScraps = (book.scraps||[]).filter(s => s.id !== scrapId);
+
+  try {
+    if (supabaseClient) {
+      const { error } = await supabaseClient
+        .from('books')
+        .update({ scraps: updatedScraps })
+        .eq('id', bookId);
+      if (error) throw error;
+    }
+
+    book.scraps = updatedScraps;
+    saveData();
+    toast('🗑️ 스크랩이 삭제되었습니다');
+    showDetail(bookId);
+  } catch (err) {
+    console.error(err);
+    toast('❌ 스크랩 삭제 실패: ' + err.message);
+  }
 }
 
 /* ==============================================
@@ -2118,76 +2290,80 @@ document.addEventListener('keydown', e => {
    INIT
 ============================================== */
 loadTheme();
-loadData();
-renderGallery();
-updateSidebar();
-updateApiStatus();
-
-/* ==============================================
-   DEMO DATA (first run)
-============================================== */
-if (books.length === 0) {
-  const demo = [
-    {
-      id: uid(), scraps: [],
-      title: '채식주의자', author: '한강',
-      pages: 247,
-      date: new Date(new Date().setDate(new Date().getDate()-10)).toISOString().slice(0,10),
-      cover: 'https://image.aladin.co.kr/product/15/12/cover500/8936434594_1.jpg',
-      rating: 5,
-      sentence: '폭력에 저항하는 방식으로 선택한 침묵과 채식, 그 고요한 절규.'
-    },
-    {
-      id: uid(), scraps: [],
-      title: '82년생 김지영', author: '조남주',
-      pages: 190,
-      date: new Date(new Date().setDate(new Date().getDate()-30)).toISOString().slice(0,10),
-      cover: 'https://image.aladin.co.kr/product/10/24/cover500/8936473395_1.jpg',
-      rating: 4,
-      sentence: '평범한 한 여성의 삶을 통해 드러나는 사회 구조의 민낯.'
-    },
-    {
-      id: uid(), scraps: [],
-      title: '아몬드', author: '손원평',
-      pages: 264,
-      date: new Date(new Date().setDate(new Date().getDate()-5)).toISOString().slice(0,10),
-      cover: 'https://image.aladin.co.kr/product/16/96/cover500/8936488635_1.jpg',
-      rating: 5,
-      sentence: '감정을 모르는 소년이 가르쳐준 진짜 공감의 의미.'
-    },
-    {
-      id: uid(), scraps: [],
-      title: '달러구트 꿈 백화점', author: '이미예',
-      pages: 316,
-      date: new Date(new Date().setDate(new Date().getDate()-60)).toISOString().slice(0,10),
-      cover: 'https://image.aladin.co.kr/product/24/34/cover500/8954673422_1.jpg',
-      rating: 4,
-      sentence: '꿈을 파는 백화점에서 발견한 위로와 희망의 이야기.'
-    },
-    {
-      id: uid(), scraps: [],
-      title: '소년이 온다', author: '한강',
-      pages: 216,
-      date: new Date(new Date().setDate(new Date().getDate()-20)).toISOString().slice(0,10),
-      cover: 'https://image.aladin.co.kr/product/4/35/cover500/8936434497_1.jpg',
-      rating: 5,
-      sentence: '5.18을 통해 인간의 존엄과 폭력의 본질을 묻다.'
-    },
-    {
-      id: uid(), scraps: [],
-      title: '해리포터와 마법사의 돌', author: 'J.K. 롤링',
-      pages: 424,
-      date: new Date(new Date().setDate(new Date().getDate()-90)).toISOString().slice(0,10),
-      cover: 'https://image.aladin.co.kr/product/2/91/cover500/8983920769_1.jpg',
-      rating: 5,
-      sentence: '상상력이 현실이 되는 마법같은 세계로의 첫 여행.'
-    },
-  ];
-  books = demo;
-  saveData();
+(async () => {
+  await loadData();
+  
+  if (books.length === 0) {
+    const demo = [
+      {
+        id: uid(), scraps: [],
+        title: '채식주의자', author: '한강',
+        pages: 247,
+        date: new Date(new Date().setDate(new Date().getDate()-10)).toISOString().slice(0,10),
+        cover: 'https://image.aladin.co.kr/product/15/12/cover500/8936434594_1.jpg',
+        rating: 5,
+        sentence: '폭력에 저항하는 방식으로 선택한 침묵과 채식, 그 고요한 절규.'
+      },
+      {
+        id: uid(), scraps: [],
+        title: '82년생 김지영', author: '조남주',
+        pages: 190,
+        date: new Date(new Date().setDate(new Date().getDate()-30)).toISOString().slice(0,10),
+        cover: 'https://image.aladin.co.kr/product/10/24/cover500/8936473395_1.jpg',
+        rating: 4,
+        sentence: '평범한 한 여성의 삶을 통해 드러나는 사회 구조의 민낯.'
+      },
+      {
+        id: uid(), scraps: [],
+        title: '아몬드', author: '손원평',
+        pages: 264,
+        date: new Date(new Date().setDate(new Date().getDate()-5)).toISOString().slice(0,10),
+        cover: 'https://image.aladin.co.kr/product/16/96/cover500/8936488635_1.jpg',
+        rating: 5,
+        sentence: '감정을 모르는 소년이 가르쳐준 진짜 공감의 의미.'
+      },
+      {
+        id: uid(), scraps: [],
+        title: '달러구트 꿈 백화점', author: '이미예',
+        pages: 316,
+        date: new Date(new Date().setDate(new Date().getDate()-60)).toISOString().slice(0,10),
+        cover: 'https://image.aladin.co.kr/product/24/34/cover500/8954673422_1.jpg',
+        rating: 4,
+        sentence: '꿈을 파는 백화점에서 발견한 위로와 희망의 이야기.'
+      },
+      {
+        id: uid(), scraps: [],
+        title: '소년이 온다', author: '한강',
+        pages: 216,
+        date: new Date(new Date().setDate(new Date().getDate()-20)).toISOString().slice(0,10),
+        cover: 'https://image.aladin.co.kr/product/4/35/cover500/8936434497_1.jpg',
+        rating: 5,
+        sentence: '5.18을 통해 인간의 존엄과 폭력의 본질을 묻다.'
+      },
+      {
+        id: uid(), scraps: [],
+        title: '해리포터와 마법사의 돌', author: 'J.K. 롤링',
+        pages: 424,
+        date: new Date(new Date().setDate(new Date().getDate()-90)).toISOString().slice(0,10),
+        cover: 'https://image.aladin.co.kr/product/2/91/cover500/8983920769_1.jpg',
+        rating: 5,
+        sentence: '상상력이 현실이 되는 마법같은 세계로의 첫 여행.'
+      },
+    ];
+    books = demo;
+    saveData();
+    if (supabaseClient) {
+      try {
+        await supabaseClient.from('books').insert(demo);
+      } catch(e) {
+        console.error(e);
+      }
+    }
+  }
+  
   renderGallery();
   updateSidebar();
-}
+})();
 </script>
 </body>
 </html>
