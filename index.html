@@ -3070,16 +3070,11 @@ function handleDetailSwipe() {
       navigateToAdjacentBook('prev');
     }
   } 
-  // Vertical swipe: Swipe up to go back to gallery, Swipe down to go to stats
+  // Vertical swipe: Swipe up or down to go back to gallery
   else if (Math.abs(diffY) > 70 && Math.abs(diffY) > Math.abs(diffX)) {
     if (detailEl.scrollTop <= 5) {
-      if (diffY < 0) {
-        showGallery();
-        toast('📚 내 서재로 이동');
-      } else {
-        showStats();
-        toast('📊 통계 페이지로 이동');
-      }
+      showGallery();
+      toast('📚 내 서재로 이동');
     }
   }
 }
