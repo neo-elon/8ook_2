@@ -912,7 +912,7 @@
 <body>
 
 <!-- ==================== SIDEBAR ==================== -->
-<aside id="sidebar">
+<aside id="sidebar" class="collapsed">
   <div class="sidebar-inner">
 
     <div class="sidebar-logo">
@@ -967,7 +967,7 @@
   <!-- Header -->
   <header id="app-header">
     <button id="sidebar-toggle" title="메뉴 열기/닫기" aria-label="사이드바 토글">
-      <span id="toggle-icon">☰</span>
+      <span id="toggle-icon">▶</span>
     </button>
     <span class="header-logo">8ook.</span>
     <div class="header-spacer"></div>
@@ -1261,7 +1261,7 @@ let currentScrapTab = 'manual';
 let calDate = new Date();
 let gridMin = 170;
 let zoomTimer = null;
-let sidebarOpen = true;
+let sidebarOpen = false;
 let isDarkTheme = true;
 
 // OCR state
