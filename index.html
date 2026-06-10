@@ -2719,10 +2719,8 @@ function renderCal() {
       el.title = dayMap[d].map(b => b.title).join(', ');
       const booksOnDay = dayMap[d];
       el.addEventListener('click', () => {
-        if (booksOnDay.length === 1) {
+        if (booksOnDay.length >= 1) {
           showDetail(booksOnDay[0].id);
-        } else {
-          toast(`📚 ${booksOnDay.map(b => b.title).join(' / ')}`);
         }
       });
     }
@@ -2751,6 +2749,78 @@ document.getElementById('sidebar-toggle').addEventListener('click', () => {
   document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen);
   document.getElementById('toggle-icon').textContent = sidebarOpen ? '☰' : '▶';
 });
+
+/* ==============================================
+   SWIPE NAVIGATION (DETAIL VIEW)
+============================================== */
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+let isMouseDown = false;
+let mouseStartX = 0;
+let mouseStartY = 0;
+
+const detailEl = document.getElementById('view-detail');
+
+detailEl.addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+}, { passive: true });
+
+detailEl.addEventListener('touchend', e => {
+  touchEndX = e.changedTouches[0].screenX;
+  touchEndY = e.changedTouches[0].screenY;
+  handleDetailSwipe();
+}, { passive: true });
+
+detailEl.addEventListener('mousedown', e => {
+  if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.closest('.scrap-item') || e.target.closest('.modal-box')) {
+    return;
+  }
+  isMouseDown = true;
+  mouseStartX = e.clientX;
+  mouseStartY = e.clientY;
+});
+
+detailEl.addEventListener('mouseup', e => {
+  if (!isMouseDown) return;
+  isMouseDown = false;
+  const diffX = e.clientX - mouseStartX;
+  const diffY = e.clientY - mouseStartY;
+  if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
+    if (diffX < 0) {
+      navigateToAdjacentBook('next');
+    } else {
+      navigateToAdjacentBook('prev');
+    }
+  }
+});
+
+function handleDetailSwipe() {
+  const diffX = touchEndX - touchStartX;
+  const diffY = touchEndY - touchStartY;
+  if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
+    if (diffX < 0) {
+      navigateToAdjacentBook('next');
+    } else {
+      navigateToAdjacentBook('prev');
+    }
+  }
+}
+
+function navigateToAdjacentBook(direction) {
+  if (!currentBookId || books.length <= 1) return;
+  const idx = books.findIndex(b => b.id === currentBookId);
+  if (idx === -1) return;
+  if (direction === 'next' && idx < books.length - 1) {
+    showDetail(books[idx + 1].id);
+    toast('👉 다음 도서');
+  } else if (direction === 'prev' && idx > 0) {
+    showDetail(books[idx - 1].id);
+    toast('👈 이전 도서');
+  }
+}
 
 /* ==============================================
    PINCH / WHEEL ZOOM
