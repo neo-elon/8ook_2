@@ -1540,7 +1540,6 @@ function showDetail(id) {
   if (book.pages) chips.push(`<div class="chip"><span class="chip-icon">📄</span>${Number(book.pages).toLocaleString()}p</div>`);
   if (book.date)  chips.push(`<div class="chip"><span class="chip-icon">📅</span>${fmtDate(book.date)}</div>`);
   const scrapCount = (book.scraps||[]).length;
-  chips.push(`<div class="chip"><span class="chip-icon">✂️</span>${scrapCount}개 스크랩</div>`);
 
   const scrapsHtml = buildScrapsHtml(book);
 
