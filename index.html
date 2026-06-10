@@ -1274,6 +1274,7 @@ let ocrWorker = null;
 // Aladin
 let aladinSearchTimer = null;
 let aladinCallbackCounter = 0;
+let aladinSearchResults = [];
 
 /* ==============================================
    STORAGE
@@ -1669,72 +1670,19 @@ async function saveBook() {
         toast('✅ 책 정보가 수정되었습니다');
       }
     } else {
-      data.id = uid();
-      data.scraps = [];
-      data.created_at = new Date().toISOString();
-      if (supabaseClient) {
-        const { error } = await supabaseClient
-          .from('books')
-          .insert([data]);
-        if (error) throw error;
+  function getXmlNodeText(parent, localName) {
+  if (!parent) return '';
+  let node = parent.querySelector(localName);
+  if (!node) {
+    const all = parent.getElementsByTagName('*');
+    for (let i = 0; i < all.length; i++) {
+      if (all[i].localName && all[i].localName.toLowerCase() === localName.toLowerCase()) {
+        node = all[i];
+        break;
       }
-      books.unshift(data);
-      toast('📚 책이 추가되었습니다');
     }
-
-    saveData();
-    closeModal('book-modal');
-    updateSidebar();
-
-    if (currentBookId === editingBookId && editingBookId) {
-      showDetail(currentBookId);
-    } else if (currentBookId) {
-      showDetail(currentBookId);
-    } else {
-      renderGallery();
-    }
-  } catch (err) {
-    console.error(err);
-    toast('❌ 저장 실패: ' + err.message);
-  } finally {
-    saveBtn.disabled = false;
-    saveBtn.textContent = originalText;
   }
-}
-
-async function doDeleteBook(id) {
-  if (!confirm('이 책을 삭제할까요?')) return;
-  try {
-    if (supabaseClient) {
-      const { error } = await supabaseClient
-        .from('books')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-    }
-
-    books = books.filter(b => b.id !== id);
-    saveData();
-    toast('🗑️ 책이 삭제되었습니다');
-    showGallery();
-    updateSidebar();
-  } catch (err) {
-    console.error(err);
-    toast('❌ 삭제 실패: ' + err.message);
-  }
-}
-
-/* ==============================================
-   ALADIN API SEARCH
-============================================== */
-function getApiKey() {
-  return 'ttbparkq0072106001';
-}
-
-function hideSearchResults() {
-  const r = document.getElementById('aladin-results');
-  r.classList.remove('show');
-  r.innerHTML = '';
+  return node ? node.textContent : '';
 }
 
 function parseAladinXml(xmlText) {
@@ -1755,22 +1703,15 @@ function parseAladinXml(xmlText) {
 
   const items = xmlDoc.querySelectorAll('item');
   const itemArray = Array.from(items).map(item => {
-    let title = item.querySelector('title')?.textContent || '';
-    let author = item.querySelector('author')?.textContent || '';
-    let cover = item.querySelector('cover')?.textContent || '';
-    let publisher = item.querySelector('publisher')?.textContent || '';
-    let pubDate = item.querySelector('pubDate')?.textContent || '';
-    let itemId = item.querySelector('itemId')?.textContent || item.querySelector('itemid')?.textContent || '';
-    let isbn = item.querySelector('isbn')?.textContent || '';
-    let isbn13 = item.querySelector('isbn13')?.textContent || '';
-    let pages = '';
-    
-    let pageNode = item.getElementsByTagName('itemPage')[0] || 
-                   item.getElementsByTagName('itempage')[0] || 
-                   item.getElementsByTagName('ItemPage')[0];
-    if (pageNode) {
-      pages = pageNode.textContent;
-    }
+    let title = getXmlNodeText(item, 'title');
+    let author = getXmlNodeText(item, 'author');
+    let cover = getXmlNodeText(item, 'cover');
+    let publisher = getXmlNodeText(item, 'publisher');
+    let pubDate = getXmlNodeText(item, 'pubDate');
+    let itemId = getXmlNodeText(item, 'itemId') || getXmlNodeText(item, 'itemid');
+    let isbn = getXmlNodeText(item, 'isbn');
+    let isbn13 = getXmlNodeText(item, 'isbn13');
+    let pages = getXmlNodeText(item, 'itemPage') || getXmlNodeText(item, 'itempage') || getXmlNodeText(item, 'ItemPage');
     
     // Extract only digits for pages
     pages = pages ? pages.replace(/[^0-9]/g, '') : '';
@@ -1913,32 +1854,23 @@ function handleAladinResults(data) {
     });
   }
 
+  aladinSearchResults = items;
+
   if (items.length === 0) {
     results.innerHTML = `<div class="search-empty">검색 결과가 없습니다</div>`;
     return;
   }
 
   let html = '';
-  items.forEach(item => {
+  items.forEach((item, index) => {
     const cover = item.cover || '';
     const title = item.title || '';
     const author = item.author || '';
     const publisher = item.publisher || '';
     const pages = item.pages || '';
     const pubDate = item.pubDate || '';
-    const itemId = item.itemId || '';
-    const isbn = item.isbn || '';
-    const isbn13 = item.isbn13 || '';
 
-    html += `<div class="search-item" onclick='applyAladinItem(${JSON.stringify({
-      title: title.replace(/'/g,"&#39;"),
-      author: author.replace(/'/g,"&#39;"),
-      cover: cover.replace(/'/g,"&#39;"),
-      pages: pages,
-      itemId: itemId,
-      isbn: isbn,
-      isbn13: isbn13
-    }).replace(/'/g,"&#39;")})'>
+    html += `<div class="search-item" onclick="applyAladinItemByIndex(${index})">
       <img src="${esc(cover)}" alt=""
         onerror="this.style.background='var(--bg-card)';this.style.opacity='.3'">
       <div class="search-item-info">
@@ -1950,6 +1882,13 @@ function handleAladinResults(data) {
   });
 
   results.innerHTML = html;
+}
+
+function applyAladinItemByIndex(index) {
+  const item = aladinSearchResults[index];
+  if (item) {
+    applyAladinItem(item);
+  }
 }
 
 function applyAladinItem(item) {
@@ -1984,7 +1923,17 @@ function applyAladinItem(item) {
 
 function fetchDetailedPages(itemId) {
   const key = getApiKey();
-  const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?ttbkey=${key}&itemIdType=ItemId&ItemId=${itemId}&output=xml&Version=20131101&OptResult=subInfo`;
+  
+  // Dynamically determine itemIdType (ISBN13, ISBN, or ItemId)
+  let itemIdType = 'ItemId';
+  const cleanId = String(itemId).trim();
+  if (cleanId.length === 13 && (cleanId.startsWith('978') || cleanId.startsWith('979'))) {
+    itemIdType = 'ISBN13';
+  } else if (cleanId.length === 10) {
+    itemIdType = 'ISBN';
+  }
+
+  const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?ttbkey=${key}&itemIdType=${itemIdType}&ItemId=${cleanId}&output=xml&Version=20131101&OptResult=subInfo`;
   
   const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
   const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
@@ -2026,8 +1975,8 @@ function fetchDetailedPages(itemId) {
           const script = document.createElement('script');
           const params = new URLSearchParams({
             ttbkey: key,
-            itemIdType: 'ItemId',
-            ItemId: itemId,
+            itemIdType: itemIdType,
+            ItemId: cleanId,
             output: 'JS',
             Version: '20131101',
             OptResult: 'subInfo',
@@ -2053,6 +2002,7 @@ function fetchDetailedPages(itemId) {
         });
     });
 }
+
 
 /* ==============================================
    SCRAP MODAL
