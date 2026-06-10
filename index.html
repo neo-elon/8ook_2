@@ -948,9 +948,9 @@
       .detail-thumb { width:100px; height:150px; }
 
       #app-header {
-        height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
+        height: calc(var(--header-h) + 20px + env(safe-area-inset-top, 0px));
         flex-direction: row;
-        padding: env(safe-area-inset-top, 0px) 16px 0;
+        padding: calc(20px + env(safe-area-inset-top, 0px)) 16px 0;
         gap: 10px;
         box-sizing: border-box;
       }
