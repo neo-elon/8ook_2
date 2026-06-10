@@ -2639,7 +2639,7 @@ function renderChart() {
   const dataPoints = [];
 
   if (chartMode === 'month') {
-    for (let i = 5; i >= 0; i--) {
+    for (let i = 11; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       dataPoints.push({ 
         lbl: (d.getMonth() + 1) + '월',
