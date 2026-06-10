@@ -977,9 +977,15 @@
       </div>
     </div>
 
-    <!-- Monthly Chart -->
+    <!-- Monthly/Yearly Chart -->
     <div>
-      <div class="sec-title">📈 월별 독서량 (최근 6개월)</div>
+      <div class="sec-title-wrap" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+        <div class="sec-title" id="chart-title" style="margin-bottom:0;">📈 월별 독서량 (최근 6개월)</div>
+        <div class="chart-toggle-btns" style="display:flex; gap:4px;">
+          <button id="chart-btn-month" class="btn btn-xs" onclick="switchChartMode('month')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--violet); color:#fff; border:none;">월별</button>
+          <button id="chart-btn-year" class="btn btn-xs" onclick="switchChartMode('year')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--glass); color:var(--text-300); border:1px solid var(--border);">연도별</button>
+        </div>
+      </div>
       <div class="bar-chart" id="monthly-chart"></div>
     </div>
 
@@ -1309,6 +1315,7 @@ let gridMin = window.innerWidth <= 640 ? 90 : 170;
 let zoomTimer = null;
 let sidebarOpen = false;
 let isDarkTheme = true;
+let chartMode = 'month';
 
 // OCR state
 let ocrImg = null;
@@ -2358,32 +2365,76 @@ function renderChart() {
   chart.innerHTML = '';
 
   const now = new Date();
-  const months = [];
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push({ y: d.getFullYear(), m: d.getMonth(), lbl: (d.getMonth()+1)+'월' });
+  const dataPoints = [];
+
+  if (chartMode === 'month') {
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      dataPoints.push({ 
+        lbl: (d.getMonth() + 1) + '월',
+        match: (bDate) => bDate.getFullYear() === d.getFullYear() && bDate.getMonth() === d.getMonth()
+      });
+    }
+  } else {
+    for (let i = 4; i >= 0; i--) {
+      const yearVal = now.getFullYear() - i;
+      dataPoints.push({
+        lbl: yearVal + '년',
+        match: (bDate) => bDate.getFullYear() === yearVal
+      });
+    }
   }
 
-  const counts = months.map(mo =>
+  const counts = dataPoints.map(dp =>
     books.filter(b => {
       if (!b.date) return false;
       const d = new Date(b.date);
-      return d.getFullYear() === mo.y && d.getMonth() === mo.m;
+      return dp.match(d);
     }).length
   );
 
   const maxC = Math.max(...counts, 1);
 
-  months.forEach((mo, i) => {
+  dataPoints.forEach((dp, i) => {
     const pct = (counts[i] / maxC) * 100;
     const g = document.createElement('div');
     g.className = 'bar-group';
     g.innerHTML = `
-      <div class="bar-col" style="height:${pct}%" data-tip="${mo.lbl}: ${counts[i]}권"></div>
-      <div class="bar-lbl">${mo.lbl}</div>
+      <div class="bar-col" style="height:${pct}%" data-tip="${dp.lbl}: ${counts[i]}권"></div>
+      <div class="bar-lbl">${dp.lbl}</div>
     `;
     chart.appendChild(g);
   });
+}
+
+function switchChartMode(mode) {
+  chartMode = mode;
+  const btnMonth = document.getElementById('chart-btn-month');
+  const btnYear = document.getElementById('chart-btn-year');
+  const title = document.getElementById('chart-title');
+  
+  if (mode === 'month') {
+    btnMonth.style.background = 'var(--violet)';
+    btnMonth.style.color = '#fff';
+    btnMonth.style.border = 'none';
+    
+    btnYear.style.background = 'var(--glass)';
+    btnYear.style.color = 'var(--text-300)';
+    btnYear.style.border = '1px solid var(--border)';
+    
+    title.textContent = '📈 월별 독서량 (최근 6개월)';
+  } else {
+    btnYear.style.background = 'var(--violet)';
+    btnYear.style.color = '#fff';
+    btnYear.style.border = 'none';
+    
+    btnMonth.style.background = 'var(--glass)';
+    btnMonth.style.color = 'var(--text-300)';
+    btnMonth.style.border = '1px solid var(--border)';
+    
+    title.textContent = '📈 연도별 독서량 (최근 5개년)';
+  }
+  renderChart();
 }
 
 /* ==============================================
