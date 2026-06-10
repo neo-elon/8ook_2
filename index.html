@@ -2451,10 +2451,15 @@ async function loginWithGoogle() {
     return;
   }
 
+  let redirectUrl = window.location.origin + window.location.pathname;
+  if (!redirectUrl.endsWith('/') && !redirectUrl.endsWith('.html')) {
+    redirectUrl += '/';
+  }
+
   const { error } = await supabaseClient.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: window.location.origin + window.location.pathname
+      redirectTo: redirectUrl
     }
   });
   if (error) { console.error(error); toast('❌ 로그인 실패'); }
