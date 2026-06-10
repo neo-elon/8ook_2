@@ -182,7 +182,7 @@
 
     /* ── Stats ── */
     .stats-grid {
-      display:grid; grid-template-columns:1fr 1fr; gap:8px;
+      display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;
     }
     .stat-card {
       background:var(--glass);
@@ -1052,6 +1052,10 @@
               <div class="stat-card">
                 <div class="stat-num" id="stat-pages">0</div>
                 <div class="stat-label">총 페이지</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-num" id="stat-scraps">0</div>
+                <div class="stat-label">총 스크랩</div>
               </div>
             </div>
           </div>
@@ -2666,10 +2670,13 @@ function updateSidebar() {
 
   const total = filteredBooks.length;
   const pages = filteredBooks.reduce((s, b) => s + (b.pages||0), 0);
+  const scraps = filteredBooks.reduce((s, b) => s + ((b.scraps||[]).length), 0);
   
   document.getElementById('stat-books').textContent = total;
   document.getElementById('stat-pages').textContent =
     pages >= 10000 ? (pages/1000).toFixed(1)+'k' : pages.toLocaleString();
+  document.getElementById('stat-scraps').textContent =
+    scraps >= 10000 ? (scraps/1000).toFixed(1)+'k' : scraps.toLocaleString();
 
   renderChart();
   renderCal();
