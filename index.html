@@ -1159,7 +1159,7 @@
 <div class="modal-bg" id="scrap-modal" role="dialog" aria-modal="true">
   <div class="modal-box modal-lg">
     <div class="modal-hdr">
-      <div class="modal-ttl">✂️ 문장 스크랩</div>
+      <div class="modal-ttl" id="scrap-modal-title">✂️ 문장 스크랩</div>
       <button class="modal-x" onclick="closeScrapModal()" aria-label="닫기">×</button>
     </div>
     <div class="modal-body">
@@ -1232,7 +1232,7 @@
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeScrapModal()">취소</button>
-      <button class="btn btn-primary" onclick="saveScrap()">✂️ 스크랩 추가</button>
+      <button class="btn btn-primary" id="scrap-save-btn" onclick="saveScrap()">✂️ 스크랩 추가</button>
     </div>
   </div>
 </div>
@@ -1318,6 +1318,7 @@ let zoomTimer = null;
 let sidebarOpen = false;
 let isDarkTheme = true;
 let chartMode = 'month';
+let editingScrapId = null;
 
 // OCR state
 let ocrImg = null;
@@ -1559,8 +1560,11 @@ function showDetail(id) {
     </div>
 
     <div class="scraps-sec">
-      <div class="scraps-hdr">
-        <div class="scraps-htitle">📌 스크랩 문장</div>
+      <div class="scraps-hdr" style="display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="scraps-htitle">📌 스크랩 문장</div>
+          <button class="btn btn-ghost btn-sm" onclick="openScrapModal('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:12px; height:22px; line-height:1;">+ 추가</button>
+        </div>
         <div class="scraps-badge" id="scrap-badge">${scrapCount} / 100</div>
       </div>
       <div class="scrap-list" id="scrap-list">${scrapsHtml}</div>
@@ -1580,16 +1584,44 @@ function showDetail(id) {
 
 function buildScrapsHtml(book) {
   if (!book.scraps || !book.scraps.length) return '';
-  return book.scraps.map(s => `
+  const sortedScraps = [...book.scraps].sort((a, b) => (a.page || 0) - (b.page || 0));
+  
+  return sortedScraps.map(s => `
     <div class="scrap-item" id="sc-${s.id}">
       <div class="scrap-quote">${esc(s.text)}</div>
-      <div class="scrap-foot">
+      <div class="scrap-foot" style="display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; width:100%;">
         ${s.page ? `<span class="scrap-page">p.${s.page}</span>` : ''}
         ${s.memo ? `<span class="scrap-memo">— ${esc(s.memo)}</span>` : ''}
+        <div class="scrap-actions" style="margin-left:auto; display:flex; gap:6px;">
+          <button class="btn btn-ghost btn-sm" onclick="editScrap('${book.id}','${s.id}')" style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;">수정</button>
+          <button class="btn btn-danger btn-sm" onclick="doDeleteScrap('${book.id}','${s.id}')" style="padding:2px 6px; font-size:10px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:22px; line-height:1;">삭제</button>
+        </div>
       </div>
-      <button class="scrap-del" onclick="doDeleteScrap('${book.id}','${s.id}')" title="삭제">×</button>
     </div>
   `).join('');
+}
+
+function editScrap(bookId, scrapId) {
+  const book = books.find(b => b.id === bookId);
+  if (!book) return;
+  const scrap = (book.scraps || []).find(s => s.id === scrapId);
+  if (!scrap) return;
+
+  currentScrapBookId = bookId;
+  editingScrapId = scrapId;
+
+  document.getElementById('sc-text').value = scrap.text;
+  document.getElementById('sc-page').value = scrap.page || '';
+  document.getElementById('sc-memo').value = scrap.memo || '';
+  document.getElementById('ocr-result').value = scrap.text;
+  document.getElementById('sc-page-ocr').value = scrap.page || '';
+  document.getElementById('sc-memo-ocr').value = scrap.memo || '';
+
+  document.getElementById('scrap-modal-title').textContent = '✏️ 스크랩 수정';
+  document.getElementById('scrap-save-btn').textContent = '✏️ 스크랩 수정';
+
+  switchTab('manual');
+  openModal('scrap-modal');
 }
 
 function showGallery() {
@@ -2139,6 +2171,10 @@ function openScrapModal(id) {
     toast('❌ 스크랩은 최대 100개까지 가능합니다'); return;
   }
   currentScrapBookId = id;
+  editingScrapId = null;
+
+  document.getElementById('scrap-modal-title').textContent = '✂️ 문장 스크랩';
+  document.getElementById('scrap-save-btn').textContent = '✂️ 스크랩 추가';
 
   document.getElementById('sc-text').value = '';
   document.getElementById('sc-page').value = '';
@@ -2183,7 +2219,20 @@ async function saveScrap() {
   if (!text) { toast('❌ 문장을 입력해주세요'); return; }
 
   if (!book.scraps) book.scraps = [];
-  const updatedScraps = [...book.scraps, { id: uid(), text, page, memo, at: new Date().toISOString() }];
+  
+  let updatedScraps;
+  if (editingScrapId) {
+    updatedScraps = book.scraps.map(s => 
+      s.id === editingScrapId 
+        ? { ...s, text, page, memo, at: new Date().toISOString() } 
+        : s
+    );
+  } else {
+    if (book.scraps.length >= 100) {
+      toast('❌ 스크랩은 최대 100개까지 가능합니다'); return;
+    }
+    updatedScraps = [...book.scraps, { id: uid(), text, page, memo, at: new Date().toISOString() }];
+  }
 
   try {
     if (supabaseClient) {
@@ -2197,7 +2246,7 @@ async function saveScrap() {
     book.scraps = updatedScraps;
     saveData();
     closeScrapModal();
-    toast('✂️ 문장이 스크랩되었습니다');
+    toast(editingScrapId ? '✏️ 스크랩이 수정되었습니다' : '✂️ 문장이 스크랩되었습니다');
     if (currentBookId === currentScrapBookId) showDetail(currentBookId);
   } catch (err) {
     console.error(err);
