@@ -1055,10 +1055,6 @@
     <button id="theme-toggle" onclick="toggleTheme()" title="테마 변경" aria-label="테마 변경">
       <span id="theme-icon">🌙</span>
     </button>
-    <button id="add-book-btn" onclick="openAddModal()">
-      <span class="btn-text">＋ 책 추가</span>
-      <span class="btn-icon" style="display:none;">＋</span>
-    </button>
   </header>
 
   <!-- Stats View -->
@@ -1681,7 +1677,6 @@ function showDetail(id, direction = null) {
   document.getElementById('view-stats').classList.remove('show');
   document.getElementById('view-detail').classList.add('show');
   document.getElementById('back-btn').classList.add('show');
-  document.getElementById('add-book-btn').style.display = 'none';
   document.getElementById('view-label').textContent = '📖 ' + book.title;
 }
 
@@ -1732,7 +1727,6 @@ function showGallery() {
   document.getElementById('view-detail').classList.remove('show');
   document.getElementById('view-stats').classList.remove('show');
   document.getElementById('back-btn').classList.remove('show');
-  document.getElementById('add-book-btn').style.display = '';
   document.getElementById('sidebar-toggle').style.display = '';
   document.getElementById('view-label').textContent = '📚 내 서재';
   currentBookId = null;
@@ -1744,7 +1738,6 @@ function showStats() {
   document.getElementById('view-detail').classList.remove('show');
   document.getElementById('view-stats').classList.add('show');
   document.getElementById('back-btn').classList.add('show');
-  document.getElementById('add-book-btn').style.display = 'none';
   document.getElementById('sidebar-toggle').style.display = 'none';
   document.getElementById('view-label').textContent = '📊 독서 통계';
   updateSidebar();
