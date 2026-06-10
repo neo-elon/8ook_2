@@ -3149,8 +3149,13 @@ function handleGallerySwipe() {
   const diffX = galleryTouchEndX - galleryTouchStartX;
   const diffY = galleryTouchEndY - galleryTouchStartY;
   
+  // Horizontal swipe (left or right): Go to Stats page
+  if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
+    showStats();
+    toast('📊 통계 페이지로 이동');
+  }
   // Swipe down: Go to Stats page
-  if (diffY > 70 && Math.abs(diffY) > Math.abs(diffX)) {
+  else if (diffY > 70 && Math.abs(diffY) > Math.abs(diffX)) {
     if (galleryScroll.scrollTop <= 5) {
       showStats();
       toast('📊 통계 페이지로 이동');
