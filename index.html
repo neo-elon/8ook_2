@@ -950,24 +950,6 @@
       </div>
     </div>
 
-    <div class="sdivider"></div>
-
-    <!-- Aladin API Key -->
-    <div class="api-section">
-      <div class="sec-title">🔑 알라딘 API</div>
-      <div class="api-row">
-        <input type="text" class="fi" id="api-key-input"
-          placeholder="TTBKey 입력" autocomplete="off">
-        <button class="btn btn-ghost btn-sm" onclick="saveApiKey()">저장</button>
-      </div>
-      <div id="api-key-status"></div>
-      <div class="api-help">
-        <a href="https://www.aladin.co.kr/ttb/apin.aspx" target="_blank" rel="noopener">
-          알라딘에서 TTBKey 발급받기 →
-        </a>
-      </div>
-    </div>
-
   </div>
 </aside>
 
@@ -1183,11 +1165,62 @@
   </div>
 </div>
 
+<!-- ==================== DATABASE SETUP MODAL ==================== -->
+<div class="modal-bg" id="db-modal" role="dialog" aria-modal="true">
+  <div class="modal-box modal-lg">
+    <div class="modal-hdr">
+      <div class="modal-ttl">⚙️ Supabase 테이블 설정 안내</div>
+      <button class="modal-x" onclick="closeModal('db-modal')" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px; margin-bottom:12px; line-height:1.6;">
+        Supabase 프로젝트에 <strong>books</strong> 테이블이 존재하지 않습니다.<br>
+        Supabase Dashboard의 <strong>SQL Editor</strong>에서 아래 쿼리를 실행하여 테이블을 생성해주세요.
+      </p>
+      <div class="fg">
+        <div class="flbl">SQL 스크립트</div>
+        <textarea class="fi" id="db-sql-code" readonly rows="8" style="font-family:monospace; font-size:12px; background:rgba(0,0,0,0.2);"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" onclick="copySqlCode()">📋 SQL 복사하기</button>
+      <button class="btn btn-ghost" onclick="closeModal('db-modal')">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <!-- Tesseract.js -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <script>
 'use strict';
+
+// Supabase Configuration
+const supabaseUrl = 'https://guaimwzlmdacerpvsxxw.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1YWltd3psbWRhY2VycHZzeHh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODM1NDIsImV4cCI6MjA5NjY1OTU0Mn0.zF8A_Ul3Y5aIPjZcVTYIj1gUkConuQ-b9eO7EjnoWUE';
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+const DB_SQL_SCRIPT = `create table books (
+  id text primary key,
+  title text not null,
+  author text,
+  pages integer default 0,
+  date text,
+  sentence text,
+  cover text,
+  rating integer default 0,
+  scraps jsonb default '[]'::jsonb,
+  created_at timestamptz default now()
+);
+
+alter table books enable row level security;
+create policy "Allow public read" on books for select using (true);
+create policy "Allow public insert" on books for insert with check (true);
+create policy "Allow public update" on books for update using (true);
+create policy "Allow public delete" on books for delete using (true);`;
+
 /* ==============================================
    STATE
 ============================================== */
@@ -1220,11 +1253,41 @@ let aladinCallbackCounter = 0;
 function saveData() {
   try { localStorage.setItem('rj_books', JSON.stringify(books)); } catch(e) {}
 }
-function loadData() {
+async function loadData() {
   try {
-    const d = localStorage.getItem('rj_books');
-    if (d) books = JSON.parse(d);
-  } catch(e) { books = []; }
+    const { data, error } = await supabase
+      .from('books')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      if (error.code === 'PGRST116' || error.message.includes('does not exist') || error.code === '42P01') {
+        showDbSetupModal();
+      }
+      throw error;
+    }
+    books = data || [];
+  } catch(e) {
+    console.error('Supabase load error, using local storage backup:', e);
+    try {
+      const d = localStorage.getItem('rj_books');
+      if (d) books = JSON.parse(d);
+    } catch(err) {
+      books = [];
+    }
+  }
+}
+function showDbSetupModal() {
+  document.getElementById('db-sql-code').value = DB_SQL_SCRIPT;
+  openModal('db-modal');
+}
+function copySqlCode() {
+  const sql = document.getElementById('db-sql-code').value;
+  navigator.clipboard.writeText(sql).then(() => {
+    toast('📋 SQL 쿼리가 클립보드에 복사되었습니다');
+  }).catch(err => {
+    toast('❌ 복사 실패. 직접 드래그하여 복사해주세요.');
+  });
 }
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
@@ -1520,7 +1583,7 @@ function updateStarBtns(n) {
   });
 }
 
-function saveBook() {
+async function saveBook() {
   const title = document.getElementById('bk-title').value.trim();
   if (!title) { toast('❌ 제목을 입력해주세요'); return; }
 
@@ -1534,69 +1597,81 @@ function saveBook() {
     rating:   currentRating,
   };
 
-  if (editingBookId) {
-    const idx = books.findIndex(b => b.id === editingBookId);
-    if (idx !== -1) books[idx] = { ...books[idx], ...data };
-    toast('✅ 책 정보가 수정되었습니다');
-  } else {
-    data.id = uid();
-    data.scraps = [];
-    books.unshift(data);
-    toast('📚 책이 추가되었습니다');
-  }
+  const saveBtn = document.getElementById('book-save-btn');
+  const originalText = saveBtn.textContent;
+  saveBtn.disabled = true;
+  saveBtn.textContent = '저장 중...';
 
-  saveData();
-  closeModal('book-modal');
-  updateSidebar();
+  try {
+    if (editingBookId) {
+      const idx = books.findIndex(b => b.id === editingBookId);
+      if (idx !== -1) {
+        const updatedBook = { ...books[idx], ...data };
+        const { error } = await supabase
+          .from('books')
+          .update(updatedBook)
+          .eq('id', editingBookId);
+        if (error) throw error;
+        books[idx] = updatedBook;
+        toast('✅ 책 정보가 수정되었습니다');
+      }
+    } else {
+      data.id = uid();
+      data.scraps = [];
+      data.created_at = new Date().toISOString();
+      const { error } = await supabase
+        .from('books')
+        .insert([data]);
+      if (error) throw error;
+      books.unshift(data);
+      toast('📚 책이 추가되었습니다');
+    }
 
-  if (currentBookId === editingBookId && editingBookId) {
-    showDetail(currentBookId);
-  } else if (currentBookId) {
-    showDetail(currentBookId);
-  } else {
-    renderGallery();
+    saveData();
+    closeModal('book-modal');
+    updateSidebar();
+
+    if (currentBookId === editingBookId && editingBookId) {
+      showDetail(currentBookId);
+    } else if (currentBookId) {
+      showDetail(currentBookId);
+    } else {
+      renderGallery();
+    }
+  } catch (err) {
+    console.error(err);
+    toast('❌ 저장 실패: ' + err.message);
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = originalText;
   }
 }
 
-function doDeleteBook(id) {
+async function doDeleteBook(id) {
   if (!confirm('이 책을 삭제할까요?')) return;
-  books = books.filter(b => b.id !== id);
-  saveData();
-  toast('🗑️ 책이 삭제되었습니다');
-  showGallery();
-  updateSidebar();
+  try {
+    const { error } = await supabase
+      .from('books')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+
+    books = books.filter(b => b.id !== id);
+    saveData();
+    toast('🗑️ 책이 삭제되었습니다');
+    showGallery();
+    updateSidebar();
+  } catch (err) {
+    console.error(err);
+    toast('❌ 삭제 실패: ' + err.message);
+  }
 }
 
 /* ==============================================
    ALADIN API SEARCH
 ============================================== */
 function getApiKey() {
-  return localStorage.getItem('rj_aladin_key') || '';
-}
-
-function saveApiKey() {
-  const key = document.getElementById('api-key-input').value.trim();
-  if (!key) {
-    localStorage.removeItem('rj_aladin_key');
-    toast('🔑 API 키가 삭제되었습니다');
-  } else {
-    localStorage.setItem('rj_aladin_key', key);
-    toast('✅ API 키가 저장되었습니다');
-  }
-  updateApiStatus();
-}
-
-function updateApiStatus() {
-  const key = getApiKey();
-  const el = document.getElementById('api-key-status');
-  const inp = document.getElementById('api-key-input');
-  if (key) {
-    el.innerHTML = `<span class="api-status ok">✅ 키 등록됨</span>`;
-    inp.value = key;
-  } else {
-    el.innerHTML = `<span class="api-status none">⚠️ 키 미등록 — 검색 불가</span>`;
-    inp.value = '';
-  }
+  return 'ttbparkq0072106001';
 }
 
 function hideSearchResults() {
@@ -1750,7 +1825,7 @@ function switchTab(tab) {
   });
 }
 
-function saveScrap() {
+async function saveScrap() {
   const book = books.find(b => b.id === currentScrapBookId);
   if (!book) return;
 
@@ -1768,20 +1843,46 @@ function saveScrap() {
   if (!text) { toast('❌ 문장을 입력해주세요'); return; }
 
   if (!book.scraps) book.scraps = [];
-  book.scraps.push({ id: uid(), text, page, memo, at: new Date().toISOString() });
-  saveData();
-  closeScrapModal();
-  toast('✂️ 문장이 스크랩되었습니다');
-  if (currentBookId === currentScrapBookId) showDetail(currentBookId);
+  const updatedScraps = [...book.scraps, { id: uid(), text, page, memo, at: new Date().toISOString() }];
+
+  try {
+    const { error } = await supabase
+      .from('books')
+      .update({ scraps: updatedScraps })
+      .eq('id', currentScrapBookId);
+    if (error) throw error;
+
+    book.scraps = updatedScraps;
+    saveData();
+    closeScrapModal();
+    toast('✂️ 문장이 스크랩되었습니다');
+    if (currentBookId === currentScrapBookId) showDetail(currentBookId);
+  } catch (err) {
+    console.error(err);
+    toast('❌ 스크랩 저장 실패: ' + err.message);
+  }
 }
 
-function doDeleteScrap(bookId, scrapId) {
+async function doDeleteScrap(bookId, scrapId) {
   const book = books.find(b => b.id === bookId);
   if (!book) return;
-  book.scraps = (book.scraps||[]).filter(s => s.id !== scrapId);
-  saveData();
-  toast('🗑️ 스크랩이 삭제되었습니다');
-  showDetail(bookId);
+  const updatedScraps = (book.scraps||[]).filter(s => s.id !== scrapId);
+
+  try {
+    const { error } = await supabase
+      .from('books')
+      .update({ scraps: updatedScraps })
+      .eq('id', bookId);
+    if (error) throw error;
+
+    book.scraps = updatedScraps;
+    saveData();
+    toast('🗑️ 스크랩이 삭제되었습니다');
+    showDetail(bookId);
+  } catch (err) {
+    console.error(err);
+    toast('❌ 스크랩 삭제 실패: ' + err.message);
+  }
 }
 
 /* ==============================================
@@ -2118,10 +2219,11 @@ document.addEventListener('keydown', e => {
    INIT
 ============================================== */
 loadTheme();
-loadData();
-renderGallery();
-updateSidebar();
-updateApiStatus();
+(async () => {
+  await loadData();
+  renderGallery();
+  updateSidebar();
+})();
 
 /* ==============================================
    DEMO DATA (first run)
