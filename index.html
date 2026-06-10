@@ -737,7 +737,15 @@
       display:flex; align-items:center; justify-content:center;
       margin-bottom:7px; transition:border-color .2s;
     }
-    .img-prev-box img { width:100%; height:100%; object-fit:cover; }
+    .img-prev-box img {
+      max-width: 90px;
+      max-height: 135px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: var(--radius-xs);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
     .img-prev-ph {
       display:flex; flex-direction:column; align-items:center; gap:7px;
       color:var(--text-400); font-size:12px; text-align:center;
@@ -1752,14 +1760,22 @@ function parseAladinXml(xmlText) {
     let cover = item.querySelector('cover')?.textContent || '';
     let publisher = item.querySelector('publisher')?.textContent || '';
     let pubDate = item.querySelector('pubDate')?.textContent || '';
+    let itemId = item.querySelector('itemId')?.textContent || item.querySelector('itemid')?.textContent || '';
+    let isbn = item.querySelector('isbn')?.textContent || '';
+    let isbn13 = item.querySelector('isbn13')?.textContent || '';
     let pages = '';
     
-    const pageNode = item.querySelector('subInfo itemPage') || item.querySelector('itemPage');
+    let pageNode = item.querySelector('subInfo itemPage') || 
+                   item.querySelector('itemPage') || 
+                   item.querySelector('itempage') || 
+                   item.querySelector('subInfo itempage') ||
+                   item.querySelector('ItemPage') ||
+                   item.querySelector('subInfo ItemPage');
     if (pageNode) {
       pages = pageNode.textContent;
     }
     
-    return { title, author, cover, publisher, pubDate, pages };
+    return { title, author, cover, publisher, pubDate, pages, itemId, isbn, isbn13 };
   });
 
   return { error: false, items: itemArray };
@@ -1879,7 +1895,12 @@ function handleAladinResults(data) {
       cover: item.cover || '',
       publisher: item.publisher || '',
       pubDate: item.pubDate || '',
-      pages: item.subInfo && item.subInfo.itemPage ? item.subInfo.itemPage : ''
+      pages: (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) || 
+             (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
+             item.itemPage || item.itempage || '',
+      itemId: item.itemId || item.itemid || '',
+      isbn: item.isbn || '',
+      isbn13: item.isbn13 || ''
     }));
   }
 
@@ -1896,12 +1917,18 @@ function handleAladinResults(data) {
     const publisher = item.publisher || '';
     const pages = item.pages || '';
     const pubDate = item.pubDate || '';
+    const itemId = item.itemId || '';
+    const isbn = item.isbn || '';
+    const isbn13 = item.isbn13 || '';
 
     html += `<div class="search-item" onclick='applyAladinItem(${JSON.stringify({
       title: title.replace(/'/g,"&#39;"),
       author: author.replace(/'/g,"&#39;"),
       cover: cover.replace(/'/g,"&#39;"),
-      pages: pages
+      pages: pages,
+      itemId: itemId,
+      isbn: isbn,
+      isbn13: isbn13
     }).replace(/'/g,"&#39;")})'>
       <img src="${esc(cover)}" alt=""
         onerror="this.style.background='var(--bg-card)';this.style.opacity='.3'">
@@ -1919,7 +1946,13 @@ function handleAladinResults(data) {
 function applyAladinItem(item) {
   if (item.title) document.getElementById('bk-title').value = item.title;
   if (item.author) document.getElementById('bk-author').value = item.author;
-  if (item.pages) document.getElementById('bk-pages').value = item.pages;
+  
+  if (item.pages) {
+    document.getElementById('bk-pages').value = item.pages;
+  } else {
+    document.getElementById('bk-pages').value = '';
+  }
+
   if (item.cover) {
     modalCover = item.cover;
     document.getElementById('bk-img-url').value = item.cover;
@@ -1928,6 +1961,82 @@ function applyAladinItem(item) {
 
   hideSearchResults();
   toast('✅ 도서 정보가 적용되었습니다');
+
+  const identifier = item.itemId || item.isbn13 || item.isbn;
+  if (identifier && !item.pages) {
+    fetchDetailedPages(identifier);
+  }
+}
+
+function fetchDetailedPages(itemId) {
+  const key = getApiKey();
+  const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?ttbkey=${key}&itemIdType=ItemId&ItemId=${itemId}&output=xml&Version=20131101&OptResult=subInfo`;
+  
+  const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+  const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+
+  const updatePageField = (pages) => {
+    if (pages) {
+      document.getElementById('bk-pages').value = pages;
+      toast('✅ 페이지 수 정보를 불러왔습니다 (' + pages + 'p)');
+    }
+  };
+
+  fetch(proxyUrl1)
+    .then(res => {
+      if (!res.ok) throw new Error('Proxy 1 failed');
+      return res.text();
+    })
+    .then(xmlText => {
+      const parsed = parseAladinXml(xmlText);
+      if (!parsed.error && parsed.items && parsed.items[0]) {
+        updatePageField(parsed.items[0].pages);
+      }
+    })
+    .catch(() => {
+      fetch(proxyUrl2)
+        .then(res => {
+          if (!res.ok) throw new Error('Proxy 2 failed');
+          return res.json();
+        })
+        .then(data => {
+          const xmlText = data.contents;
+          const parsed = parseAladinXml(xmlText);
+          if (!parsed.error && parsed.items && parsed.items[0]) {
+            updatePageField(parsed.items[0].pages);
+          }
+        })
+        .catch(() => {
+          const cbName = '_aladinCb_lookup_' + Date.now();
+          const script = document.createElement('script');
+          const params = new URLSearchParams({
+            ttbkey: key,
+            itemIdType: 'ItemId',
+            ItemId: itemId,
+            output: 'JS',
+            Version: '20131101',
+            OptResult: 'subInfo',
+            callback: cbName
+          });
+          script.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?${params}`;
+          window[cbName] = function(data) {
+            delete window[cbName];
+            script.remove();
+            if (data && data.item && data.item[0]) {
+              const item = data.item[0];
+              const pages = (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) || 
+                            (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
+                            item.itemPage || item.itempage || '';
+              updatePageField(pages);
+            }
+          };
+          script.onerror = function() {
+            delete window[cbName];
+            script.remove();
+          };
+          document.body.appendChild(script);
+        });
+    });
 }
 
 /* ==============================================
