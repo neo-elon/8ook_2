@@ -963,6 +963,16 @@
     </button>
     <span class="header-logo">8ook.</span>
     <div class="header-spacer"></div>
+
+    <div id="auth-section" style="display:flex; align-items:center; gap:10px; margin-right:15px;">
+      <span id="auth-username" style="font-size:13px; color:var(--text-200); display:none;"></span>
+      <button id="auth-login-btn" class="btn btn-ghost btn-sm" onclick="loginWithGoogle()" style="display:flex; gap:6px;">
+        <svg style="width:14px; height:14px;" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        로그인
+      </button>
+      <button id="auth-logout-btn" class="btn btn-ghost btn-sm" onclick="logout()" style="display:none;">로그아웃</button>
+    </div>
+
     <span id="view-label">📚 내 서재</span>
     <button id="back-btn" onclick="showGallery()">← 갤러리</button>
     <button id="theme-toggle" onclick="toggleTheme()" title="테마 변경" aria-label="테마 변경">
@@ -1719,24 +1729,102 @@ function hideSearchResults() {
   r.innerHTML = '';
 }
 
+function parseAladinXml(xmlText) {
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+  const parserError = xmlDoc.querySelector('parsererror');
+  if (parserError) {
+    throw new Error('XML parsing failed');
+  }
+
+  const errorCodeNode = xmlDoc.querySelector('errorCode');
+  if (errorCodeNode) {
+    const errMsg = xmlDoc.querySelector('errorMessage')?.textContent || 'Unknown error';
+    const errCode = errorCodeNode.textContent;
+    return { error: true, code: errCode, message: errMsg };
+  }
+
+  const items = xmlDoc.querySelectorAll('item');
+  const itemArray = Array.from(items).map(item => {
+    let title = item.querySelector('title')?.textContent || '';
+    let author = item.querySelector('author')?.textContent || '';
+    let cover = item.querySelector('cover')?.textContent || '';
+    let publisher = item.querySelector('publisher')?.textContent || '';
+    let pubDate = item.querySelector('pubDate')?.textContent || '';
+    let pages = '';
+    
+    const pageNode = item.querySelector('subInfo itemPage') || item.querySelector('itemPage');
+    if (pageNode) {
+      pages = pageNode.textContent;
+    }
+    
+    return { title, author, cover, publisher, pubDate, pages };
+  });
+
+  return { error: false, items: itemArray };
+}
+
 function searchAladin() {
   const query = document.getElementById('bk-title').value.trim();
   if (!query) { toast('❌ 제목을 입력해주세요'); return; }
 
   const key = getApiKey();
-  if (!key) {
-    toast('⚠️ 사이드바에서 알라딘 API 키를 먼저 등록해주세요', 3500);
-    return;
-  }
-
   const results = document.getElementById('aladin-results');
   results.classList.add('show');
   results.innerHTML = `<div class="search-loading"><span class="spin"></span> 검색 중...</div>`;
 
-  // JSONP request
+  // Use https:// protocol to prevent mixed content errors
+  const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${key}&Query=${encodeURIComponent(query)}&QueryType=Title&MaxResults=6&start=1&SearchTarget=Book&output=xml&Version=20131101&Cover=Big`;
+  
+  // Proxy 1: corsproxy.io
+  const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+  // Proxy 2: allorigins.win
+  const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+
+  // Try Proxy 1
+  fetch(proxyUrl1)
+    .then(res => {
+      if (!res.ok) throw new Error('Proxy 1 failed');
+      return res.text();
+    })
+    .then(xmlText => {
+      const parsed = parseAladinXml(xmlText);
+      if (parsed.error) {
+        results.innerHTML = `<div class="search-empty">❌ 알라딘 API 에러: ${esc(parsed.message)} (코드: ${parsed.code})<br><br><small style="font-size: 11px;">※ API 키 발급 직후에는 활성화까지 1~2시간 가량 소요될 수 있습니다.</small></div>`;
+        return;
+      }
+      handleAladinResults(parsed.items);
+    })
+    .catch(err1 => {
+      console.warn('corsproxy.io failed, trying allorigins:', err1);
+      // Try Proxy 2
+      fetch(proxyUrl2)
+        .then(res => {
+          if (!res.ok) throw new Error('Proxy 2 failed');
+          return res.json();
+        })
+        .then(data => {
+          const xmlText = data.contents;
+          const parsed = parseAladinXml(xmlText);
+          if (parsed.error) {
+            results.innerHTML = `<div class="search-empty">❌ 알라딘 API 에러: ${esc(parsed.message)} (코드: ${parsed.code})</div>`;
+            return;
+          }
+          handleAladinResults(parsed.items);
+        })
+        .catch(err2 => {
+          console.warn('allorigins proxy failed, falling back to JSONP:', err2);
+          // Fallback to JSONP (uses JS output)
+          runAladinJsonp(query, key, results);
+        });
+    });
+}
+
+function runAladinJsonp(query, key, results) {
   const cbName = '_aladinCb_' + (++aladinCallbackCounter);
   const script = document.createElement('script');
-
+  
   const params = new URLSearchParams({
     ttbkey: key,
     Query: query,
@@ -1744,12 +1832,13 @@ function searchAladin() {
     MaxResults: '6',
     start: '1',
     SearchTarget: 'Book',
-    output: 'js',
+    output: 'JS',
     Version: '20131101',
     Cover: 'Big',
     callback: cbName
   });
 
+  // Always use HTTPS to prevent Mixed Content errors
   script.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${params}`;
 
   window[cbName] = function(data) {
@@ -1761,43 +1850,14 @@ function searchAladin() {
   script.onerror = function() {
     delete window[cbName];
     script.remove();
-    
-    // Fallback to HTTP (often works on file:// protocol when Aladin SSL has issues)
-    const httpCbName = '_aladinCb_http_' + aladinCallbackCounter;
-    const httpScript = document.createElement('script');
-    params.set('callback', httpCbName);
-    httpScript.src = `http://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${params}`;
-    
-    window[httpCbName] = function(data) {
-      delete window[httpCbName];
-      httpScript.remove();
-      handleAladinResults(data);
-    };
-    
-    httpScript.onerror = function() {
-      delete window[httpCbName];
-      httpScript.remove();
-      results.innerHTML = `<div class="search-empty">❌ 검색 실패 — API 키 또는 네트워크 상태를 확인해주세요</div>`;
-    };
-    
-    // Timeout for HTTP fallback
-    setTimeout(() => {
-      if (window[httpCbName]) {
-        delete window[httpCbName];
-        httpScript.remove();
-        results.innerHTML = `<div class="search-empty">⏰ 응답 시간 초과 (HTTP)</div>`;
-      }
-    }, 10000);
-    
-    document.body.appendChild(httpScript);
+    results.innerHTML = `<div class="search-empty">❌ 검색 실패 — API 키 활성화 상태(발급 후 1~2시간 소요) 또는 인터넷 연결을 확인해주세요.</div>`;
   };
 
-  // Timeout for HTTPS
   setTimeout(() => {
     if (window[cbName]) {
       delete window[cbName];
       script.remove();
-      results.innerHTML = `<div class="search-empty">⏰ 응답 시간 초과 (HTTPS)</div>`;
+      results.innerHTML = `<div class="search-empty">⏰ 응답 시간 초과</div>`;
     }
   }, 10000);
 
@@ -1807,18 +1867,33 @@ function searchAladin() {
 function handleAladinResults(data) {
   const results = document.getElementById('aladin-results');
 
-  if (!data || !data.item || data.item.length === 0) {
+  // Normalize items from XML array or raw JSON response
+  let items = [];
+  if (Array.isArray(data)) {
+    items = data;
+  } else if (data && data.item) {
+    items = data.item.map(item => ({
+      title: item.title || '',
+      author: item.author || '',
+      cover: item.cover || '',
+      publisher: item.publisher || '',
+      pubDate: item.pubDate || '',
+      pages: item.subInfo && item.subInfo.itemPage ? item.subInfo.itemPage : ''
+    }));
+  }
+
+  if (items.length === 0) {
     results.innerHTML = `<div class="search-empty">검색 결과가 없습니다</div>`;
     return;
   }
 
   let html = '';
-  data.item.forEach(item => {
+  items.forEach(item => {
     const cover = item.cover || '';
     const title = item.title || '';
     const author = item.author || '';
     const publisher = item.publisher || '';
-    const pages = item.subInfo && item.subInfo.itemPage ? item.subInfo.itemPage : '';
+    const pages = item.pages || '';
     const pubDate = item.pubDate || '';
 
     html += `<div class="search-item" onclick='applyAladinItem(${JSON.stringify({
@@ -2364,6 +2439,62 @@ loadTheme();
   renderGallery();
   updateSidebar();
 })();
+
+/* ==============================================
+   SUPABASE AUTHENTICATION
+============================================== */
+async function loginWithGoogle() {
+  if (!supabaseClient) { toast('❌ Supabase가 연결되지 않았습니다'); return; }
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+  });
+  if (error) { console.error(error); toast('❌ 로그인 실패'); }
+}
+
+async function logout() {
+  if (!supabaseClient) return;
+  const { error } = await supabaseClient.auth.signOut();
+  if (error) { console.error(error); toast('❌ 로그아웃 실패'); }
+}
+
+async function checkAuth() {
+  if (!supabaseClient) return;
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  updateAuthUI(session);
+}
+
+function updateAuthUI(session) {
+  const loginBtn = document.getElementById('auth-login-btn');
+  const logoutBtn = document.getElementById('auth-logout-btn');
+  const usernameSpan = document.getElementById('auth-username');
+
+  if (session && session.user) {
+    loginBtn.style.display = 'none';
+    logoutBtn.style.display = 'inline-flex';
+    usernameSpan.style.display = 'inline';
+    const metadata = session.user.user_metadata;
+    usernameSpan.textContent = (metadata && metadata.full_name) || session.user.email || '사용자';
+  } else {
+    loginBtn.style.display = 'inline-flex';
+    logoutBtn.style.display = 'none';
+    usernameSpan.style.display = 'none';
+    usernameSpan.textContent = '';
+  }
+}
+
+if (supabaseClient) {
+  checkAuth();
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    updateAuthUI(session);
+    // Reload data on auth change to apply RLS
+    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+      loadData().then(() => {
+        renderGallery();
+        updateSidebar();
+      });
+    }
+  });
+}
 </script>
 </body>
 </html>
