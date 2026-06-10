@@ -2445,8 +2445,17 @@ loadTheme();
 ============================================== */
 async function loginWithGoogle() {
   if (!supabaseClient) { toast('❌ Supabase가 연결되지 않았습니다'); return; }
+  
+  if (window.location.protocol === 'file:') {
+    alert('⚠️ 구글 로그인은 로컬 파일(file://...) 경로에서는 동작하지 않습니다.\nVS Code의 Live Server 등을 사용해 http://localhost:... 주소로 실행하거나, GitHub Pages에 배포 완료 후 테스트해주세요.');
+    return;
+  }
+
   const { error } = await supabaseClient.auth.signInWithOAuth({
     provider: 'google',
+    options: {
+      redirectTo: window.location.origin + window.location.pathname
+    }
   });
   if (error) { console.error(error); toast('❌ 로그인 실패'); }
 }
