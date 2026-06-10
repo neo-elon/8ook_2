@@ -1554,13 +1554,14 @@ function showDetail(id) {
       </div>
     </div>
     <div class="detail-body-sec" style="display:flex; flex-direction:column; gap:16px;">
-      <div class="detail-stars">${starsHtml(book.rating, 22)}</div>
-      ${book.sentence ? `<div class="detail-sentence">${esc(book.sentence)}</div>` : ''}
-      <div class="detail-actions">
-        <button class="btn btn-ghost" onclick="openEditModal('${book.id}')">✏️ 편집</button>
-        <button class="btn btn-primary" onclick="openScrapModal('${book.id}')">✂️ 문장 스크랩</button>
-        <button class="btn btn-danger" onclick="doDeleteBook('${book.id}')">🗑️ 삭제</button>
+      <div class="detail-rating-row" style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+        <div class="detail-stars">${starsHtml(book.rating, 22)}</div>
+        <div class="detail-book-actions" style="display:flex; gap:6px; align-items:center;">
+          <button class="btn btn-ghost btn-sm" onclick="openEditModal('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:4px; height:22px; line-height:1;">✏️ 편집</button>
+          <button class="btn btn-danger btn-sm" onclick="doDeleteBook('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:22px; line-height:1;">🗑️ 삭제</button>
+        </div>
       </div>
+      ${book.sentence ? `<div class="detail-sentence">${esc(book.sentence)}</div>` : ''}
     </div>
 
     <div class="scraps-sec">
