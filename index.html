@@ -2073,7 +2073,7 @@ function searchAladin() {
   results.innerHTML = `<div class="search-loading"><span class="spin"></span> 검색 중...</div>`;
 
   // Use https:// protocol to prevent mixed content errors
-  const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${key}&Query=${encodeURIComponent(query)}&QueryType=Title&MaxResults=6&start=1&SearchTarget=Book&output=xml&Version=20131101&Cover=Big&OptResult=subInfo`;
+  const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${key}&Query=${encodeURIComponent(query)}&QueryType=Title&MaxResults=18&start=1&SearchTarget=Book&output=xml&Version=20131101&Cover=Big&OptResult=subInfo`;
   
   // Proxy 1: corsproxy.io
   const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
@@ -2304,7 +2304,7 @@ function runAladinJsonp(query, key, results) {
     ttbkey: key,
     Query: query,
     QueryType: 'Title',
-    MaxResults: '6',
+    MaxResults: '18',
     start: '1',
     SearchTarget: 'Book',
     output: 'JS',
