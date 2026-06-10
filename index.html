@@ -173,6 +173,54 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* ── Random Quote Card ── */
+    #random-quote-card {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--violet);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: background .4s, border-color .4s;
+    }
+    #random-quote-card.hidden {
+      display: none;
+    }
+    .quote-content {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-100);
+      font-style: italic;
+      word-break: keep-all;
+    }
+    .quote-content::before { content:'\201C'; color:var(--violet); font-size:18px; line-height:0; vertical-align:-3px; margin-right:2px; }
+    .quote-content::after  { content:'\201D'; color:var(--violet); font-size:18px; line-height:0; vertical-align:-3px; margin-left:2px; }
+    
+    .quote-source {
+      font-size: 11px;
+      color: var(--text-300);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .quote-shuffle-btn {
+      background: none;
+      border: none;
+      color: var(--text-400);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all .2s;
+    }
+    .quote-shuffle-btn:hover {
+      color: var(--violet);
+      background: var(--glass-hover);
+    }
+
     /* Section title */
     .sec-title {
       font-size:10px; font-weight:600;
@@ -1064,6 +1112,15 @@
   <!-- Stats View -->
   <div id="view-stats">
     <div class="stats-wrap">
+      <!-- Random Quote Card -->
+      <div id="random-quote-card" class="hidden">
+        <div class="quote-content" id="random-quote-text"></div>
+        <div class="quote-source">
+          <span id="random-quote-book"></span>
+          <button class="quote-shuffle-btn" onclick="showRandomQuote()" title="다른 문장 보기">🔄 새로고침</button>
+        </div>
+      </div>
+
       <div class="stats-top-row" style="display:flex; gap:24px; flex-wrap:wrap;">
         <div style="flex: 1; min-width: 280px; display:flex; flex-direction:column; gap:24px;">
           <!-- Stats Cards -->
@@ -1744,6 +1801,7 @@ function showStats() {
   document.getElementById('back-btn').classList.add('show');
   document.getElementById('sidebar-toggle').style.display = 'none';
   document.getElementById('view-label').textContent = '📊 독서 통계';
+  showRandomQuote();
   updateSidebar();
 }
 
@@ -2720,6 +2778,42 @@ function updateSidebar() {
 
   renderChart();
   renderCal();
+}
+
+function showRandomQuote() {
+  const card = document.getElementById('random-quote-card');
+  const textEl = document.getElementById('random-quote-text');
+  const bookEl = document.getElementById('random-quote-book');
+
+  // Collect all scraps
+  const allScraps = [];
+  books.forEach(book => {
+    if (book.scraps && book.scraps.length) {
+      book.scraps.forEach(s => {
+        allScraps.push({
+          text: s.text,
+          page: s.page,
+          bookTitle: book.title,
+          bookAuthor: book.author
+        });
+      });
+    }
+  });
+
+  if (allScraps.length === 0) {
+    card.classList.add('hidden');
+    return;
+  }
+
+  card.classList.remove('hidden');
+  const randIdx = Math.floor(Math.random() * allScraps.length);
+  const quote = allScraps[randIdx];
+
+  textEl.textContent = quote.text;
+  let sourceText = `— ${quote.bookTitle}`;
+  if (quote.bookAuthor) sourceText += ` (${quote.bookAuthor})`;
+  if (quote.page) sourceText += `, p.${quote.page}`;
+  bookEl.textContent = sourceText;
 }
 
 function switchStatsPeriod(period) {
