@@ -563,7 +563,20 @@
     .detail-wrap {
       max-width:900px; margin:0 auto;
       display:flex; flex-direction:column; gap:28px;
-      animation:slideRight .4s var(--ease) both;
+    }
+    @keyframes slideFromRight {
+      from { transform: translateX(30px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideFromLeft {
+      from { transform: translateX(-30px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .slide-from-right {
+      animation: slideFromRight 0.35s var(--ease) both;
+    }
+    .slide-from-left {
+      animation: slideFromLeft 0.35s var(--ease) both;
     }
 
     /* Top section */
@@ -1564,12 +1577,19 @@ function renderGallery() {
 /* ==============================================
    DETAIL VIEW
 ============================================== */
-function showDetail(id) {
+function showDetail(id, direction = null) {
   const book = books.find(b => b.id === id);
   if (!book) return;
   currentBookId = id;
 
   const wrap = document.getElementById('detail-wrap');
+  wrap.classList.remove('slide-from-left', 'slide-from-right');
+  void wrap.offsetWidth; // Force reflow
+  if (direction === 'prev') {
+    wrap.classList.add('slide-from-left');
+  } else {
+    wrap.classList.add('slide-from-right');
+  }
 
   const coverHtml = book.cover
     ? `<img src="${esc(book.cover)}" alt="${esc(book.title)}"
@@ -2854,10 +2874,10 @@ function navigateToAdjacentBook(direction) {
   const idx = books.findIndex(b => b.id === currentBookId);
   if (idx === -1) return;
   if (direction === 'next' && idx < books.length - 1) {
-    showDetail(books[idx + 1].id);
+    showDetail(books[idx + 1].id, 'next');
     toast('👉 다음 도서');
   } else if (direction === 'prev' && idx > 0) {
-    showDetail(books[idx - 1].id);
+    showDetail(books[idx - 1].id, 'prev');
     toast('👈 이전 도서');
   }
 }
