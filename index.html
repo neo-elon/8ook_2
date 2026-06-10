@@ -1605,6 +1605,7 @@ function showDetail(id, direction = null) {
   `;
 
   document.getElementById('view-gallery').style.display = 'none';
+  document.getElementById('view-stats').classList.remove('show');
   document.getElementById('view-detail').classList.add('show');
   document.getElementById('back-btn').classList.add('show');
   document.getElementById('add-book-btn').style.display = 'none';
