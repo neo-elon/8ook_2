@@ -3091,8 +3091,13 @@ function handleStatsSwipe() {
   const diffX = statsTouchEndX - statsTouchStartX;
   const diffY = statsTouchEndY - statsTouchStartY;
   
+  // Horizontal swipe (left or right): Go back to Gallery
+  if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
+    showGallery();
+    toast('📚 내 서재로 이동');
+  }
   // Swipe up: Go back to Gallery
-  if (diffY < -70 && Math.abs(diffY) > Math.abs(diffX)) {
+  else if (diffY < -70 && Math.abs(diffY) > Math.abs(diffX)) {
     if (statsEl.scrollTop <= 5) {
       showGallery();
       toast('📚 내 서재로 이동');
