@@ -549,6 +549,24 @@
     .slide-from-left {
       animation: slideFromLeft 0.35s var(--ease) both;
     }
+    
+    /* Bounce Back Animations */
+    @keyframes bounceLeft {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(-35px); }
+      100% { transform: translateX(0); }
+    }
+    @keyframes bounceRight {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(35px); }
+      100% { transform: translateX(0); }
+    }
+    .bounce-left {
+      animation: bounceLeft 0.4s cubic-bezier(0.25, 1, 0.5, 1) both;
+    }
+    .bounce-right {
+      animation: bounceRight 0.4s cubic-bezier(0.25, 1, 0.5, 1) both;
+    }
 
     /* Top section */
     .detail-top {
@@ -2862,15 +2880,34 @@ function handleDetailSwipe() {
 }
 
 function navigateToAdjacentBook(direction) {
-  if (!currentBookId || books.length <= 1) return;
+  if (!currentBookId || books.length === 0) return;
   const idx = books.findIndex(b => b.id === currentBookId);
   if (idx === -1) return;
-  if (direction === 'next' && idx < books.length - 1) {
-    showDetail(books[idx + 1].id, 'next');
-    toast('👉 다음 도서');
-  } else if (direction === 'prev' && idx > 0) {
-    showDetail(books[idx - 1].id, 'prev');
-    toast('👈 이전 도서');
+  
+  const wrap = document.getElementById('detail-wrap');
+  
+  if (direction === 'next') {
+    if (idx < books.length - 1) {
+      showDetail(books[idx + 1].id, 'next');
+      toast('👉 다음 도서');
+    } else {
+      // Bounce right (bounce back from right edge)
+      wrap.classList.remove('bounce-left', 'bounce-right', 'slide-from-left', 'slide-from-right');
+      void wrap.offsetWidth; // Force reflow
+      wrap.classList.add('bounce-left'); // Pulling left to bounce back from right
+      toast('🚫 마지막 도서입니다');
+    }
+  } else if (direction === 'prev') {
+    if (idx > 0) {
+      showDetail(books[idx - 1].id, 'prev');
+      toast('👈 이전 도서');
+    } else {
+      // Bounce left (bounce back from left edge)
+      wrap.classList.remove('bounce-left', 'bounce-right', 'slide-from-left', 'slide-from-right');
+      void wrap.offsetWidth; // Force reflow
+      wrap.classList.add('bounce-right'); // Pulling right to bounce back from left
+      toast('🚫 첫 번째 도서입니다');
+    }
   }
 }
 
