@@ -1036,7 +1036,14 @@
         <div style="flex: 1; min-width: 280px; display:flex; flex-direction:column; gap:24px;">
           <!-- Stats Cards -->
           <div>
-            <div class="sec-title">📊 독서 통계</div>
+            <div class="sec-title-wrap" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <div class="sec-title" style="margin-bottom:0;">📊 독서 통계</div>
+              <div class="stats-filter-btns" style="display:flex; gap:4px;">
+                <button id="stats-btn-all" class="btn btn-xs" onclick="switchStatsPeriod('all')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--violet); color:#fff; border:none;">전체</button>
+                <button id="stats-btn-year" class="btn btn-xs" onclick="switchStatsPeriod('year')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--glass); color:var(--text-300); border:1px solid var(--border);">올해</button>
+                <button id="stats-btn-month" class="btn btn-xs" onclick="switchStatsPeriod('month')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--glass); color:var(--text-300); border:1px solid var(--border);">이번달</button>
+              </div>
+            </div>
             <div class="stats-grid">
               <div class="stat-card">
                 <div class="stat-num" id="stat-books">0</div>
@@ -1358,6 +1365,7 @@ let zoomTimer = null;
 let sidebarOpen = false;
 let isDarkTheme = true;
 let chartMode = 'month';
+let statsPeriod = 'all';
 let editingScrapId = null;
 
 // OCR state
@@ -2639,14 +2647,59 @@ async function runOcr(dataUrl) {
    SIDEBAR / STATS
 ============================================== */
 function updateSidebar() {
-  const total = books.length;
-  const pages = books.reduce((s, b) => s + (b.pages||0), 0);
+  const now = new Date();
+  let filteredBooks = books;
+
+  if (statsPeriod === 'year') {
+    filteredBooks = books.filter(b => {
+      if (!b.date) return false;
+      const d = new Date(b.date);
+      return d.getFullYear() === now.getFullYear();
+    });
+  } else if (statsPeriod === 'month') {
+    filteredBooks = books.filter(b => {
+      if (!b.date) return false;
+      const d = new Date(b.date);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    });
+  }
+
+  const total = filteredBooks.length;
+  const pages = filteredBooks.reduce((s, b) => s + (b.pages||0), 0);
+  
   document.getElementById('stat-books').textContent = total;
   document.getElementById('stat-pages').textContent =
     pages >= 10000 ? (pages/1000).toFixed(1)+'k' : pages.toLocaleString();
 
   renderChart();
   renderCal();
+}
+
+function switchStatsPeriod(period) {
+  statsPeriod = period;
+  const btnAll = document.getElementById('stats-btn-all');
+  const btnYear = document.getElementById('stats-btn-year');
+  const btnMonth = document.getElementById('stats-btn-month');
+
+  [btnAll, btnYear, btnMonth].forEach(btn => {
+    if (btn) {
+      btn.style.background = 'var(--glass)';
+      btn.style.color = 'var(--text-300)';
+      btn.style.border = '1px solid var(--border)';
+    }
+  });
+
+  let activeBtn = btnAll;
+  if (period === 'year') activeBtn = btnYear;
+  if (period === 'month') activeBtn = btnMonth;
+
+  if (activeBtn) {
+    activeBtn.style.background = 'var(--violet)';
+    activeBtn.style.color = '#fff';
+    activeBtn.style.border = 'none';
+  }
+
+  updateSidebar();
 }
 
 function renderChart() {
