@@ -1765,17 +1765,20 @@ function parseAladinXml(xmlText) {
     let isbn13 = item.querySelector('isbn13')?.textContent || '';
     let pages = '';
     
-    let pageNode = item.querySelector('subInfo itemPage') || 
-                   item.querySelector('itemPage') || 
-                   item.querySelector('itempage') || 
-                   item.querySelector('subInfo itempage') ||
-                   item.querySelector('ItemPage') ||
-                   item.querySelector('subInfo ItemPage');
+    let pageNode = item.getElementsByTagName('itemPage')[0] || 
+                   item.getElementsByTagName('itempage')[0] || 
+                   item.getElementsByTagName('ItemPage')[0];
     if (pageNode) {
       pages = pageNode.textContent;
     }
     
-    return { title, author, cover, publisher, pubDate, pages, itemId, isbn, isbn13 };
+    // Extract only digits for pages
+    pages = pages ? pages.replace(/[^0-9]/g, '') : '';
+
+    // Clean author name (remove parenthesized roles like (지은이))
+    let cleanAuthor = author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '');
+    
+    return { title, author: cleanAuthor, cover, publisher, pubDate, pages, itemId, isbn, isbn13 };
   });
 
   return { error: false, items: itemArray };
@@ -1889,19 +1892,25 @@ function handleAladinResults(data) {
   if (Array.isArray(data)) {
     items = data;
   } else if (data && data.item) {
-    items = data.item.map(item => ({
-      title: item.title || '',
-      author: item.author || '',
-      cover: item.cover || '',
-      publisher: item.publisher || '',
-      pubDate: item.pubDate || '',
-      pages: (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) || 
-             (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
-             item.itemPage || item.itempage || '',
-      itemId: item.itemId || item.itemid || '',
-      isbn: item.isbn || '',
-      isbn13: item.isbn13 || ''
-    }));
+    items = data.item.map(item => {
+      let pagesVal = (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) || 
+                     (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
+                     item.itemPage || item.itempage || '';
+      let pages = pagesVal ? String(pagesVal).replace(/[^0-9]/g, '') : '';
+      let author = item.author || '';
+      let cleanAuthor = author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '');
+      return {
+        title: item.title || '',
+        author: cleanAuthor,
+        cover: item.cover || '',
+        publisher: item.publisher || '',
+        pubDate: item.pubDate || '',
+        pages: pages,
+        itemId: item.itemId || item.itemid || '',
+        isbn: item.isbn || '',
+        isbn13: item.isbn13 || ''
+      };
+    });
   }
 
   if (items.length === 0) {
@@ -1945,10 +1954,15 @@ function handleAladinResults(data) {
 
 function applyAladinItem(item) {
   if (item.title) document.getElementById('bk-title').value = item.title;
-  if (item.author) document.getElementById('bk-author').value = item.author;
   
-  if (item.pages) {
-    document.getElementById('bk-pages').value = item.pages;
+  if (item.author) {
+    let cleanAuthor = item.author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '');
+    document.getElementById('bk-author').value = cleanAuthor;
+  }
+  
+  let cleanPages = item.pages ? String(item.pages).replace(/[^0-9]/g, '') : '';
+  if (cleanPages) {
+    document.getElementById('bk-pages').value = cleanPages;
   } else {
     document.getElementById('bk-pages').value = '';
   }
@@ -1963,7 +1977,7 @@ function applyAladinItem(item) {
   toast('✅ 도서 정보가 적용되었습니다');
 
   const identifier = item.itemId || item.isbn13 || item.isbn;
-  if (identifier && !item.pages) {
+  if (identifier && !cleanPages) {
     fetchDetailedPages(identifier);
   }
 }
@@ -1977,8 +1991,9 @@ function fetchDetailedPages(itemId) {
 
   const updatePageField = (pages) => {
     if (pages) {
-      document.getElementById('bk-pages').value = pages;
-      toast('✅ 페이지 수 정보를 불러왔습니다 (' + pages + 'p)');
+      const cleanPages = String(pages).replace(/[^0-9]/g, '');
+      document.getElementById('bk-pages').value = cleanPages;
+      toast('✅ 페이지 수 정보를 불러왔습니다 (' + cleanPages + 'p)');
     }
   };
 
