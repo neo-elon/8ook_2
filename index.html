@@ -1288,9 +1288,8 @@
             onkeydown="if(event.key==='Enter'){event.preventDefault();searchAladin();}">
           <button class="btn btn-ghost btn-sm" onclick="searchAladin()" id="search-btn">🔍 검색</button>
           <input type="file" accept="image/*" capture="environment" id="camera-scan-file" style="display:none" onchange="handleCameraScan(this)">
-          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('camera-scan-file').click()" id="camera-scan-btn" title="바코드/표지 촬영 검색" style="display:flex; align-items:center; gap:4px; padding: 5px 8px;">📷 촬영 검색</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('camera-scan-file').click()" id="camera-scan-btn" title="바코드 촬영 검색" style="display:flex; align-items:center; gap:4px; padding: 5px 8px;">📷 바코드 스캔</button>
         </div>
-        <div id="ocr-candidates" style="display:none; gap:6px; flex-wrap:wrap; margin-top:6px; margin-bottom:2px;"></div>
       </div>
 
       <!-- Search results -->
@@ -1909,8 +1908,6 @@ function openAddModal() {
   document.getElementById('bk-sentence').value = '';
   document.getElementById('bk-img-url').value = '';
   document.getElementById('bk-img-file').value = '';
-  document.getElementById('ocr-candidates').style.display = 'none';
-  document.getElementById('ocr-candidates').innerHTML = '';
   hideSearchResults();
   resetPrev();
   updateStarBtns(0);
@@ -1940,8 +1937,6 @@ function openEditModal(id) {
   hideSearchResults();
   if (b.cover) setPrev(b.cover); else resetPrev();
   updateStarBtns(currentRating);
-  document.getElementById('ocr-candidates').style.display = 'none';
-  document.getElementById('ocr-candidates').innerHTML = '';
   openModal('book-modal');
 }
 
@@ -2367,8 +2362,6 @@ function handleCameraScan(input) {
   const results = document.getElementById('aladin-results');
   results.classList.add('show');
   results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드 인식 중...</div>`;
-  document.getElementById('ocr-candidates').style.display = 'none';
-  document.getElementById('ocr-candidates').innerHTML = '';
 
   const reader = new FileReader();
   reader.onload = function (e) {
@@ -2382,7 +2375,7 @@ function handleCameraScan(input) {
       ctx.drawImage(tempImg, 0, 0, tempImg.naturalWidth, tempImg.naturalHeight);
       const orientedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
 
-      // Now create oriented image for ZXing and Tesseract
+      // Now create oriented image for ZXing
       const orientedImg = new Image();
       orientedImg.onload = function () {
         const codeReader = new ZXing.BrowserMultiFormatReader();
@@ -2393,10 +2386,7 @@ function handleCameraScan(input) {
             searchAladinByIsbn(barcode);
           })
           .catch(err => {
-            results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드 미인식. 표지 텍스트(OCR) 분석 중...</div>`;
-            preprocessOcrImage(orientedDataUrl).then(processedUrl => {
-              runCoverOcr(processedUrl);
-            });
+            results.innerHTML = `<div class="search-empty">❌ 바코드를 인식하지 못했습니다. 책 뒷면의 바코드가 선명하게 보이도록 다시 촬영해 주세요.</div>`;
           });
       };
       orientedImg.src = orientedDataUrl;
@@ -2404,99 +2394,6 @@ function handleCameraScan(input) {
     tempImg.src = e.target.result;
   };
   reader.readAsDataURL(file);
-}
-
-async function runCoverOcr(dataUrl) {
-  const results = document.getElementById('aladin-results');
-  const candidatesEl = document.getElementById('ocr-candidates');
-  candidatesEl.innerHTML = '';
-  candidatesEl.style.display = 'none';
-
-  try {
-    const lang = 'kor'; // Changed to 'kor' for faster load time and higher Korean accuracy
-    if (ocrWorker && activeOcrLang !== lang) {
-      await ocrWorker.terminate().catch(()=>{});
-      ocrWorker = null;
-    }
-    if (!ocrWorker) {
-      ocrWorker = await Tesseract.createWorker(lang, 1, {
-        logger: m => {
-          if (m.status === 'recognizing text') {
-            const pct = Math.round(m.progress * 100);
-            results.innerHTML = `<div class="search-loading"><span class="spin"></span> 표지 텍스트 분석 중... ${pct}%</div>`;
-          }
-        }
-      });
-      activeOcrLang = lang;
-    }
-
-    const { data } = await ocrWorker.recognize(dataUrl);
-
-    let lines = [];
-    if (data && data.lines) {
-      lines = data.lines
-        .filter(line => line.confidence > 55) // Lowered slightly to capture more candidates under grayscale
-        .map(line => line.text.trim().replace(/[^a-zA-Z0-9가-힣\s]/g, '').replace(/\s+/g, ' '))
-        .filter(line => {
-          const hasKorean = /[가-힣]/.test(line);
-          if (hasKorean) {
-            return line.length >= 2 && line.length < 30;
-          } else {
-            // English/Alphanumeric line validation
-            const words = line.split(' ').filter(w => w.length > 0);
-            if (words.length === 0) return false;
-            const singleCharWords = words.filter(w => w.length === 1);
-            // Filter out noise like "V 4 O 1"
-            if (singleCharWords.length / words.length > 0.4 && words.length > 1) {
-              return false;
-            }
-            return line.length >= 3 && line.length < 30;
-          }
-        });
-    }
-
-    if (lines.length === 0) {
-      results.innerHTML = `<div class="search-empty">❌ 바코드 또는 도서 정보(표지 제목)를 인식하지 못했습니다. 직접 검색을 이용해주세요.</div>`;
-      return;
-    }
-
-    // Display candidates for user to choose
-    const uniqueLines = [...new Set(lines)].slice(0, 5);
-    if (uniqueLines.length > 0) {
-      candidatesEl.style.display = 'flex';
-      const label = document.createElement('span');
-      label.style.fontSize = '11px';
-      label.style.color = 'var(--text-300)';
-      label.style.alignSelf = 'center';
-      label.textContent = '인식 키워드:';
-      candidatesEl.appendChild(label);
-
-      uniqueLines.forEach(lineText => {
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-ghost btn-sm';
-        btn.style.padding = '2px 8px';
-        btn.style.fontSize = '11px';
-        btn.style.borderRadius = '12px';
-        btn.textContent = lineText;
-        btn.onclick = (e) => {
-          e.preventDefault();
-          document.getElementById('bk-title').value = lineText;
-          searchAladin();
-        };
-        candidatesEl.appendChild(btn);
-      });
-    }
-
-    lines.sort((a, b) => b.length - a.length);
-    const bestQuery = lines[0];
-    
-    document.getElementById('bk-title').value = bestQuery;
-    toast(`🔍 표지 텍스트 추출 성공: "${bestQuery}"`);
-    searchAladin();
-  } catch (err) {
-    console.error(err);
-    results.innerHTML = `<div class="search-empty">❌ 바코드 또는 표지 텍스트 인식 실패. 직접 검색을 이용해주세요.</div>`;
-  }
 }
 
 function runAladinJsonp(query, key, results) {
