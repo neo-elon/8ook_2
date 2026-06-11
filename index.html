@@ -2336,9 +2336,18 @@ function handleCameraScan(input) {
 async function runCoverOcr(dataUrl) {
   const results = document.getElementById('aladin-results');
   try {
-    const worker = await Tesseract.createWorker('kor+eng');
-    const { data: { text } } = await worker.recognize(dataUrl);
-    await worker.terminate();
+    if (!ocrWorker) {
+      ocrWorker = await Tesseract.createWorker('kor+eng', 1, {
+        logger: m => {
+          if (m.status === 'recognizing text') {
+            const pct = Math.round(m.progress * 100);
+            results.innerHTML = `<div class="search-loading"><span class="spin"></span> 표지 텍스트 분석 중... ${pct}%</div>`;
+          }
+        }
+      });
+    }
+
+    const { data: { text } } = await ocrWorker.recognize(dataUrl);
 
     const lines = text.split('\n')
       .map(line => line.trim().replace(/[^a-zA-Z0-9가-힣\s]/g, ''))
