@@ -2926,11 +2926,35 @@ async function runOcr(dataUrl) {
     
     // Store lines with their bounding boxes and selected states
     if (data && data.lines) {
-      ocrLinesData = data.lines.map(line => ({
-        text: line.text.trim(),
-        bbox: line.bbox,
-        selected: false
-      })).filter(l => l.text.length > 0);
+      ocrLinesData = data.lines
+        .filter(line => line.confidence > 50)
+        .map(line => {
+          // Clean isolated garbage characters (like |, I, l, i, ~, ·, etc.)
+          const cleanedText = line.text.trim()
+            .split(/\s+/)
+            .filter(word => {
+              if (word.length === 1 && /^[|Il!~._,\-·/\\i]+$/.test(word)) {
+                return false;
+              }
+              return true;
+            })
+            .join(' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+          return {
+            text: cleanedText,
+            bbox: line.bbox,
+            selected: false
+          };
+        })
+        .filter(l => {
+          if (l.text.length < 2) return false;
+          // Discard lines consisting only of numbers and symbols (must have at least one alphabet or Korean letter)
+          const hasWordChar = /[a-zA-Z가-힣]/.test(l.text);
+          if (!hasWordChar) return false;
+          return true;
+        });
     }
 
     if (scanLine) scanLine.classList.remove('scanning');
