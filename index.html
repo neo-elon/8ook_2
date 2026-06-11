@@ -2319,6 +2319,47 @@ function runAladinLookUpJsonp(isbn, key, results) {
   document.body.appendChild(script);
 }
 
+function preprocessOcrImage(dataUrl) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+      
+      // Convert to grayscale and apply contrast enhancement
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i+1];
+        const b = data[i+2];
+        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+        
+        // Boost contrast (stretch darks and lights)
+        let val = gray;
+        if (gray < 128) {
+          val = Math.max(0, gray * 0.65);
+        } else {
+          val = Math.min(255, gray * 1.35);
+        }
+        
+        data[i] = val;
+        data[i+1] = val;
+        data[i+2] = val;
+      }
+      
+      ctx.putImageData(imgData, 0, 0);
+      resolve(canvas.toDataURL('image/jpeg', 0.9));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
 function handleCameraScan(input) {
   const file = input.files[0];
   if (!file) return;
@@ -2353,7 +2394,9 @@ function handleCameraScan(input) {
           })
           .catch(err => {
             results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드 미인식. 표지 텍스트(OCR) 분석 중...</div>`;
-            runCoverOcr(orientedDataUrl);
+            preprocessOcrImage(orientedDataUrl).then(processedUrl => {
+              runCoverOcr(processedUrl);
+            });
           });
       };
       orientedImg.src = orientedDataUrl;
@@ -2370,7 +2413,7 @@ async function runCoverOcr(dataUrl) {
   candidatesEl.style.display = 'none';
 
   try {
-    const lang = 'kor+eng';
+    const lang = 'kor'; // Changed to 'kor' for faster load time and higher Korean accuracy
     if (ocrWorker && activeOcrLang !== lang) {
       await ocrWorker.terminate().catch(()=>{});
       ocrWorker = null;
@@ -2392,7 +2435,7 @@ async function runCoverOcr(dataUrl) {
     let lines = [];
     if (data && data.lines) {
       lines = data.lines
-        .filter(line => line.confidence > 60)
+        .filter(line => line.confidence > 55) // Lowered slightly to capture more candidates under grayscale
         .map(line => line.text.trim().replace(/[^a-zA-Z0-9가-힣\s]/g, '').replace(/\s+/g, ' '))
         .filter(line => {
           const hasKorean = /[가-힣]/.test(line);
@@ -2842,7 +2885,9 @@ function loadOcrImg(inp) {
       document.getElementById('ocr-ctrl-btns').style.display = 'none';
 
       ocrImg.onload = () => {
-        runOcr(orientedDataUrl);
+        preprocessOcrImage(orientedDataUrl).then(processedUrl => {
+          runOcr(processedUrl);
+        });
       };
     };
     tempImg.src = e.target.result;
