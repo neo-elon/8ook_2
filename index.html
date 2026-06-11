@@ -1395,13 +1395,22 @@
       <div class="stab-body" id="sbody-photo">
         <div class="fg">
           <div class="flbl">📷 책 사진 업로드</div>
-          <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+          <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap;">
             <input type="file" id="ocr-file" accept="image/*"
               style="display:none" onchange="loadOcrImg(this)">
             <button class="btn btn-ghost" onclick="document.getElementById('ocr-file').click()">
               📂 이미지 선택
             </button>
-            <span id="ocr-fname" style="font-size:11px;color:var(--text-400);">선택된 파일 없음</span>
+            <span id="ocr-fname" style="font-size:11px;color:var(--text-400);flex:1;min-width:100px;">선택된 파일 없음</span>
+            
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span class="flbl" style="margin-bottom:0;font-size:11px;">언어:</span>
+              <select class="fi" id="ocr-lang" style="width:105px;padding:4px 8px;font-size:12px;height:28px;" onchange="onOcrLangChange()">
+                <option value="kor" selected>한글 (기본)</option>
+                <option value="eng">영어</option>
+                <option value="kor+eng">한글+영어</option>
+              </select>
+            </div>
           </div>
           <div class="flbl" style="margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
             <span>사진 속 문장을 직접 클릭/탭하여 선택하세요.</span>
@@ -1536,6 +1545,7 @@ let ocrSelDiv = null;
 let ocrDragging = false;
 let ocrX0 = 0, ocrY0 = 0;
 let ocrWorker = null;
+let activeOcrLang = null;
 
 // Aladin
 let aladinSearchTimer = null;
@@ -2326,7 +2336,16 @@ function handleCameraScan(input) {
         })
         .catch(err => {
           results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드 미인식. 표지 텍스트(OCR) 분석 중...</div>`;
-          runCoverOcr(imgUrl);
+          
+          // Draw to canvas to bake EXIF orientation
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+          const orientedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+          
+          runCoverOcr(orientedDataUrl);
         });
     };
   };
@@ -2336,8 +2355,13 @@ function handleCameraScan(input) {
 async function runCoverOcr(dataUrl) {
   const results = document.getElementById('aladin-results');
   try {
+    const lang = 'kor+eng';
+    if (ocrWorker && activeOcrLang !== lang) {
+      await ocrWorker.terminate().catch(()=>{});
+      ocrWorker = null;
+    }
     if (!ocrWorker) {
-      ocrWorker = await Tesseract.createWorker('kor+eng', 1, {
+      ocrWorker = await Tesseract.createWorker(lang, 1, {
         logger: m => {
           if (m.status === 'recognizing text') {
             const pct = Math.round(m.progress * 100);
@@ -2345,6 +2369,7 @@ async function runCoverOcr(dataUrl) {
           }
         }
       });
+      activeOcrLang = lang;
     }
 
     const { data: { text } } = await ocrWorker.recognize(dataUrl);
@@ -2734,20 +2759,32 @@ function loadOcrImg(inp) {
 
   const reader = new FileReader();
   reader.onload = e => {
-    const wrap = document.getElementById('ocr-wrap');
-    wrap.innerHTML = `
-      <div class="ocr-container" id="ocr-container">
-        <img id="ocr-img-el" src="${e.target.result}" alt="OCR" draggable="false">
-        <div class="ocr-scan-line" id="ocr-scan-line"></div>
-        <div class="ocr-overlay" id="ocr-overlay"></div>
-      </div>`;
-    ocrImg = document.getElementById('ocr-img-el');
-    ocrLinesData = [];
-    document.getElementById('ocr-ctrl-btns').style.display = 'none';
+    const tempImg = new Image();
+    tempImg.onload = () => {
+      // Draw to canvas to bake EXIF orientation
+      const canvas = document.createElement('canvas');
+      canvas.width = tempImg.naturalWidth;
+      canvas.height = tempImg.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(tempImg, 0, 0, tempImg.naturalWidth, tempImg.naturalHeight);
+      const orientedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
 
-    ocrImg.onload = () => {
-      runOcr(e.target.result);
+      const wrap = document.getElementById('ocr-wrap');
+      wrap.innerHTML = `
+        <div class="ocr-container" id="ocr-container">
+          <img id="ocr-img-el" src="${orientedDataUrl}" alt="OCR" draggable="false">
+          <div class="ocr-scan-line" id="ocr-scan-line"></div>
+          <div class="ocr-overlay" id="ocr-overlay"></div>
+        </div>`;
+      ocrImg = document.getElementById('ocr-img-el');
+      ocrLinesData = [];
+      document.getElementById('ocr-ctrl-btns').style.display = 'none';
+
+      ocrImg.onload = () => {
+        runOcr(orientedDataUrl);
+      };
     };
+    tempImg.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
@@ -2762,8 +2799,13 @@ async function runOcr(dataUrl) {
   if (scanLine) scanLine.classList.add('scanning');
 
   try {
+    const lang = document.getElementById('ocr-lang').value || 'kor';
+    if (ocrWorker && activeOcrLang !== lang) {
+      await ocrWorker.terminate().catch(()=>{});
+      ocrWorker = null;
+    }
     if (!ocrWorker) {
-      ocrWorker = await Tesseract.createWorker('kor+eng', 1, {
+      ocrWorker = await Tesseract.createWorker(lang, 1, {
         logger: m => {
           if (m.status === 'recognizing text') {
             const pct = Math.round(m.progress * 100);
@@ -2771,6 +2813,7 @@ async function runOcr(dataUrl) {
           }
         }
       });
+      activeOcrLang = lang;
     }
 
     const { data } = await ocrWorker.recognize(dataUrl);
@@ -2800,6 +2843,16 @@ async function runOcr(dataUrl) {
     if (scanLine) scanLine.classList.remove('scanning');
     statusEl.innerHTML = '❌ 분석 실패. 다시 시도해주세요.';
     setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+  }
+}
+
+async function onOcrLangChange() {
+  if (ocrImg && ocrImg.src) {
+    if (ocrWorker) {
+      await ocrWorker.terminate().catch(()=>{});
+      ocrWorker = null;
+    }
+    runOcr(ocrImg.src);
   }
 }
 
@@ -3371,6 +3424,7 @@ function closeModal(id) {
 
   if (id === 'scrap-modal') {
     if (ocrWorker) { ocrWorker.terminate().catch(()=>{}); ocrWorker = null; }
+    activeOcrLang = null;
     ocrImg = null; ocrSelDiv = null;
   }
 
