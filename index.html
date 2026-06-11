@@ -2386,11 +2386,30 @@ async function runCoverOcr(dataUrl) {
       activeOcrLang = lang;
     }
 
-    const { data: { text } } = await ocrWorker.recognize(dataUrl);
+    const { data } = await ocrWorker.recognize(dataUrl);
 
-    const lines = text.split('\n')
-      .map(line => line.trim().replace(/[^a-zA-Z0-9가-힣\s]/g, ''))
-      .filter(line => line.length > 1 && line.length < 30);
+    let lines = [];
+    if (data && data.lines) {
+      lines = data.lines
+        .filter(line => line.confidence > 60)
+        .map(line => line.text.trim().replace(/[^a-zA-Z0-9가-힣\s]/g, '').replace(/\s+/g, ' '))
+        .filter(line => {
+          const hasKorean = /[가-힣]/.test(line);
+          if (hasKorean) {
+            return line.length >= 2 && line.length < 30;
+          } else {
+            // English/Alphanumeric line validation
+            const words = line.split(' ').filter(w => w.length > 0);
+            if (words.length === 0) return false;
+            const singleCharWords = words.filter(w => w.length === 1);
+            // Filter out noise like "V 4 O 1"
+            if (singleCharWords.length / words.length > 0.4 && words.length > 1) {
+              return false;
+            }
+            return line.length >= 3 && line.length < 30;
+          }
+        });
+    }
 
     if (lines.length === 0) {
       results.innerHTML = `<div class="search-empty">❌ 바코드 또는 도서 정보(표지 제목)를 인식하지 못했습니다. 직접 검색을 이용해주세요.</div>`;
