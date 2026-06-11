@@ -1289,6 +1289,7 @@
           <input type="file" accept="image/*" capture="environment" id="camera-scan-file" style="display:none" onchange="handleCameraScan(this)">
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('camera-scan-file').click()" id="camera-scan-btn" title="바코드/표지 촬영 검색" style="display:flex; align-items:center; gap:4px; padding: 5px 8px;">📷 촬영 검색</button>
         </div>
+        <div id="ocr-candidates" style="display:none; gap:6px; flex-wrap:wrap; margin-top:6px; margin-bottom:2px;"></div>
       </div>
 
       <!-- Search results -->
@@ -1907,6 +1908,8 @@ function openAddModal() {
   document.getElementById('bk-sentence').value = '';
   document.getElementById('bk-img-url').value = '';
   document.getElementById('bk-img-file').value = '';
+  document.getElementById('ocr-candidates').style.display = 'none';
+  document.getElementById('ocr-candidates').innerHTML = '';
   hideSearchResults();
   resetPrev();
   updateStarBtns(0);
@@ -1936,6 +1939,8 @@ function openEditModal(id) {
   hideSearchResults();
   if (b.cover) setPrev(b.cover); else resetPrev();
   updateStarBtns(currentRating);
+  document.getElementById('ocr-candidates').style.display = 'none';
+  document.getElementById('ocr-candidates').innerHTML = '';
   openModal('book-modal');
 }
 
@@ -2320,40 +2325,49 @@ function handleCameraScan(input) {
   const results = document.getElementById('aladin-results');
   results.classList.add('show');
   results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드 인식 중...</div>`;
+  document.getElementById('ocr-candidates').style.display = 'none';
+  document.getElementById('ocr-candidates').innerHTML = '';
 
   const reader = new FileReader();
   reader.onload = function (e) {
-    const imgUrl = e.target.result;
-    const img = new Image();
-    img.src = imgUrl;
-    img.onload = function () {
-      const codeReader = new ZXing.BrowserMultiFormatReader();
-      codeReader.decodeFromImageElement(img)
-        .then(result => {
-          const barcode = result.text;
-          toast(`🔍 바코드 인식 성공: ${barcode}`);
-          searchAladinByIsbn(barcode);
-        })
-        .catch(err => {
-          results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드 미인식. 표지 텍스트(OCR) 분석 중...</div>`;
-          
-          // Draw to canvas to bake EXIF orientation
-          const canvas = document.createElement('canvas');
-          canvas.width = img.naturalWidth;
-          canvas.height = img.naturalHeight;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
-          const orientedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-          
-          runCoverOcr(orientedDataUrl);
-        });
+    const tempImg = new Image();
+    tempImg.onload = function () {
+      // Draw to canvas to bake EXIF orientation
+      const canvas = document.createElement('canvas');
+      canvas.width = tempImg.naturalWidth;
+      canvas.height = tempImg.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(tempImg, 0, 0, tempImg.naturalWidth, tempImg.naturalHeight);
+      const orientedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+
+      // Now create oriented image for ZXing and Tesseract
+      const orientedImg = new Image();
+      orientedImg.onload = function () {
+        const codeReader = new ZXing.BrowserMultiFormatReader();
+        codeReader.decodeFromImageElement(orientedImg)
+          .then(result => {
+            const barcode = result.text;
+            toast(`🔍 바코드 인식 성공: ${barcode}`);
+            searchAladinByIsbn(barcode);
+          })
+          .catch(err => {
+            results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드 미인식. 표지 텍스트(OCR) 분석 중...</div>`;
+            runCoverOcr(orientedDataUrl);
+          });
+      };
+      orientedImg.src = orientedDataUrl;
     };
+    tempImg.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
 async function runCoverOcr(dataUrl) {
   const results = document.getElementById('aladin-results');
+  const candidatesEl = document.getElementById('ocr-candidates');
+  candidatesEl.innerHTML = '';
+  candidatesEl.style.display = 'none';
+
   try {
     const lang = 'kor+eng';
     if (ocrWorker && activeOcrLang !== lang) {
@@ -2376,11 +2390,38 @@ async function runCoverOcr(dataUrl) {
 
     const lines = text.split('\n')
       .map(line => line.trim().replace(/[^a-zA-Z0-9가-힣\s]/g, ''))
-      .filter(line => line.length > 1);
+      .filter(line => line.length > 1 && line.length < 30);
 
     if (lines.length === 0) {
       results.innerHTML = `<div class="search-empty">❌ 바코드 또는 도서 정보(표지 제목)를 인식하지 못했습니다. 직접 검색을 이용해주세요.</div>`;
       return;
+    }
+
+    // Display candidates for user to choose
+    const uniqueLines = [...new Set(lines)].slice(0, 5);
+    if (uniqueLines.length > 0) {
+      candidatesEl.style.display = 'flex';
+      const label = document.createElement('span');
+      label.style.fontSize = '11px';
+      label.style.color = 'var(--text-300)';
+      label.style.alignSelf = 'center';
+      label.textContent = '인식 키워드:';
+      candidatesEl.appendChild(label);
+
+      uniqueLines.forEach(lineText => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-ghost btn-sm';
+        btn.style.padding = '2px 8px';
+        btn.style.fontSize = '11px';
+        btn.style.borderRadius = '12px';
+        btn.textContent = lineText;
+        btn.onclick = (e) => {
+          e.preventDefault();
+          document.getElementById('bk-title').value = lineText;
+          searchAladin();
+        };
+        candidatesEl.appendChild(btn);
+      });
     }
 
     lines.sort((a, b) => b.length - a.length);
