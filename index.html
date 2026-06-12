@@ -4642,7 +4642,7 @@ function renderCommunityFeed() {
         <div class="feed-time">${post.time}</div>
       </div>
       <div class="feed-book-info" onclick="searchAladinByQuery('${esc(post.bookTitle)}')">
-        <img class="feed-book-cover" src="${esc(post.bookCover)}" onerror="this.src='https://via.placeholder.com/45x65?text=No+Cover'">
+        <img class="feed-book-cover" src="${esc(post.bookCover)}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2245%22 height=%2265%22><rect width=%22100%%22 height=%22100%%22 fill=%22%2318182e%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2220%22>📚</text></svg>'">
         <div class="feed-book-detail">
           <div class="feed-book-title">${esc(post.bookTitle)}</div>
           <div class="feed-book-author">${esc(post.bookAuthor)}</div>
