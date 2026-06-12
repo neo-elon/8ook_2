@@ -704,6 +704,48 @@
     }
     .chip-icon { font-size:13px; }
 
+    /* ── Keyword tag chip in detail ── */
+    .kw-chip {
+      display:inline-flex; align-items:center; gap:3px;
+      background: rgba(139,92,246,0.12);
+      border: 1px solid rgba(139,92,246,0.28);
+      border-radius:20px; padding:4px 11px;
+      font-size:11px; font-weight:600;
+      color: var(--lavender);
+      letter-spacing:0.3px;
+      transition: background .2s;
+    }
+    .kw-chip:hover { background: rgba(139,92,246,0.2); }
+
+    /* ── Keyword modal input ── */
+    .kw-input-wrap {
+      display:flex; align-items:center; gap:3px;
+      background: rgba(139,92,246,0.08);
+      border: 1px solid rgba(139,92,246,0.22);
+      border-radius:20px; padding:4px 10px 4px 8px;
+      transition: border-color .2s, background .2s;
+      flex: 1; min-width: 80px; max-width: 130px;
+    }
+    .kw-input-wrap:focus-within {
+      border-color: var(--violet);
+      background: rgba(139,92,246,0.14);
+    }
+    .kw-hash {
+      color: var(--violet); font-size:13px; font-weight:700;
+      line-height:1; flex-shrink:0;
+    }
+    .kw-inp {
+      background:none; border:none; outline:none;
+      color:var(--text-100); font-family:'Noto Sans KR',sans-serif;
+      font-size:12px; font-weight:500;
+      width:100%; min-width:0;
+    }
+    .kw-inp::placeholder { color:var(--text-400); }
+
+    /* date picker color-scheme per theme */
+    .bk-date-inp { color-scheme: dark; }
+    body.light-theme .bk-date-inp { color-scheme: light; }
+
     .detail-stars { display:flex; gap:5px; margin-top:2px; }
     .detail-star {
       font-size:22px;
@@ -1543,12 +1585,11 @@
         </div>
         <div class="fg">
           <div class="flbl">📅 완독일</div>
-          <input type="date" id="bk-date"
+          <input type="date" id="bk-date" class="bk-date-inp"
             style="background:none; border:none; border-bottom:1px solid var(--border-muted);
                    border-radius:0; color:var(--text-100); padding:6px 2px;
                    font-family:'Noto Sans KR',sans-serif; font-size:13px;
-                   width:100%; transition:border-color .2s; outline:none;
-                   color-scheme: dark;"
+                   width:100%; transition:border-color .2s; outline:none;"
             onfocus="this.style.borderBottomColor='var(--violet)'"
             onblur="this.style.borderBottomColor='var(--border-muted)'">
         </div>
@@ -2194,6 +2235,10 @@ function showDetail(id, direction = null) {
   if (book.date)  chips.push(`<div class="chip"><span class="chip-icon">📅</span>${fmtDate(book.date)}</div>`);
   const scrapCount = (book.scraps||[]).length;
 
+  const kwHtml = (book.keywords && book.keywords.length)
+    ? `<div class="meta-chips" style="margin-top:6px;">${book.keywords.map(k=>`<span class="kw-chip">#${esc(k)}</span>`).join('')}</div>`
+    : '';
+
   const scrapsHtml = buildScrapsHtml(book);
 
   wrap.innerHTML = `
@@ -2203,6 +2248,7 @@ function showDetail(id, direction = null) {
         <div class="detail-title">${esc(book.title)}</div>
         <div class="detail-author">${esc(book.author||'저자 미상')}</div>
         <div class="meta-chips">${chips.join('')}</div>
+        ${kwHtml}
       </div>
     </div>
     <div class="detail-body-sec" style="display:flex; flex-direction:column; gap:16px;">
@@ -2326,6 +2372,9 @@ function openAddModal() {
   document.getElementById('bk-sentence').value = '';
   document.getElementById('bk-img-url').value = '';
   document.getElementById('bk-img-file').value = '';
+  document.getElementById('bk-kw1').value = '';
+  document.getElementById('bk-kw2').value = '';
+  document.getElementById('bk-kw3').value = '';
   hideSearchResults();
   resetPrev();
   updateStarBtns(0);
@@ -2345,6 +2394,11 @@ function openEditModal(id) {
   document.getElementById('bk-pages').value = b.pages || '';
   document.getElementById('bk-date').value = b.date || '';
   document.getElementById('bk-sentence').value = b.sentence || '';
+
+  const kws = b.keywords || [];
+  document.getElementById('bk-kw1').value = kws[0] || '';
+  document.getElementById('bk-kw2').value = kws[1] || '';
+  document.getElementById('bk-kw3').value = kws[2] || '';
 
   if (b.cover && !b.cover.startsWith('data:')) {
     document.getElementById('bk-img-url').value = b.cover;
@@ -2386,6 +2440,19 @@ function resetPrev() {
     `<div class="img-prev-ph"><span class="img-prev-ph-icon">🖼️</span><span>URL 입력, 파일 선택 또는 검색으로 자동 적용</span></div>`;
 }
 
+/* ── Keyword input helpers ── */
+function enforceKwChars(el) {
+  // Strip spaces and special characters — only letters, numbers, Korean
+  el.value = el.value.replace(/\s/g, '');
+}
+function kwTabNext(e, nextId) {
+  if (e.key === 'Tab' || e.key === 'Enter') {
+    e.preventDefault();
+    const next = document.getElementById(nextId);
+    if (next) next.focus();
+  }
+}
+
 function setRating(n) {
   currentRating = n;
   updateStarBtns(n);
@@ -2411,6 +2478,11 @@ async function saveBook() {
     sentence: document.getElementById('bk-sentence').value.trim(),
     cover:    modalCover,
     rating:   currentRating,
+    keywords: [
+      document.getElementById('bk-kw1').value.trim(),
+      document.getElementById('bk-kw2').value.trim(),
+      document.getElementById('bk-kw3').value.trim(),
+    ].filter(k => k.length > 0),
   };
 
   const saveBtn = document.getElementById('book-save-btn');
