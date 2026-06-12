@@ -1805,7 +1805,7 @@
     <!-- Guide text -->
     <div style="position:absolute; bottom:100px; left:0; right:0; text-align:center; z-index:5; pointer-events:none;">
       <p id="barcode-guide-text" style="display:inline-block; color:#fff; font-size:12px; font-weight:500; padding:7px 18px; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); border-radius:10px; border:1px solid rgba(255,255,255,0.08); line-height:1.5;">
-        책 뒷면 바코드를 <strong style="color:#a78bfa;">박스 안</strong>에 맞춰주세요
+        바코드를 <strong style="color:#a78bfa;">박스 안</strong>에 맞추면 자동으로 인식됩니다
       </p>
     </div>
 
@@ -2909,7 +2909,7 @@ function closeBarcodeScannerModal() {
 }
 
 function _stopBarcodeCamera() {
-  if (barcodeScanLoop) { cancelAnimationFrame(barcodeScanLoop); barcodeScanLoop = null; }
+  if (barcodeScanLoop) { clearTimeout(barcodeScanLoop); barcodeScanLoop = null; }
   if (barcodeStream) { barcodeStream.getTracks().forEach(t => t.stop()); barcodeStream = null; }
 }
 
@@ -2957,56 +2957,89 @@ function _startBarcodeScanLoop() {
   if (!video) return;
 
   const codeReader = new ZXing.BrowserMultiFormatReader();
+  let scanning = true;
 
-  async function scanFrame() {
-    if (!barcodeStream) return;
+  async function scanCycle() {
+    if (!barcodeStream || !scanning) return;
 
     if (video.readyState >= 2) {
       const vw = video.videoWidth;
       const vh = video.videoHeight;
 
       if (vw > 0 && vh > 0) {
-        // Guide frame is 260×104 centered in the rendered view (480×640)
+        // ── 1) Cropped guide-box scan (higher priority) ──
+        // object-fit:cover mapping — compute visible area
         const renderW = video.clientWidth  || 480;
         const renderH = video.clientHeight || 640;
-        const scaleX = vw / renderW;
-        const scaleY = vh / renderH;
+
+        const videoAR = vw / vh;
+        const renderAR = renderW / renderH;
+        let srcX = 0, srcY = 0, srcW = vw, srcH = vh;
+
+        if (videoAR > renderAR) {
+          // video is wider → cropped horizontally
+          srcW = vh * renderAR;
+          srcX = (vw - srcW) / 2;
+        } else {
+          // video is taller → cropped vertically
+          srcH = vw / renderAR;
+          srcY = (vh - srcH) / 2;
+        }
+
+        const scaleX = srcW / renderW;
+        const scaleY = srcH / renderH;
 
         const guideW = 260, guideH = 104;
         const gx = (renderW - guideW) / 2;
         const gy = (renderH - guideH) / 2;
 
-        // Expand crop area a bit for tolerance
-        const margin = 28;
-        const cropX = Math.max(0, (gx - margin) * scaleX);
-        const cropY = Math.max(0, (gy - margin) * scaleY);
+        const margin = 36;
+        const cropX = srcX + Math.max(0, (gx - margin) * scaleX);
+        const cropY = srcY + Math.max(0, (gy - margin) * scaleY);
         const cropW = Math.min(vw - cropX, (guideW + margin * 2) * scaleX);
         const cropH = Math.min(vh - cropY, (guideH + margin * 2) * scaleY);
 
-        const offscreen = document.createElement('canvas');
-        offscreen.width  = cropW;
-        offscreen.height = cropH;
-        offscreen.getContext('2d').drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+        // Try cropped area first
+        const croppedResult = await _tryDecode(codeReader, video, cropX, cropY, cropW, cropH);
+        if (croppedResult) { scanning = false; _onBarcodeDetected(croppedResult); return; }
 
-        try {
-          const result = await codeReader.decodeFromCanvas(offscreen);
-          if (result && result.text) {
-            _onBarcodeDetected(result.text);
-            return; // stop loop
-          }
-        } catch (_) { /* no code in this frame */ }
+        // ── 2) Full-frame fallback scan ──
+        const fullResult = await _tryDecode(codeReader, video, 0, 0, vw, vh);
+        if (fullResult) { scanning = false; _onBarcodeDetected(fullResult); return; }
       }
     }
 
-    barcodeScanLoop = requestAnimationFrame(scanFrame);
+    // Throttle: wait ~180ms between scans to avoid flooding CPU
+    barcodeScanLoop = setTimeout(scanCycle, 180);
   }
 
-  barcodeScanLoop = requestAnimationFrame(scanFrame);
+  barcodeScanLoop = setTimeout(scanCycle, 300); // initial delay for camera warm-up
+}
+
+async function _tryDecode(codeReader, video, sx, sy, sw, sh) {
+  try {
+    const c = document.createElement('canvas');
+    c.width = sw; c.height = sh;
+    c.getContext('2d').drawImage(video, sx, sy, sw, sh, 0, 0, sw, sh);
+    const result = await codeReader.decodeFromCanvas(c);
+    if (result && result.text) return result.text;
+  } catch (_) {}
+  return null;
 }
 
 function _onBarcodeDetected(code) {
-  if (barcodeScanLoop) { cancelAnimationFrame(barcodeScanLoop); barcodeScanLoop = null; }
+  if (barcodeScanLoop) { clearTimeout(barcodeScanLoop); barcodeScanLoop = null; }
   _setBarcodeScannerStatus('✅ 바코드 인식!', '#34d399');
+
+  // Haptic feedback (mobile)
+  if (navigator.vibrate) navigator.vibrate(120);
+
+  // Visual feedback — flash the guide green
+  const guide = document.getElementById('barcode-guide-frame');
+  if (guide) {
+    guide.style.transition = 'box-shadow .2s';
+    guide.style.boxShadow = '0 0 24px 4px rgba(52,211,153,0.7), inset 0 0 12px rgba(52,211,153,0.3)';
+  }
 
   const toastEl = document.getElementById('barcode-result-toast');
   if (toastEl) {
@@ -3023,14 +3056,14 @@ function _onBarcodeDetected(code) {
       results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드로 검색 중...</div>`;
     }
     searchAladinByIsbn(code);
-  }, 900);
+  }, 700);
 }
 
 function triggerBarcodeCapture() {
   const video = document.getElementById('barcode-video');
   if (!video || !barcodeStream) return;
 
-  if (barcodeScanLoop) { cancelAnimationFrame(barcodeScanLoop); barcodeScanLoop = null; }
+  if (barcodeScanLoop) { clearTimeout(barcodeScanLoop); barcodeScanLoop = null; }
   _setBarcodeScannerStatus('촬영 중...', '#f59e0b');
 
   const canvas = document.createElement('canvas');
