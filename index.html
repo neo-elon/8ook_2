@@ -2778,6 +2778,190 @@ function handleCameraScan(input) {
   reader.readAsDataURL(file);
 }
 
+/* ============================================================
+   BARCODE SCANNER MODAL LOGIC
+   - 실시간 ZXing 스캔 (가이드 박스 영역 크롭)
+   - 인식 실패 시 수동 촬영 버튼 fallback
+   - 전/후면 카메라 전환 지원
+   ============================================================ */
+let barcodeStream = null;
+let barcodeScanLoop = null;
+let barcodeCurrentFacing = 'environment';
+
+function openBarcodeScannerModal() {
+  openModal('barcode-scanner-modal');
+  _startBarcodeCamera(barcodeCurrentFacing);
+}
+
+function closeBarcodeScannerModal() {
+  _stopBarcodeCamera();
+  const modal = document.getElementById('barcode-scanner-modal');
+  if (modal) modal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function _stopBarcodeCamera() {
+  if (barcodeScanLoop) { cancelAnimationFrame(barcodeScanLoop); barcodeScanLoop = null; }
+  if (barcodeStream) { barcodeStream.getTracks().forEach(t => t.stop()); barcodeStream = null; }
+}
+
+function _setBarcodeScannerStatus(label, color) {
+  const dot = document.getElementById('barcode-status-dot');
+  const lbl = document.getElementById('barcode-status-label');
+  if (dot) dot.style.background = color || '#34d399';
+  if (lbl) lbl.textContent = label || '스캐너 활성';
+}
+
+async function _startBarcodeCamera(facing) {
+  _stopBarcodeCamera();
+  _setBarcodeScannerStatus('카메라 시작 중...', '#f59e0b');
+
+  const video = document.getElementById('barcode-video');
+  if (!video) return;
+
+  try {
+    const constraints = {
+      video: {
+        facingMode: facing,
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+      }
+    };
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    barcodeStream = stream;
+    video.srcObject = stream;
+    await video.play();
+    _setBarcodeScannerStatus('자동 스캔 중...', '#34d399');
+    _startBarcodeScanLoop();
+  } catch (err) {
+    console.warn('Barcode camera error:', err);
+    _setBarcodeScannerStatus('카메라 오류', '#ef4444');
+    toast('📷 카메라를 열 수 없습니다. 파일 선택으로 대체합니다.');
+    setTimeout(() => {
+      closeBarcodeScannerModal();
+      _fallbackBarcodeFileInput();
+    }, 1500);
+  }
+}
+
+function _startBarcodeScanLoop() {
+  const video = document.getElementById('barcode-video');
+  if (!video) return;
+
+  const codeReader = new ZXing.BrowserMultiFormatReader();
+
+  async function scanFrame() {
+    if (!barcodeStream) return;
+
+    if (video.readyState >= 2) {
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+
+      if (vw > 0 && vh > 0) {
+        // Guide frame is 260×104 centered in the rendered view (480×640)
+        const renderW = video.clientWidth  || 480;
+        const renderH = video.clientHeight || 640;
+        const scaleX = vw / renderW;
+        const scaleY = vh / renderH;
+
+        const guideW = 260, guideH = 104;
+        const gx = (renderW - guideW) / 2;
+        const gy = (renderH - guideH) / 2;
+
+        // Expand crop area a bit for tolerance
+        const margin = 28;
+        const cropX = Math.max(0, (gx - margin) * scaleX);
+        const cropY = Math.max(0, (gy - margin) * scaleY);
+        const cropW = Math.min(vw - cropX, (guideW + margin * 2) * scaleX);
+        const cropH = Math.min(vh - cropY, (guideH + margin * 2) * scaleY);
+
+        const offscreen = document.createElement('canvas');
+        offscreen.width  = cropW;
+        offscreen.height = cropH;
+        offscreen.getContext('2d').drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+
+        try {
+          const result = await codeReader.decodeFromCanvas(offscreen);
+          if (result && result.text) {
+            _onBarcodeDetected(result.text);
+            return; // stop loop
+          }
+        } catch (_) { /* no code in this frame */ }
+      }
+    }
+
+    barcodeScanLoop = requestAnimationFrame(scanFrame);
+  }
+
+  barcodeScanLoop = requestAnimationFrame(scanFrame);
+}
+
+function _onBarcodeDetected(code) {
+  if (barcodeScanLoop) { cancelAnimationFrame(barcodeScanLoop); barcodeScanLoop = null; }
+  _setBarcodeScannerStatus('✅ 바코드 인식!', '#34d399');
+
+  const toastEl = document.getElementById('barcode-result-toast');
+  if (toastEl) {
+    toastEl.textContent = `✅ ${code}`;
+    toastEl.style.display = 'block';
+  }
+
+  setTimeout(() => {
+    closeBarcodeScannerModal();
+    toast(`🔍 바코드 인식 성공: ${code}`);
+    const results = document.getElementById('aladin-results');
+    if (results) {
+      results.classList.add('show');
+      results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드로 검색 중...</div>`;
+    }
+    searchAladinByIsbn(code);
+  }, 900);
+}
+
+function triggerBarcodeCapture() {
+  const video = document.getElementById('barcode-video');
+  if (!video || !barcodeStream) return;
+
+  if (barcodeScanLoop) { cancelAnimationFrame(barcodeScanLoop); barcodeScanLoop = null; }
+  _setBarcodeScannerStatus('촬영 중...', '#f59e0b');
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = video.videoWidth  || 640;
+  canvas.height = video.videoHeight || 480;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+
+  const codeReader = new ZXing.BrowserMultiFormatReader();
+  codeReader.decodeFromCanvas(canvas)
+    .then(result => {
+      if (result && result.text) _onBarcodeDetected(result.text);
+    })
+    .catch(() => {
+      _setBarcodeScannerStatus('미인식 — 다시 시도', '#ef4444');
+      const gt = document.getElementById('barcode-guide-text');
+      if (gt) gt.innerHTML = '❌ 인식 실패. 바코드를 <strong style="color:#a78bfa;">박스 안</strong>에 맞추고 다시 누르세요.';
+      setTimeout(() => {
+        if (!barcodeStream) return;
+        _setBarcodeScannerStatus('자동 스캔 중...', '#34d399');
+        if (gt) gt.innerHTML = '책 뒷면 바코드를 <strong style="color:#a78bfa;">박스 안</strong>에 맞춰주세요';
+        _startBarcodeScanLoop();
+      }, 2000);
+    });
+}
+
+function switchBarcodeCamera() {
+  barcodeCurrentFacing = (barcodeCurrentFacing === 'environment') ? 'user' : 'environment';
+  _startBarcodeCamera(barcodeCurrentFacing);
+}
+
+function _fallbackBarcodeFileInput() {
+  const inp = document.createElement('input');
+  inp.type    = 'file';
+  inp.accept  = 'image/*';
+  inp.capture = 'environment';
+  inp.onchange = (e) => handleCameraScan(e.target);
+  inp.click();
+}
+
 function runAladinJsonp(query, key, results) {
   const cbName = '_aladinCb_' + (++aladinCallbackCounter);
   const script = document.createElement('script');
