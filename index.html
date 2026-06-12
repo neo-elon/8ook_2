@@ -704,6 +704,18 @@
     }
     .chip-icon { font-size:13px; }
 
+    /* ── Remove button borders/backgrounds for pages/date in detail ── */
+    .detail-info .meta-chips {
+      gap: 16px;
+    }
+    .detail-info .chip {
+      background: none;
+      border: none;
+      padding: 0;
+      border-radius: 0;
+      color: var(--text-200);
+    }
+
     /* ── Keyword tag chip in detail ── */
     .kw-chip {
       display:inline-flex; align-items:center; gap:3px;
