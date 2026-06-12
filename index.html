@@ -3103,43 +3103,63 @@ async function triggerBarcodeCapture() {
   const canvas = document.createElement('canvas');
   canvas.width  = video.videoWidth  || 640;
   canvas.height = video.videoHeight || 480;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-
-  // 1) Try native BarcodeDetector first on the captured frame
-  if ('BarcodeDetector' in window) {
-    try {
-      const detector = new BarcodeDetector({
-        formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39']
-      });
-      const barcodes = await detector.detect(canvas);
-      if (barcodes && barcodes.length > 0) {
-        _onBarcodeDetected(barcodes[0].rawValue);
-        return;
-      }
-    } catch (e) {
-      console.warn('Native BarcodeDetector manual capture error:', e);
-    }
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   }
 
-  // 2) Fallback to ZXing
-  const codeReader = new ZXing.BrowserMultiFormatReader();
-  codeReader.decodeFromCanvas(canvas)
-    .then(result => {
-      if (result && result.text) _onBarcodeDetected(result.text);
-    })
-    .catch(() => {
-      _setBarcodeScannerStatus('미인식 — 다시 시도', '#ef4444');
-      const gt = document.getElementById('barcode-guide-text');
-      if (gt) gt.innerHTML = '❌ 인식 실패. 바코드를 <strong style="color:#a78bfa;">박스 안</strong>에 맞추고 다시 누르세요.';
-      setTimeout(() => {
-        if (!barcodeStream) return;
-        _setBarcodeScannerStatus('자동 스캔 중...', '#34d399');
-        if (gt) gt.innerHTML = '책 뒷면 바코드를 <strong style="color:#a78bfa;">박스 안</strong>에 맞춰주세요';
-        // Resume automatic scanning
-        barcodeAutoScanningActive = true;
-        _startBarcodeScanLoop();
-      }, 2000);
-    });
+  // Create a timeout promise to prevent hanging
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error('Timeout')), 1200);
+  });
+
+  const scanPromise = (async () => {
+    // 1) Try native BarcodeDetector first on the captured frame
+    if ('BarcodeDetector' in window) {
+      try {
+        const detector = new BarcodeDetector({
+          formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39']
+        });
+        const barcodes = await detector.detect(canvas);
+        if (barcodes && barcodes.length > 0) {
+          return barcodes[0].rawValue;
+        }
+      } catch (e) {
+        console.warn('Native BarcodeDetector manual capture error:', e);
+      }
+    }
+
+    // 2) Fallback to ZXing
+    const codeReader = new ZXing.BrowserMultiFormatReader();
+    const result = await codeReader.decodeFromCanvas(canvas);
+    if (result && result.text) {
+      return result.text;
+    }
+    throw new Error('No barcode found');
+  })();
+
+  try {
+    const code = await Promise.race([scanPromise, timeoutPromise]);
+    if (code) {
+      _onBarcodeDetected(code);
+    } else {
+      throw new Error('Empty barcode result');
+    }
+  } catch (err) {
+    console.warn('Manual capture failed or timed out:', err);
+    _setBarcodeScannerStatus('미인식 — 다시 시도', '#ef4444');
+    const gt = document.getElementById('barcode-guide-text');
+    if (gt) gt.innerHTML = '❌ 인식 실패. 바코드를 <strong style="color:#a78bfa;">박스 안</strong>에 맞추고 다시 누르세요.';
+    
+    setTimeout(() => {
+      if (!barcodeStream) return;
+      _setBarcodeScannerStatus('자동 스캔 중...', '#34d399');
+      if (gt) gt.innerHTML = '책 뒷면 바코드를 <strong style="color:#a78bfa;">박스 안</strong>에 맞춰주세요';
+      // Resume automatic scanning
+      barcodeAutoScanningActive = true;
+      _startBarcodeScanLoop();
+    }, 2000);
+  }
 }
 
 function switchBarcodeCamera() {
