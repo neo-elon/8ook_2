@@ -748,6 +748,7 @@
       border-radius: var(--radius-sm); padding: 9px 12px;
       transition: border-color .2s, background .2s;
       flex: 1; min-width: 80px;
+      cursor: text;
     }
     .kw-input-wrap:focus-within {
       border-color: var(--violet);
@@ -1640,17 +1641,17 @@
       <div class="fg" style="margin-bottom:4px;">
         <div class="flbl">🏷️ 키워드 <span style="color:var(--text-400); font-weight:400;">(최대 3개)</span></div>
         <div id="bk-keyword-wrap" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:2px;">
-          <div class="kw-input-wrap">
+          <div class="kw-input-wrap" onclick="this.querySelector('input').focus()">
             <span class="kw-hash">#</span>
             <input type="text" class="kw-inp" id="bk-kw1" placeholder="키워드1" maxlength="12"
               oninput="enforceKwChars(this)" onkeydown="kwTabNext(event,'bk-kw2')">
           </div>
-          <div class="kw-input-wrap">
+          <div class="kw-input-wrap" onclick="this.querySelector('input').focus()">
             <span class="kw-hash">#</span>
             <input type="text" class="kw-inp" id="bk-kw2" placeholder="키워드2" maxlength="12"
               oninput="enforceKwChars(this)" onkeydown="kwTabNext(event,'bk-kw3')">
           </div>
-          <div class="kw-input-wrap">
+          <div class="kw-input-wrap" onclick="this.querySelector('input').focus()">
             <span class="kw-hash">#</span>
             <input type="text" class="kw-inp" id="bk-kw3" placeholder="키워드3" maxlength="12"
               oninput="enforceKwChars(this)">
