@@ -742,16 +742,15 @@
 
     /* ── Keyword modal input ── */
     .kw-input-wrap {
-      display:flex; align-items:center; gap:3px;
-      background: rgba(139,92,246,0.08);
-      border: 1px solid rgba(139,92,246,0.22);
-      border-radius:20px; padding:4px 10px 4px 8px;
+      display:flex; align-items:center; gap:5px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 9px 12px;
       transition: border-color .2s, background .2s;
-      flex: 1; min-width: 80px; max-width: 130px;
+      flex: 1; min-width: 80px;
     }
     .kw-input-wrap:focus-within {
       border-color: var(--violet);
-      background: rgba(139,92,246,0.14);
     }
     .kw-hash {
       color: var(--violet); font-size:13px; font-weight:700;
@@ -760,7 +759,7 @@
     .kw-inp {
       background:none; border:none; outline:none;
       color:var(--text-100); font-family:'Noto Sans KR',sans-serif;
-      font-size:12px; font-weight:500;
+      font-size:13px; font-weight:400;
       width:100%; min-width:0;
     }
     .kw-inp::placeholder { color:var(--text-400); }
