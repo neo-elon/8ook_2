@@ -1529,15 +1529,28 @@
         <input type="text" class="fi" id="bk-author" placeholder="저자명">
       </div>
 
-      <!-- Pages & Date -->
+      <!-- Pages & Date — borderless -->
       <div class="frow">
         <div class="fg">
           <div class="flbl">📄 페이지수</div>
-          <input type="number" class="fi" id="bk-pages" placeholder="0" min="0">
+          <input type="number" id="bk-pages" placeholder="0" min="0"
+            style="background:none; border:none; border-bottom:1px solid var(--border-muted);
+                   border-radius:0; color:var(--text-100); padding:6px 2px;
+                   font-family:'Noto Sans KR',sans-serif; font-size:13px;
+                   width:100%; transition:border-color .2s; outline:none;"
+            onfocus="this.style.borderBottomColor='var(--violet)'"
+            onblur="this.style.borderBottomColor='var(--border-muted)'">
         </div>
         <div class="fg">
           <div class="flbl">📅 완독일</div>
-          <input type="date" class="fi" id="bk-date">
+          <input type="date" id="bk-date"
+            style="background:none; border:none; border-bottom:1px solid var(--border-muted);
+                   border-radius:0; color:var(--text-100); padding:6px 2px;
+                   font-family:'Noto Sans KR',sans-serif; font-size:13px;
+                   width:100%; transition:border-color .2s; outline:none;
+                   color-scheme: dark;"
+            onfocus="this.style.borderBottomColor='var(--violet)'"
+            onblur="this.style.borderBottomColor='var(--border-muted)'">
         </div>
       </div>
 
@@ -1560,7 +1573,30 @@
           placeholder="이 책을 한 문장으로 표현한다면..." rows="2"></textarea>
       </div>
 
+      <!-- Keywords -->
+      <div class="fg" style="margin-bottom:4px;">
+        <div class="flbl">🏷️ 키워드 <span style="color:var(--text-400); font-weight:400;">(최대 3개)</span></div>
+        <div id="bk-keyword-wrap" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:2px;">
+          <div class="kw-input-wrap">
+            <span class="kw-hash">#</span>
+            <input type="text" class="kw-inp" id="bk-kw1" placeholder="키워드1" maxlength="12"
+              oninput="enforceKwChars(this)" onkeydown="kwTabNext(event,'bk-kw2')">
+          </div>
+          <div class="kw-input-wrap">
+            <span class="kw-hash">#</span>
+            <input type="text" class="kw-inp" id="bk-kw2" placeholder="키워드2" maxlength="12"
+              oninput="enforceKwChars(this)" onkeydown="kwTabNext(event,'bk-kw3')">
+          </div>
+          <div class="kw-input-wrap">
+            <span class="kw-hash">#</span>
+            <input type="text" class="kw-inp" id="bk-kw3" placeholder="키워드3" maxlength="12"
+              oninput="enforceKwChars(this)">
+          </div>
+        </div>
+      </div>
+
     </div>
+
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('book-modal')">취소</button>
       <button class="btn btn-primary" onclick="saveBook()" id="book-save-btn">저장</button>
