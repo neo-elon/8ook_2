@@ -1497,8 +1497,7 @@
             placeholder="책 제목 입력"
             onkeydown="if(event.key==='Enter'){event.preventDefault();searchAladin();}">
           <button class="btn btn-ghost btn-sm" onclick="searchAladin()" id="search-btn">🔍 검색</button>
-          <input type="file" accept="image/*" capture="environment" id="camera-scan-file" style="display:none" onchange="handleCameraScan(this)">
-          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('camera-scan-file').click()" id="camera-scan-btn" title="바코드 촬영 검색" style="display:flex; align-items:center; gap:4px; padding: 5px 8px;">📷 바코드 스캔</button>
+          <button class="btn btn-ghost btn-sm" onclick="openBarcodeScannerModal()" id="camera-scan-btn" title="바코드 촬영 검색" style="display:flex; align-items:center; gap:4px; padding: 5px 8px;">📷 바코드 스캔</button>
         </div>
       </div>
 
