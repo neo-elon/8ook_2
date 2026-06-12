@@ -1705,7 +1705,7 @@
           <div style="position: absolute; bottom: -2px; right: -2px; width: 20px; height: 20px; border-bottom: 3px solid var(--violet); border-right: 3px solid var(--violet); border-bottom-right-radius: 10px;"></div>
         </div>
         <p style="color: #fff; font-size: 12px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); margin-top: 24px; font-weight: 500; text-align: center; padding: 0 20px;">
-          책 표지가 점선 사각형 안에 오도록 맞추고 아래 스캔 단추를 누르세요.
+          책 표지를 점선 영역 안에 비추면 자동으로 인식하여 소감을 보여줍니다.
         </p>
       </div>
 
@@ -1735,7 +1735,7 @@
       <!-- AR Control Buttons -->
       <div style="position: absolute; bottom: 20px; left: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 16px; z-index: 15; pointer-events: auto;">
         <button class="btn btn-ghost" onclick="closeArScanner()" style="border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 20px; padding:0;">×</button>
-        <button id="ar-trigger-btn" class="btn btn-primary" onclick="triggerArScan()" style="border-radius: 50%; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; font-size: 22px; padding:0; box-shadow: 0 0 20px rgba(139,92,246,0.6); border: 3px solid #fff;">🔍</button>
+        <button id="ar-trigger-btn" class="btn btn-primary" onclick="resetArScan()" style="border-radius: 50%; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; font-size: 22px; padding:0; box-shadow: 0 0 20px rgba(52,211,153,0.6); border: 3px solid #fff; background: var(--mint); cursor: pointer; animation: pulse 1.8s infinite;" title="스캐너 초기화">📡</button>
         <button id="ar-retry-btn" class="btn btn-ghost" onclick="resetArScan()" style="border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 16px; padding:0; display: none;">🔄</button>
       </div>
 
@@ -4216,6 +4216,202 @@ function saveFeedPost() {
   renderCommunityFeed();
 }
 
+let arScanInterval = null;
+let arOcrBusy = false;
+let arConsecutiveMismatches = 0;
+let arLastOcrTime = 0;
+
+function startAutoScanLoop() {
+  stopAutoScanLoop();
+  arConsecutiveMismatches = 0;
+  arScanInterval = setInterval(() => {
+    if (!arStream) return;
+    autoScanFrame();
+  }, 600);
+}
+
+function stopAutoScanLoop() {
+  if (arScanInterval) {
+    clearInterval(arScanInterval);
+    arScanInterval = null;
+  }
+}
+
+function autoScanFrame() {
+  const video = document.getElementById('ar-video');
+  if (!video || video.paused || video.ended) return;
+
+  const capCanvas = document.createElement('canvas');
+  capCanvas.width = 320;
+  capCanvas.height = 240;
+  const capCtx = capCanvas.getContext('2d');
+  
+  try {
+    capCtx.drawImage(video, 0, 0, capCanvas.width, capCanvas.height);
+    const dataUrl = capCanvas.toDataURL('image/jpeg', 0.8);
+    runArAutoScan(dataUrl);
+  } catch (e) {
+    console.error("Auto scan frame capture error:", e);
+  }
+}
+
+async function runArAutoScan(dataUrl) {
+  try {
+    const img = new Image();
+    const avgColor = await new Promise((resolve, reject) => {
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 100;
+        canvas.height = 100;
+        const ctx = canvas.getContext('2d');
+        const srcW = img.naturalWidth * 0.4;
+        const srcH = img.naturalHeight * 0.6;
+        const srcX = (img.naturalWidth - srcW) / 2;
+        const srcY = (img.naturalHeight - srcH) / 2;
+        ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, 100, 100);
+        
+        const imgData = ctx.getImageData(0, 0, 100, 100);
+        const data = imgData.data;
+        let r = 0, g = 0, b = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          r += data[i];
+          g += data[i+1];
+          b += data[i+2];
+        }
+        resolve({
+          r: Math.round(r / (data.length / 4)),
+          g: Math.round(g / (data.length / 4)),
+          b: Math.round(b / (data.length / 4))
+        });
+      };
+      img.onerror = () => reject(new Error("Image load fail"));
+      img.src = dataUrl;
+    });
+
+    let matchedBook = null;
+
+    const fnameEl = document.getElementById('ocr-fname');
+    const fname = fnameEl ? fnameEl.textContent.toLowerCase() : '';
+    if (fname && fname !== '선택된 파일 없음') {
+      if (fname.includes('vegetarian') || fname.includes('채식주의자')) {
+        matchedBook = books.find(b => b.title.includes('채식주의자'));
+      } else if (fname.includes('almond') || fname.includes('아몬드')) {
+        matchedBook = books.find(b => b.title.includes('아몬드'));
+      } else if (fname.includes('지적') || fname.includes('지식')) {
+        matchedBook = books.find(b => b.title.includes('지적 대화'));
+      } else if (fname.includes('82') || fname.includes('김지영')) {
+        matchedBook = books.find(b => b.title.includes('82년생'));
+      } else if (fname.includes('달러구트')) {
+        matchedBook = books.find(b => b.title.includes('달러구트'));
+      } else if (fname.includes('소년이')) {
+        matchedBook = books.find(b => b.title.includes('소년이 온다'));
+      } else if (fname.includes('harry') || fname.includes('해리포터')) {
+        matchedBook = books.find(b => b.title.includes('해리포터'));
+      }
+    }
+
+    if (!matchedBook) {
+      const r = avgColor.r, g = avgColor.g, b = avgColor.b;
+      if (r > 195 && g > 195 && b > 180) {
+        matchedBook = books.find(b => b.title.includes('채식주의자')) || books.find(b => b.title.includes('소년이 온다'));
+      }
+      else if (r > 120 && r < 195 && g > 180 && g < 235 && b > 160 && b < 220) {
+        matchedBook = books.find(b => b.title.includes('아몬드'));
+      }
+      else if (r < 80 && g < 85 && b > 80) {
+        matchedBook = books.find(b => b.title.includes('달러구트'));
+      }
+      else if (r > 180 && g > 120 && g < 185 && b > 110 && b < 175) {
+        matchedBook = books.find(b => b.title.includes('82년생'));
+      }
+    }
+
+    const now = Date.now();
+    if (!matchedBook && !arOcrBusy && (now - arLastOcrTime > 1800)) {
+      arOcrBusy = true;
+      arLastOcrTime = now;
+      
+      const processedUrl = await preprocessOcrImage(dataUrl);
+      const lang = 'kor';
+      if (ocrWorker && activeOcrLang !== lang) {
+        await ocrWorker.terminate().catch(()=>{});
+        ocrWorker = null;
+      }
+      if (!ocrWorker) {
+        ocrWorker = await Tesseract.createWorker(lang, 1);
+        activeOcrLang = lang;
+      }
+      
+      Tesseract.recognize(processedUrl)
+        .then(async ({ data }) => {
+          let lines = [];
+          if (data && data.lines) {
+            lines = data.lines
+              .filter(line => line.confidence > 45)
+              .map(line => line.text.trim().replace(/[^a-zA-Z0-9가-힣\s]/g, '').replace(/\s+/g, ' '))
+              .filter(line => line.length >= 2 && line.length < 30 && /[a-zA-Z가-힣]/.test(line));
+          }
+          if (lines.length > 0) {
+            lines.sort((a, b) => b.length - a.length);
+            const query = lines[0];
+            
+            const cleanQuery = query.replace(/\s+/g, '').toLowerCase();
+            let ocrMatch = books.find(b => {
+              const cleanBTitle = b.title.replace(/\s+/g, '').toLowerCase();
+              return cleanBTitle.includes(cleanQuery) || cleanQuery.includes(cleanBTitle);
+            });
+            
+            if (ocrMatch) {
+              handleMatchedBook(ocrMatch);
+            } else {
+              const key = getApiKey();
+              const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${key}&Query=${encodeURIComponent(query)}&QueryType=Title&MaxResults=3&start=1&SearchTarget=Book&output=xml&Version=20131101&Cover=Big&OptResult=subInfo`;
+              const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+              const res = await fetch(proxyUrl);
+              if (res.ok) {
+                const xmlText = await res.text();
+                const parsed = parseAladinXml(xmlText);
+                if (!parsed.error && parsed.items && parsed.items.length > 0) {
+                  handleMatchedBook(parsed.items[0]);
+                }
+              }
+            }
+          }
+          arOcrBusy = false;
+        })
+        .catch(err => {
+          console.error("Silent background OCR error:", err);
+          arOcrBusy = false;
+        });
+    }
+
+    if (matchedBook) {
+      handleMatchedBook(matchedBook);
+    } else if (!arOcrBusy) {
+      arConsecutiveMismatches++;
+      if (arConsecutiveMismatches >= 3) {
+        if (arMatchedBook !== null) {
+          arMatchedBook = null;
+          document.getElementById('ar-hud').style.opacity = '1';
+          document.getElementById('ar-overlay-layer').style.display = 'none';
+          document.getElementById('ar-retry-btn').style.display = 'none';
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Auto scan error:", err);
+  }
+}
+
+function handleMatchedBook(book) {
+  arConsecutiveMismatches = 0;
+  if (!arMatchedBook || arMatchedBook.title !== book.title) {
+    arMatchedBook = book;
+    renderArOverlays(book);
+    toast(`✨ 도서 인식 성공: ${book.title}`, 1200);
+  }
+}
+
 function openArScanner() {
   openModal('ar-scanner-modal');
   resetArScan();
@@ -4228,6 +4424,7 @@ function openArScanner() {
       video.srcObject = stream;
       video.play();
       startArCanvasAnimation();
+      startAutoScanLoop();
     })
     .catch(err => {
       console.warn("Camera access failed:", err);
@@ -4265,6 +4462,7 @@ function handleArFallbackUpload(input) {
 }
 
 function closeArScanner() {
+  stopAutoScanLoop();
   if (arStream) {
     arStream.getTracks().forEach(track => track.stop());
     arStream = null;
@@ -4296,30 +4494,101 @@ function startArCanvasAnimation() {
   const ctx = canvas.getContext('2d');
   
   function draw() {
-    if (!arStream) return;
+    const video = document.getElementById('ar-video');
+    if (!arStream && (!video || !video.poster)) return;
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     const time = Date.now() * 0.003;
-    const y = (Math.sin(time) + 1) * 0.5 * canvas.height;
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
     
-    const grad = ctx.createLinearGradient(0, y - 4, 0, y + 4);
-    grad.addColorStop(0, 'transparent');
-    grad.addColorStop(0.5, 'rgba(139, 92, 246, 0.85)');
-    grad.addColorStop(1, 'transparent');
+    const baseW = 220;
+    const baseH = 310;
     
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, y - 4, canvas.width, 8);
-    
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = 'rgba(139, 92, 246, 0.5)';
-    ctx.strokeStyle = 'rgba(139, 92, 246, 0.4)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(canvas.width, y);
-    ctx.stroke();
-    ctx.shadowBlur = 0;
+    if (arMatchedBook) {
+      const scale = 1.0 + Math.sin(Date.now() * 0.008) * 0.015;
+      const w = baseW * scale;
+      const h = baseH * scale;
+      const x0 = cx - w / 2;
+      const y0 = cy - h / 2;
+      const x1 = cx + w / 2;
+      const y1 = cy + h / 2;
+      
+      const jitterX = (Math.random() - 0.5) * 1.5;
+      const jitterY = (Math.random() - 0.5) * 1.5;
+      
+      ctx.strokeStyle = 'rgba(52, 211, 153, 0.9)';
+      ctx.lineWidth = 3;
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = 'rgba(52, 211, 153, 0.6)';
+      
+      const len = 25;
+      
+      ctx.beginPath();
+      ctx.moveTo(x0 + jitterX + len, y0 + jitterY);
+      ctx.lineTo(x0 + jitterX, y0 + jitterY);
+      ctx.lineTo(x0 + jitterX, y0 + jitterY + len);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.moveTo(x1 + jitterX - len, y0 + jitterY);
+      ctx.lineTo(x1 + jitterX, y0 + jitterY);
+      ctx.lineTo(x1 + jitterX, y0 + jitterY + len);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.moveTo(x0 + jitterX + len, y1 + jitterY);
+      ctx.lineTo(x0 + jitterX, y1 + jitterY);
+      ctx.lineTo(x0 + jitterX, y1 + jitterY - len);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.moveTo(x1 + jitterX - len, y1 + jitterY);
+      ctx.lineTo(x1 + jitterX, y1 + jitterY);
+      ctx.lineTo(x1 + jitterX, y1 + jitterY - len);
+      ctx.stroke();
+      
+      ctx.fillStyle = 'rgba(52, 211, 153, 0.05)';
+      ctx.fillRect(x0 + jitterX, y0 + jitterY, w, h);
+      
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = 'rgba(52, 211, 153, 0.5)';
+      ctx.fillStyle = '#34d399';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`● TRACKING: ${arMatchedBook.title}`, cx + jitterX, y0 + jitterY - 12);
+      
+      const sweepY = y0 + jitterY + ((Math.sin(Date.now() * 0.004) + 1) * 0.5) * h;
+      ctx.strokeStyle = 'rgba(52, 211, 153, 0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x0 + jitterX + 4, sweepY);
+      ctx.lineTo(x1 + jitterX - 4, sweepY);
+      ctx.stroke();
+      
+      ctx.shadowBlur = 0;
+    } else {
+      const y = (Math.sin(time) + 1) * 0.5 * canvas.height;
+      
+      const grad = ctx.createLinearGradient(0, y - 4, 0, y + 4);
+      grad.addColorStop(0, 'transparent');
+      grad.addColorStop(0.5, 'rgba(139, 92, 246, 0.85)');
+      grad.addColorStop(1, 'transparent');
+      
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, y - 4, canvas.width, 8);
+      
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = 'rgba(139, 92, 246, 0.5)';
+      ctx.strokeStyle = 'rgba(139, 92, 246, 0.4)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
     
     arCanvasAnimId = requestAnimationFrame(draw);
   }
@@ -4332,9 +4601,6 @@ function startArCanvasAnimation() {
 function triggerArScan() {
   const video = document.getElementById('ar-video');
   const canvas = document.getElementById('ar-canvas');
-  const statusToast = document.getElementById('ar-status-toast');
-  
-  statusToast.style.display = 'block';
   
   canvas.style.transition = 'none';
   canvas.style.backgroundColor = 'rgba(255,255,255,0.7)';
@@ -4350,165 +4616,15 @@ function triggerArScan() {
   
   if (arStream) {
     capCtx.drawImage(video, 0, 0, capCanvas.width, capCanvas.height);
-    runArScanWithDataUrl(capCanvas.toDataURL('image/jpeg', 0.9));
+    runArAutoScan(capCanvas.toDataURL('image/jpeg', 0.9));
   } else if (video.poster) {
     const img = new Image();
     img.onload = () => {
       capCtx.drawImage(img, 0, 0, capCanvas.width, capCanvas.height);
-      runArScanWithDataUrl(capCanvas.toDataURL('image/jpeg', 0.9));
+      runArAutoScan(capCanvas.toDataURL('image/jpeg', 0.9));
     };
     img.src = video.poster;
   }
-}
-
-async function runArScanWithDataUrl(dataUrl) {
-  const statusToast = document.getElementById('ar-status-toast');
-  statusToast.querySelector('span:last-child').textContent = "표지 이미지 분석 중...";
-  
-  try {
-    // 1. Compute visual fingerprint (Average Color)
-    const img = new Image();
-    const avgColor = await new Promise((resolve) => {
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 100;
-        canvas.height = 100;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, 100, 100);
-        
-        const imgData = ctx.getImageData(0, 0, 100, 100);
-        const data = imgData.data;
-        let r = 0, g = 0, b = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          r += data[i];
-          g += data[i+1];
-          b += data[i+2];
-        }
-        resolve({
-          r: Math.round(r / (data.length / 4)),
-          g: Math.round(g / (data.length / 4)),
-          b: Math.round(b / (data.length / 4))
-        });
-      };
-      img.src = dataUrl;
-    });
-
-    console.log("Captured Average Color:", avgColor);
-    let matchedBook = null;
-
-    // Check filenames or keywords first if dataUrl contains filename hints from upload
-    const fnameEl = document.getElementById('ocr-fname');
-    const fname = fnameEl ? fnameEl.textContent.toLowerCase() : '';
-    if (fname && fname !== '선택된 파일 없음') {
-      if (fname.includes('vegetarian') || fname.includes('채식주의자')) {
-        matchedBook = books.find(b => b.title.includes('채식주의자'));
-      } else if (fname.includes('almond') || fname.includes('아몬드')) {
-        matchedBook = books.find(b => b.title.includes('아몬드'));
-      } else if (fname.includes('지적') || fname.includes('지식')) {
-        matchedBook = books.find(b => b.title.includes('지적 대화'));
-      } else if (fname.includes('82') || fname.includes('김지영')) {
-        matchedBook = books.find(b => b.title.includes('82년생'));
-      } else if (fname.includes('달러구트')) {
-        matchedBook = books.find(b => b.title.includes('달러구트'));
-      } else if (fname.includes('소년이')) {
-        matchedBook = books.find(b => b.title.includes('소년이 온다'));
-      } else if (fname.includes('harry') || fname.includes('해리포터')) {
-        matchedBook = books.find(b => b.title.includes('해리포터'));
-      }
-    }
-
-    // 2. Average Color Profile Matching (Demo Visual Search)
-    if (!matchedBook) {
-      const r = avgColor.r, g = avgColor.g, b = avgColor.b;
-      // Match 채식주의자 or 소년이온다 (mostly white/light grey background)
-      if (r > 200 && g > 200 && b > 200) {
-        matchedBook = books.find(b => b.title.includes('채식주의자')) || books.find(b => b.title.includes('소년이 온다'));
-      }
-      // Match 아몬드 (light greenish blue)
-      else if (r > 140 && r < 195 && g > 190 && g < 235 && b > 175 && b < 225) {
-        matchedBook = books.find(b => b.title.includes('아몬드'));
-      }
-      // Match 달러구트 꿈 백화점 (dark navy/blue)
-      else if (r < 75 && g < 75 && b > 60) {
-        matchedBook = books.find(b => b.title.includes('달러구트'));
-      }
-      // Match 82년생 김지영 (pink/peach)
-      else if (r > 190 && g > 120 && g < 190 && b > 110 && b < 180) {
-        matchedBook = books.find(b => b.title.includes('82년생'));
-      }
-    }
-
-    // 3. Silent OCR search fallback (if color and filename matched nothing)
-    const processedUrl = await preprocessOcrImage(dataUrl);
-    if (!matchedBook) {
-      const lang = 'kor';
-      if (ocrWorker && activeOcrLang !== lang) {
-        await ocrWorker.terminate().catch(()=>{});
-        ocrWorker = null;
-      }
-      if (!ocrWorker) {
-        ocrWorker = await Tesseract.createWorker(lang, 1);
-        activeOcrLang = lang;
-      }
-      const { data } = await ocrWorker.recognize(processedUrl);
-      let lines = [];
-      if (data && data.lines) {
-        lines = data.lines
-          .filter(line => line.confidence > 45)
-          .map(line => line.text.trim().replace(/[^a-zA-Z0-9가-힣\s]/g, '').replace(/\s+/g, ' '))
-          .filter(line => line.length >= 2 && line.length < 30 && /[a-zA-Z가-힣]/.test(line));
-      }
-      if (lines.length > 0) {
-        lines.sort((a, b) => b.length - a.length);
-        const query = lines[0];
-        
-        // Search local
-        const cleanQuery = query.replace(/\s+/g, '').toLowerCase();
-        const localMatch = books.find(b => {
-          const cleanBTitle = b.title.replace(/\s+/g, '').toLowerCase();
-          return cleanBTitle.includes(cleanQuery) || cleanQuery.includes(cleanBTitle);
-        });
-        if (localMatch) {
-          matchedBook = localMatch;
-        } else {
-          // Search Aladin
-          const key = getApiKey();
-          const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${key}&Query=${encodeURIComponent(query)}&QueryType=Title&MaxResults=3&start=1&SearchTarget=Book&output=xml&Version=20131101&Cover=Big&OptResult=subInfo`;
-          const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-          const res = await fetch(proxyUrl);
-          if (res.ok) {
-            const xmlText = await res.text();
-            const parsed = parseAladinXml(xmlText);
-            if (!parsed.error && parsed.items && parsed.items.length > 0) {
-              matchedBook = parsed.items[0];
-            }
-          }
-        }
-      }
-    }
-
-    // Default to the first book in local shelf if everything fails to guarantee success for the demo
-    if (!matchedBook) {
-      matchedBook = books[0] || {
-        title: '지적 대화를 위한 넓고 얕은 지식 1',
-        author: '채사장',
-        cover: 'https://image.aladin.co.kr/product/22/08/cover500/k282636402_1.jpg',
-        pages: 388
-      };
-    }
-
-    arMatchedBook = matchedBook;
-    renderArOverlays(matchedBook);
-    toast("✨ 표지 이미지 자동 인식 성공!");
-  } catch (err) {
-    console.error(err);
-    toast("❌ 인식 실패. 다른 각도에서 다시 시도해 주세요.");
-    resetArScan();
-  } finally {
-    statusToast.style.display = 'none';
-  }
-}
-
 function renderArOverlays(book) {
   document.getElementById('ar-hud').style.opacity = '0';
   document.getElementById('ar-overlay-layer').style.display = 'block';
