@@ -1988,6 +1988,7 @@ const DB_SQL_SCRIPT = `create table books (
   cover text,
   rating integer default 0,
   scraps jsonb default '[]'::jsonb,
+  keywords text[] default '{}'::text[],
   created_at timestamptz default now()
 );
 
@@ -2258,7 +2259,7 @@ function showDetail(id, direction = null) {
   const scrapCount = (book.scraps||[]).length;
 
   const kwHtml = (book.keywords && book.keywords.length)
-    ? `<div class="meta-chips" style="margin-top:6px;">${book.keywords.map(k=>`<button type="button" class="kw-chip">#${esc(k)}</button>`).join('')}</div>`
+    ? `<div class="meta-chips" style="margin-top:6px;">${book.keywords.map(k=>`<button type="button" class="kw-chip" onclick="openEditModal('${book.id}', true)">#${esc(k)}</button>`).join('')}</div>`
     : '';
 
   const scrapsHtml = buildScrapsHtml(book);
@@ -2403,7 +2404,7 @@ function openAddModal() {
   openModal('book-modal');
 }
 
-function openEditModal(id) {
+function openEditModal(id, focusKeywords = false) {
   const b = books.find(x => x.id === id);
   if (!b) return;
   editingBookId = id;
@@ -2432,6 +2433,13 @@ function openEditModal(id) {
   if (b.cover) setPrev(b.cover); else resetPrev();
   updateStarBtns(currentRating);
   openModal('book-modal');
+
+  if (focusKeywords) {
+    setTimeout(() => {
+      const kw = document.getElementById('bk-kw1');
+      if (kw) { kw.focus(); kw.select(); }
+    }, 150);
+  }
 }
 
 function onUrlInput(v) {
