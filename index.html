@@ -2884,6 +2884,7 @@ function handleCameraScan(input) {
 let barcodeStream = null;
 let barcodeScanLoop = null;
 let barcodeCurrentFacing = 'environment';
+let barcodeAutoScanningActive = true;
 
 function openBarcodeScannerModal() {
   openModal('barcode-scanner-modal');
@@ -2911,6 +2912,7 @@ function _setBarcodeScannerStatus(label, color) {
 
 async function _startBarcodeCamera(facing) {
   _stopBarcodeCamera();
+  barcodeAutoScanningActive = true;
   _setBarcodeScannerStatus('카메라 시작 중...', '#f59e0b');
 
   const video = document.getElementById('barcode-video');
@@ -2960,7 +2962,7 @@ function _startBarcodeScanLoop() {
   let scanning = true;
 
   async function scanCycle() {
-    if (!barcodeStream || !scanning) return;
+    if (!barcodeStream || !scanning || !barcodeAutoScanningActive) return;
 
     if (video.readyState >= 2) {
       const vw = video.videoWidth;
@@ -3088,11 +3090,14 @@ function _onBarcodeDetected(code) {
   }, 700);
 }
 
-function triggerBarcodeCapture() {
+async function triggerBarcodeCapture() {
   const video = document.getElementById('barcode-video');
   if (!video || !barcodeStream) return;
 
+  // Immediately pause the automatic scanning loop
+  barcodeAutoScanningActive = false;
   if (barcodeScanLoop) { clearTimeout(barcodeScanLoop); barcodeScanLoop = null; }
+  
   _setBarcodeScannerStatus('촬영 중...', '#f59e0b');
 
   const canvas = document.createElement('canvas');
@@ -3100,6 +3105,23 @@ function triggerBarcodeCapture() {
   canvas.height = video.videoHeight || 480;
   canvas.getContext('2d').drawImage(video, 0, 0);
 
+  // 1) Try native BarcodeDetector first on the captured frame
+  if ('BarcodeDetector' in window) {
+    try {
+      const detector = new BarcodeDetector({
+        formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39']
+      });
+      const barcodes = await detector.detect(canvas);
+      if (barcodes && barcodes.length > 0) {
+        _onBarcodeDetected(barcodes[0].rawValue);
+        return;
+      }
+    } catch (e) {
+      console.warn('Native BarcodeDetector manual capture error:', e);
+    }
+  }
+
+  // 2) Fallback to ZXing
   const codeReader = new ZXing.BrowserMultiFormatReader();
   codeReader.decodeFromCanvas(canvas)
     .then(result => {
@@ -3113,6 +3135,8 @@ function triggerBarcodeCapture() {
         if (!barcodeStream) return;
         _setBarcodeScannerStatus('자동 스캔 중...', '#34d399');
         if (gt) gt.innerHTML = '책 뒷면 바코드를 <strong style="color:#a78bfa;">박스 안</strong>에 맞춰주세요';
+        // Resume automatic scanning
+        barcodeAutoScanningActive = true;
         _startBarcodeScanLoop();
       }, 2000);
     });
