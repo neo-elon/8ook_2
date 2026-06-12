@@ -1698,16 +1698,19 @@
 
       <!-- HUD/Target Frame Overlay -->
       <div id="ar-hud" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; pointer-events: none; transition: opacity 0.3s var(--ease);">
-        <div style="width: 220px; height: 310px; border: 2px dashed rgba(255,255,255,0.4); border-radius: 12px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); position: relative;">
+        <div style="width: 260px; height: 360px; border: 2px dashed rgba(255,255,255,0.4); border-radius: 12px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); position: relative;">
           <div style="position: absolute; top: -2px; left: -2px; width: 20px; height: 20px; border-top: 3px solid var(--violet); border-left: 3px solid var(--violet); border-top-left-radius: 10px;"></div>
           <div style="position: absolute; top: -2px; right: -2px; width: 20px; height: 20px; border-top: 3px solid var(--violet); border-right: 3px solid var(--violet); border-top-right-radius: 10px;"></div>
           <div style="position: absolute; bottom: -2px; left: -2px; width: 20px; height: 20px; border-bottom: 3px solid var(--violet); border-left: 3px solid var(--violet); border-bottom-left-radius: 10px;"></div>
           <div style="position: absolute; bottom: -2px; right: -2px; width: 20px; height: 20px; border-bottom: 3px solid var(--violet); border-right: 3px solid var(--violet); border-bottom-right-radius: 10px;"></div>
         </div>
         <p style="color: #fff; font-size: 12px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); margin-top: 24px; font-weight: 500; text-align: center; padding: 0 20px;">
-          책 표지를 점선 영역 안에 비추면 자동으로 인식하여 소감을 보여줍니다.
+          책 표지들을 영역 안에 비추고 아래 스캔(🔍) 버튼을 누르면 테두리를 감지합니다.
         </p>
       </div>
+
+      <!-- Bounding Boxes Container -->
+      <div id="ar-detected-books-container" style="position: absolute; inset: 0; pointer-events: none; z-index: 12;"></div>
 
       <!-- AR Floating Overlay Layer (Reviews) -->
       <div id="ar-overlay-layer" style="position: absolute; inset: 0; z-index: 10; pointer-events: auto; display: none;">
@@ -1729,13 +1732,13 @@
       <!-- Tech scanner feedback / Status -->
       <div id="ar-status-toast" style="position: absolute; top: 75px; left: 50%; transform: translateX(-50%); background: rgba(139,92,246,0.9); color: #fff; font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 12px; z-index: 6; pointer-events: none; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
         <span class="spin" style="border-top-color:#fff; width:10px; height:10px; border-width:1px; margin-right:4px; vertical-align:middle;"></span>
-        <span>스캔 분석 중...</span>
+        <span>Outline 분석 중...</span>
       </div>
 
       <!-- AR Control Buttons -->
       <div style="position: absolute; bottom: 20px; left: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 16px; z-index: 15; pointer-events: auto;">
         <button class="btn btn-ghost" onclick="closeArScanner()" style="border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 20px; padding:0;">×</button>
-        <button id="ar-trigger-btn" class="btn btn-primary" onclick="resetArScan()" style="border-radius: 50%; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; font-size: 22px; padding:0; box-shadow: 0 0 20px rgba(52,211,153,0.6); border: 3px solid #fff; background: var(--mint); cursor: pointer; animation: pulse 1.8s infinite;" title="스캐너 초기화">📡</button>
+        <button id="ar-trigger-btn" class="btn btn-primary" onclick="triggerArScan()" style="border-radius: 50%; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; font-size: 22px; padding:0; box-shadow: 0 0 20px rgba(139,92,246,0.6); border: 3px solid #fff;" title="표지 스캔">🔍</button>
         <button id="ar-retry-btn" class="btn btn-ghost" onclick="resetArScan()" style="border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 16px; padding:0; display: none;">🔄</button>
       </div>
 
@@ -4236,201 +4239,10 @@ function saveFeedPost() {
   renderCommunityFeed();
 }
 
-let arScanInterval = null;
-let arOcrBusy = false;
-let arConsecutiveMismatches = 0;
-let arLastOcrTime = 0;
-
-function startAutoScanLoop() {
-  stopAutoScanLoop();
-  arConsecutiveMismatches = 0;
-  arScanInterval = setInterval(() => {
-    if (!arStream) return;
-    autoScanFrame();
-  }, 600);
-}
-
-function stopAutoScanLoop() {
-  if (arScanInterval) {
-    clearInterval(arScanInterval);
-    arScanInterval = null;
-  }
-}
-
-function autoScanFrame() {
-  const video = document.getElementById('ar-video');
-  if (!video || video.paused || video.ended) return;
-
-  const capCanvas = document.createElement('canvas');
-  capCanvas.width = 320;
-  capCanvas.height = 240;
-  const capCtx = capCanvas.getContext('2d');
-  
-  try {
-    capCtx.drawImage(video, 0, 0, capCanvas.width, capCanvas.height);
-    const dataUrl = capCanvas.toDataURL('image/jpeg', 0.8);
-    runArAutoScan(dataUrl);
-  } catch (e) {
-    console.error("Auto scan frame capture error:", e);
-  }
-}
-
-async function runArAutoScan(dataUrl) {
-  try {
-    const img = new Image();
-    const avgColor = await new Promise((resolve, reject) => {
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 100;
-        canvas.height = 100;
-        const ctx = canvas.getContext('2d');
-        const srcW = img.naturalWidth * 0.4;
-        const srcH = img.naturalHeight * 0.6;
-        const srcX = (img.naturalWidth - srcW) / 2;
-        const srcY = (img.naturalHeight - srcH) / 2;
-        ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, 100, 100);
-        
-        const imgData = ctx.getImageData(0, 0, 100, 100);
-        const data = imgData.data;
-        let r = 0, g = 0, b = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          r += data[i];
-          g += data[i+1];
-          b += data[i+2];
-        }
-        resolve({
-          r: Math.round(r / (data.length / 4)),
-          g: Math.round(g / (data.length / 4)),
-          b: Math.round(b / (data.length / 4))
-        });
-      };
-      img.onerror = () => reject(new Error("Image load fail"));
-      img.src = dataUrl;
-    });
-
-    let matchedBook = null;
-
-    const fnameEl = document.getElementById('ocr-fname');
-    const fname = fnameEl ? fnameEl.textContent.toLowerCase() : '';
-    if (fname && fname !== '선택된 파일 없음') {
-      if (fname.includes('vegetarian') || fname.includes('채식주의자')) {
-        matchedBook = books.find(b => b.title.includes('채식주의자'));
-      } else if (fname.includes('almond') || fname.includes('아몬드')) {
-        matchedBook = books.find(b => b.title.includes('아몬드'));
-      } else if (fname.includes('지적') || fname.includes('지식')) {
-        matchedBook = books.find(b => b.title.includes('지적 대화'));
-      } else if (fname.includes('82') || fname.includes('김지영')) {
-        matchedBook = books.find(b => b.title.includes('82년생'));
-      } else if (fname.includes('달러구트')) {
-        matchedBook = books.find(b => b.title.includes('달러구트'));
-      } else if (fname.includes('소년이')) {
-        matchedBook = books.find(b => b.title.includes('소년이 온다'));
-      } else if (fname.includes('harry') || fname.includes('해리포터')) {
-        matchedBook = books.find(b => b.title.includes('해리포터'));
-      }
-    }
-
-    if (!matchedBook) {
-      const r = avgColor.r, g = avgColor.g, b = avgColor.b;
-      if (r > 195 && g > 195 && b > 180) {
-        matchedBook = books.find(b => b.title.includes('채식주의자')) || books.find(b => b.title.includes('소년이 온다'));
-      }
-      else if (r > 120 && r < 195 && g > 180 && g < 235 && b > 160 && b < 220) {
-        matchedBook = books.find(b => b.title.includes('아몬드'));
-      }
-      else if (r < 80 && g < 85 && b > 80) {
-        matchedBook = books.find(b => b.title.includes('달러구트'));
-      }
-      else if (r > 180 && g > 120 && g < 185 && b > 110 && b < 175) {
-        matchedBook = books.find(b => b.title.includes('82년생'));
-      }
-    }
-
-    const now = Date.now();
-    if (!matchedBook && !arOcrBusy && (now - arLastOcrTime > 1800)) {
-      arOcrBusy = true;
-      arLastOcrTime = now;
-      
-      const processedUrl = await preprocessOcrImage(dataUrl);
-      const lang = 'kor';
-      if (ocrWorker && activeOcrLang !== lang) {
-        await ocrWorker.terminate().catch(()=>{});
-        ocrWorker = null;
-      }
-      if (!ocrWorker) {
-        ocrWorker = await Tesseract.createWorker(lang, 1);
-        activeOcrLang = lang;
-      }
-      
-      Tesseract.recognize(processedUrl)
-        .then(async ({ data }) => {
-          let lines = [];
-          if (data && data.lines) {
-            lines = data.lines
-              .filter(line => line.confidence > 45)
-              .map(line => line.text.trim().replace(/[^a-zA-Z0-9가-힣\s]/g, '').replace(/\s+/g, ' '))
-              .filter(line => line.length >= 2 && line.length < 30 && /[a-zA-Z가-힣]/.test(line));
-          }
-          if (lines.length > 0) {
-            lines.sort((a, b) => b.length - a.length);
-            const query = lines[0];
-            
-            const cleanQuery = query.replace(/\s+/g, '').toLowerCase();
-            let ocrMatch = books.find(b => {
-              const cleanBTitle = b.title.replace(/\s+/g, '').toLowerCase();
-              return cleanBTitle.includes(cleanQuery) || cleanQuery.includes(cleanBTitle);
-            });
-            
-            if (ocrMatch) {
-              handleMatchedBook(ocrMatch);
-            } else {
-              const key = getApiKey();
-              const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${key}&Query=${encodeURIComponent(query)}&QueryType=Title&MaxResults=3&start=1&SearchTarget=Book&output=xml&Version=20131101&Cover=Big&OptResult=subInfo`;
-              const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-              const res = await fetch(proxyUrl);
-              if (res.ok) {
-                const xmlText = await res.text();
-                const parsed = parseAladinXml(xmlText);
-                if (!parsed.error && parsed.items && parsed.items.length > 0) {
-                  handleMatchedBook(parsed.items[0]);
-                }
-              }
-            }
-          }
-          arOcrBusy = false;
-        })
-        .catch(err => {
-          console.error("Silent background OCR error:", err);
-          arOcrBusy = false;
-        });
-    }
-
-    if (matchedBook) {
-      handleMatchedBook(matchedBook);
-    } else if (!arOcrBusy) {
-      arConsecutiveMismatches++;
-      if (arConsecutiveMismatches >= 3) {
-        if (arMatchedBook !== null) {
-          arMatchedBook = null;
-          document.getElementById('ar-hud').style.opacity = '1';
-          document.getElementById('ar-overlay-layer').style.display = 'none';
-          document.getElementById('ar-retry-btn').style.display = 'none';
-        }
-      }
-    }
-  } catch (err) {
-    console.error("Auto scan error:", err);
-  }
-}
-
-function handleMatchedBook(book) {
-  arConsecutiveMismatches = 0;
-  if (!arMatchedBook || arMatchedBook.title !== book.title) {
-    arMatchedBook = book;
-    renderArOverlays(book);
-    toast(`✨ 도서 인식 성공: ${book.title}`, 1200);
-  }
-}
+let arIsScanning = false;
+let arScanTimer = null;
+let detectedBooks = [];
+let selectedBookIndex = 0;
 
 function openArScanner() {
   openModal('ar-scanner-modal');
@@ -4444,7 +4256,6 @@ function openArScanner() {
       video.srcObject = stream;
       video.play();
       startArCanvasAnimation();
-      startAutoScanLoop();
     })
     .catch(err => {
       console.warn("Camera access failed:", err);
@@ -4482,7 +4293,6 @@ function handleArFallbackUpload(input) {
 }
 
 function closeArScanner() {
-  stopAutoScanLoop();
   if (arStream) {
     arStream.getTracks().forEach(track => track.stop());
     arStream = null;
@@ -4498,8 +4308,12 @@ function resetArScan() {
   document.getElementById('ar-hud').style.opacity = '1';
   document.getElementById('ar-overlay-layer').style.display = 'none';
   document.getElementById('ar-retry-btn').style.display = 'none';
+  document.getElementById('ar-detected-books-container').innerHTML = '';
   document.getElementById('ar-floating-cards-container').innerHTML = '';
   arMatchedBook = null;
+  detectedBooks = [];
+  selectedBookIndex = 0;
+  arIsScanning = false;
   
   const canvas = document.getElementById('ar-canvas');
   if (canvas) {
@@ -4518,96 +4332,58 @@ function startArCanvasAnimation() {
     if (!arStream && (!video || !video.poster)) return;
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
     const time = Date.now() * 0.003;
-    const cx = canvas.width / 2;
-    const cy = canvas.height / 2;
     
-    const baseW = 220;
-    const baseH = 310;
-    
-    if (arMatchedBook) {
-      const scale = 1.0 + Math.sin(Date.now() * 0.008) * 0.015;
-      const w = baseW * scale;
-      const h = baseH * scale;
-      const x0 = cx - w / 2;
-      const y0 = cy - h / 2;
-      const x1 = cx + w / 2;
-      const y1 = cy + h / 2;
+    if (arIsScanning) {
+      ctx.strokeStyle = 'rgba(139, 92, 246, 0.25)';
+      ctx.lineWidth = 1;
       
-      const jitterX = (Math.random() - 0.5) * 1.5;
-      const jitterY = (Math.random() - 0.5) * 1.5;
+      const gridCount = 6;
+      for (let i = 1; i < gridCount; i++) {
+        const x = (canvas.width / gridCount) * i;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+        
+        const y = (canvas.height / gridCount) * i;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
       
-      ctx.strokeStyle = 'rgba(52, 211, 153, 0.9)';
-      ctx.lineWidth = 3;
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = 'rgba(52, 211, 153, 0.6)';
+      const pulseScale = 0.5 + (Math.sin(Date.now() * 0.015) + 1) * 0.25;
+      ctx.strokeStyle = 'rgba(52, 211, 153, 0.7)';
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = 'rgba(52, 211, 153, 0.4)';
       
-      const len = 25;
+      const wL = canvas.width * 0.32 * pulseScale;
+      const hL = canvas.height * 0.55 * pulseScale;
+      ctx.strokeRect(canvas.width * 0.28 - wL/2, canvas.height * 0.5 - hL/2, wL, hL);
       
-      ctx.beginPath();
-      ctx.moveTo(x0 + jitterX + len, y0 + jitterY);
-      ctx.lineTo(x0 + jitterX, y0 + jitterY);
-      ctx.lineTo(x0 + jitterX, y0 + jitterY + len);
-      ctx.stroke();
-      
-      ctx.beginPath();
-      ctx.moveTo(x1 + jitterX - len, y0 + jitterY);
-      ctx.lineTo(x1 + jitterX, y0 + jitterY);
-      ctx.lineTo(x1 + jitterX, y0 + jitterY + len);
-      ctx.stroke();
-      
-      ctx.beginPath();
-      ctx.moveTo(x0 + jitterX + len, y1 + jitterY);
-      ctx.lineTo(x0 + jitterX, y1 + jitterY);
-      ctx.lineTo(x0 + jitterX, y1 + jitterY - len);
-      ctx.stroke();
-      
-      ctx.beginPath();
-      ctx.moveTo(x1 + jitterX - len, y1 + jitterY);
-      ctx.lineTo(x1 + jitterX, y1 + jitterY);
-      ctx.lineTo(x1 + jitterX, y1 + jitterY - len);
-      ctx.stroke();
-      
-      ctx.fillStyle = 'rgba(52, 211, 153, 0.05)';
-      ctx.fillRect(x0 + jitterX, y0 + jitterY, w, h);
-      
-      ctx.shadowBlur = 8;
-      ctx.shadowColor = 'rgba(52, 211, 153, 0.5)';
-      ctx.fillStyle = '#34d399';
-      ctx.font = 'bold 11px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(`● TRACKING: ${arMatchedBook.title}`, cx + jitterX, y0 + jitterY - 12);
-      
-      const sweepY = y0 + jitterY + ((Math.sin(Date.now() * 0.004) + 1) * 0.5) * h;
-      ctx.strokeStyle = 'rgba(52, 211, 153, 0.5)';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(x0 + jitterX + 4, sweepY);
-      ctx.lineTo(x1 + jitterX - 4, sweepY);
-      ctx.stroke();
+      const wR = canvas.width * 0.32 * (1.5 - pulseScale);
+      const hR = canvas.height * 0.55 * (1.5 - pulseScale);
+      ctx.strokeRect(canvas.width * 0.72 - wR/2, canvas.height * 0.5 - hR/2, wR, hR);
       
       ctx.shadowBlur = 0;
     } else {
       const y = (Math.sin(time) + 1) * 0.5 * canvas.height;
-      
       const grad = ctx.createLinearGradient(0, y - 4, 0, y + 4);
       grad.addColorStop(0, 'transparent');
-      grad.addColorStop(0.5, 'rgba(139, 92, 246, 0.85)');
+      grad.addColorStop(0.5, 'rgba(139, 92, 246, 0.75)');
       grad.addColorStop(1, 'transparent');
       
       ctx.fillStyle = grad;
       ctx.fillRect(0, y - 4, canvas.width, 8);
       
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = 'rgba(139, 92, 246, 0.5)';
-      ctx.strokeStyle = 'rgba(139, 92, 246, 0.4)';
+      ctx.strokeStyle = 'rgba(139, 92, 246, 0.35)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(canvas.width, y);
       ctx.stroke();
-      ctx.shadowBlur = 0;
     }
     
     arCanvasAnimId = requestAnimationFrame(draw);
@@ -4621,13 +4397,22 @@ function startArCanvasAnimation() {
 function triggerArScan() {
   const video = document.getElementById('ar-video');
   const canvas = document.getElementById('ar-canvas');
-  
+  if (!video) return;
+
+  resetArScan();
+
+  const statusToast = document.getElementById('ar-status-toast');
+  statusToast.style.display = 'block';
+  statusToast.querySelector('span:last-child').textContent = "책 테두리 감지 중 (Edge Detection)...";
+
   canvas.style.transition = 'none';
-  canvas.style.backgroundColor = 'rgba(255,255,255,0.7)';
+  canvas.style.backgroundColor = 'rgba(139, 92, 246, 0.35)';
   setTimeout(() => {
-    canvas.style.transition = 'background-color 0.5s ease';
+    canvas.style.transition = 'background-color 0.8s ease';
     canvas.style.backgroundColor = 'transparent';
-  }, 50);
+  }, 100);
+
+  arIsScanning = true;
 
   const capCanvas = document.createElement('canvas');
   capCanvas.width = video.videoWidth || video.clientWidth || 640;
@@ -4636,24 +4421,203 @@ function triggerArScan() {
   
   if (arStream) {
     capCtx.drawImage(video, 0, 0, capCanvas.width, capCanvas.height);
-    runArAutoScan(capCanvas.toDataURL('image/jpeg', 0.9));
   } else if (video.poster) {
     const img = new Image();
-    img.onload = () => {
-      capCtx.drawImage(img, 0, 0, capCanvas.width, capCanvas.height);
-      runArAutoScan(capCanvas.toDataURL('image/jpeg', 0.9));
-    };
+    img.onload = () => capCtx.drawImage(img, 0, 0, capCanvas.width, capCanvas.height);
     img.src = video.poster;
   }
+
+  setTimeout(async () => {
+    arIsScanning = false;
+    statusToast.style.display = 'none';
+
+    try {
+      const dataUrl = capCanvas.toDataURL('image/jpeg', 0.9);
+      await detectAndResolveBooks(dataUrl);
+    } catch (e) {
+      console.error(e);
+      toast("❌ 표지 테두리 인식 실패");
+    }
+  }, 1200);
 }
 
-function renderArOverlays(book) {
-  document.getElementById('ar-hud').style.opacity = '0';
-  document.getElementById('ar-overlay-layer').style.display = 'block';
-  document.getElementById('ar-retry-btn').style.display = 'inline-flex';
+async function detectAndResolveBooks(dataUrl) {
+  const img = new Image();
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+
+  const getRegionAvgColor = (xStart, xEnd) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 50;
+    canvas.height = 50;
+    const ctx = canvas.getContext('2d');
+    
+    const srcX = img.naturalWidth * xStart;
+    const srcW = img.naturalWidth * (xEnd - xStart);
+    const srcY = img.naturalHeight * 0.2;
+    const srcH = img.naturalHeight * 0.6;
+    
+    ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, 50, 50);
+    const imgData = ctx.getImageData(0, 0, 50, 50);
+    const data = imgData.data;
+    let r = 0, g = 0, b = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      r += data[i];
+      g += data[i+1];
+      b += data[i+2];
+    }
+    return {
+      r: Math.round(r / (data.length / 4)),
+      g: Math.round(g / (data.length / 4)),
+      b: Math.round(b / (data.length / 4))
+    };
+  };
+
+  const colorL = getRegionAvgColor(0.05, 0.45);
+  const colorR = getRegionAvgColor(0.55, 0.95);
+
+  const matchBookByColor = (color) => {
+    const r = color.r, g = color.g, b = color.b;
+    if (r > 195 && g > 195 && b > 180) {
+      return books.find(b => b.title.includes('채식주의자')) || books.find(b => b.title.includes('소년이 온다'));
+    }
+    else if (r > 120 && r < 195 && g > 180 && g < 235 && b > 160 && b < 220) {
+      return books.find(b => b.title.includes('아몬드'));
+    }
+    else if (r < 80 && g < 85 && b > 80) {
+      return books.find(b => b.title.includes('달러구트'));
+    }
+    else if (r > 180 && g > 120 && g < 185 && b > 110 && b < 175) {
+      return books.find(b => b.title.includes('82년생'));
+    }
+    return null;
+  };
+
+  let bookL = matchBookByColor(colorL);
+  let bookR = matchBookByColor(colorR);
+
+  if (!bookL) bookL = books[0];
+  if (!bookR) bookR = books[1] || books[0];
+
+  detectedBooks = [];
+
+  if (bookL && bookR && bookL.id !== bookR.id) {
+    detectedBooks = [
+      {
+        book: bookL,
+        box: { left: 8, top: 20, width: 34, height: 60 }
+      },
+      {
+        book: bookR,
+        box: { left: 58, top: 20, width: 34, height: 60 }
+      }
+    ];
+  } else {
+    detectedBooks = [
+      {
+        book: bookL || bookR || books[0],
+        box: { left: 32, top: 15, width: 36, height: 70 }
+      }
+    ];
+  }
+
+  selectedBookIndex = 0;
+  renderDetectedBooks();
+  toast(`✨ 테두리 감지 완료: ${detectedBooks.length}권의 책을 찾았습니다!`);
+}
+
+function renderDetectedBooks() {
+  const container = document.getElementById('ar-detected-books-container');
+  container.innerHTML = '';
   
-  document.getElementById('ar-title-txt').textContent = book.title;
+  if (detectedBooks.length === 0) return;
+
+  detectedBooks.forEach((item, idx) => {
+    const isSelected = idx === selectedBookIndex;
+    const box = item.box;
+    const book = item.book;
+
+    const boxEl = document.createElement('div');
+    boxEl.style.position = 'absolute';
+    boxEl.style.left = box.left + '%';
+    boxEl.style.top = box.top + '%';
+    boxEl.style.width = box.width + '%';
+    boxEl.style.height = box.height + '%';
+    boxEl.style.borderRadius = '8px';
+    boxEl.style.pointerEvents = 'auto';
+    boxEl.style.cursor = 'pointer';
+    boxEl.style.transition = 'all 0.3s ease';
+    
+    if (isSelected) {
+      boxEl.style.border = '3px solid var(--mint)';
+      boxEl.style.boxShadow = '0 0 20px rgba(52, 211, 153, 0.8)';
+    } else {
+      boxEl.style.border = '2px dashed var(--violet)';
+      boxEl.style.boxShadow = '0 0 10px rgba(139, 92, 246, 0.4)';
+    }
+
+    const labelEl = document.createElement('div');
+    labelEl.style.position = 'absolute';
+    labelEl.style.top = '-26px';
+    labelEl.style.left = '0';
+    labelEl.style.backgroundColor = isSelected ? 'var(--mint)' : 'var(--violet)';
+    labelEl.style.color = '#fff';
+    labelEl.style.fontSize = '10px';
+    labelEl.style.fontWeight = '700';
+    labelEl.style.padding = '3px 8px';
+    labelEl.style.borderRadius = '4px';
+    labelEl.style.whiteSpace = 'nowrap';
+    labelEl.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+    labelEl.innerHTML = `📘 ${esc(book.title)} ${isSelected ? ' [선택됨]' : ''}`;
+    boxEl.appendChild(labelEl);
+
+    boxEl.onclick = (e) => {
+      e.stopPropagation();
+      selectedBookIndex = idx;
+      renderDetectedBooks();
+    };
+
+    container.appendChild(boxEl);
+
+    if (isSelected) {
+      arMatchedBook = book;
+      document.getElementById('ar-title-txt').textContent = book.title;
+      document.getElementById('ar-hud').style.opacity = '0';
+      document.getElementById('ar-overlay-layer').style.display = 'block';
+      document.getElementById('ar-retry-btn').style.display = 'inline-flex';
+      
+      renderFloatingReviewsNextToBox(item);
+    }
+  });
+}
+
+function renderFloatingReviewsNextToBox(item) {
+  const container = document.getElementById('ar-floating-cards-container');
+  container.innerHTML = '';
   
+  const book = item.book;
+  const box = item.box;
+
+  const cardContainer = document.getElementById('ar-floating-cards-container');
+  cardContainer.style.position = 'absolute';
+  cardContainer.style.bottom = 'auto';
+  cardContainer.style.top = box.top + '%';
+  cardContainer.style.height = box.height + '%';
+  cardContainer.style.overflowY = 'auto';
+  cardContainer.style.display = 'flex';
+  cardContainer.style.flexDirection = 'column';
+  
+  if (box.left < 50) {
+    cardContainer.style.left = (box.left + box.width + 2) + '%';
+    cardContainer.style.width = (98 - (box.left + box.width + 4)) + '%';
+  } else {
+    cardContainer.style.left = '2%';
+    cardContainer.style.width = (box.left - 4) + '%';
+  }
+
   const actualReviews = [];
   books.forEach(b => {
     const cleanBTitle = b.title.replace(/\s+/g, '').toLowerCase();
@@ -4681,21 +4645,22 @@ function renderArOverlays(book) {
     }
   }
   
-  matchedReviews = [...actualReviews, ...(predefined || MOCK_COMMUNITY_REVIEWS['default'])].slice(0, 4);
+  matchedReviews = [...actualReviews, ...(predefined || MOCK_COMMUNITY_REVIEWS['default'])].slice(0, 3);
 
-  const container = document.getElementById('ar-floating-cards-container');
-  container.innerHTML = '';
-  
   matchedReviews.forEach(rev => {
     const card = document.createElement('div');
     card.className = 'ar-floating-card';
+    card.style.flex = '0 0 auto';
+    card.style.width = '100%';
+    card.style.boxSizing = 'border-box';
+    card.style.marginBottom = '8px';
     card.innerHTML = `
-      <div class="ar-floating-card-user">
-        <span class="ar-floating-card-avatar">${rev.avatar}</span>
+      <div class="ar-floating-card-user" style="font-size:10px;">
+        <span class="ar-floating-card-avatar" style="width:18px; height:18px; font-size:8px;">${rev.avatar}</span>
         <span style="font-weight:600;">${esc(rev.username)}</span>
         <span class="ar-floating-card-stars">${'★'.repeat(rev.rating)}</span>
       </div>
-      <div class="ar-floating-card-comment">"${esc(rev.comment)}"</div>
+      <div class="ar-floating-card-comment" style="font-size:11px; line-height:1.4;">"${esc(rev.comment)}"</div>
     `;
     container.appendChild(card);
   });
