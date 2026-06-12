@@ -3651,10 +3651,53 @@ function handleGallerySwipe() {
   const diffX = galleryTouchEndX - galleryTouchStartX;
   const diffY = galleryTouchEndY - galleryTouchStartY;
   
-  // Horizontal swipe (left or right): Go to Stats page
+  // Horizontal swipe: left goes to Community, right goes to Stats
   if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
-    showStats();
-    toast('📊 통계 페이지로 이동');
+    if (diffX < 0) {
+      showCommunity();
+      toast('💬 커뮤니티로 이동');
+    } else {
+      showStats();
+      toast('📊 통계 페이지로 이동');
+    }
+  }
+}
+
+// Community Touch Swipe Gestures
+let commTouchStartX = 0;
+let commTouchStartY = 0;
+let commTouchEndX = 0;
+let commTouchEndY = 0;
+
+const commEl = document.getElementById('view-community');
+
+commEl.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) {
+    commTouchStartX = e.touches[0].screenX;
+    commTouchStartY = e.touches[0].screenY;
+  }
+}, { passive: true });
+
+commEl.addEventListener('touchend', e => {
+  // Ignore swipes if user is scrolling horizontal AR cards
+  if (e.target.closest('#ar-floating-cards-container')) return;
+  if (e.changedTouches.length === 1) {
+    commTouchEndX = e.changedTouches[0].screenX;
+    commTouchEndY = e.changedTouches[0].screenY;
+    handleCommunitySwipe();
+  }
+}, { passive: true });
+
+function handleCommunitySwipe() {
+  const diffX = commTouchEndX - commTouchStartX;
+  const diffY = commTouchEndY - commTouchStartY;
+  
+  // Horizontal right swipe: Go back to Gallery
+  if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
+    if (diffX > 0) {
+      showGallery();
+      toast('📚 내 서재로 이동');
+    }
   }
 }
 
