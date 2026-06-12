@@ -1103,6 +1103,13 @@
       50% { transform: scale(1.06); filter: drop-shadow(0 0 10px rgba(139,92,246,0.55)); }
       100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(139,92,246,0.3)); }
     }
+    #view-community {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 24px 40px;
+      animation: slideDown .4s var(--ease) both;
+    }
     #view-community.show {
       display: block !important;
     }
@@ -1437,7 +1444,7 @@
   </div>
 
   <!-- Community View -->
-  <div id="view-community" style="display: none; flex: 1; overflow-y: auto; padding: 24px 24px 40px; animation: slideDown .4s var(--ease) both;">
+  <div id="view-community">
     <div class="community-wrap" style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px;">
       
       <!-- AR Trigger Card -->
@@ -2114,8 +2121,10 @@ function showDetail(id, direction = null) {
 
   document.getElementById('view-gallery').style.display = 'none';
   document.getElementById('view-stats').classList.remove('show');
+  document.getElementById('view-community').classList.remove('show');
   document.getElementById('view-detail').classList.add('show');
   document.getElementById('back-btn').classList.add('show');
+  document.getElementById('community-nav-btn').style.display = 'none';
   document.getElementById('view-label').textContent = '📖 ' + book.title;
 }
 
@@ -2165,8 +2174,10 @@ function showGallery() {
   document.getElementById('view-gallery').style.display = '';
   document.getElementById('view-detail').classList.remove('show');
   document.getElementById('view-stats').classList.remove('show');
+  document.getElementById('view-community').classList.remove('show');
   document.getElementById('back-btn').classList.remove('show');
   document.getElementById('sidebar-toggle').style.display = '';
+  document.getElementById('community-nav-btn').style.display = 'inline-flex';
   document.getElementById('view-label').textContent = '📚 내 서재';
   currentBookId = null;
   renderGallery();
@@ -2176,8 +2187,10 @@ function showStats() {
   document.getElementById('view-gallery').style.display = 'none';
   document.getElementById('view-detail').classList.remove('show');
   document.getElementById('view-stats').classList.add('show');
+  document.getElementById('view-community').classList.remove('show');
   document.getElementById('back-btn').classList.add('show');
   document.getElementById('sidebar-toggle').style.display = 'none';
+  document.getElementById('community-nav-btn').style.display = 'inline-flex';
   document.getElementById('view-label').textContent = '📊 독서 통계';
   showRandomQuote();
   updateSidebar();
@@ -3790,6 +3803,10 @@ function closeModal(id) {
     ocrImg = null; ocrSelDiv = null;
   }
 
+  if (id === 'ar-scanner-modal') {
+    closeArScanner();
+  }
+
   const modal = document.getElementById(id);
   if (modal) {
     modal.classList.remove('open');
@@ -4563,29 +4580,6 @@ function addArBookToShelf() {
   closeArScanner();
   toast("📚 인식한 도서 정보가 책장 폼에 기입되었습니다.");
 }
-
-// Modify existing showGallery to reset navigation buttons
-const originalShowGallery = showGallery;
-showGallery = function() {
-  originalShowGallery();
-  document.getElementById('view-community').style.display = 'none';
-  document.getElementById('community-nav-btn').style.display = 'inline-flex';
-};
-
-const originalShowStats = showStats;
-showStats = function() {
-  originalShowStats();
-  document.getElementById('view-community').style.display = 'none';
-  document.getElementById('community-nav-btn').style.display = 'inline-flex';
-};
-
-const originalCloseModal = closeModal;
-closeModal = function(id) {
-  originalCloseModal(id);
-  if (id === 'ar-scanner-modal') {
-    closeArScanner();
-  }
-};
 </script>
 </body>
 </html>
