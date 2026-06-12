@@ -4734,7 +4734,11 @@ function closeArScanner() {
     cancelAnimationFrame(arCanvasAnimId);
     arCanvasAnimId = null;
   }
-  closeModal('ar-scanner-modal');
+  const modal = document.getElementById('ar-scanner-modal');
+  if (modal) {
+    modal.classList.remove('open');
+  }
+  document.body.style.overflow = '';
 }
 
 function resetArScan() {
