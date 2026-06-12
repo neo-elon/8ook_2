@@ -1697,15 +1697,21 @@
       <canvas id="ar-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2;"></canvas>
 
       <!-- HUD/Target Frame Overlay -->
-      <div id="ar-hud" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; pointer-events: none; transition: opacity 0.3s var(--ease);">
-        <div style="width: 260px; height: 360px; border: 2px dashed rgba(255,255,255,0.4); border-radius: 12px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); position: relative;">
-          <div style="position: absolute; top: -2px; left: -2px; width: 20px; height: 20px; border-top: 3px solid var(--violet); border-left: 3px solid var(--violet); border-top-left-radius: 10px;"></div>
-          <div style="position: absolute; top: -2px; right: -2px; width: 20px; height: 20px; border-top: 3px solid var(--violet); border-right: 3px solid var(--violet); border-top-right-radius: 10px;"></div>
-          <div style="position: absolute; bottom: -2px; left: -2px; width: 20px; height: 20px; border-bottom: 3px solid var(--violet); border-left: 3px solid var(--violet); border-bottom-left-radius: 10px;"></div>
-          <div style="position: absolute; bottom: -2px; right: -2px; width: 20px; height: 20px; border-bottom: 3px solid var(--violet); border-right: 3px solid var(--violet); border-bottom-right-radius: 10px;"></div>
+      <div id="ar-hud" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 30px 20px; z-index: 5; pointer-events: none; transition: opacity 0.3s var(--ease);">
+        <div style="position: absolute; inset: 20px; border: 1px dashed rgba(255,255,255,0.12); border-radius: 16px; pointer-events: none;">
+          <div style="position: absolute; top: -2px; left: -2px; width: 24px; height: 24px; border-top: 4px solid var(--violet); border-left: 4px solid var(--violet); border-top-left-radius: 12px;"></div>
+          <div style="position: absolute; top: -2px; right: -2px; width: 24px; height: 24px; border-top: 4px solid var(--violet); border-right: 4px solid var(--violet); border-top-right-radius: 12px;"></div>
+          <div style="position: absolute; bottom: -2px; left: -2px; width: 24px; height: 24px; border-bottom: 4px solid var(--violet); border-left: 4px solid var(--violet); border-bottom-left-radius: 12px;"></div>
+          <div style="position: absolute; bottom: -2px; right: -2px; width: 24px; height: 24px; border-bottom: 4px solid var(--violet); border-right: 4px solid var(--violet); border-bottom-right-radius: 12px;"></div>
         </div>
-        <p style="color: #fff; font-size: 12px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); margin-top: 24px; font-weight: 500; text-align: center; padding: 0 20px;">
-          책 표지들을 영역 안에 비추고 아래 스캔(🔍) 버튼을 누르면 테두리를 감지합니다.
+        <div style="width: 100%; text-align: center; margin-top: 10px;">
+          <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.65); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px; color: var(--lavender); font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">
+            <span style="display:inline-block; width:6px; height:6px; background:var(--mint); border-radius:50%; box-shadow: 0 0 8px var(--mint);"></span>
+            AI Smart Scanner Active
+          </div>
+        </div>
+        <p style="color: #fff; font-size: 12px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); font-weight: 500; text-align: center; padding: 8px 16px; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); border-radius: 10px; max-width: 90%; margin-bottom: 80px; line-height: 1.4; border: 1px solid rgba(255,255,255,0.08);">
+          📸 화면 전체에서 책을 자동으로 감지합니다.<br>아래의 스캔(🔍) 버튼을 눌러 촬영하세요.
         </p>
       </div>
 
@@ -4335,10 +4341,27 @@ function startArCanvasAnimation() {
     const time = Date.now() * 0.003;
     
     if (arIsScanning) {
-      ctx.strokeStyle = 'rgba(139, 92, 246, 0.25)';
-      ctx.lineWidth = 1;
+      // Sweeping horizontal scanner line
+      const scanY = ((Date.now() % 1500) / 1500) * canvas.height;
+      const scanGrad = ctx.createLinearGradient(0, scanY - 6, 0, scanY + 6);
+      scanGrad.addColorStop(0, 'transparent');
+      scanGrad.addColorStop(0.5, 'rgba(52, 211, 153, 0.85)');
+      scanGrad.addColorStop(1, 'transparent');
       
-      const gridCount = 6;
+      ctx.fillStyle = scanGrad;
+      ctx.fillRect(0, scanY - 6, canvas.width, 12);
+      
+      ctx.strokeStyle = 'rgba(52, 211, 153, 0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(0, scanY);
+      ctx.lineTo(canvas.width, scanY);
+      ctx.stroke();
+
+      // Advanced grid representation
+      ctx.strokeStyle = 'rgba(139, 92, 246, 0.15)';
+      ctx.lineWidth = 1;
+      const gridCount = 8;
       for (let i = 1; i < gridCount; i++) {
         const x = (canvas.width / gridCount) * i;
         ctx.beginPath();
@@ -4352,22 +4375,29 @@ function startArCanvasAnimation() {
         ctx.lineTo(canvas.width, y);
         ctx.stroke();
       }
-      
-      const pulseScale = 0.5 + (Math.sin(Date.now() * 0.015) + 1) * 0.25;
-      ctx.strokeStyle = 'rgba(52, 211, 153, 0.7)';
-      ctx.lineWidth = 2;
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = 'rgba(52, 211, 153, 0.4)';
-      
-      const wL = canvas.width * 0.32 * pulseScale;
-      const hL = canvas.height * 0.55 * pulseScale;
-      ctx.strokeRect(canvas.width * 0.28 - wL/2, canvas.height * 0.5 - hL/2, wL, hL);
-      
-      const wR = canvas.width * 0.32 * (1.5 - pulseScale);
-      const hR = canvas.height * 0.55 * (1.5 - pulseScale);
-      ctx.strokeRect(canvas.width * 0.72 - wR/2, canvas.height * 0.5 - hR/2, wR, hR);
-      
-      ctx.shadowBlur = 0;
+
+      // Draw simulated AI outline tracking boxes detecting items
+      const pulseScale = 0.85 + Math.sin(Date.now() * 0.02) * 0.08;
+      ctx.strokeStyle = 'rgba(139, 92, 246, 0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+
+      // Box 1 (Left Area)
+      const w1 = canvas.width * 0.22 * pulseScale;
+      const h1 = canvas.height * 0.48 * pulseScale;
+      ctx.strokeRect(canvas.width * 0.2 - w1/2, canvas.height * 0.5 - h1/2, w1, h1);
+
+      // Box 2 (Center Area)
+      const w2 = canvas.width * 0.24 * (1.7 - pulseScale);
+      const h2 = canvas.height * 0.52 * (1.7 - pulseScale);
+      ctx.strokeRect(canvas.width * 0.5 - w2/2, canvas.height * 0.46 - h2/2, w2, h2);
+
+      // Box 3 (Right Area)
+      const w3 = canvas.width * 0.22 * pulseScale;
+      const h3 = canvas.height * 0.48 * pulseScale;
+      ctx.strokeRect(canvas.width * 0.8 - w3/2, canvas.height * 0.5 - h3/2, w3, h3);
+
+      ctx.setLineDash([]);
     } else {
       const y = (Math.sin(time) + 1) * 0.5 * canvas.height;
       const grad = ctx.createLinearGradient(0, y - 4, 0, y + 4);
@@ -4476,8 +4506,9 @@ async function detectAndResolveBooks(dataUrl) {
     };
   };
 
-  const colorL = getRegionAvgColor(0.05, 0.45);
-  const colorR = getRegionAvgColor(0.55, 0.95);
+  const colorL = getRegionAvgColor(0.02, 0.35);
+  const colorC = getRegionAvgColor(0.35, 0.65);
+  const colorR = getRegionAvgColor(0.65, 0.98);
 
   const matchBookByColor = (color) => {
     const r = color.r, g = color.g, b = color.b;
@@ -4497,31 +4528,41 @@ async function detectAndResolveBooks(dataUrl) {
   };
 
   let bookL = matchBookByColor(colorL);
+  let bookC = matchBookByColor(colorC);
   let bookR = matchBookByColor(colorR);
 
-  if (!bookL) bookL = books[0];
-  if (!bookR) bookR = books[1] || books[0];
-
   detectedBooks = [];
+  const addedIds = new Set();
 
-  if (bookL && bookR && bookL.id !== bookR.id) {
-    detectedBooks = [
-      {
-        book: bookL,
-        box: { left: 8, top: 20, width: 34, height: 60 }
-      },
-      {
-        book: bookR,
-        box: { left: 58, top: 20, width: 34, height: 60 }
-      }
-    ];
-  } else {
-    detectedBooks = [
-      {
-        book: bookL || bookR || books[0],
-        box: { left: 32, top: 15, width: 36, height: 70 }
-      }
-    ];
+  if (bookL) {
+    detectedBooks.push({
+      book: bookL,
+      box: { left: 6, top: 22, width: 26, height: 55 }
+    });
+    addedIds.add(bookL.id);
+  }
+  if (bookC && !addedIds.has(bookC.id)) {
+    detectedBooks.push({
+      book: bookC,
+      box: { left: 37, top: 18, width: 26, height: 60 }
+    });
+    addedIds.add(bookC.id);
+  }
+  if (bookR && !addedIds.has(bookR.id)) {
+    detectedBooks.push({
+      book: bookR,
+      box: { left: 68, top: 22, width: 26, height: 55 }
+    });
+    addedIds.add(bookR.id);
+  }
+
+  // Fallback if none matched
+  if (detectedBooks.length === 0) {
+    const fallbackBook = books[0] || { title: '채식주의자', author: '한강', id: 'default' };
+    detectedBooks.push({
+      book: fallbackBook,
+      box: { left: 32, top: 15, width: 36, height: 70 }
+    });
   }
 
   selectedBookIndex = 0;
@@ -4610,9 +4651,12 @@ function renderFloatingReviewsNextToBox(item) {
   cardContainer.style.display = 'flex';
   cardContainer.style.flexDirection = 'column';
   
-  if (box.left < 50) {
+  const leftSpace = box.left;
+  const rightSpace = 100 - (box.left + box.width);
+
+  if (rightSpace >= leftSpace) {
     cardContainer.style.left = (box.left + box.width + 2) + '%';
-    cardContainer.style.width = (98 - (box.left + box.width + 4)) + '%';
+    cardContainer.style.width = (98 - (box.left + box.width + 3)) + '%';
   } else {
     cardContainer.style.left = '2%';
     cardContainer.style.width = (box.left - 4) + '%';
