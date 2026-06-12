@@ -3705,11 +3705,20 @@ function handleCommunitySwipe() {
   const diffX = commTouchEndX - commTouchStartX;
   const diffY = commTouchEndY - commTouchStartY;
   
-  // Horizontal right swipe: Go back to Gallery
+  // Horizontal swipe
   if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
     if (diffX > 0) {
       showGallery();
       toast('📚 내 서재로 이동');
+    } else {
+      // Bounce left (dragged left on the rightmost page)
+      const wrap = document.querySelector('.community-wrap');
+      if (wrap) {
+        wrap.classList.remove('bounce-left', 'bounce-right');
+        void wrap.offsetWidth;
+        wrap.classList.add('bounce-left');
+      }
+      toast('🚫 마지막 페이지입니다');
     }
   }
 }
@@ -3741,10 +3750,21 @@ function handleStatsSwipe() {
   const diffX = statsTouchEndX - statsTouchStartX;
   const diffY = statsTouchEndY - statsTouchStartY;
   
-  // Horizontal swipe (left or right): Go back to Gallery
+  // Horizontal swipe
   if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
-    showGallery();
-    toast('📚 내 서재로 이동');
+    if (diffX < 0) {
+      showGallery();
+      toast('📚 내 서재로 이동');
+    } else {
+      // Bounce right (dragged right on the leftmost page)
+      const wrap = document.querySelector('.stats-wrap');
+      if (wrap) {
+        wrap.classList.remove('bounce-left', 'bounce-right');
+        void wrap.offsetWidth;
+        wrap.classList.add('bounce-right');
+      }
+      toast('🚫 첫 번째 페이지입니다');
+    }
   }
   // Swipe up: Go back to Gallery, Swipe down: Refresh quote
   else if (Math.abs(diffY) > 70 && Math.abs(diffY) > Math.abs(diffX)) {
