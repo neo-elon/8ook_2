@@ -2988,6 +2988,17 @@ function _startBarcodeScanLoop() {
   const video = document.getElementById('barcode-video');
   if (!video) return;
 
+  let nativeBarcodeDetector = null;
+  if ('BarcodeDetector' in window) {
+    try {
+      nativeBarcodeDetector = new BarcodeDetector({
+        formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39']
+      });
+    } catch (e) {
+      console.warn('Native BarcodeDetector initialization failed:', e);
+    }
+  }
+
   const codeReader = new ZXing.BrowserMultiFormatReader();
   let scanning = true;
 
@@ -2999,6 +3010,20 @@ function _startBarcodeScanLoop() {
       const vh = video.videoHeight;
 
       if (vw > 0 && vh > 0) {
+        // ── 0) Try native BarcodeDetector on full frame first (instant, hardware accelerated) ──
+        if (nativeBarcodeDetector) {
+          try {
+            const barcodes = await nativeBarcodeDetector.detect(video);
+            if (barcodes && barcodes.length > 0) {
+              scanning = false;
+              _onBarcodeDetected(barcodes[0].rawValue);
+              return;
+            }
+          } catch (err) {
+            console.warn('Native BarcodeDetector full scan error:', err);
+          }
+        }
+
         // ── 1) Cropped guide-box scan (higher priority) ──
         // object-fit:cover mapping — compute visible area
         const renderW = video.clientWidth  || 480;
@@ -3031,21 +3056,21 @@ function _startBarcodeScanLoop() {
         const cropW = Math.min(vw - cropX, (guideW + margin * 2) * scaleX);
         const cropH = Math.min(vh - cropY, (guideH + margin * 2) * scaleY);
 
-        // Try cropped area first
+        // Try cropped area
         const croppedResult = await _tryDecode(codeReader, video, cropX, cropY, cropW, cropH);
         if (croppedResult) { scanning = false; _onBarcodeDetected(croppedResult); return; }
 
-        // ── 2) Full-frame fallback scan ──
+        // ── 2) Full-frame fallback scan (using ZXing) ──
         const fullResult = await _tryDecode(codeReader, video, 0, 0, vw, vh);
         if (fullResult) { scanning = false; _onBarcodeDetected(fullResult); return; }
       }
     }
 
-    // Throttle: wait ~180ms between scans to avoid flooding CPU
-    barcodeScanLoop = setTimeout(scanCycle, 180);
+    // Throttle: wait ~120ms (reduced from 180ms for faster polling)
+    barcodeScanLoop = setTimeout(scanCycle, 120);
   }
 
-  barcodeScanLoop = setTimeout(scanCycle, 300); // initial delay for camera warm-up
+  barcodeScanLoop = setTimeout(scanCycle, 200); // initial delay for camera warm-up
 }
 
 async function _tryDecode(codeReader, video, sx, sy, sw, sh) {
@@ -3053,6 +3078,21 @@ async function _tryDecode(codeReader, video, sx, sy, sw, sh) {
     const c = document.createElement('canvas');
     c.width = sw; c.height = sh;
     c.getContext('2d').drawImage(video, sx, sy, sw, sh, 0, 0, sw, sh);
+
+    // Try native detector on cropped image
+    if ('BarcodeDetector' in window) {
+      try {
+        const detector = new BarcodeDetector({
+          formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39']
+        });
+        const barcodes = await detector.detect(c);
+        if (barcodes && barcodes.length > 0) {
+          return barcodes[0].rawValue;
+        }
+      } catch (_) {}
+    }
+
+    // Fallback to ZXing
     const result = await codeReader.decodeFromCanvas(c);
     if (result && result.text) return result.text;
   } catch (_) {}
