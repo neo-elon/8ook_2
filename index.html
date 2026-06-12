@@ -721,13 +721,24 @@
       display:inline-flex; align-items:center; gap:3px;
       background: rgba(139,92,246,0.12);
       border: 1px solid rgba(139,92,246,0.28);
-      border-radius:20px; padding:4px 11px;
-      font-size:11px; font-weight:600;
+      border-radius: var(--radius-sm); padding: 5px 12px;
+      font-size: 11px; font-weight: 600;
       color: var(--lavender);
-      letter-spacing:0.3px;
-      transition: background .2s;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+      transition: all 0.2s var(--ease);
     }
-    .kw-chip:hover { background: rgba(139,92,246,0.2); }
+    .kw-chip:hover {
+      background: var(--violet);
+      color: #fff;
+      border-color: var(--violet);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(139,92,246,0.25);
+    }
+    .kw-chip:active {
+      transform: translateY(0);
+    }
 
     /* ── Keyword modal input ── */
     .kw-input-wrap {
@@ -2248,7 +2259,7 @@ function showDetail(id, direction = null) {
   const scrapCount = (book.scraps||[]).length;
 
   const kwHtml = (book.keywords && book.keywords.length)
-    ? `<div class="meta-chips" style="margin-top:6px;">${book.keywords.map(k=>`<span class="kw-chip">#${esc(k)}</span>`).join('')}</div>`
+    ? `<div class="meta-chips" style="margin-top:6px;">${book.keywords.map(k=>`<button type="button" class="kw-chip">#${esc(k)}</button>`).join('')}</div>`
     : '';
 
   const scrapsHtml = buildScrapsHtml(book);
