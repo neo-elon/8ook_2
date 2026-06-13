@@ -302,15 +302,20 @@ function renderGallery() {
     <span class="add-book-label">노션 책장 가져오기</span>
   `;
   notionCard.addEventListener('click', async () => {
-    if (supabaseClient) {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session?.user) {
-        toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
-        loginWithGoogle();
-        return;
+    try {
+      if (supabaseClient) {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session?.user) {
+          toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
+          loginWithGoogle();
+          return;
+        }
       }
+      openNotionImportModal();
+    } catch (err) {
+      console.error('Notion card click error:', err);
+      openNotionImportModal();
     }
-    openNotionImportModal();
   });
   grid.appendChild(notionCard);
 
