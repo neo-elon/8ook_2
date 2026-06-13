@@ -146,9 +146,13 @@ async function loadData() {
         if (b.id && b.id.startsWith('notion_')) {
           const pageIdPart = b.id.substring(7, 39);
           newId = 'notion_' + pageIdPart + '_' + currentUser.id;
+        } else {
+          newId = uid();
         }
         return { ...b, id: newId, user_id: currentUser.id };
       });
+      console.log('DEBUG: currentUser.id =', currentUser?.id);
+      console.log('DEBUG: booksToUpload =', JSON.stringify(booksToUpload.map(b => ({ id: b.id, title: b.title, user_id: b.user_id })), null, 2));
       const { error: syncError } = await supabaseClient
         .from('books')
         .upsert(booksToUpload, { onConflict: 'id' });
