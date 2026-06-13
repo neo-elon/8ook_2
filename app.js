@@ -131,10 +131,16 @@ async function loadData() {
     }
 
     if (remoteBooks.length === 0 && guestBooks.length > 0) {
-      const booksToUpload = guestBooks.map(b => ({ ...b, user_id: currentUser.id }));
+      const booksToUpload = guestBooks.map(b => {
+        let newId = b.id;
+        if (b.id && b.id.startsWith('notion_') && b.id.endsWith('_guest')) {
+          newId = b.id.replace('_guest', '_' + currentUser.id);
+        }
+        return { ...b, id: newId, user_id: currentUser.id };
+      });
       const { error: syncError } = await supabaseClient
         .from('books')
-        .insert(booksToUpload);
+        .upsert(booksToUpload, { onConflict: 'id' });
       if (!syncError) {
         books = booksToUpload;
         toast('✅ 기존 로컬 책장 데이터를 Supabase에 동기화했습니다!');
@@ -3790,7 +3796,7 @@ async function startNotionImport() {
             }
 
             allBooks.push({
-              id: 'notion_' + p.id.replace(/-/g, ''),
+              id: 'notion_' + p.id.replace(/-/g, '') + '_' + (currentUser ? currentUser.id : 'guest'),
               title,
               author,
               pages: pagesNum,
