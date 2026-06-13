@@ -53,6 +53,7 @@ create policy "Allow individual delete" on books for delete using (auth.uid() = 
    STATE
 ============================================== */
 let books = [];
+let currentUser = null;
 let currentBookId = null;
 let editingBookId = null;
 let currentRating = 0;
@@ -85,33 +86,32 @@ let aladinSearchResults = [];
    STORAGE
 ============================================== */
 function saveData() {
-  try { localStorage.setItem('rj_books', JSON.stringify(books)); } catch(e) {}
+  try {
+    if (currentUser) {
+      localStorage.setItem(`rj_books_${currentUser.id}`, JSON.stringify(books));
+    } else {
+      localStorage.setItem('rj_books', JSON.stringify(books));
+    }
+  } catch(e) {}
 }
 async function loadData() {
   let localBooks = [];
   try {
-    const d = localStorage.getItem('rj_books');
+    const key = currentUser ? `rj_books_${currentUser.id}` : 'rj_books';
+    const d = localStorage.getItem(key);
     if (d) localBooks = JSON.parse(d);
   } catch(e) {}
 
-  if (!supabaseClient) {
+  if (!supabaseClient || !currentUser) {
     books = localBooks;
     return;
   }
 
   try {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const user = session?.user;
-
-    if (!user) {
-      books = localBooks;
-      return;
-    }
-
     const { data, error } = await supabaseClient
       .from('books')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', currentUser.id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -123,22 +123,31 @@ async function loadData() {
     
     const remoteBooks = data || [];
     
-    // Migration: If Supabase is empty but we have local books, upload them to Supabase
-    if (remoteBooks.length === 0 && localBooks.length > 0) {
-      const booksToUpload = localBooks.map(b => ({ ...b, user_id: user.id }));
+    // Migration: If Supabase is empty but we have local guest books, upload them to Supabase
+    const guestBooksStr = localStorage.getItem('rj_books');
+    let guestBooks = [];
+    if (guestBooksStr) {
+      try { guestBooks = JSON.parse(guestBooksStr); } catch(e) {}
+    }
+
+    if (remoteBooks.length === 0 && guestBooks.length > 0) {
+      const booksToUpload = guestBooks.map(b => ({ ...b, user_id: currentUser.id }));
       const { error: syncError } = await supabaseClient
         .from('books')
         .insert(booksToUpload);
       if (!syncError) {
         books = booksToUpload;
-        toast('✅ 기존 책장 데이터를 Supabase에 동기화했습니다!');
+        toast('✅ 기존 로컬 책장 데이터를 Supabase에 동기화했습니다!');
+        // Clear guest books so we don't sync them again next time
+        try { localStorage.removeItem('rj_books'); } catch(e) {}
       } else {
         console.error('Failed to sync local books to Supabase:', syncError);
-        books = localBooks;
+        books = remoteBooks;
       }
     } else {
       books = remoteBooks;
     }
+    saveData();
   } catch(e) {
     console.error('Supabase load error, using local storage backup:', e);
     books = localBooks;
@@ -2654,6 +2663,7 @@ async function logout() {
 async function checkAuth() {
   if (!supabaseClient) return;
   const { data: { session } } = await supabaseClient.auth.getSession();
+  currentUser = session?.user || null;
   updateAuthUI(session);
 }
 
@@ -2663,12 +2673,14 @@ function updateAuthUI(session) {
   const usernameSpan = document.getElementById('auth-username');
 
   if (session && session.user) {
+    currentUser = session.user;
     loginBtn.style.display = 'none';
     logoutBtn.style.display = 'inline-flex';
     usernameSpan.style.display = 'inline';
     const metadata = session.user.user_metadata;
     usernameSpan.textContent = (metadata && metadata.full_name) || session.user.email || '사용자';
   } else {
+    currentUser = null;
     loginBtn.style.display = 'inline-flex';
     logoutBtn.style.display = 'none';
     usernameSpan.style.display = 'none';
@@ -2679,6 +2691,7 @@ function updateAuthUI(session) {
 if (supabaseClient) {
   checkAuth();
   supabaseClient.auth.onAuthStateChange((event, session) => {
+    currentUser = session?.user || null;
     updateAuthUI(session);
     // Reload data on auth change to apply RLS
     if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
