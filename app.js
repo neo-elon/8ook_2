@@ -102,6 +102,16 @@ async function loadData() {
     if (d) localBooks = JSON.parse(d);
   } catch(e) {}
 
+  if (currentUser) {
+    localBooks = localBooks.map(b => {
+      if (b.id && b.id.startsWith('notion_') && !b.id.endsWith('_' + currentUser.id)) {
+        const pageIdPart = b.id.substring(7, 39);
+        return { ...b, id: 'notion_' + pageIdPart + '_' + currentUser.id };
+      }
+      return b;
+    });
+  }
+
   if (!supabaseClient || !currentUser) {
     books = localBooks;
     return;
@@ -133,8 +143,9 @@ async function loadData() {
     if (remoteBooks.length === 0 && guestBooks.length > 0) {
       const booksToUpload = guestBooks.map(b => {
         let newId = b.id;
-        if (b.id && b.id.startsWith('notion_') && b.id.endsWith('_guest')) {
-          newId = b.id.replace('_guest', '_' + currentUser.id);
+        if (b.id && b.id.startsWith('notion_')) {
+          const pageIdPart = b.id.substring(7, 39);
+          newId = 'notion_' + pageIdPart + '_' + currentUser.id;
         }
         return { ...b, id: newId, user_id: currentUser.id };
       });
