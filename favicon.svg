@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <!-- Gradient matching the app's main violet-indigo theme -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+    <!-- Soft shadow for text clarity -->
+    <filter id="soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#090514" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Premium rounded square background (iOS app icon style) -->
+  <rect width="100" height="100" rx="28" fill="url(#bg-grad)" />
+  
+  <!-- Subtle glowing inner border -->
+  <rect x="2" y="2" width="96" height="96" rx="26" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.15" />
+
+  <!-- Clean, bold 8k. branding -->
+  <text x="49" y="54" 
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" 
+        font-size="45" 
+        font-weight="900" 
+        fill="#ffffff" 
+        text-anchor="middle" 
+        dominant-baseline="middle" 
+        letter-spacing="-2.5"
+        filter="url(#soft-shadow)">8k.</text>
+</svg>
