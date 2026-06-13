@@ -17,8 +17,8 @@
   <!-- Subtle glowing inner border -->
   <rect x="2" y="2" width="96" height="96" rx="26" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.15" />
 
-  <!-- Clean, bold 8k. branding -->
-  <text x="49" y="54" 
+  <!-- Clean, bold 8k branding -->
+  <text x="50" y="54" 
         font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" 
         font-size="45" 
         font-weight="900" 
@@ -26,5 +26,5 @@
         text-anchor="middle" 
         dominant-baseline="middle" 
         letter-spacing="-2.5"
-        filter="url(#soft-shadow)">8k.</text>
+        filter="url(#soft-shadow)">8k</text>
 </svg>
