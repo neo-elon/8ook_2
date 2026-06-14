@@ -3043,8 +3043,10 @@ function renderWordCloud() {
     span.style.fontWeight = count > 1 ? '700' : '500';
     span.style.cursor = 'pointer';
     span.style.transition = 'all 0.2s ease';
-    span.style.padding = '4px 8px';
-    span.style.borderRadius = '6px';
+    span.style.padding = '2px 5px';
+    span.style.margin = '1px';
+    span.style.lineHeight = '1';
+    span.style.borderRadius = '4px';
     span.style.display = 'inline-block';
     
     span.onmouseover = () => {
