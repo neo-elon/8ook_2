@@ -3037,27 +3037,32 @@ function renderWordCloud() {
 
     const span = document.createElement('span');
     span.className = 'wc-item';
-    span.textContent = `#${kw}`;
+    span.textContent = kw; // No '#' symbol
     span.style.fontSize = `${fontSize}px`;
     span.style.color = color;
-    span.style.fontWeight = count > 1 ? '700' : '500';
+    span.style.fontWeight = count > 1 ? '800' : '600';
     span.style.cursor = 'pointer';
-    span.style.transition = 'all 0.2s ease';
-    span.style.padding = '2px 5px';
-    span.style.margin = '1px';
-    span.style.lineHeight = '1';
-    span.style.borderRadius = '4px';
+    span.style.transition = 'transform 0.2s ease, text-shadow 0.2s ease';
+    span.style.padding = '0px 2px';
+    
+    // Organic layout: random rotation (-15, 0, 15deg) and tight overlapping margins
+    const rotateVal = (Math.floor(Math.random() * 3) - 1) * 15;
+    span.style.transform = `rotate(${rotateVal}deg)`;
+    span.style.margin = '-4px 0.5px'; 
+    span.style.lineHeight = '0.9';
     span.style.display = 'inline-block';
+    span.style.position = 'relative';
+    span.style.userSelect = 'none';
     
     span.onmouseover = () => {
-      span.style.transform = 'scale(1.18)';
-      span.style.textShadow = `0 0 10px ${color}`;
-      span.style.background = 'rgba(255, 255, 255, 0.05)';
+      span.style.transform = `scale(1.25) rotate(${rotateVal}deg)`;
+      span.style.textShadow = `0 0 12px ${color}`;
+      span.style.zIndex = '10';
     };
     span.onmouseout = () => {
-      span.style.transform = 'scale(1)';
+      span.style.transform = `scale(1) rotate(${rotateVal}deg)`;
       span.style.textShadow = 'none';
-      span.style.background = 'transparent';
+      span.style.zIndex = '1';
     };
 
     span.onclick = () => {
