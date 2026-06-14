@@ -3006,10 +3006,15 @@ function renderWordCloud() {
     freq[k] = (freq[k] || 0) + 1;
   });
 
-  const uniqueKws = Object.keys(freq);
-  const counts = Object.values(freq);
-  const minCount = Math.min(...counts);
-  const maxCount = Math.max(...counts);
+  let uniqueKws = Object.keys(freq);
+  const isMobile = window.innerWidth <= 640;
+  if (isMobile && uniqueKws.length > 30) {
+    uniqueKws = uniqueKws.sort(() => 0.5 - Math.random()).slice(0, 30);
+  }
+
+  const counts = uniqueKws.map(kw => freq[kw]);
+  const minCount = counts.length ? Math.min(...counts) : 1;
+  const maxCount = counts.length ? Math.max(...counts) : 1;
 
   const colors = [
     'var(--lavender)',
