@@ -203,6 +203,14 @@ function esc(s) {
     .replace(/'/g,'&#39;');
 }
 
+function getSafeImageUrl(url) {
+  if (!url) return '';
+  if (url.includes('pstatic.net') || url.includes('shopping-phinf')) {
+    return 'https://corsproxy.io/?' + encodeURIComponent(url);
+  }
+  return url;
+}
+
 function fmtDate(s) {
   if (!s) return '';
   const d = new Date(s);
@@ -347,7 +355,7 @@ function renderGallery() {
 
     let imgPart = '';
     if (book.cover) {
-      imgPart = `<img src="${esc(book.cover)}" alt="${esc(book.title)}"
+      imgPart = `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}"
         onerror="this.outerHTML='<div class=\\'book-card-placeholder\\'><span class=\\'placeholder-icon\\'>📚</span><span class=\\'placeholder-title\\'>${esc(book.title)}</span></div>'">`;
     } else {
       imgPart = `<div class="book-card-placeholder">
@@ -395,7 +403,7 @@ function showDetail(id, direction = null) {
   }
 
   const coverHtml = book.cover
-    ? `<img src="${esc(book.cover)}" alt="${esc(book.title)}"
+    ? `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}"
         onerror="this.outerHTML='<div class=\\'detail-thumb-placeholder\\'>📚</div>'">`
     : `<div class="detail-thumb-placeholder">📚</div>`;
 
@@ -626,7 +634,7 @@ function onFileSelect(inp) {
 
 function setPrev(src) {
   document.getElementById('book-prev').innerHTML =
-    `<img src="${src}" onerror="this.parentElement.innerHTML='<div class=\\'img-prev-ph\\'><span class=\\'img-prev-ph-icon\\'>❌</span><span>이미지 로드 실패</span></div>'">`;
+    `<img src="${getSafeImageUrl(src)}" onerror="this.parentElement.innerHTML='<div class=\\'img-prev-ph\\'><span class=\\'img-prev-ph-icon\\'>❌</span><span>이미지 로드 실패</span></div>'">`;
 }
 
 function resetPrev() {
@@ -1495,7 +1503,7 @@ function handleAladinResults(data) {
     const pubDate = item.pubDate || '';
 
     html += `<div class="search-item" onclick="applyAladinItemByIndex(${index})">
-      <img src="${esc(cover)}" alt=""
+      <img src="${esc(getSafeImageUrl(cover))}" alt=""
         onerror="this.style.background='var(--bg-card)';this.style.opacity='.3'">
       <div class="search-item-info">
         <div class="search-item-title">${esc(title)}</div>
@@ -2956,7 +2964,7 @@ function renderCommunityFeed() {
         <div class="feed-time">${post.time}</div>
       </div>
       <div class="feed-book-info" onclick="searchAladinByQuery('${esc(post.bookTitle)}')">
-        <img class="feed-book-cover" src="${esc(post.bookCover)}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2245%22 height=%2265%22><rect width=%22100%%22 height=%22100%%22 fill=%22%2318182e%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2220%22>📚</text></svg>'">
+        <img class="feed-book-cover" src="${esc(getSafeImageUrl(post.bookCover))}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2245%22 height=%2265%22><rect width=%22100%%22 height=%22100%%22 fill=%22%2318182e%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2220%22>📚</text></svg>'">
         <div class="feed-book-detail">
           <div class="feed-book-title">${esc(post.bookTitle)}</div>
           <div class="feed-book-author">${esc(post.bookAuthor)}</div>
