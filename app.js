@@ -206,6 +206,11 @@ function esc(s) {
 function getSafeImageUrl(url) {
   if (!url) return '';
   
+  // Prepend Notion origin to relative paths (e.g., /image/... or /images/...)
+  if (url.startsWith('/')) {
+    url = 'https://www.notion.so' + url;
+  }
+  
   // Convert Notion attachment scheme to a valid proxy URL
   if (url.startsWith('attachment:')) {
     const rest = url.substring(11); // Skip 'attachment:'
@@ -228,7 +233,7 @@ function getSafeImageUrl(url) {
   }
   
   // Proxy image requests to bypass adblockers and CORS
-  if (url.includes('pstatic.net') || url.includes('shopping-phinf') || url.includes('notion.so/image') || url.includes('secure.notion-static.com') || url.includes('files.notion.so')) {
+  if (url.includes('pstatic.net') || url.includes('shopping-phinf') || url.includes('notion.so') || url.includes('secure.notion-static.com') || url.includes('files.notion.so') || url.includes('amazonaws.com')) {
     return 'https://corsproxy.io/?' + encodeURIComponent(url);
   }
   return url;
