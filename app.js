@@ -3871,12 +3871,8 @@ async function startNotionImport() {
     toast(`📚 노션에서 ${allBooks.length}권의 책을 가져왔습니다!`);
     
     // Refresh UI
-    renderBooks();
-    
-    // Check and update stats
-    if (typeof updateStats === 'function') updateStats();
-    if (typeof renderStats === 'function') renderStats();
-    if (typeof renderStatsCharts === 'function') renderStatsCharts();
+    renderGallery();
+    if (typeof updateSidebar === 'function') updateSidebar();
 
     setTimeout(() => {
       closeNotionImportModal();
