@@ -374,8 +374,12 @@ function renderGallery() {
 
     const sentence = book.sentence
       ? `<div class="ov-sentence">${esc(book.sentence)}</div>` : '';
+    const medalBadge = book.rating === 5
+      ? `<div class="medal-badge" title="인생작 (별점 5점)">🏅</div>` : '';
+
     card.innerHTML = `
       ${imgPart}
+      ${medalBadge}
       <div class="book-hover-overlay">
         <div class="ov-title">${esc(book.title)}</div>
         <div class="ov-author">${esc(book.author||'')}</div>
