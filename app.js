@@ -3688,7 +3688,7 @@ async function startNotionImport() {
     ];
     const proxy = PROXIES[2 - retries] || PROXIES[0];
     const targetUrl = 'https://www.notion.so/api/v3/' + endpoint;
-    const notionUrl = proxy.includes('corsproxy.io') || proxy.includes('cors.sh')
+    const notionUrl = proxy.includes('corsproxy.io')
       ? proxy + encodeURIComponent(targetUrl)
       : proxy + targetUrl;
 
