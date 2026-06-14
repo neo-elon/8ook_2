@@ -2719,7 +2719,7 @@ loadTheme();
       date: new Date().toISOString().slice(0, 10),
       cover: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%238b5cf6"/><stop offset="100%" stop-color="%23ec4899"/></linearGradient></defs><rect width="400" height="600" fill="url(%23g)"/><rect x="20" y="20" width="360" height="560" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" rx="10"/><circle cx="200" cy="180" r="60" fill="rgba(255,255,255,0.15)"/><text x="200" y="195" fill="white" font-size="60" font-weight="bold" text-anchor="middle" font-family="sans-serif">📚</text><text x="200" y="320" fill="white" font-size="28" font-weight="bold" text-anchor="middle" font-family="sans-serif">8ook. 이용 가이드</text><text x="200" y="370" fill="rgba(255,255,255,0.8)" font-size="16" text-anchor="middle" font-family="sans-serif">나만의 스마트한 독서 일기</text><line x1="100" y1="420" x2="300" y2="420" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><text x="200" y="470" fill="white" font-size="14" font-weight="500" text-anchor="middle" font-family="sans-serif">책 기록 • 문장 스크랩 • 독서 통계</text><text x="200" y="530" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle" font-family="sans-serif">© 8ook Team</text></svg>',
       rating: 5,
-      sentence: '독서 기록, 문장 스크랩, 노션 연동까지! 8ook를 100% 활용하는 가이드북입니다.',
+      sentence: '독서 기록, 문장 스크랩, 완독 통계 및 독서 수다 피드까지! 8ook를 100% 활용하는 상세 가이드북입니다.',
       scraps: [
         {
           id: 'g1',
@@ -2729,21 +2729,27 @@ loadTheme();
         },
         {
           id: 'g2',
-          text: '🔗 노션 책장 가져오기 기능을 클릭하여 공개 공유된 노션 데이터베이스 링크를 입력해보세요. 수십~수백 권의 독서 이력이 몇 초 만에 자동으로 등록됩니다.',
+          text: '🔍 도서 추가 모달에서 제목으로 검색하여 알라딘 도서 정보를 가져오거나, 모바일 카메라로 바코드를 촬영해보세요. 표지 이미지, 저자, 페이지 수 등 모든 정보가 자동으로 채워집니다.',
           page: 2,
-          memo: '노션 가져오기 가이드'
-        },
-        {
-          id: 'g3',
-          text: '📸 스마트폰 카메라로 책의 바코드를 스캔하거나 도서 검색 기능을 사용하여 제목, 저자, 페이지 수, 책 표지 이미지를 편리하게 자동 완성할 수 있습니다.',
-          page: 3,
           memo: '간편한 도서 등록 기능'
         },
         {
-          id: 'g4',
-          text: '📝 도서 상세 보기 화면에서 스크랩 추가 버튼을 누르고 문장 사진을 촬영해보세요. 광학 문자 인식(OCR) 엔진이 이미지 속의 글씨를 알아서 한글 텍스트로 추출해줍니다.',
-          page: 4,
+          id: 'g3',
+          text: '📸 도서 상세 화면에서 스크랩을 추가할 때 "사진 OCR" 탭을 선택하고 책 페이지를 촬영해보세요. 고성능 OCR 엔진이 이미지 속의 한글 및 영어 텍스트를 인식하여 타이핑 없이 터치 한 번으로 문장을 추출해 줍니다.',
+          page: 3,
           memo: 'OCR 문장 스크랩 사용법'
+        },
+        {
+          id: 'g4',
+          text: '📊 상단 "통계" 메뉴를 클릭하면 완독한 도서 수, 총 페이지 수, 총 스크랩 수는 물론 월별/연도별 시각화 차트와 어떤 날에 책을 끝마쳤는지 알려주는 완독 달력을 한눈에 볼 수 있습니다.',
+          page: 4,
+          memo: '완독 달력 & 독서 통계 대시보드'
+        },
+        {
+          id: 'g5',
+          text: '💬 상단 "커뮤니티" 메뉴에서는 내가 입력한 키워드들이 모여 만드는 관심 분야 워드 클라우드가 제공됩니다. 또한 다른 독자들과 감상을 나누는 실시간 독서 수다 SNS 피드를 통해 소통할 수 있습니다.',
+          page: 5,
+          memo: '키워드 클라우드 & 커뮤니티 피드'
         }
       ],
       keywords: ['이용가이드', '사용법', '시작하기'],
