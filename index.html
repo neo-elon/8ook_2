@@ -197,52 +197,58 @@
       <!-- Search results -->
       <div id="aladin-results"></div>
 
-      <!-- Cover image -->
-      <div class="fg">
-        <div class="flbl">📸 표지 이미지</div>
-        <div class="img-prev-box" id="book-prev">
-          <div class="img-prev-ph">
-            <span class="img-prev-ph-icon">🖼️</span>
-            <span>URL 입력, 파일 선택 또는 검색으로 자동 적용</span>
+      <!-- Flex Container for Cover Image and Book Info -->
+      <div class="modal-flex-row" style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 14px;">
+        <!-- Left Column: Cover Image -->
+        <div class="fg" style="flex: 0 0 140px; margin-bottom: 0; display: flex; flex-direction: column; gap: 5px;">
+          <div class="flbl">📸 표지 이미지</div>
+          <div class="img-prev-box" id="book-prev" style="width: 140px; height: 195px; margin-bottom: 5px;">
+            <div class="img-prev-ph">
+              <span class="img-prev-ph-icon">🖼️</span>
+              <span style="font-size: 10px; line-height: 1.4; padding: 0 8px;">표지 이미지를 추가해주세요</span>
+            </div>
+          </div>
+          <div class="img-row" style="display: flex; gap: 4px; width: 140px;">
+            <input type="text" class="fi" id="bk-img-url"
+              placeholder="이미지 URL"
+              oninput="onUrlInput(this.value)" autocomplete="off" style="font-size: 11px; padding: 6px 8px; flex: 1; min-width: 0;">
+            <input type="file" id="bk-img-file" accept="image/*"
+              style="display:none" onchange="onFileSelect(this)">
+            <button class="btn btn-ghost" onclick="document.getElementById('bk-img-file').click()" style="padding: 6px 10px; font-size: 12px; flex-shrink: 0;">📂</button>
           </div>
         </div>
-        <div class="img-row">
-          <input type="text" class="fi" id="bk-img-url"
-            placeholder="https://example.com/cover.jpg"
-            oninput="onUrlInput(this.value)" autocomplete="off">
-          <input type="file" id="bk-img-file" accept="image/*"
-            style="display:none" onchange="onFileSelect(this)">
-          <button class="btn btn-ghost" onclick="document.getElementById('bk-img-file').click()">📂</button>
-        </div>
-      </div>
 
-      <!-- Author -->
-      <div class="fg">
-        <div class="flbl">✍️ 저자</div>
-        <input type="text" class="fi" id="bk-author" placeholder="저자명">
-      </div>
+        <!-- Right Column: Info fields (Author, Pages, Date) -->
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 14px; align-self: stretch; justify-content: space-between;">
+          <!-- Author -->
+          <div class="fg" style="margin-bottom: 0;">
+            <div class="flbl">✍️ 저자</div>
+            <input type="text" class="fi" id="bk-author" placeholder="저자명">
+          </div>
 
-      <!-- Pages & Date — borderless -->
-      <div class="frow">
-        <div class="fg">
-          <div class="flbl">📄 페이지수</div>
-          <input type="number" id="bk-pages" placeholder="0" min="0"
-            style="background:none; border:none; border-bottom:1px solid var(--border-muted);
-                   border-radius:0; color:var(--text-100); padding:6px 2px;
-                   font-family:'Noto Sans KR',sans-serif; font-size:13px;
-                   width:100%; transition:border-color .2s; outline:none;"
-            onfocus="this.style.borderBottomColor='var(--violet)'"
-            onblur="this.style.borderBottomColor='var(--border-muted)'">
-        </div>
-        <div class="fg">
-          <div class="flbl">📅 완독일</div>
-          <input type="date" id="bk-date" class="bk-date-inp"
-            style="background:none; border:none; border-bottom:1px solid var(--border-muted);
-                   border-radius:0; color:var(--text-100); padding:6px 2px;
-                   font-family:'Noto Sans KR',sans-serif; font-size:13px;
-                   width:100%; transition:border-color .2s; outline:none;"
-            onfocus="this.style.borderBottomColor='var(--violet)'"
-            onblur="this.style.borderBottomColor='var(--border-muted)'">
+          <!-- Pages & Date — borderless -->
+          <div class="frow" style="display: flex; gap: 10px; margin-bottom: 0;">
+            <div class="fg" style="flex: 1; margin-bottom: 0;">
+              <div class="flbl">📄 페이지수</div>
+              <input type="number" id="bk-pages" placeholder="0" min="0"
+                style="background:none; border:none; border-bottom:1px solid var(--border-muted);
+                       border-radius:0; color:var(--text-100); padding:6px 2px;
+                       font-family:'Noto Sans KR',sans-serif; font-size:13px;
+                       width:100%; transition:border-color .2s; outline:none;"
+                onfocus="this.style.borderBottomColor='var(--violet)'"
+                onblur="this.style.borderBottomColor='var(--border-muted)'">
+            </div>
+            <div class="fg" style="flex: 1; margin-bottom: 0;">
+              <div class="flbl">📅 완독일</div>
+              <input type="date" id="bk-date" class="bk-date-inp"
+                style="background:none; border:none; border-bottom:1px solid var(--border-muted);
+                       border-radius:0; color:var(--text-100); padding:6px 2px;
+                       font-family:'Noto Sans KR',sans-serif; font-size:13px;
+                       width:100%; transition:border-color .2s; outline:none;"
+                onfocus="this.style.borderBottomColor='var(--violet)'"
+                onblur="this.style.borderBottomColor='var(--border-muted)'">
+            </div>
+          </div>
         </div>
       </div>
 

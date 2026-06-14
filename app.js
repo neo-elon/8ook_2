@@ -647,7 +647,7 @@ function setPrev(src) {
 
 function resetPrev() {
   document.getElementById('book-prev').innerHTML =
-    `<div class="img-prev-ph"><span class="img-prev-ph-icon">🖼️</span><span>URL 입력, 파일 선택 또는 검색으로 자동 적용</span></div>`;
+    `<div class="img-prev-ph"><span class="img-prev-ph-icon">🖼️</span><span style="font-size:10px; line-height:1.4; padding:0 8px;">표지 이미지를 추가해주세요</span></div>`;
 }
 
 /* ── Keyword input helpers ── */
