@@ -3897,6 +3897,9 @@ async function startNotionImport() {
     books.push(...allBooks);
     saveData();
 
+    // Reload data from Supabase/Storage to ensure consistent state and prevent race conditions
+    await loadData();
+
     progressBar.style.width = '100%';
     progressStatus.textContent = '가져오기 성공!';
     toast(`📚 노션에서 ${allBooks.length}권의 책을 가져왔습니다!`);
