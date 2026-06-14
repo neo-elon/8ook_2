@@ -319,11 +319,15 @@ function renderGallery() {
   `;
   addCard.addEventListener('click', async () => {
     if (supabaseClient) {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session?.user) {
-        toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
-        loginWithGoogle();
-        return;
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session?.user) {
+          toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
+          loginWithGoogle();
+          return;
+        }
+      } catch (e) {
+        console.error("Supabase session check failed, proceeding to open modal:", e);
       }
     }
     openAddModal();
@@ -493,11 +497,15 @@ function buildScrapsHtml(book) {
 
 async function editScrap(bookId, scrapId) {
   if (supabaseClient) {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session?.user) {
-      toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
-      loginWithGoogle();
-      return;
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session?.user) {
+        toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
+        loginWithGoogle();
+        return;
+      }
+    } catch (e) {
+      console.error("Supabase session check failed, proceeding to edit scrap:", e);
     }
   }
 
@@ -577,11 +585,15 @@ function openAddModal() {
 
 async function openEditModal(id, focusKeywords = false) {
   if (supabaseClient) {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session?.user) {
-      toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
-      loginWithGoogle();
-      return;
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session?.user) {
+        toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
+        loginWithGoogle();
+        return;
+      }
+    } catch (e) {
+      console.error("Supabase session check failed, proceeding to open edit modal:", e);
     }
   }
 
@@ -1702,12 +1714,16 @@ function fetchDetailedPages(itemId) {
 async function openScrapModal(id) {
   let user = null;
   if (supabaseClient) {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    user = session?.user;
-    if (!user) {
-      toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
-      loginWithGoogle();
-      return;
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      user = session?.user;
+      if (!user) {
+        toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
+        loginWithGoogle();
+        return;
+      }
+    } catch (e) {
+      console.error("Supabase session check failed, proceeding to open scrap modal:", e);
     }
   }
 
@@ -1753,11 +1769,15 @@ async function saveScrap() {
 
   let user = null;
   if (supabaseClient) {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    user = session?.user;
-    if (!user) {
-      toast('⚠️ 로그인이 필요합니다. 먼저 로그인 해주세요.');
-      return;
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      user = session?.user;
+      if (!user) {
+        toast('⚠️ 로그인이 필요합니다. 먼저 로그인 해주세요.');
+        return;
+      }
+    } catch (e) {
+      console.error("Supabase session check failed, proceeding to save scrap:", e);
     }
   }
 
@@ -1814,11 +1834,15 @@ async function saveScrap() {
 async function doDeleteScrap(bookId, scrapId) {
   let user = null;
   if (supabaseClient) {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    user = session?.user;
-    if (!user) {
-      toast('⚠️ 로그인이 필요합니다. 먼저 로그인 해주세요.');
-      return;
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      user = session?.user;
+      if (!user) {
+        toast('⚠️ 로그인이 필요합니다. 먼저 로그인 해주세요.');
+        return;
+      }
+    } catch (e) {
+      console.error("Supabase session check failed, proceeding to delete scrap:", e);
     }
   }
 
