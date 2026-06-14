@@ -593,16 +593,7 @@
     }
     .ov-stars { font-size:11px; margin-top:5px; letter-spacing:1px; }
 
-    /* Rating badge */
-    .card-rating-badge {
-      position:absolute; top:8px; right:8px;
-      background:rgba(0,0,0,.6); backdrop-filter:blur(4px);
-      border:1px solid rgba(255,255,255,.1);
-      border-radius:20px; padding:2px 7px;
-      font-size:10px; color:var(--amber);
-      opacity:0; transition:opacity .3s;
-    }
-    .book-card:hover .card-rating-badge { opacity:1; }
+
 
     /* Empty state */
     #gallery-empty {

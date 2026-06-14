@@ -371,12 +371,8 @@ function renderGallery() {
 
     const sentence = book.sentence
       ? `<div class="ov-sentence">${esc(book.sentence)}</div>` : '';
-    const ratingBadge = book.rating
-      ? `<div class="card-rating-badge">${'★'.repeat(book.rating)}</div>` : '';
-
     card.innerHTML = `
       ${imgPart}
-      ${ratingBadge}
       <div class="book-hover-overlay">
         <div class="ov-title">${esc(book.title)}</div>
         <div class="ov-author">${esc(book.author||'')}</div>
