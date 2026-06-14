@@ -2540,6 +2540,7 @@ function handleStatsSwipe() {
     }
   }
   // Swipe up: Go back to Gallery, Swipe down: Refresh quote
+  if (Math.abs(diffY) > 70 && Math.abs(diffY) > Math.abs(diffX)) {
     if (statsEl.scrollTop <= 5) {
       if (diffY < 0) {
         showGallery();
