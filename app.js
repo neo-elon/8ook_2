@@ -317,18 +317,11 @@ function renderGallery() {
     <span class="add-book-icon">＋</span>
     <span class="add-book-label">책 기록하기</span>
   `;
-  addCard.addEventListener('click', async () => {
-    if (supabaseClient) {
-      try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session?.user) {
-          toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
-          loginWithGoogle();
-          return;
-        }
-      } catch (e) {
-        console.error("Supabase session check failed, proceeding to open modal:", e);
-      }
+  addCard.addEventListener('click', () => {
+    if (supabaseClient && !currentUser) {
+      toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
+      loginWithGoogle();
+      return;
     }
     openAddModal();
   });
@@ -496,17 +489,10 @@ function buildScrapsHtml(book) {
 }
 
 async function editScrap(bookId, scrapId) {
-  if (supabaseClient) {
-    try {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session?.user) {
-        toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
-        loginWithGoogle();
-        return;
-      }
-    } catch (e) {
-      console.error("Supabase session check failed, proceeding to edit scrap:", e);
-    }
+  if (supabaseClient && !currentUser) {
+    toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
+    loginWithGoogle();
+    return;
   }
 
   const book = books.find(b => b.id === bookId);
@@ -584,17 +570,10 @@ function openAddModal() {
 }
 
 async function openEditModal(id, focusKeywords = false) {
-  if (supabaseClient) {
-    try {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session?.user) {
-        toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
-        loginWithGoogle();
-        return;
-      }
-    } catch (e) {
-      console.error("Supabase session check failed, proceeding to open edit modal:", e);
-    }
+  if (supabaseClient && !currentUser) {
+    toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
+    loginWithGoogle();
+    return;
   }
 
   const b = books.find(x => x.id === id);
@@ -1712,19 +1691,10 @@ function fetchDetailedPages(itemId) {
    SCRAP MODAL
 ============================================== */
 async function openScrapModal(id) {
-  let user = null;
-  if (supabaseClient) {
-    try {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      user = session?.user;
-      if (!user) {
-        toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
-        loginWithGoogle();
-        return;
-      }
-    } catch (e) {
-      console.error("Supabase session check failed, proceeding to open scrap modal:", e);
-    }
+  if (supabaseClient && !currentUser) {
+    toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
+    loginWithGoogle();
+    return;
   }
 
   const book = books.find(b => b.id === id);
@@ -1767,19 +1737,11 @@ async function saveScrap() {
   const book = books.find(b => b.id === currentScrapBookId);
   if (!book) return;
 
-  let user = null;
-  if (supabaseClient) {
-    try {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      user = session?.user;
-      if (!user) {
-        toast('⚠️ 로그인이 필요합니다. 먼저 로그인 해주세요.');
-        return;
-      }
-    } catch (e) {
-      console.error("Supabase session check failed, proceeding to save scrap:", e);
-    }
+  if (supabaseClient && !currentUser) {
+    toast('⚠️ 로그인이 필요합니다. 먼저 로그인 해주세요.');
+    return;
   }
+  const user = currentUser;
 
   let text, page, memo;
   if (currentScrapTab === 'manual') {
@@ -1832,19 +1794,11 @@ async function saveScrap() {
 }
 
 async function doDeleteScrap(bookId, scrapId) {
-  let user = null;
-  if (supabaseClient) {
-    try {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      user = session?.user;
-      if (!user) {
-        toast('⚠️ 로그인이 필요합니다. 먼저 로그인 해주세요.');
-        return;
-      }
-    } catch (e) {
-      console.error("Supabase session check failed, proceeding to delete scrap:", e);
-    }
+  if (supabaseClient && !currentUser) {
+    toast('⚠️ 로그인이 필요합니다. 먼저 로그인 해주세요.');
+    return;
   }
+  const user = currentUser;
 
   const book = books.find(b => b.id === bookId);
   if (!book) return;
