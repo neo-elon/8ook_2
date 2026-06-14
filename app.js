@@ -3681,21 +3681,42 @@ async function startNotionImport() {
   progressBar.style.width = '5%';
   progressStatus.textContent = '노션 페이지 정보 로딩 중...';
 
-  const PROXY = 'https://corsproxy.io/?';
+  async function postNotion(endpoint, body, retries = 2) {
+    const PROXIES = [
+      'https://corsproxy.io/?',
+      'https://thingproxy.freeboard.io/fetch/'
+    ];
+    const proxy = PROXIES[2 - retries] || PROXIES[0];
+    const targetUrl = 'https://www.notion.so/api/v3/' + endpoint;
+    const notionUrl = proxy.includes('corsproxy.io') 
+      ? proxy + encodeURIComponent(targetUrl)
+      : proxy + targetUrl;
 
-  async function postNotion(endpoint, body) {
-    const notionUrl = PROXY + encodeURIComponent('https://www.notion.so/api/v3/' + endpoint);
-    const res = await fetch(notionUrl, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) {
-      throw new Error(`Notion API returned status ${res.status}`);
+    try {
+      const res = await fetch(notionUrl, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+      if ((res.status === 429 || res.status === 403 || !res.ok) && retries > 0) {
+        console.warn(`Proxy ${proxy} returned status ${res.status}. Retrying with fallback proxy in 1500ms...`);
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        return postNotion(endpoint, body, retries - 1);
+      }
+      if (!res.ok) {
+        throw new Error(`Notion API returned status ${res.status}`);
+      }
+      return res.json();
+    } catch (err) {
+      if (retries > 0) {
+        console.warn(`Fetch error with proxy ${proxy}. Retrying with fallback proxy in 1500ms...`, err);
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        return postNotion(endpoint, body, retries - 1);
+      }
+      throw err;
     }
-    return res.json();
   }
 
   try {
