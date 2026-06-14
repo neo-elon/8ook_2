@@ -898,18 +898,40 @@ async function fetchAladinCover(title, author) {
   }
   
   const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${key}&Query=${encodeURIComponent(query)}&QueryType=Keyword&MaxResults=1&start=1&SearchTarget=Book&output=xml&Version=20131101&Cover=Big`;
-  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+  
+  // Try Proxy 1: corsproxy.io
   try {
-    const res = await fetch(proxyUrl);
-    if (!res.ok) return null;
-    const xmlText = await res.text();
-    const parsed = parseAladinXml(xmlText);
-    if (parsed && parsed.items && parsed.items.length > 0) {
-      return parsed.items[0].cover;
+    const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+    const res = await fetch(proxyUrl1);
+    if (res.ok) {
+      const xmlText = await res.text();
+      const parsed = parseAladinXml(xmlText);
+      if (parsed && parsed.items && parsed.items.length > 0) {
+        return parsed.items[0].cover;
+      }
+    } else {
+      console.warn(`corsproxy.io returned status ${res.status} for Aladin cover search.`);
     }
   } catch (e) {
-    console.warn('Failed to fetch cover from Aladin for:', title, e);
+    console.warn('Failed to fetch cover from Aladin with corsproxy.io for:', title, e);
   }
+
+  // Try Proxy 2: api.allorigins.win
+  try {
+    const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+    const res = await fetch(proxyUrl2);
+    if (res.ok) {
+      const data = await res.json();
+      const xmlText = data.contents;
+      const parsed = parseAladinXml(xmlText);
+      if (parsed && parsed.items && parsed.items.length > 0) {
+        return parsed.items[0].cover;
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to fetch cover from Aladin with allorigins for:', title, e);
+  }
+
   return null;
 }
 
