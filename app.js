@@ -883,6 +883,36 @@ function parseAladinXml(xmlText) {
   return { error: false, items: itemArray };
 }
 
+async function fetchAladinCover(title, author) {
+  const key = getApiKey();
+  let query = title.trim();
+  // Clean query: remove subtitles after colon or parenthesis for better match
+  const colonIdx = query.indexOf(':');
+  if (colonIdx !== -1) query = query.substring(0, colonIdx).trim();
+  const parenIdx = query.indexOf('(');
+  if (parenIdx !== -1) query = query.substring(0, parenIdx).trim();
+  
+  if (author) {
+    const cleanAuthor = author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '').trim();
+    query += ' ' + cleanAuthor;
+  }
+  
+  const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${key}&Query=${encodeURIComponent(query)}&QueryType=Keyword&MaxResults=1&start=1&SearchTarget=Book&output=xml&Version=20131101&Cover=Big`;
+  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+  try {
+    const res = await fetch(proxyUrl);
+    if (!res.ok) return null;
+    const xmlText = await res.text();
+    const parsed = parseAladinXml(xmlText);
+    if (parsed && parsed.items && parsed.items.length > 0) {
+      return parsed.items[0].cover;
+    }
+  } catch (e) {
+    console.warn('Failed to fetch cover from Aladin for:', title, e);
+  }
+  return null;
+}
+
 function searchAladin() {
   const query = document.getElementById('bk-title').value.trim();
   if (!query) { toast('❌ 제목을 입력해주세요'); return; }
@@ -3876,6 +3906,34 @@ async function startNotionImport() {
 
     if (allBooks.length === 0) {
       throw new Error(`크루 "${nickname}"의 완독 기록이 존재하지 않거나 가져오지 못했습니다.`);
+    }
+
+    // Fetch covers from Aladin in parallel batches for books using Naver Shopping covers
+    const booksWithNaverCovers = allBooks.filter(b => b.cover && (b.cover.includes('shopping-phinf') || b.cover.includes('pstatic.net')));
+    if (booksWithNaverCovers.length > 0) {
+      progressStatus.textContent = `알라딘 API에서 도서 표지 매칭 중... (0/${booksWithNaverCovers.length})`;
+      progressBar.style.width = '75%';
+      
+      let completedCount = 0;
+      const batchSize = 10;
+      for (let i = 0; i < booksWithNaverCovers.length; i += batchSize) {
+        const batch = booksWithNaverCovers.slice(i, i + batchSize);
+        await Promise.all(batch.map(async (book) => {
+          try {
+            const aladinCover = await fetchAladinCover(book.title, book.author);
+            if (aladinCover) {
+              book.cover = aladinCover;
+            }
+          } catch (e) {
+            console.warn('Aladin cover search error for:', book.title, e);
+          } finally {
+            completedCount++;
+            const percent = 75 + Math.round((completedCount / booksWithNaverCovers.length) * 15);
+            progressStatus.textContent = `알라딘 API에서 도서 표지 매칭 중... (${completedCount}/${booksWithNaverCovers.length})`;
+            progressBar.style.width = percent + '%';
+          }
+        }));
+      }
     }
 
     progressStatus.textContent = `${allBooks.length}권의 도서 확인 완료! 책장에 등록하는 중...`;
