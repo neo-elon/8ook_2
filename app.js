@@ -3684,20 +3684,25 @@ async function startNotionImport() {
   async function postNotion(endpoint, body, retries = 2) {
     const PROXIES = [
       'https://corsproxy.io/?',
-      'https://cors.lol/?'
+      'https://proxy.cors.sh/'
     ];
     const proxy = PROXIES[2 - retries] || PROXIES[0];
     const targetUrl = 'https://www.notion.so/api/v3/' + endpoint;
-    const notionUrl = proxy.includes('corsproxy.io') || proxy.includes('cors.lol')
+    const notionUrl = proxy.includes('corsproxy.io') || proxy.includes('cors.sh')
       ? proxy + encodeURIComponent(targetUrl)
       : proxy + targetUrl;
+
+    const headers = {
+      'content-type': 'application/json'
+    };
+    if (proxy.includes('cors.sh')) {
+      headers['x-cors-gratis'] = 'true';
+    }
 
     try {
       const res = await fetch(notionUrl, {
         method: 'POST',
-        headers: {
-          'content-type': 'application/json'
-        },
+        headers: headers,
         body: JSON.stringify(body)
       });
       if ((res.status === 429 || res.status === 403 || !res.ok) && retries > 0) {
