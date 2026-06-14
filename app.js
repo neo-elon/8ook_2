@@ -355,6 +355,9 @@ function renderGallery() {
   sortedBooks.forEach((book, i) => {
     const card = document.createElement('div');
     card.className = 'book-card';
+    if (book.rating === 5) {
+      card.classList.add('five-stars');
+    }
     card.style.animationDelay = ((i + 1) * 0.04) + 's';
     card.setAttribute('data-id', book.id);
 
