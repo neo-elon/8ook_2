@@ -2645,7 +2645,7 @@ loadTheme();
     '상상력이 현실이 되는 마법같은 세계로의 첫 여행.'
   ];
 
-  // Clean up any demo books from database & memory (both guest and logged-in user)
+  // Clean up any old demo books from database & memory (both guest and logged-in user)
   const demoBooksToDelete = books.filter(b => demoSentences.includes(b.sentence));
   if (demoBooksToDelete.length > 0) {
     books = books.filter(b => !demoSentences.includes(b.sentence));
@@ -2657,6 +2657,56 @@ loadTheme();
         if (error) console.error('Failed to clean up demo books from Supabase:', error);
         else console.log('Cleaned up demo books from Supabase.');
       });
+    }
+  }
+
+  // If the shelf is completely empty, initialize the single "User Manual" book
+  if (books.length === 0) {
+    const userManual = {
+      id: '8ook_user_guide',
+      title: '8ook. 이용 가이드',
+      author: '8ook 제작팀',
+      pages: 10,
+      date: new Date().toISOString().slice(0, 10),
+      cover: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%238b5cf6"/><stop offset="100%" stop-color="%23ec4899"/></linearGradient></defs><rect width="400" height="600" fill="url(%23g)"/><rect x="20" y="20" width="360" height="560" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" rx="10"/><circle cx="200" cy="180" r="60" fill="rgba(255,255,255,0.15)"/><text x="200" y="195" fill="white" font-size="60" font-weight="bold" text-anchor="middle" font-family="sans-serif">📚</text><text x="200" y="320" fill="white" font-size="28" font-weight="bold" text-anchor="middle" font-family="sans-serif">8ook. 이용 가이드</text><text x="200" y="370" fill="rgba(255,255,255,0.8)" font-size="16" text-anchor="middle" font-family="sans-serif">나만의 스마트한 독서 일기</text><line x1="100" y1="420" x2="300" y2="420" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><text x="200" y="470" fill="white" font-size="14" font-weight="500" text-anchor="middle" font-family="sans-serif">책 기록 • 문장 스크랩 • 독서 통계</text><text x="200" y="530" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle" font-family="sans-serif">© 8ook Team</text></svg>',
+      rating: 5,
+      sentence: '독서 기록, 문장 스크랩, 노션 연동까지! 8ook를 100% 활용하는 가이드북입니다.',
+      scraps: [
+        {
+          id: 'g1',
+          text: '🔑 구글 계정으로 로그인하시면 Supabase 클라우드 데이터베이스와 자동으로 연동됩니다. 로그인 시 소중한 독서 기록이 실시간으로 안전하게 동기화 및 보존됩니다.',
+          page: 1,
+          memo: '클라우드 동기화 안내'
+        },
+        {
+          id: 'g2',
+          text: '🔗 노션 책장 가져오기 기능을 클릭하여 공개 공유된 노션 데이터베이스 링크를 입력해보세요. 수십~수백 권의 독서 이력이 몇 초 만에 자동으로 등록됩니다.',
+          page: 2,
+          memo: '노션 가져오기 가이드'
+        },
+        {
+          id: 'g3',
+          text: '📸 스마트폰 카메라로 책의 바코드를 스캔하거나 도서 검색 기능을 사용하여 제목, 저자, 페이지 수, 책 표지 이미지를 편리하게 자동 완성할 수 있습니다.',
+          page: 3,
+          memo: '간편한 도서 등록 기능'
+        },
+        {
+          id: 'g4',
+          text: '📝 도서 상세 보기 화면에서 스크랩 추가 버튼을 누르고 문장 사진을 촬영해보세요. 광학 문자 인식(OCR) 엔진이 이미지 속의 글씨를 알아서 한글 텍스트로 추출해줍니다.',
+          page: 4,
+          memo: 'OCR 문장 스크랩 사용법'
+        }
+      ],
+      keywords: ['이용가이드', '사용법', '시작하기'],
+      created_at: new Date().toISOString()
+    };
+    
+    books = [userManual];
+    saveData();
+    
+    if (currentUser && supabaseClient) {
+      const manualWithUser = { ...userManual, user_id: currentUser.id };
+      supabaseClient.from('books').insert([manualWithUser]).catch(console.error);
     }
   }
   
