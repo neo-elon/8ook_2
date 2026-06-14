@@ -499,7 +499,7 @@
                  0 0 0 1px var(--card-hover-border),
                  var(--shadow-glow);
     }
-    .medal-badge {
+    .king-star-badge {
       position: absolute;
       top: 8px;
       right: 8px;
@@ -513,13 +513,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      color: var(--amber);
       font-size: 16px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       z-index: 2;
       pointer-events: none;
       transition: transform var(--dur) var(--ease);
     }
-    .book-card:hover .medal-badge {
+    .book-card:hover .king-star-badge {
       transform: scale(1.1);
     }
     
