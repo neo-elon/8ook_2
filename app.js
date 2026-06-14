@@ -3043,13 +3043,13 @@ function renderWordCloud() {
     span.style.fontWeight = count > 1 ? '800' : '600';
     span.style.cursor = 'pointer';
     span.style.transition = 'transform 0.2s ease, text-shadow 0.2s ease';
-    span.style.padding = '0px 2px';
+    span.style.padding = '2px 6px';
     
-    // Organic layout: random rotation (-15, 0, 15deg) and tight overlapping margins
-    const rotateVal = (Math.floor(Math.random() * 3) - 1) * 15;
+    // Organic layout: random rotation (-6, 0, 6deg) and clean margins to prevent overlapping collisions
+    const rotateVal = (Math.floor(Math.random() * 3) - 1) * 6;
     span.style.transform = `rotate(${rotateVal}deg)`;
-    span.style.margin = '-4px 0.5px'; 
-    span.style.lineHeight = '0.9';
+    span.style.margin = '2px 4px'; 
+    span.style.lineHeight = '1.2';
     span.style.display = 'inline-block';
     span.style.position = 'relative';
     span.style.userSelect = 'none';
