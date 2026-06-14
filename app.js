@@ -3612,7 +3612,7 @@ async function startNotionImport() {
   progressBar.style.width = '5%';
   progressStatus.textContent = '노션 페이지 정보 로딩 중...';
 
-  const PROXY = 'https://proxy.corsfix.com/?url=';
+  const PROXY = 'https://corsproxy.io/?';
 
   async function postNotion(endpoint, body) {
     const notionUrl = PROXY + encodeURIComponent('https://www.notion.so/api/v3/' + endpoint);
