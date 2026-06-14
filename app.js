@@ -3684,11 +3684,11 @@ async function startNotionImport() {
   async function postNotion(endpoint, body, retries = 2) {
     const PROXIES = [
       'https://corsproxy.io/?',
-      'https://thingproxy.freeboard.io/fetch/'
+      'https://cors.lol/?'
     ];
     const proxy = PROXIES[2 - retries] || PROXIES[0];
     const targetUrl = 'https://www.notion.so/api/v3/' + endpoint;
-    const notionUrl = proxy.includes('corsproxy.io') 
+    const notionUrl = proxy.includes('corsproxy.io') || proxy.includes('cors.lol')
       ? proxy + encodeURIComponent(targetUrl)
       : proxy + targetUrl;
 
