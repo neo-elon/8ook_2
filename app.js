@@ -302,12 +302,9 @@ function renderGallery() {
     <span class="add-book-label">노션 책장 가져오기</span>
   `;
   notionCard.addEventListener('click', async () => {
-    console.log('DEBUG: notionCard clicked');
     try {
       if (supabaseClient) {
-        console.log('DEBUG: supabaseClient exists, checking session');
         const { data: { session } } = await supabaseClient.auth.getSession();
-        console.log('DEBUG: session =', session);
         if (!session?.user) {
           toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
           loginWithGoogle();
@@ -3576,33 +3573,12 @@ function addArBookToShelf() {
    NOTION BOOKSHELF CRAWLER
 ============================================== */
 function openNotionImportModal() {
-  console.log('DEBUG: openNotionImportModal called');
-  try {
-    const notionUrlInput = document.getElementById('notion-url');
-    console.log('DEBUG: notion-url element =', notionUrlInput);
-    if (notionUrlInput) notionUrlInput.value = '';
-
-    const notionProgress = document.getElementById('notion-progress');
-    console.log('DEBUG: notion-progress element =', notionProgress);
-    if (notionProgress) notionProgress.style.display = 'none';
-
-    const notionProgressBar = document.getElementById('notion-progress-bar');
-    console.log('DEBUG: notion-progress-bar element =', notionProgressBar);
-    if (notionProgressBar) notionProgressBar.style.width = '0%';
-
-    const notionProgressStatus = document.getElementById('notion-progress-status');
-    console.log('DEBUG: notion-progress-status element =', notionProgressStatus);
-    if (notionProgressStatus) notionProgressStatus.textContent = '준비 중...';
-
-    const notionImportBtn = document.getElementById('notion-import-btn');
-    console.log('DEBUG: notion-import-btn element =', notionImportBtn);
-    if (notionImportBtn) notionImportBtn.disabled = false;
-
-    console.log('DEBUG: Calling openModal("notion-modal")');
-    openModal('notion-modal');
-  } catch (err) {
-    console.error('DEBUG: Error in openNotionImportModal:', err);
-  }
+  document.getElementById('notion-url').value = '';
+  document.getElementById('notion-progress').style.display = 'none';
+  document.getElementById('notion-progress-bar').style.width = '0%';
+  document.getElementById('notion-progress-status').textContent = '준비 중...';
+  document.getElementById('notion-import-btn').disabled = false;
+  openModal('notion-modal');
 }
 
 function closeNotionImportModal() {
