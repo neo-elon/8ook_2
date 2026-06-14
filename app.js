@@ -2631,7 +2631,35 @@ loadTheme();
 (async () => {
   await loadData();
   
-  if (books.length === 0) {
+  // Unique sentences representing the 6 demo books
+  const demoSentences = [
+    '폭력에 저항하는 방식으로 선택한 침묵과 채식, 그 고요한 절규.',
+    '평범한 한 여성의 삶을 통해 드러나는 사회 구조의 민낯.',
+    '감정을 모르는 소년이 가르쳐준 진짜 공감의 의미.',
+    '꿈을 파는 백화점에서 발견한 위로와 희망의 이야기.',
+    '5.18을 통해 인간의 존엄과 폭력의 본질을 묻다.',
+    '상상력이 현실이 되는 마법같은 세계로의 첫 여행.'
+  ];
+
+  // If logged in, clean up any demo books from database & memory
+  if (currentUser) {
+    const demoBooksToDelete = books.filter(b => demoSentences.includes(b.sentence));
+    if (demoBooksToDelete.length > 0) {
+      books = books.filter(b => !demoSentences.includes(b.sentence));
+      saveData();
+      
+      const idsToDelete = demoBooksToDelete.map(b => b.id);
+      if (supabaseClient) {
+        supabaseClient.from('books').delete().in('id', idsToDelete).then(({ error }) => {
+          if (error) console.error('Failed to clean up demo books from Supabase:', error);
+          else console.log('Cleaned up demo books from Supabase.');
+        });
+      }
+    }
+  }
+
+  // Populate demo books ONLY for guest users if they have no books
+  if (books.length === 0 && !currentUser) {
     const demo = [
       {
         id: uid(), scraps: [],
@@ -2686,21 +2714,10 @@ loadTheme();
         cover: 'https://image.aladin.co.kr/product/2/91/cover500/8983920769_1.jpg',
         rating: 5,
         sentence: '상상력이 현실이 되는 마법같은 세계로의 첫 여행.'
-      },
+      }
     ];
     books = demo;
     saveData();
-    if (supabaseClient) {
-      try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session?.user) {
-          const demoWithUser = demo.map(b => ({ ...b, user_id: session.user.id }));
-          await supabaseClient.from('books').insert(demoWithUser);
-        }
-      } catch(e) {
-        console.error(e);
-      }
-    }
   }
   
   renderGallery();
