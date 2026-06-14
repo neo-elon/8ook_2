@@ -218,8 +218,8 @@
           </div>
         </div>
 
-        <!-- Right Column: Info fields (Author, Pages, Date) -->
-        <div style="flex: 1; display: flex; flex-direction: column; gap: 14px; align-self: stretch; justify-content: space-between;">
+        <!-- Right Column: Info fields (Author, Pages, Date, Rating) -->
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 12px; align-self: stretch; justify-content: space-between;">
           <!-- Author -->
           <div class="fg" style="margin-bottom: 0;">
             <div class="flbl">✍️ 저자</div>
@@ -249,18 +249,18 @@
                 onblur="this.style.borderBottomColor='var(--border-muted)'">
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Rating -->
-      <div class="fg">
-        <div class="flbl">⭐ 별점</div>
-        <div class="star-row" id="star-inp">
-          <button class="star-btn-inp" data-v="1" onclick="setRating(1)" aria-label="별점 1">☆</button>
-          <button class="star-btn-inp" data-v="2" onclick="setRating(2)" aria-label="별점 2">☆</button>
-          <button class="star-btn-inp" data-v="3" onclick="setRating(3)" aria-label="별점 3">☆</button>
-          <button class="star-btn-inp" data-v="4" onclick="setRating(4)" aria-label="별점 4">☆</button>
-          <button class="star-btn-inp" data-v="5" onclick="setRating(5)" aria-label="별점 5">☆</button>
+          <!-- Rating -->
+          <div class="fg" style="margin-bottom: 0;">
+            <div class="flbl">⭐ 별점</div>
+            <div class="star-row" id="star-inp">
+              <button class="star-btn-inp" data-v="1" onclick="setRating(1)" aria-label="별점 1">☆</button>
+              <button class="star-btn-inp" data-v="2" onclick="setRating(2)" aria-label="별점 2">☆</button>
+              <button class="star-btn-inp" data-v="3" onclick="setRating(3)" aria-label="별점 3">☆</button>
+              <button class="star-btn-inp" data-v="4" onclick="setRating(4)" aria-label="별점 4">☆</button>
+              <button class="star-btn-inp" data-v="5" onclick="setRating(5)" aria-label="별점 5">☆</button>
+            </div>
+          </div>
         </div>
       </div>
 

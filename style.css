@@ -1033,7 +1033,7 @@
     /* Star input */
     .star-row { display:flex; gap:4px; }
     .star-btn-inp {
-      font-size:27px; cursor:pointer; background:none; border:none;
+      font-size:22px; cursor:pointer; background:none; border:none;
       padding:0; line-height:1; transition:transform .15s;
       color:var(--star-off);
     }
