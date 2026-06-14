@@ -2426,6 +2426,44 @@ function navigateToAdjacentBook(direction) {
    PINCH / WHEEL ZOOM
 ============================================== */
 const galleryScroll = document.getElementById('gallery-scroll');
+
+// Floating Year Indicator on scroll
+let yearBadgeTimer = null;
+galleryScroll.addEventListener('scroll', () => {
+  const badge = document.getElementById('floating-year-badge');
+  if (!badge) return;
+
+  const cards = document.querySelectorAll('#gallery-grid .book-card');
+  let currentYear = '';
+  const containerRect = galleryScroll.getBoundingClientRect();
+
+  for (let card of cards) {
+    const rect = card.getBoundingClientRect();
+    if (rect.bottom > containerRect.top + 24) {
+      const id = card.getAttribute('data-id');
+      const book = books.find(b => b.id === id);
+      if (book && book.date) {
+        const d = new Date(book.date);
+        if (!isNaN(d.getFullYear())) {
+          currentYear = d.getFullYear() + '년';
+        }
+      }
+      break;
+    }
+  }
+
+  if (currentYear) {
+    badge.textContent = currentYear;
+    badge.classList.add('show');
+    clearTimeout(yearBadgeTimer);
+    yearBadgeTimer = setTimeout(() => {
+      badge.classList.remove('show');
+    }, 1500);
+  } else {
+    badge.classList.remove('show');
+  }
+});
+
 let pinchDist0 = null;
 
 let galleryTouchStartX = 0;

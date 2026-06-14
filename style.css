@@ -442,6 +442,36 @@
     ====================================== */
     #view-gallery {
       flex:1; overflow:hidden; display:flex; flex-direction:column;
+      position: relative;
+    }
+    #floating-year-badge {
+      position: absolute;
+      right: 28px;
+      top: 28px;
+      background: rgba(24, 24, 46, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-accent);
+      color: var(--lavender);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 20px;
+      box-shadow: var(--shadow-float);
+      opacity: 0;
+      transform: translateY(-10px) scale(0.95);
+      transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+      pointer-events: none;
+      z-index: 10;
+      letter-spacing: 0.5px;
+    }
+    body.light-theme #floating-year-badge {
+      background: rgba(255, 255, 255, 0.85);
+    }
+    #floating-year-badge.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
     }
     #gallery-scroll {
       flex:1; overflow-y:auto; padding:24px;
