@@ -3681,28 +3681,26 @@ async function startNotionImport() {
   progressBar.style.width = '5%';
   progressStatus.textContent = '노션 페이지 정보 로딩 중...';
 
-  async function postNotion(endpoint, body, retries = 2) {
+  async function postNotion(endpoint, body, retries = 3) {
     const PROXIES = [
       'https://corsproxy.io/?',
-      'https://proxy.cors.sh/'
+      'https://cors.eu.org/',
+      'https://cors-proxy.htmldev.workers.dev/',
+      'https://corsproxy.org/?'
     ];
-    const proxy = PROXIES[2 - retries] || PROXIES[0];
+    const proxyIndex = 3 - retries;
+    const proxy = PROXIES[proxyIndex] || PROXIES[0];
     const targetUrl = 'https://www.notion.so/api/v3/' + endpoint;
-    const notionUrl = proxy.includes('corsproxy.io')
+    const notionUrl = proxy.includes('corsproxy.io') || proxy.includes('corsproxy.org')
       ? proxy + encodeURIComponent(targetUrl)
       : proxy + targetUrl;
-
-    const headers = {
-      'content-type': 'application/json'
-    };
-    if (proxy.includes('cors.sh')) {
-      headers['x-cors-gratis'] = 'true';
-    }
 
     try {
       const res = await fetch(notionUrl, {
         method: 'POST',
-        headers: headers,
+        headers: {
+          'content-type': 'application/json'
+        },
         body: JSON.stringify(body)
       });
       if ((res.status === 429 || res.status === 403 || !res.ok) && retries > 0) {
