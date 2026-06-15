@@ -208,17 +208,9 @@
               <span style="font-size: 10px; line-height: 1.4; padding: 0 8px;">표지 이미지를 추가해주세요</span>
             </div>
           </div>
-          <div class="img-row" style="display: flex; gap: 4px; width: 140px;">
-            <input type="text" class="fi" id="bk-img-url"
-              placeholder="이미지 URL"
-              oninput="onUrlInput(this.value)" autocomplete="off" style="font-size: 11px; padding: 6px 8px; flex: 1; min-width: 0;">
-            <input type="file" id="bk-img-file" accept="image/*"
-              style="display:none" onchange="onFileSelect(this)">
-            <button class="btn btn-ghost" onclick="document.getElementById('bk-img-file').click()" style="padding: 6px 10px; font-size: 12px; flex-shrink: 0;">📂</button>
-          </div>
         </div>
 
-        <!-- Right Column: Info fields (Author, Pages, Date, Rating) -->
+        <!-- Right Column: Info fields (Author, Pages, Date, Rating, Image URL) -->
         <div style="flex: 1; display: flex; flex-direction: column; gap: 12px; align-self: stretch; justify-content: space-between;">
           <!-- Author -->
           <div class="fg" style="margin-bottom: 0;">
@@ -226,8 +218,8 @@
             <input type="text" class="fi" id="bk-author" placeholder="저자명">
           </div>
 
-          <!-- Pages & Date -->
-          <div class="frow" style="display: flex; gap: 10px; margin-bottom: 0;">
+          <!-- Pages, Date & Rating -->
+          <div class="frow" style="display: flex; gap: 10px; margin-bottom: 0; align-items: flex-end;">
             <div class="fg" style="flex: 1; margin-bottom: 0;">
               <div class="flbl">📄 페이지수</div>
               <input type="number" class="fi" id="bk-pages" placeholder="0" min="0">
@@ -236,17 +228,28 @@
               <div class="flbl">📅 완독일</div>
               <input type="date" id="bk-date" class="fi bk-date-inp">
             </div>
+            <div class="fg" style="flex: 1; margin-bottom: 0;">
+              <div class="flbl">⭐ 별점</div>
+              <div class="star-row" id="star-inp" style="height: 38px; display: flex; align-items: center; justify-content: flex-start; gap: 2px;">
+                <button class="star-btn-inp" data-v="1" onclick="setRating(1)" aria-label="별점 1" type="button">☆</button>
+                <button class="star-btn-inp" data-v="2" onclick="setRating(2)" aria-label="별점 2" type="button">☆</button>
+                <button class="star-btn-inp" data-v="3" onclick="setRating(3)" aria-label="별점 3" type="button">☆</button>
+                <button class="star-btn-inp" data-v="4" onclick="setRating(4)" aria-label="별점 4" type="button">☆</button>
+                <button class="star-btn-inp" data-v="5" onclick="setRating(5)" aria-label="별점 5" type="button">☆</button>
+              </div>
+            </div>
           </div>
 
-          <!-- Rating -->
+          <!-- Image URL -->
           <div class="fg" style="margin-bottom: 0;">
-            <div class="flbl">⭐ 별점</div>
-            <div class="star-row" id="star-inp">
-              <button class="star-btn-inp" data-v="1" onclick="setRating(1)" aria-label="별점 1">☆</button>
-              <button class="star-btn-inp" data-v="2" onclick="setRating(2)" aria-label="별점 2">☆</button>
-              <button class="star-btn-inp" data-v="3" onclick="setRating(3)" aria-label="별점 3">☆</button>
-              <button class="star-btn-inp" data-v="4" onclick="setRating(4)" aria-label="별점 4">☆</button>
-              <button class="star-btn-inp" data-v="5" onclick="setRating(5)" aria-label="별점 5">☆</button>
+            <div class="flbl">📸 표지 이미지 URL</div>
+            <div class="img-row" style="display: flex; gap: 4px; width: 100%;">
+              <input type="text" class="fi" id="bk-img-url"
+                placeholder="이미지 URL"
+                oninput="onUrlInput(this.value)" autocomplete="off" style="font-size: 11px; padding: 6px 8px; flex: 1; min-width: 0;">
+              <input type="file" id="bk-img-file" accept="image/*"
+                style="display:none" onchange="onFileSelect(this)">
+              <button class="btn btn-ghost" onclick="document.getElementById('bk-img-file').click()" style="padding: 6px 10px; font-size: 12px; flex-shrink: 0;" type="button">📂 파일 선택</button>
             </div>
           </div>
         </div>
