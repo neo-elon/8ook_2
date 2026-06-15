@@ -2682,6 +2682,9 @@ document.addEventListener('keydown', e => {
 ============================================== */
 loadTheme();
 (async () => {
+  if (supabaseClient) {
+    await checkAuth();
+  }
   await loadData();
   
   // Unique sentences representing the 6 demo books
@@ -2829,12 +2832,15 @@ function updateAuthUI(session) {
 }
 
 if (supabaseClient) {
-  checkAuth();
   supabaseClient.auth.onAuthStateChange((event, session) => {
+    const prevUser = currentUser;
     currentUser = session?.user || null;
     updateAuthUI(session);
     // Reload data on auth change to apply RLS
-    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+    if (['SIGNED_IN', 'SIGNED_OUT', 'INITIAL_SESSION', 'TOKEN_REFRESHED'].includes(event)) {
+      if (event === 'INITIAL_SESSION' && prevUser?.id === currentUser?.id) {
+        return;
+      }
       loadData().then(() => {
         renderGallery();
         updateSidebar();
