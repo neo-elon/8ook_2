@@ -118,6 +118,15 @@
   <!-- Gallery View -->
   <div id="view-gallery" style="position: relative;">
     <div id="gallery-scroll">
+      <!-- Shelf Search Bar -->
+      <div class="gallery-search-wrap" style="max-width: 900px; margin: 0 auto 20px; display: flex; justify-content: center; width: 100%; box-sizing: border-box; padding: 0 4px;">
+        <div class="search-input-wrapper" style="position: relative; width: 100%; max-width: 450px;">
+          <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-300); font-size: 13px; pointer-events: none;">🔍</span>
+          <input type="text" id="gallery-search-input" class="fi" placeholder="책 제목, 저자, 키워드 검색..." oninput="handleGallerySearch()" style="padding-left: 36px; padding-right: 36px; border-radius: 20px;" autocomplete="off">
+          <button id="gallery-search-clear" onclick="clearGallerySearch()" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-300); cursor: pointer; font-size: 13px; display: none; line-height: 1;">✕</button>
+        </div>
+      </div>
+
       <div id="gallery-grid"></div>
       <div id="gallery-empty">
         <div class="empty-icon">📖</div>

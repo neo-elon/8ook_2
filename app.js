@@ -298,6 +298,14 @@ function renderGallery() {
   const empty = document.getElementById('gallery-empty');
   grid.innerHTML = '';
 
+  // Handle Search Input display
+  const searchInput = document.getElementById('gallery-search-input');
+  const searchQuery = (searchInput ? searchInput.value : '').trim().toLowerCase();
+  const clearBtn = document.getElementById('gallery-search-clear');
+  if (clearBtn) {
+    clearBtn.style.display = searchQuery ? 'flex' : 'none';
+  }
+
   // If filter is active, prepend a filter banner / indicator card
   if (currentGalleryFilter) {
     const filterCard = document.createElement('div');
@@ -327,17 +335,38 @@ function renderGallery() {
   });
   grid.appendChild(addCard);
 
-
-
-
   // Filter books if filter is active
   let displayBooks = books;
   if (currentGalleryFilter) {
     displayBooks = books.filter(b => b.keywords && b.keywords.includes(currentGalleryFilter));
   }
 
+  // Apply search filtering
+  if (searchQuery) {
+    displayBooks = displayBooks.filter(b => {
+      const titleMatch = b.title && b.title.toLowerCase().includes(searchQuery);
+      const authorMatch = b.author && b.author.toLowerCase().includes(searchQuery);
+      const keywordMatch = b.keywords && b.keywords.some(k => k.toLowerCase().includes(searchQuery));
+      const sentenceMatch = b.sentence && b.sentence.toLowerCase().includes(searchQuery);
+      return titleMatch || authorMatch || keywordMatch || sentenceMatch;
+    });
+  }
+
   if (!displayBooks.length) {
     empty.classList.add('show');
+    if (searchQuery) {
+      empty.querySelector('.empty-icon').textContent = '🔍';
+      empty.querySelector('.empty-h').textContent = '검색 결과가 없습니다';
+      empty.querySelector('.empty-p').innerHTML = `"${esc(searchQuery)}"에 매칭되는 책을 찾지 못했어요.<br>다른 검색어로 검색해 보세요!`;
+    } else if (currentGalleryFilter) {
+      empty.querySelector('.empty-icon').textContent = '🏷️';
+      empty.querySelector('.empty-h').textContent = '필터 결과가 없습니다';
+      empty.querySelector('.empty-p').innerHTML = `#${esc(currentGalleryFilter)} 태그를 가진 책이 없습니다.`;
+    } else {
+      empty.querySelector('.empty-icon').textContent = '📖';
+      empty.querySelector('.empty-h').textContent = '아직 기록된 책이 없어요';
+      empty.querySelector('.empty-p').innerHTML = '오른쪽 상단의 <strong>+ 책 추가</strong> 버튼으로<br>첫 번째 책을 기록해보세요!';
+    }
   } else {
     empty.classList.remove('show');
   }
@@ -527,6 +556,19 @@ function showGallery() {
   document.getElementById('community-nav-btn').style.display = 'inline-flex';
   document.getElementById('view-label').textContent = '📚 내 서재';
   currentBookId = null;
+  renderGallery();
+}
+
+function handleGallerySearch() {
+  renderGallery();
+}
+
+function clearGallerySearch() {
+  const input = document.getElementById('gallery-search-input');
+  if (input) {
+    input.value = '';
+    input.focus();
+  }
   renderGallery();
 }
 
@@ -2955,13 +2997,13 @@ function showCommunity() {
 
 function filterGalleryByKeyword(kw) {
   currentGalleryFilter = kw;
-  renderGallery();
+  showGallery();
   toast(`🏷️ '#${kw}' 키워드 검색 결과`);
 }
 
 function clearGalleryFilter() {
   currentGalleryFilter = null;
-  renderGallery();
+  showGallery();
   toast('📚 전체 도서 필터 해제');
 }
 
