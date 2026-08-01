@@ -3769,11 +3769,16 @@ function exportToGoogleSheetsCSV() {
 
   const rows = books.map((b, index) => {
     const seqNum = totalCount - index; // 역순 일련번호 (가장 최근 추가/맨 위가 가장 큰 번호)
-    const title = b.title || '';
+    const numericRating = Math.max(0, Math.min(5, Number(b.rating) || 0));
+    
+    // 평점이 5점인 경우 마크다운 볼드체(**제목**)를 적용하여 스프레드시트 및 셀에서 강조 표시
+    let title = b.title || '';
+    if (numericRating === 5 && title) {
+      title = `**${title}**`;
+    }
+
     const author = b.author || '';
     const date = b.date || '';
-    
-    const numericRating = Math.max(0, Math.min(5, Number(b.rating) || 0));
     const starRating = '★'.repeat(numericRating) + '☆'.repeat(5 - numericRating);
     
     const pages = b.pages || 0;
