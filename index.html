@@ -534,6 +534,22 @@
         독서 기록(책 제목, 저자, 읽은 날짜, 평점, 감상평, 스크랩 문장 등)을 <strong>Google Sheets(CSV)</strong> 파일로 생성하여 다운로드합니다.
       </p>
 
+      <div class="fg" style="margin-bottom:0;">
+        <div class="flbl">📅 내보낼 기간 설정</div>
+        <select class="fi" id="export-period-select" onchange="handleExportPeriodChange()" style="padding: 9px 12px; font-size: 13px; margin-bottom: 8px;">
+          <option value="all" selected>전체 기간</option>
+          <option value="year">올해 (2026년)</option>
+          <option value="month">이번 달 (8월)</option>
+          <option value="custom">직접 기간 지정</option>
+        </select>
+
+        <div id="export-custom-date-wrap" style="display:none; gap:8px; align-items:center; margin-top:4px;">
+          <input type="date" class="fi" id="export-start-date" onchange="updateExportSummary()" style="font-size:12px; padding:6px 10px;">
+          <span style="color:var(--text-300); font-size:12px;">~</span>
+          <input type="date" class="fi" id="export-end-date" onchange="updateExportSummary()" style="font-size:12px; padding:6px 10px;">
+        </div>
+      </div>
+
       <div style="background:var(--glass); border:1px solid var(--border); border-radius:var(--radius-md); padding:14px; display:flex; flex-direction:column; gap:10px;">
         <div style="font-size:12px; font-weight:700; color:var(--text-100); display:flex; align-items:center; gap:6px;">
           <span>💡</span> Google Sheets에서 여는 방법

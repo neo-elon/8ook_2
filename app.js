@@ -3744,16 +3744,85 @@ function addArBookToShelf() {
    EXPORT TO GOOGLE SHEETS (CSV)
 ============================================== */
 function openExportModal() {
-  const summaryEl = document.getElementById('export-count-summary');
-  if (summaryEl) {
-    summaryEl.innerHTML = `내보낼 항목: <strong>총 ${books.length}권의 책</strong>`;
+  const periodSelect = document.getElementById('export-period-select');
+  if (periodSelect) {
+    periodSelect.value = 'all';
   }
+  const customWrap = document.getElementById('export-custom-date-wrap');
+  if (customWrap) {
+    customWrap.style.display = 'none';
+  }
+  
+  // Set current year/month options dynamically
+  const now = new Date();
+  const yearOpt = periodSelect ? periodSelect.querySelector('option[value="year"]') : null;
+  const monthOpt = periodSelect ? periodSelect.querySelector('option[value="month"]') : null;
+  if (yearOpt) yearOpt.textContent = `올해 (${now.getFullYear()}년)`;
+  if (monthOpt) monthOpt.textContent = `이번 달 (${now.getMonth()+1}월)`;
+
+  updateExportSummary();
   openModal('export-modal');
 }
 
+function handleExportPeriodChange() {
+  const period = document.getElementById('export-period-select')?.value || 'all';
+  const customWrap = document.getElementById('export-custom-date-wrap');
+  if (customWrap) {
+    customWrap.style.display = period === 'custom' ? 'flex' : 'none';
+  }
+  updateExportSummary();
+}
+
+function getFilteredExportBooks() {
+  if (!books) return [];
+  const period = document.getElementById('export-period-select')?.value || 'all';
+  const now = new Date();
+  const curYear = now.getFullYear();
+  const curMonth = now.getMonth();
+
+  return books.filter(b => {
+    if (period === 'all') return true;
+    if (!b.date) return false;
+
+    const bDate = new Date(b.date);
+    if (isNaN(bDate.getTime())) return false;
+
+    if (period === 'year') {
+      return bDate.getFullYear() === curYear;
+    } else if (period === 'month') {
+      return bDate.getFullYear() === curYear && bDate.getMonth() === curMonth;
+    } else if (period === 'custom') {
+      const startVal = document.getElementById('export-start-date')?.value;
+      const endVal = document.getElementById('export-end-date')?.value;
+      
+      if (startVal) {
+        const startDate = new Date(startVal);
+        startDate.setHours(0,0,0,0);
+        if (bDate < startDate) return false;
+      }
+      if (endVal) {
+        const endDate = new Date(endVal);
+        endDate.setHours(23,59,59,999);
+        if (bDate > endDate) return false;
+      }
+      return true;
+    }
+    return true;
+  });
+}
+
+function updateExportSummary() {
+  const summaryEl = document.getElementById('export-count-summary');
+  if (summaryEl) {
+    const filtered = getFilteredExportBooks();
+    summaryEl.innerHTML = `내보낼 항목: <strong>총 ${filtered.length}권의 책</strong> (전체 ${books.length}권 중)`;
+  }
+}
+
 function exportToGoogleSheetsCSV() {
-  if (!books || books.length === 0) {
-    toast('⚠️ 내보낼 독서 데이터가 없습니다.');
+  const exportBooks = getFilteredExportBooks();
+  if (!exportBooks || exportBooks.length === 0) {
+    toast('⚠️ 선택한 기간 조건에 해당하는 독서 데이터가 없습니다.');
     return;
   }
 
@@ -3765,13 +3834,13 @@ function exportToGoogleSheetsCSV() {
     return `"${str}"`;
   };
 
-  const totalCount = books.length;
+  const totalCount = exportBooks.length;
 
-  const rows = books.map((b, index) => {
-    const seqNum = totalCount - index; // 역순 일련번호 (가장 최근 추가/맨 위가 가장 큰 번호)
+  const rows = exportBooks.map((b, index) => {
+    const seqNum = totalCount - index; // 역순 일련번호
     const numericRating = Math.max(0, Math.min(5, Number(b.rating) || 0));
     
-    // 평점이 5점인 경우 마크다운 볼드체(**제목**)를 적용하여 스프레드시트 및 셀에서 강조 표시
+    // 평점이 5점인 경우 마크다운 볼드체(**제목**) 적용
     let title = b.title || '';
     if (numericRating === 5 && title) {
       title = `**${title}**`;
@@ -3818,6 +3887,6 @@ function exportToGoogleSheetsCSV() {
   }
 
   closeModal('export-modal');
-  toast('✅ Google Sheets용 CSV 파일이 다운로드 되었습니다!');
+  toast(`✅ 선택한 기간의 ${exportBooks.length}권 독서 기록 CSV 파일이 다운로드 되었습니다!`);
 }
 
