@@ -3752,6 +3752,12 @@ function openExportModal() {
   if (customWrap) {
     customWrap.style.display = 'none';
   }
+
+  // Clear date inputs when opening
+  const startDateInp = document.getElementById('export-start-date');
+  const endDateInp = document.getElementById('export-end-date');
+  if (startDateInp) startDateInp.value = '';
+  if (endDateInp) endDateInp.value = '';
   
   // Set current year/month options dynamically
   const now = new Date();
@@ -3765,10 +3771,16 @@ function openExportModal() {
 }
 
 function handleExportPeriodChange() {
-  const period = document.getElementById('export-period-select')?.value || 'all';
+  const periodSelect = document.getElementById('export-period-select');
+  const period = periodSelect ? periodSelect.value : 'all';
   const customWrap = document.getElementById('export-custom-date-wrap');
+  
   if (customWrap) {
-    customWrap.style.display = period === 'custom' ? 'flex' : 'none';
+    if (period === 'custom') {
+      customWrap.style.setProperty('display', 'flex', 'important');
+    } else {
+      customWrap.style.setProperty('display', 'none', 'important');
+    }
   }
   updateExportSummary();
 }

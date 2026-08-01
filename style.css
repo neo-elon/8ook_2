@@ -823,8 +823,8 @@
     .kw-inp::placeholder { color:var(--text-400); }
 
     /* date picker color-scheme per theme */
-    .bk-date-inp { color-scheme: dark; }
-    body.light-theme .bk-date-inp { color-scheme: light; }
+    input[type="date"], .bk-date-inp { color-scheme: dark; }
+    body.light-theme input[type="date"], body.light-theme .bk-date-inp { color-scheme: light; }
 
     .detail-stars { display:flex; gap:5px; margin-top:2px; }
     .detail-star {
