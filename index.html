@@ -39,6 +39,9 @@
         <svg style="width:14px; height:14px;" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         로그인
       </button>
+      <button id="export-sheets-btn" onclick="openExportModal()" title="구글 스프레드시트로 내보내기" aria-label="구글 스프레드시트로 내보내기" style="background:var(--glass); border:1px solid var(--border-accent); color:var(--mint); padding:5px 10px; border-radius:var(--radius-sm); cursor:pointer; font-family:'Noto Sans KR', sans-serif; font-size:11px; font-weight:500; transition:all .2s; flex-shrink:0; display:flex; align-items:center; gap:4px;">
+        <span>📊 내보내기</span>
+      </button>
       <button id="auth-logout-btn" class="btn btn-ghost btn-sm" onclick="logout()" style="display:none;">로그아웃</button>
     </div>
 
@@ -518,6 +521,42 @@
 
 
 
+
+<!-- ==================== EXPORT MODAL ==================== -->
+<div class="modal-bg" id="export-modal" role="dialog" aria-modal="true" style="z-index: 2000;">
+  <div class="modal-box" style="max-width: 480px;">
+    <div class="modal-hdr">
+      <div class="modal-ttl">📊 구글 스프레드시트 내보내기</div>
+      <button class="modal-x" onclick="closeModal('export-modal')" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+      <p style="font-size:13px; color:var(--text-200); line-height:1.6; margin:0;">
+        독서 기록(책 제목, 저자, 읽은 날짜, 평점, 감상평, 스크랩 문장 등)을 <strong>Google Sheets(CSV)</strong> 파일로 생성하여 다운로드합니다.
+      </p>
+
+      <div style="background:var(--glass); border:1px solid var(--border); border-radius:var(--radius-md); padding:14px; display:flex; flex-direction:column; gap:10px;">
+        <div style="font-size:12px; font-weight:700; color:var(--text-100); display:flex; align-items:center; gap:6px;">
+          <span>💡</span> Google Sheets에서 여는 방법
+        </div>
+        <ol style="margin:0; padding-left:18px; font-size:12px; color:var(--text-300); line-height:1.6;">
+          <li>아래 <strong>CSV 다운로드</strong> 버튼을 눌러 파일 저장</li>
+          <li><a href="https://sheets.google.com" target="_blank" rel="noopener noreferrer" style="color:var(--lavender); text-decoration:underline;">Google Sheets</a> 접속 후 새 스프레드시트 열기</li>
+          <li><strong>파일 → 가져오기 → 업로드</strong> 메뉴 선택 후 다운로드한 CSV 파일 선택</li>
+        </ol>
+      </div>
+
+      <div style="font-size:12px; color:var(--text-300);" id="export-count-summary">
+        내보낼 항목: Total 0권
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('export-modal')">취소</button>
+      <button class="btn btn-primary" onclick="exportToGoogleSheetsCSV()" style="background:linear-gradient(135deg, #10b981, #059669); border:none;">
+        📥 CSV 다운로드
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- Supabase JS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

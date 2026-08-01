@@ -3738,4 +3738,89 @@ function addArBookToShelf() {
   
   closeArScanner();
   toast("📚 인식한 도서 정보가 책장 폼에 기입되었습니다.");
-}
+}
+
+/* ==============================================
+   EXPORT TO GOOGLE SHEETS (CSV)
+============================================== */
+function openExportModal() {
+  const summaryEl = document.getElementById('export-count-summary');
+  if (summaryEl) {
+    const totalScraps = books.reduce((acc, b) => acc + (b.scraps ? b.scraps.length : 0), 0);
+    summaryEl.innerHTML = `내보낼 항목: <strong>총 ${books.length}권의 책 / ${totalScraps}개의 스크랩</strong>`;
+  }
+  openModal('export-modal');
+}
+
+function exportToGoogleSheetsCSV() {
+  if (!books || books.length === 0) {
+    toast('⚠️ 내보낼 독서 데이터가 없습니다.');
+    return;
+  }
+
+  const headers = ['제목', '저자', '읽은 날짜', '평점(5점)', '페이지 수', '키워드', '한줄 감상평', '스크랩 수', '스크랩 목록'];
+  
+  const escapeCSVField = (field) => {
+    if (field === null || field === undefined) return '""';
+    const str = String(field).replace(/"/g, '""');
+    return `"${str}"`;
+  };
+
+  const rows = books.map(b => {
+    const title = b.title || '';
+    const author = b.author || '';
+    const date = b.date || '';
+    const rating = b.rating || 0;
+    const pages = b.pages || 0;
+    const keywords = Array.isArray(b.keywords) ? b.keywords.join(', ') : (b.keywords || '');
+    const sentence = b.sentence || '';
+    
+    let scrapCount = 0;
+    let scrapTextJoined = '';
+    if (Array.isArray(b.scraps) && b.scraps.length > 0) {
+      scrapCount = b.scraps.length;
+      scrapTextJoined = b.scraps.map((s, idx) => {
+        const p = s.page ? ` (p.${s.page})` : '';
+        const txt = s.text || '';
+        const note = s.note ? ` [메모: ${s.note}]` : '';
+        return `${idx + 1}. "${txt}"${p}${note}`;
+      }).join('\n');
+    }
+
+    return [
+      escapeCSVField(title),
+      escapeCSVField(author),
+      escapeCSVField(date),
+      escapeCSVField(rating),
+      escapeCSVField(pages),
+      escapeCSVField(keywords),
+      escapeCSVField(sentence),
+      escapeCSVField(scrapCount),
+      escapeCSVField(scrapTextJoined)
+    ].join(',');
+  });
+
+  const csvContent = [headers.map(escapeCSVField).join(','), ...rows].join('\r\n');
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+  
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+  const filename = `8ook_reading_log_${dateStr}.csv`;
+
+  const link = document.createElement('a');
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  closeModal('export-modal');
+  toast('✅ Google Sheets용 CSV 파일이 다운로드 되었습니다!');
+}
+
