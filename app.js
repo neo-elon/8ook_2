@@ -3746,8 +3746,7 @@ function addArBookToShelf() {
 function openExportModal() {
   const summaryEl = document.getElementById('export-count-summary');
   if (summaryEl) {
-    const totalScraps = books.reduce((acc, b) => acc + (b.scraps ? b.scraps.length : 0), 0);
-    summaryEl.innerHTML = `내보낼 항목: <strong>총 ${books.length}권의 책 / ${totalScraps}개의 스크랩</strong>`;
+    summaryEl.innerHTML = `내보낼 항목: <strong>총 ${books.length}권의 책</strong>`;
   }
   openModal('export-modal');
 }
@@ -3758,7 +3757,7 @@ function exportToGoogleSheetsCSV() {
     return;
   }
 
-  const headers = ['제목', '저자', '읽은 날짜', '평점(5점)', '페이지 수', '키워드', '한줄 감상평', '스크랩 수', '스크랩 목록'];
+  const headers = ['번호', '제목', '저자', '읽은 날짜', '평점', '페이지 수', '키워드', '한줄 감상평'];
   
   const escapeCSVField = (field) => {
     if (field === null || field === undefined) return '""';
@@ -3766,37 +3765,30 @@ function exportToGoogleSheetsCSV() {
     return `"${str}"`;
   };
 
-  const rows = books.map(b => {
+  const totalCount = books.length;
+
+  const rows = books.map((b, index) => {
+    const seqNum = totalCount - index; // 역순 일련번호 (가장 최근 추가/맨 위가 가장 큰 번호)
     const title = b.title || '';
     const author = b.author || '';
     const date = b.date || '';
-    const rating = b.rating || 0;
+    
+    const numericRating = Math.max(0, Math.min(5, Number(b.rating) || 0));
+    const starRating = '★'.repeat(numericRating) + '☆'.repeat(5 - numericRating);
+    
     const pages = b.pages || 0;
     const keywords = Array.isArray(b.keywords) ? b.keywords.join(', ') : (b.keywords || '');
     const sentence = b.sentence || '';
-    
-    let scrapCount = 0;
-    let scrapTextJoined = '';
-    if (Array.isArray(b.scraps) && b.scraps.length > 0) {
-      scrapCount = b.scraps.length;
-      scrapTextJoined = b.scraps.map((s, idx) => {
-        const p = s.page ? ` (p.${s.page})` : '';
-        const txt = s.text || '';
-        const note = s.note ? ` [메모: ${s.note}]` : '';
-        return `${idx + 1}. "${txt}"${p}${note}`;
-      }).join('\n');
-    }
 
     return [
+      escapeCSVField(seqNum),
       escapeCSVField(title),
       escapeCSVField(author),
       escapeCSVField(date),
-      escapeCSVField(rating),
+      escapeCSVField(starRating),
       escapeCSVField(pages),
       escapeCSVField(keywords),
-      escapeCSVField(sentence),
-      escapeCSVField(scrapCount),
-      escapeCSVField(scrapTextJoined)
+      escapeCSVField(sentence)
     ].join(',');
   });
 
