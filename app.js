@@ -3851,13 +3851,7 @@ function exportToGoogleSheetsCSV() {
   const rows = exportBooks.map((b, index) => {
     const seqNum = totalCount - index; // 역순 일련번호
     const numericRating = Math.max(0, Math.min(5, Number(b.rating) || 0));
-    
-    // 평점이 5점인 경우 마크다운 볼드체(**제목**) 적용
-    let title = b.title || '';
-    if (numericRating === 5 && title) {
-      title = `**${title}**`;
-    }
-
+    const title = b.title || '';
     const author = b.author || '';
     const date = b.date || '';
     const starRating = '★'.repeat(numericRating) + '☆'.repeat(5 - numericRating);
