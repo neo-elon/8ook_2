@@ -755,11 +755,13 @@ function showStats() {
    BOOK MODAL
 ============================================== */
 let modalCover = '';
+let modalSpineCover = '';
 
 function openAddModal() {
   editingBookId = null;
   currentRating = 0;
   modalCover = '';
+  modalSpineCover = '';
   document.getElementById('book-modal-ttl').textContent = '📖 책 추가';
   document.getElementById('bk-title').value = '';
   document.getElementById('bk-author').value = '';
@@ -768,11 +770,14 @@ function openAddModal() {
   document.getElementById('bk-sentence').value = '';
   document.getElementById('bk-img-url').value = '';
   document.getElementById('bk-img-file').value = '';
+  document.getElementById('bk-spine-url').value = '';
+  document.getElementById('bk-spine-file').value = '';
   document.getElementById('bk-kw1').value = '';
   document.getElementById('bk-kw2').value = '';
   document.getElementById('bk-kw3').value = '';
   hideSearchResults();
   resetPrev();
+  resetSpinePrev();
   updateStarBtns(0);
   openModal('book-modal');
 }
@@ -789,6 +794,7 @@ async function openEditModal(id, focusKeywords = false) {
   editingBookId = id;
   currentRating = b.rating || 0;
   modalCover = b.cover || '';
+  modalSpineCover = b.spineCover || b.spine || '';
 
   document.getElementById('book-modal-ttl').textContent = '✏️ 책 편집';
   document.getElementById('bk-title').value = b.title || '';
@@ -808,8 +814,15 @@ async function openEditModal(id, focusKeywords = false) {
     document.getElementById('bk-img-url').value = '';
   }
 
+  if (modalSpineCover && !modalSpineCover.startsWith('data:')) {
+    document.getElementById('bk-spine-url').value = modalSpineCover;
+  } else {
+    document.getElementById('bk-spine-url').value = '';
+  }
+
   hideSearchResults();
   if (b.cover) setPrev(b.cover); else resetPrev();
+  if (modalSpineCover) setSpinePrev(modalSpineCover); else resetSpinePrev();
   updateStarBtns(currentRating);
   openModal('book-modal');
 
@@ -839,14 +852,42 @@ function onFileSelect(inp) {
   r.readAsDataURL(f);
 }
 
+function onSpineUrlInput(v) {
+  if (!v) { resetSpinePrev(); modalSpineCover = ''; return; }
+  modalSpineCover = v;
+  setSpinePrev(v);
+}
+
+function onSpineFileSelect(inp) {
+  const f = inp.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    modalSpineCover = e.target.result;
+    setSpinePrev(e.target.result);
+    document.getElementById('bk-spine-url').value = '';
+  };
+  r.readAsDataURL(f);
+}
+
 function setPrev(src) {
   document.getElementById('book-prev').innerHTML =
-    `<img src="${getSafeImageUrl(src)}" onerror="this.parentElement.innerHTML='<div class=\\'img-prev-ph\\'><span class=\\'img-prev-ph-icon\\'>❌</span><span>이미지 로드 실패</span></div>'">`;
+    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;" onerror="this.parentElement.innerHTML='<div class=\\'img-prev-ph\\'><span class=\\'img-prev-ph-icon\\'>❌</span><span style=\\'font-size:9px;\\'>실패</span></div>'">`;
 }
 
 function resetPrev() {
   document.getElementById('book-prev').innerHTML =
-    `<div class="img-prev-ph"><span class="img-prev-ph-icon">🖼️</span><span style="font-size:10px; line-height:1.4; padding:0 8px;">표지 이미지를 추가해주세요</span></div>`;
+    `<div class="img-prev-ph"><span class="img-prev-ph-icon">🖼️</span><span style="font-size:9px; line-height:1.3; padding:0 4px; text-align:center;">앞표지</span></div>`;
+}
+
+function setSpinePrev(src) {
+  document.getElementById('spine-prev').innerHTML =
+    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;" onerror="this.parentElement.innerHTML='<div class=\\'img-prev-ph\\'><span class=\\'img-prev-ph-icon\\'>❌</span><span style=\\'font-size:9px;\\'>실패</span></div>'">`;
+}
+
+function resetSpinePrev() {
+  document.getElementById('spine-prev').innerHTML =
+    `<div class="img-prev-ph"><span class="img-prev-ph-icon">📕</span><span style="font-size:9px; line-height:1.3; padding:0 2px; text-align:center;">책등</span></div>`;
 }
 
 /* ── Keyword input helpers ── */
@@ -891,13 +932,14 @@ async function saveBook() {
 
   const data = {
     title,
-    author:   document.getElementById('bk-author').value.trim(),
-    pages:    parseInt(document.getElementById('bk-pages').value) || 0,
-    date:     document.getElementById('bk-date').value,
-    sentence: document.getElementById('bk-sentence').value.trim(),
-    cover:    modalCover,
-    rating:   currentRating,
-    keywords: [
+    author:     document.getElementById('bk-author').value.trim(),
+    pages:      parseInt(document.getElementById('bk-pages').value) || 0,
+    date:       document.getElementById('bk-date').value,
+    sentence:   document.getElementById('bk-sentence').value.trim(),
+    cover:      modalCover,
+    spineCover: modalSpineCover,
+    rating:     currentRating,
+    keywords:   [
       document.getElementById('bk-kw1').value.trim(),
       document.getElementById('bk-kw2').value.trim(),
       document.getElementById('bk-kw3').value.trim(),
@@ -1801,6 +1843,17 @@ function applyAladinItem(item) {
     modalCover = item.cover;
     document.getElementById('bk-img-url').value = item.cover;
     setPrev(item.cover);
+
+    const spineUrl = getSpineImageUrl(item.cover);
+    if (spineUrl) {
+      modalSpineCover = spineUrl;
+      document.getElementById('bk-spine-url').value = spineUrl;
+      setSpinePrev(spineUrl);
+    } else {
+      modalSpineCover = '';
+      document.getElementById('bk-spine-url').value = '';
+      resetSpinePrev();
+    }
   }
 
   hideSearchResults();
