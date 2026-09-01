@@ -289,6 +289,68 @@ function applyTheme() {
   document.body.classList.toggle('light-theme', !isDarkTheme);
   document.getElementById('theme-icon').textContent = isDarkTheme ? '🌙' : '☀️';
 }
+let editingScrapId = null;
+let currentGalleryFilter = null;
+let galleryViewMode = (function() {
+  try { return localStorage.getItem('rj_gallery_view_mode') || 'spine'; } catch(e) { return 'spine'; }
+})();
+
+function getSpineTheme(book) {
+  const spineThemes = [
+    { bg: 'linear-gradient(180deg, #2c1b38 0%, #150c1e 100%)', text: '#f3e8ff', border: '#4a2860', accent: '#a855f7', ribbon: '#ec4899' },
+    { bg: 'linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%)', text: '#dbeafe', border: '#1e40af', accent: '#60a5fa', ribbon: '#f59e0b' },
+    { bg: 'linear-gradient(180deg, #064e3b 0%, #022c22 100%)', text: '#d1fae5', border: '#047857', accent: '#34d399', ribbon: '#f43f5e' },
+    { bg: 'linear-gradient(180deg, #78350f 0%, #451a03 100%)', text: '#fef3c7', border: '#92400e', accent: '#fbbf24', ribbon: '#818cf8' },
+    { bg: 'linear-gradient(180deg, #881337 0%, #4c0519 100%)', text: '#ffe4e6', border: '#9f1239', accent: '#fb7185', ribbon: '#10b981' },
+    { bg: 'linear-gradient(180deg, #312e81 0%, #1e1b4b 100%)', text: '#e0e7ff', border: '#3730a3', accent: '#818cf8', ribbon: '#fbbf24' },
+    { bg: 'linear-gradient(180deg, #3f3f46 0%, #18181b 100%)', text: '#f4f4f5', border: '#52525b', accent: '#a1a1aa', ribbon: '#a855f7' },
+    { bg: 'linear-gradient(180deg, #701a75 0%, #4a044e 100%)', text: '#fae8ff', border: '#86198f', accent: '#e879f9', ribbon: '#06b6d4' }
+  ];
+  let hash = 0;
+  const str = (book.title || '') + (book.id || '');
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const idx = Math.abs(hash) % spineThemes.length;
+  return spineThemes[idx];
+}
+
+function setGalleryViewMode(mode) {
+  galleryViewMode = mode;
+  try { localStorage.setItem('rj_gallery_view_mode', mode); } catch(e) {}
+  updateViewModeButtons();
+  renderGallery();
+}
+
+function updateViewModeButtons() {
+  const btnSpine = document.getElementById('btn-view-spine');
+  const btnCover = document.getElementById('btn-view-cover');
+  if (btnSpine && btnCover) {
+    if (galleryViewMode === 'spine') {
+      btnSpine.style.background = 'var(--violet)';
+      btnSpine.style.color = '#fff';
+      btnSpine.style.fontWeight = '600';
+      btnCover.style.background = 'transparent';
+      btnCover.style.color = 'var(--text-300)';
+      btnCover.style.fontWeight = '400';
+    } else {
+      btnCover.style.background = 'var(--violet)';
+      btnCover.style.color = '#fff';
+      btnCover.style.fontWeight = '600';
+      btnSpine.style.background = 'transparent';
+      btnSpine.style.color = 'var(--text-300)';
+      btnSpine.style.fontWeight = '400';
+    }
+  }
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.book-card.spine-mode')) {
+    document.querySelectorAll('.book-card.spine-mode.is-hovered').forEach(card => {
+      card.classList.remove('is-hovered');
+    });
+  }
+});
 
 /* ==============================================
    GALLERY
@@ -297,6 +359,9 @@ function renderGallery() {
   const grid = document.getElementById('gallery-grid');
   const empty = document.getElementById('gallery-empty');
   grid.innerHTML = '';
+
+  updateViewModeButtons();
+  grid.classList.toggle('spine-view', galleryViewMode === 'spine');
 
   // Handle Search Input display
   const searchInput = document.getElementById('gallery-search-input');
@@ -310,7 +375,7 @@ function renderGallery() {
   if (currentGalleryFilter) {
     const filterCard = document.createElement('div');
     filterCard.className = 'filter-info-card';
-    filterCard.style.cssText = 'grid-column: 1 / -1; background: var(--glass); border: 1px solid var(--violet); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--text-200); margin-bottom: 4px; box-sizing: border-box;';
+    filterCard.style.cssText = 'grid-column: 1 / -1; width: 100%; background: var(--glass); border: 1px solid var(--violet); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--text-200); margin-bottom: 4px; box-sizing: border-box;';
     filterCard.innerHTML = `
       <span style="display:flex; align-items:center; gap:6px;">🏷️ <strong>#${esc(currentGalleryFilter)}</strong> 키워드로 필터링됨</span>
       <button class="btn btn-ghost btn-sm" onclick="clearGalleryFilter()" style="padding: 2px 8px; border-radius: 4px; font-size:11px; height:22px; line-height:1; cursor:pointer;">필터 해제 ✕</button>
@@ -320,11 +385,19 @@ function renderGallery() {
 
   // Prepend the 점선 책 추가 카드
   const addCard = document.createElement('div');
-  addCard.className = 'add-book-card';
-  addCard.innerHTML = `
-    <span class="add-book-icon">＋</span>
-    <span class="add-book-label">책 기록하기</span>
-  `;
+  if (galleryViewMode === 'spine') {
+    addCard.className = 'add-book-card spine-mode';
+    addCard.innerHTML = `
+      <span class="add-book-icon">＋</span>
+      <span class="add-book-label-v">책 기록</span>
+    `;
+  } else {
+    addCard.className = 'add-book-card';
+    addCard.innerHTML = `
+      <span class="add-book-icon">＋</span>
+      <span class="add-book-label">책 기록하기</span>
+    `;
+  }
   addCard.addEventListener('click', () => {
     if (supabaseClient && !currentUser) {
       toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
@@ -380,11 +453,10 @@ function renderGallery() {
 
   sortedBooks.forEach((book, i) => {
     const card = document.createElement('div');
-    card.className = 'book-card';
-    if (book.rating === 5) {
-      card.classList.add('five-stars');
-    }
-    card.style.animationDelay = ((i + 1) * 0.04) + 's';
+    const isSpineMode = (galleryViewMode === 'spine');
+
+    card.className = `book-card${isSpineMode ? ' spine-mode' : ''}${book.rating === 5 ? ' five-stars' : ''}`;
+    card.style.animationDelay = ((i + 1) * 0.03) + 's';
     card.setAttribute('data-id', book.id);
 
     let imgPart = '';
@@ -403,18 +475,65 @@ function renderGallery() {
     const kingStarBadge = book.rating === 5
       ? `<div class="king-star-badge" title="인생작 (별점 5점)">★</div>` : '';
 
-    card.innerHTML = `
-      ${imgPart}
-      ${kingStarBadge}
-      <div class="book-hover-overlay">
-        <div class="ov-title">${esc(book.title)}</div>
-        <div class="ov-author">${esc(book.author||'')}</div>
-        ${sentence}
-        ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
-      </div>
-    `;
+    if (isSpineMode) {
+      const theme = getSpineTheme(book);
+      card.innerHTML = `
+        <div class="spine-3d-wrapper">
+          <div class="spine-face" style="background: ${theme.bg}; border-color: ${theme.border}; color: ${theme.text};">
+            ${book.cover ? `<div class="spine-bg-cover" style="background-image: url('${esc(getSafeImageUrl(book.cover))}');"></div>` : ''}
+            <div class="spine-ribbon" style="background: ${theme.ribbon};"></div>
+            <div class="spine-top-accent">
+              ${book.rating === 5 ? '<span class="spine-king-star">★</span>' : `<span class="spine-dot" style="background:${theme.accent}"></span>`}
+            </div>
+            <div class="spine-title-wrap">
+              <span class="spine-title">${esc(book.title)}</span>
+            </div>
+            <div class="spine-author-wrap">
+              <span class="spine-author">${esc(book.author || '')}</span>
+            </div>
+            <div class="spine-bottom-brand">8ook.</div>
+          </div>
+          <div class="cover-face">
+            ${imgPart}
+            ${kingStarBadge}
+            <div class="book-hover-overlay">
+              <div class="ov-title">${esc(book.title)}</div>
+              <div class="ov-author">${esc(book.author||'')}</div>
+              ${sentence}
+              ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
 
-    card.addEventListener('click', () => showDetail(book.id));
+      card.addEventListener('click', (e) => {
+        const isTouch = window.matchMedia('(pointer: coarse)').matches;
+        if (isTouch) {
+          if (!card.classList.contains('is-hovered')) {
+            e.stopPropagation();
+            document.querySelectorAll('.book-card.spine-mode.is-hovered').forEach(c => {
+              if (c !== card) c.classList.remove('is-hovered');
+            });
+            card.classList.add('is-hovered');
+            return;
+          }
+        }
+        showDetail(book.id);
+      });
+    } else {
+      card.innerHTML = `
+        ${imgPart}
+        ${kingStarBadge}
+        <div class="book-hover-overlay">
+          <div class="ov-title">${esc(book.title)}</div>
+          <div class="ov-author">${esc(book.author||'')}</div>
+          ${sentence}
+          ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
+        </div>
+      `;
+      card.addEventListener('click', () => showDetail(book.id));
+    }
+
     grid.appendChild(card);
   });
 }

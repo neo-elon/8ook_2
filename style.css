@@ -483,7 +483,33 @@
       transition:grid-template-columns .3s;
     }
 
-    /* Book Card */
+    /* ======================================
+       BOOKSHELF SPINE VIEW (3D Interactive)
+    ====================================== */
+    #gallery-grid.spine-view {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: flex-start;
+      gap: 16px 14px;
+      padding: 16px 12px 28px;
+      perspective: 1200px;
+      position: relative;
+    }
+
+    /* Realistic Shelf Board Ledge */
+    #gallery-grid.spine-view::after {
+      content: '';
+      width: 100%;
+      height: 10px;
+      background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-elevated) 100%);
+      border-radius: 4px;
+      border-bottom: 2px solid var(--border-accent);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+      order: 999;
+    }
+
+    /* Book Card Base */
     .book-card {
       position:relative; border-radius:var(--radius-lg);
       overflow:hidden; aspect-ratio:2/3;
@@ -493,11 +519,224 @@
       transition:transform .35s var(--ease), box-shadow .35s var(--ease);
       animation:fadeUp .4s var(--ease) both;
     }
+
+    /* Spine Mode Card */
+    .book-card.spine-mode {
+      position: relative;
+      width: 56px;
+      height: 230px;
+      aspect-ratio: auto;
+      overflow: visible;
+      background: transparent;
+      box-shadow: none;
+      border-radius: 6px;
+      cursor: pointer;
+      perspective: 1000px;
+      flex-shrink: 0;
+      transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s var(--ease), margin 0.4s var(--ease);
+      margin-bottom: 2px;
+    }
+
+    /* Hover or Touch Reveal ("촤르륵") */
+    .book-card.spine-mode:hover,
+    .book-card.spine-mode.is-hovered {
+      width: 160px;
+      z-index: 40;
+      transform: translateY(-10px);
+    }
+
+    .spine-3d-wrapper {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Spine Face (Rest State) */
+    .spine-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 6px 8px 8px 6px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 4px 10px;
+      box-shadow: 
+        inset 2px 0 4px rgba(255,255,255,0.2),
+        inset -3px 0 6px rgba(0,0,0,0.5),
+        4px 8px 20px rgba(0,0,0,0.45);
+      border: 1px solid var(--border);
+      backface-visibility: hidden;
+      transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-origin: center center;
+      z-index: 2;
+    }
+
+    .book-card.spine-mode:hover .spine-face,
+    .book-card.spine-mode.is-hovered .spine-face {
+      opacity: 0;
+      transform: rotateY(90deg) scale(0.92);
+      pointer-events: none;
+    }
+
+    /* Spine Cover Blur Overlay */
+    .spine-bg-cover {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: blur(4px) brightness(0.42);
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .spine-ribbon {
+      position: absolute;
+      top: 0;
+      right: 8px;
+      width: 6px;
+      height: 24px;
+      border-radius: 0 0 3px 3px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      z-index: 2;
+    }
+
+    .spine-top-accent {
+      position: relative;
+      z-index: 2;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .spine-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: block;
+      box-shadow: 0 0 6px rgba(255,255,255,0.3);
+    }
+    .spine-king-star {
+      color: var(--amber);
+      font-size: 14px;
+      text-shadow: 0 0 8px rgba(245, 158, 11, 0.7);
+    }
+
+    .spine-title-wrap {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 0;
+      overflow: hidden;
+    }
+    .spine-title {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      max-height: 135px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: 'Noto Sans KR', sans-serif;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+    }
+
+    .spine-author-wrap {
+      position: relative;
+      z-index: 2;
+      padding: 4px 0;
+      overflow: hidden;
+    }
+    .spine-author {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: 10px;
+      opacity: 0.75;
+      max-height: 45px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .spine-bottom-brand {
+      position: relative;
+      z-index: 2;
+      font-size: 8px;
+      font-weight: 800;
+      opacity: 0.4;
+      letter-spacing: 0.5px;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    /* Front Cover Face (Revealed on Hover/Touch) */
+    .cover-face {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 160px;
+      height: 230px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      opacity: 0;
+      transform: rotateY(-90deg);
+      transform-origin: left center;
+      transition: opacity 0.3s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.65), 0 0 0 1px var(--violet), var(--shadow-glow);
+      background: var(--bg-card);
+      backface-visibility: hidden;
+      z-index: 3;
+    }
+
+    .book-card.spine-mode:hover .cover-face,
+    .book-card.spine-mode.is-hovered .cover-face {
+      opacity: 1;
+      transform: rotateY(0deg);
+    }
+
+    .cover-face img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
     .book-card:hover {
       transform:translateY(-8px) scale(1.02);
       box-shadow:0 24px 60px rgba(0,0,0,.35),
                  0 0 0 1px var(--card-hover-border),
                  var(--shadow-glow);
+    }
+
+    /* Spine Mode Add Book Card */
+    .add-book-card.spine-mode {
+      width: 56px;
+      height: 230px;
+      aspect-ratio: auto;
+      padding: 12px 4px;
+      border-radius: 6px 8px 8px 6px;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .add-book-card.spine-mode .add-book-label-v {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    .add-book-card.spine-mode:hover {
+      width: 56px;
+      transform: translateY(-8px);
     }
     .king-star-badge {
       position: absolute;

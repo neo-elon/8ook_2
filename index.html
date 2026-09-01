@@ -121,12 +121,17 @@
   <!-- Gallery View -->
   <div id="view-gallery" style="position: relative;">
     <div id="gallery-scroll">
-      <!-- Shelf Search Bar -->
-      <div class="gallery-search-wrap" style="max-width: 900px; margin: 0 auto 20px; display: flex; justify-content: center; width: 100%; box-sizing: border-box; padding: 0 4px;">
-        <div class="search-input-wrapper" style="position: relative; width: 100%; max-width: 450px;">
+      <!-- Shelf Search Bar & View Toggle -->
+      <div class="gallery-search-wrap" style="max-width: 900px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; padding: 0 4px; gap: 12px; flex-wrap: wrap;">
+        <div class="search-input-wrapper" style="position: relative; flex: 1; min-width: 240px; max-width: 450px;">
           <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-300); font-size: 13px; pointer-events: none;">🔍</span>
           <input type="text" id="gallery-search-input" class="fi" placeholder="책 제목, 저자, 키워드 검색..." oninput="handleGallerySearch()" style="padding-left: 36px; padding-right: 36px; border-radius: 20px;" autocomplete="off">
           <button id="gallery-search-clear" onclick="clearGallerySearch()" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-300); cursor: pointer; font-size: 13px; display: none; line-height: 1;">✕</button>
+        </div>
+
+        <div class="view-mode-toggle" style="display: flex; gap: 3px; background: var(--glass); padding: 3px; border-radius: 20px; border: 1px solid var(--border); flex-shrink: 0;">
+          <button id="btn-view-spine" class="btn btn-xs" onclick="setGalleryViewMode('spine')" title="책등으로 보기 (3D 서재)" style="padding: 4px 12px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">📚 책등 보기</button>
+          <button id="btn-view-cover" class="btn btn-xs" onclick="setGalleryViewMode('cover')" title="앞표지 격자로 보기" style="padding: 4px 12px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">🖼️ 표지 보기</button>
         </div>
       </div>
 
