@@ -289,8 +289,7 @@ function applyTheme() {
   document.body.classList.toggle('light-theme', !isDarkTheme);
   document.getElementById('theme-icon').textContent = isDarkTheme ? '🌙' : '☀️';
 }
-let editingScrapId = null;
-let currentGalleryFilter = null;
+
 let galleryViewMode = (function() {
   try { return localStorage.getItem('rj_gallery_view_mode') || 'spine'; } catch(e) { return 'spine'; }
 })();
