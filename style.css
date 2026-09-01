@@ -605,55 +605,31 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 6px 12px;
+      padding: 0 4px 14px;
       z-index: 0;
+      border-radius: 5px 7px 7px 5px;
+      overflow: hidden;
+      box-shadow: inset 3px 0 6px rgba(255,255,255,0.25), inset -4px 0 8px rgba(0,0,0,0.35);
+      border: 1px solid rgba(0,0,0,0.1);
     }
     .spine-custom-view.show-fallback {
       display: flex !important;
     }
 
-    /* Spine Cover Blur Overlay */
-    .spine-bg-cover {
-      position: absolute;
-      inset: 0;
-      background-size: cover;
-      background-position: center;
-      filter: blur(4px) brightness(0.42);
-      opacity: 0.6;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .spine-ribbon {
-      position: absolute;
-      top: 0;
-      right: 8px;
-      width: 7px;
-      height: 28px;
-      border-radius: 0 0 3px 3px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-      z-index: 2;
-    }
-
-    .spine-top-accent {
-      position: relative;
-      z-index: 2;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .spine-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      display: block;
-      box-shadow: 0 0 6px rgba(255,255,255,0.3);
-    }
-    .spine-king-star {
-      color: var(--amber);
-      font-size: 15px;
-      text-shadow: 0 0 8px rgba(245, 158, 11, 0.7);
+    /* Notched Top Series Banner Tag ("쥘 베른 베스트 컬렉션" style) */
+    .spine-series-tag {
+      width: 100%;
+      padding: 14px 2px 10px;
+      text-align: center;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      clip-path: polygon(0 0, 100% 0, 100% 88%, 50% 100%, 0 88%);
+      font-family: 'Noto Serif KR', 'Batang', serif;
+      margin-bottom: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
     }
 
     .spine-title-wrap {
@@ -663,21 +639,21 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 10px 0;
+      padding: 8px 0;
       overflow: hidden;
     }
-    .spine-title {
+    .spine-title-serif {
       writing-mode: vertical-rl;
       text-orientation: mixed;
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 700;
-      letter-spacing: 1.5px;
-      max-height: 175px;
+      letter-spacing: 2px;
+      max-height: 170px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-family: 'Noto Sans KR', sans-serif;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+      font-family: 'Noto Serif KR', 'Batang', 'Gungsuh', serif;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.15);
     }
 
     .spine-author-wrap {
@@ -686,25 +662,41 @@
       padding: 6px 0;
       overflow: hidden;
     }
-    .spine-author {
+    .spine-author-serif {
       writing-mode: vertical-rl;
       text-orientation: mixed;
       font-size: 11px;
-      opacity: 0.85;
-      max-height: 60px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      max-height: 55px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      font-family: 'Noto Serif KR', 'Batang', serif;
+      opacity: 0.9;
     }
 
-    .spine-bottom-brand {
-      position: relative;
-      z-index: 2;
-      font-size: 9px;
-      font-weight: 800;
-      opacity: 0.45;
-      letter-spacing: 0.5px;
-      font-family: 'Noto Sans KR', sans-serif;
+    /* Publisher Emblem & Logo at Bottom ("열림원" style) */
+    .spine-publisher-emblem {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      margin-top: 4px;
+    }
+    .spine-publisher-emblem .emblem-fig {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+      opacity: 0.75;
+    }
+    .spine-publisher-emblem .publisher-name {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      font-family: 'Noto Serif KR', 'Batang', serif;
+      opacity: 0.85;
     }
 
     /* Front Cover Face (Revealed on Hover/Touch) */

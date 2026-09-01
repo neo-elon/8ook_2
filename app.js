@@ -306,26 +306,26 @@ function getSpineWidth(pages) {
 
 function getSpineImageUrl(url) {
   if (!url) return '';
-  let spineUrl = url;
   if (url.includes('image.aladin.co.kr')) {
-    spineUrl = url.replace('/cover500/', '/spine500/')
-                  .replace('/cover200/', '/spine200/')
-                  .replace('/coversum/', '/spinesum/')
-                  .replace('/cover/', '/spine/');
+    const m = url.match(/\/product\/(\d+)\/(\d+)\/(?:cover\d*|cover|coversum)\/([a-zA-Z0-9]+)/);
+    if (m) {
+      const dir1 = m[1];
+      const dir2 = m[2];
+      const itemId = m[3];
+      return getSafeImageUrl(`https://image.aladin.co.kr/product/${dir1}/${dir2}/letslook/${itemId}_spine.jpg`);
+    }
   }
-  return getSafeImageUrl(spineUrl);
+  return '';
 }
 
 function getSpineTheme(book) {
   const spineThemes = [
-    { bg: 'linear-gradient(180deg, #2c1b38 0%, #150c1e 100%)', text: '#f3e8ff', border: '#4a2860', accent: '#a855f7', ribbon: '#ec4899' },
-    { bg: 'linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%)', text: '#dbeafe', border: '#1e40af', accent: '#60a5fa', ribbon: '#f59e0b' },
-    { bg: 'linear-gradient(180deg, #064e3b 0%, #022c22 100%)', text: '#d1fae5', border: '#047857', accent: '#34d399', ribbon: '#f43f5e' },
-    { bg: 'linear-gradient(180deg, #78350f 0%, #451a03 100%)', text: '#fef3c7', border: '#92400e', accent: '#fbbf24', ribbon: '#818cf8' },
-    { bg: 'linear-gradient(180deg, #881337 0%, #4c0519 100%)', text: '#ffe4e6', border: '#9f1239', accent: '#fb7185', ribbon: '#10b981' },
-    { bg: 'linear-gradient(180deg, #312e81 0%, #1e1b4b 100%)', text: '#e0e7ff', border: '#3730a3', accent: '#818cf8', ribbon: '#fbbf24' },
-    { bg: 'linear-gradient(180deg, #3f3f46 0%, #18181b 100%)', text: '#f4f4f5', border: '#52525b', accent: '#a1a1aa', ribbon: '#a855f7' },
-    { bg: 'linear-gradient(180deg, #701a75 0%, #4a044e 100%)', text: '#fae8ff', border: '#86198f', accent: '#e879f9', ribbon: '#06b6d4' }
+    { bg: '#f9f8f3', text: '#1a1a1a', authorColor: '#4a4a4a', border: '#e5e0d3', tagBg: '#1a1a1a', tagText: '#f9f8f3', isLight: true },
+    { bg: '#1c2838', text: '#e2edee', authorColor: '#a0b2c6', border: '#2d3e54', tagBg: '#d4af37', tagText: '#1c2838', isLight: false },
+    { bg: '#233830', text: '#e6f4ed', authorColor: '#9ec4b3', border: '#345247', tagBg: '#e6f4ed', tagText: '#233830', isLight: false },
+    { bg: '#f3edd9', text: '#2c221e', authorColor: '#63534b', border: '#e2d4b9', tagBg: '#8c2d19', tagText: '#f3edd9', isLight: true },
+    { bg: '#4a151b', text: '#fce8ea', authorColor: '#e0a3aa', border: '#6e222a', tagBg: '#fce8ea', tagText: '#4a151b', isLight: false },
+    { bg: '#1e1e24', text: '#f0f0f5', authorColor: '#9e9ea6', border: '#33333d', tagBg: '#8b5cf6', tagText: '#ffffff', isLight: false }
   ];
   let hash = 0;
   const str = (book.title || '') + (book.id || '');
@@ -505,26 +505,39 @@ function renderGallery() {
       const spineImgUrl = getSpineImageUrl(book.cover);
 
       const realSpineTag = spineImgUrl
-        ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="${esc(book.title)}" onerror="this.classList.add('hide-real'); this.nextElementSibling.classList.add('show-fallback');">`
+        ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="${esc(book.title)}" onerror="
+            if (!this.dataset.tried1 && this.src.includes('_spine.jpg')) {
+              this.dataset.tried1 = 'true';
+              this.src = this.src.replace('_spine.jpg', '_spine1.jpg');
+            } else if (!this.dataset.tried2 && this.src.includes('_spine1.jpg')) {
+              this.dataset.tried2 = 'true';
+              this.src = this.src.replace('_spine1.jpg', '_b.jpg');
+            } else {
+              this.classList.add('hide-real');
+              const fb = this.nextElementSibling;
+              if (fb) fb.classList.add('show-fallback');
+            }
+          ">`
         : '';
 
       card.innerHTML = `
         <div class="spine-3d-wrapper">
-          <div class="spine-face" style="background: ${theme.bg}; border-color: ${theme.border}; color: ${theme.text};">
+          <div class="spine-face">
             ${realSpineTag}
-            <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}">
-              ${book.cover ? `<div class="spine-bg-cover" style="background-image: url('${esc(getSafeImageUrl(book.cover))}');"></div>` : ''}
-              <div class="spine-ribbon" style="background: ${theme.ribbon};"></div>
-              <div class="spine-top-accent">
-                ${book.rating === 5 ? '<span class="spine-king-star">★</span>' : `<span class="spine-dot" style="background:${theme.accent}"></span>`}
+            <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}" style="background: ${theme.bg}; color: ${theme.text}; border-color: ${theme.border};">
+              <div class="spine-series-tag" style="background: ${theme.tagBg}; color: ${theme.tagText};">
+                <span>8ook Collection</span>
               </div>
               <div class="spine-title-wrap">
-                <span class="spine-title">${esc(book.title)}</span>
+                <span class="spine-title-serif">${esc(book.title)}</span>
               </div>
               <div class="spine-author-wrap">
-                <span class="spine-author">${esc(book.author || '')}</span>
+                <span class="spine-author-serif" style="color: ${theme.authorColor};">✻ ${esc(book.author || '작자 미상')}</span>
               </div>
-              <div class="spine-bottom-brand">8ook.</div>
+              <div class="spine-publisher-emblem">
+                <div class="emblem-fig"></div>
+                <span class="publisher-name">8ook</span>
+              </div>
             </div>
           </div>
           <div class="cover-face">
