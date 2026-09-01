@@ -294,6 +294,28 @@ let galleryViewMode = (function() {
   try { return localStorage.getItem('rj_gallery_view_mode') || 'spine'; } catch(e) { return 'spine'; }
 })();
 
+function getSpineWidth(pages) {
+  const p = Number(pages) || 250;
+  if (p <= 130) return 48;
+  if (p <= 220) return 58;
+  if (p <= 320) return 70;
+  if (p <= 480) return 84;
+  if (p <= 650) return 98;
+  return 115;
+}
+
+function getSpineImageUrl(url) {
+  if (!url) return '';
+  let spineUrl = url;
+  if (url.includes('image.aladin.co.kr')) {
+    spineUrl = url.replace('/cover500/', '/spine500/')
+                  .replace('/cover200/', '/spine200/')
+                  .replace('/coversum/', '/spinesum/')
+                  .replace('/cover/', '/spine/');
+  }
+  return getSafeImageUrl(spineUrl);
+}
+
 function getSpineTheme(book) {
   const spineThemes = [
     { bg: 'linear-gradient(180deg, #2c1b38 0%, #150c1e 100%)', text: '#f3e8ff', border: '#4a2860', accent: '#a855f7', ribbon: '#ec4899' },
@@ -475,22 +497,35 @@ function renderGallery() {
       ? `<div class="king-star-badge" title="인생작 (별점 5점)">★</div>` : '';
 
     if (isSpineMode) {
+      const spineW = getSpineWidth(book.pages);
+      card.style.width = spineW + 'px';
+      card.style.setProperty('--spine-w', spineW + 'px');
+
       const theme = getSpineTheme(book);
+      const spineImgUrl = getSpineImageUrl(book.cover);
+
+      const realSpineTag = spineImgUrl
+        ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="${esc(book.title)}" onerror="this.classList.add('hide-real'); this.nextElementSibling.classList.add('show-fallback');">`
+        : '';
+
       card.innerHTML = `
         <div class="spine-3d-wrapper">
           <div class="spine-face" style="background: ${theme.bg}; border-color: ${theme.border}; color: ${theme.text};">
-            ${book.cover ? `<div class="spine-bg-cover" style="background-image: url('${esc(getSafeImageUrl(book.cover))}');"></div>` : ''}
-            <div class="spine-ribbon" style="background: ${theme.ribbon};"></div>
-            <div class="spine-top-accent">
-              ${book.rating === 5 ? '<span class="spine-king-star">★</span>' : `<span class="spine-dot" style="background:${theme.accent}"></span>`}
+            ${realSpineTag}
+            <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}">
+              ${book.cover ? `<div class="spine-bg-cover" style="background-image: url('${esc(getSafeImageUrl(book.cover))}');"></div>` : ''}
+              <div class="spine-ribbon" style="background: ${theme.ribbon};"></div>
+              <div class="spine-top-accent">
+                ${book.rating === 5 ? '<span class="spine-king-star">★</span>' : `<span class="spine-dot" style="background:${theme.accent}"></span>`}
+              </div>
+              <div class="spine-title-wrap">
+                <span class="spine-title">${esc(book.title)}</span>
+              </div>
+              <div class="spine-author-wrap">
+                <span class="spine-author">${esc(book.author || '')}</span>
+              </div>
+              <div class="spine-bottom-brand">8ook.</div>
             </div>
-            <div class="spine-title-wrap">
-              <span class="spine-title">${esc(book.title)}</span>
-            </div>
-            <div class="spine-author-wrap">
-              <span class="spine-author">${esc(book.author || '')}</span>
-            </div>
-            <div class="spine-bottom-brand">8ook.</div>
           </div>
           <div class="cover-face">
             ${imgPart}
