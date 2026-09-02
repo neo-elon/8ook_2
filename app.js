@@ -1811,7 +1811,6 @@ function applyAladinItem(item) {
 function fetchDetailedPages(itemId) {
   const key = getApiKey();
   
-  // Dynamically determine itemIdType (ISBN13, ISBN, or ItemId)
   let itemIdType = 'ItemId';
   const cleanId = String(itemId).trim();
   if (cleanId.length === 13 && (cleanId.startsWith('978') || cleanId.startsWith('979'))) {
@@ -1819,11 +1818,6 @@ function fetchDetailedPages(itemId) {
   } else if (cleanId.length === 10) {
     itemIdType = 'ISBN';
   }
-
-  const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?ttbkey=${key}&itemIdType=${itemIdType}&ItemId=${cleanId}&output=xml&Version=20131101&OptResult=subInfo`;
-  
-  const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-  const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
 
   const updatePageField = (pages) => {
     if (pages) {
@@ -1833,61 +1827,34 @@ function fetchDetailedPages(itemId) {
     }
   };
 
-  fetch(proxyUrl1)
-    .then(res => {
-      if (!res.ok) throw new Error('Proxy 1 failed');
-      return res.text();
-    })
-    .then(xmlText => {
-      const parsed = parseAladinXml(xmlText);
-      if (!parsed.error && parsed.items && parsed.items[0]) {
-        updatePageField(parsed.items[0].pages);
-      }
-    })
-    .catch(() => {
-      fetch(proxyUrl2)
-        .then(res => {
-          if (!res.ok) throw new Error('Proxy 2 failed');
-          return res.json();
-        })
-        .then(data => {
-          const xmlText = data.contents;
-          const parsed = parseAladinXml(xmlText);
-          if (!parsed.error && parsed.items && parsed.items[0]) {
-            updatePageField(parsed.items[0].pages);
-          }
-        })
-        .catch(() => {
-          const cbName = '_aladinCb_lookup_' + Date.now();
-          const script = document.createElement('script');
-          const params = new URLSearchParams({
-            ttbkey: key,
-            itemIdType: itemIdType,
-            ItemId: cleanId,
-            output: 'JS',
-            Version: '20131101',
-            OptResult: 'subInfo',
-            callback: cbName
-          });
-          script.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?${params}`;
-          window[cbName] = function(data) {
-            delete window[cbName];
-            script.remove();
-            if (data && data.item && data.item[0]) {
-              const item = data.item[0];
-              const pages = (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) || 
-                            (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
-                            item.itemPage || item.itempage || '';
-              updatePageField(pages);
-            }
-          };
-          script.onerror = function() {
-            delete window[cbName];
-            script.remove();
-          };
-          document.body.appendChild(script);
-        });
-    });
+  const cbName = '_aladinCb_lookup_' + Date.now();
+  const script = document.createElement('script');
+  const params = new URLSearchParams({
+    ttbkey: key,
+    itemIdType: itemIdType,
+    ItemId: cleanId,
+    output: 'JS',
+    Version: '20131101',
+    OptResult: 'subInfo',
+    callback: cbName
+  });
+  script.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?${params}`;
+  window[cbName] = function(data) {
+    delete window[cbName];
+    script.remove();
+    if (data && data.item && data.item[0]) {
+      const item = data.item[0];
+      const pages = (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) || 
+                    (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
+                    item.itemPage || item.itempage || '';
+      updatePageField(pages);
+    }
+  };
+  script.onerror = function() {
+    delete window[cbName];
+    script.remove();
+  };
+  document.body.appendChild(script);
 }
 
 
