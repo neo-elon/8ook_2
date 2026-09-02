@@ -232,10 +232,6 @@ function getSafeImageUrl(url) {
     }
   }
   
-  // Proxy image requests to bypass adblockers and CORS
-  if (url.includes('pstatic.net') || url.includes('shopping-phinf') || url.includes('notion.so') || url.includes('secure.notion-static.com') || url.includes('files.notion.so') || url.includes('amazonaws.com')) {
-    return 'https://corsproxy.io/?' + encodeURIComponent(url);
-  }
   return url;
 }
 
@@ -1165,51 +1161,7 @@ function searchAladin() {
   results.classList.add('show');
   results.innerHTML = `<div class="search-loading"><span class="spin"></span> 검색 중...</div>`;
 
-  // Use https:// protocol to prevent mixed content errors
-  const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${key}&Query=${encodeURIComponent(query)}&QueryType=Title&MaxResults=18&start=1&SearchTarget=Book&output=xml&Version=20131101&Cover=Big&OptResult=subInfo`;
-  
-  // Proxy 1: corsproxy.io
-  const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-  // Proxy 2: allorigins.win
-  const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-
-  // Try Proxy 1
-  fetch(proxyUrl1)
-    .then(res => {
-      if (!res.ok) throw new Error('Proxy 1 failed');
-      return res.text();
-    })
-    .then(xmlText => {
-      const parsed = parseAladinXml(xmlText);
-      if (parsed.error) {
-        results.innerHTML = `<div class="search-empty">❌ 알라딘 API 에러: ${esc(parsed.message)} (코드: ${parsed.code})<br><br><small style="font-size: 11px;">※ API 키 발급 직후에는 활성화까지 1~2시간 가량 소요될 수 있습니다.</small></div>`;
-        return;
-      }
-      handleAladinResults(parsed.items);
-    })
-    .catch(err1 => {
-      console.warn('corsproxy.io failed, trying allorigins:', err1);
-      // Try Proxy 2
-      fetch(proxyUrl2)
-        .then(res => {
-          if (!res.ok) throw new Error('Proxy 2 failed');
-          return res.json();
-        })
-        .then(data => {
-          const xmlText = data.contents;
-          const parsed = parseAladinXml(xmlText);
-          if (parsed.error) {
-            results.innerHTML = `<div class="search-empty">❌ 알라딘 API 에러: ${esc(parsed.message)} (코드: ${parsed.code})</div>`;
-            return;
-          }
-          handleAladinResults(parsed.items);
-        })
-        .catch(err2 => {
-          console.warn('allorigins proxy failed, falling back to JSONP:', err2);
-          // Fallback to JSONP (uses JS output)
-          runAladinJsonp(query, key, results);
-        });
-    });
+  runAladinJsonp(query, key, results);
 }
 
 function searchAladinByIsbn(isbn) {
@@ -1218,46 +1170,7 @@ function searchAladinByIsbn(isbn) {
   results.classList.add('show');
   results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드로 도서 검색 중...</div>`;
 
-  const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?ttbkey=${key}&itemIdType=ISBN13&ItemId=${isbn}&output=xml&Version=20131101&Cover=Big&OptResult=subInfo`;
-  const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-  const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-
-  const processXml = (xmlText) => {
-    const parsed = parseAladinXml(xmlText);
-    if (parsed.error || !parsed.items || parsed.items.length === 0) {
-      const targetUrl10 = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?ttbkey=${key}&itemIdType=ISBN&ItemId=${isbn}&output=xml&Version=20131101&Cover=Big&OptResult=subInfo`;
-      fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl10)}`)
-        .then(res => res.text())
-        .then(xml => {
-          const parsed10 = parseAladinXml(xml);
-          if (!parsed10.error && parsed10.items && parsed10.items.length > 0) {
-            handleAladinResults(parsed10.items);
-          } else {
-            runAladinLookUpJsonp(isbn, key, results);
-          }
-        })
-        .catch(() => {
-          runAladinLookUpJsonp(isbn, key, results);
-        });
-      return;
-    }
-    handleAladinResults(parsed.items);
-  };
-
-  fetch(proxyUrl1)
-    .then(res => {
-      if (!res.ok) throw new Error('Proxy 1 failed');
-      return res.text();
-    })
-    .then(processXml)
-    .catch(() => {
-      fetch(proxyUrl2)
-        .then(res => res.json())
-        .then(data => processXml(data.contents))
-        .catch(() => {
-          runAladinLookUpJsonp(isbn, key, results);
-        });
-    });
+  runAladinLookUpJsonp(isbn, key, results);
 }
 
 function runAladinLookUpJsonp(isbn, key, results) {
@@ -1721,7 +1634,7 @@ function runAladinJsonp(query, key, results) {
   const params = new URLSearchParams({
     ttbkey: key,
     Query: query,
-    QueryType: 'Title',
+    QueryType: 'Keyword',
     MaxResults: '18',
     start: '1',
     SearchTarget: 'Book',
@@ -1732,19 +1645,49 @@ function runAladinJsonp(query, key, results) {
     callback: cbName
   });
 
-  // Always use HTTPS to prevent Mixed Content errors
   script.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${params}`;
 
   window[cbName] = function(data) {
     delete window[cbName];
     script.remove();
-    handleAladinResults(data);
+    if (data && data.item && data.item.length > 0) {
+      handleAladinResults(data);
+    } else {
+      // Fallback: try QueryType=Title
+      const cbNameTitle = '_aladinCb_title_' + (++aladinCallbackCounter);
+      const scriptTitle = document.createElement('script');
+      const paramsTitle = new URLSearchParams({
+        ttbkey: key,
+        Query: query,
+        QueryType: 'Title',
+        MaxResults: '18',
+        start: '1',
+        SearchTarget: 'Book',
+        output: 'JS',
+        Version: '20131101',
+        Cover: 'Big',
+        OptResult: 'subInfo',
+        callback: cbNameTitle
+      });
+      scriptTitle.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${paramsTitle}`;
+      window[cbNameTitle] = function(dataTitle) {
+        delete window[cbNameTitle];
+        scriptTitle.remove();
+        handleAladinResults(dataTitle);
+      };
+      scriptTitle.onerror = function() {
+        delete window[cbNameTitle];
+        scriptTitle.remove();
+        results.innerHTML = `<div class="search-empty">❌ 검색 결과가 없거나 네트워크 오류가 발생했습니다.</div>`;
+      };
+      document.body.appendChild(scriptTitle);
+    }
   };
 
   script.onerror = function() {
     delete window[cbName];
     script.remove();
-    results.innerHTML = `<div class="search-empty">❌ 검색 실패 — API 키 활성화 상태(발급 후 1~2시간 소요) 또는 인터넷 연결을 확인해주세요.</div>`;
+    results.innerHTML = `<div class="search-empty">❌ 검색 실패 — 네트워크 상태를 확인해주세요.</div>`;
   };
 
   setTimeout(() => {
