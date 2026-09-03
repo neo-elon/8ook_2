@@ -614,7 +614,6 @@ function createBookCardElement(book, i, isSpineMode) {
 
   return card;
 }
-}
 
 /* ==============================================
    DETAIL VIEW
