@@ -1144,56 +1144,59 @@ function parseAladinXml(xmlText) {
   return { error: false, items: itemArray };
 }
 
-async function fetchAladinCover(title, author) {
-  const key = getApiKey();
-  let query = title.trim();
-  // Clean query: remove subtitles after colon or parenthesis for better match
-  const colonIdx = query.indexOf(':');
-  if (colonIdx !== -1) query = query.substring(0, colonIdx).trim();
-  const parenIdx = query.indexOf('(');
-  if (parenIdx !== -1) query = query.substring(0, parenIdx).trim();
-  
-  if (author) {
-    const cleanAuthor = author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '').trim();
-    query += ' ' + cleanAuthor;
-  }
-  
-  const targetUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${key}&Query=${encodeURIComponent(query)}&QueryType=Keyword&MaxResults=1&start=1&SearchTarget=Book&output=xml&Version=20131101&Cover=Big`;
-  
-  // Try Proxy 1: corsproxy.io
-  try {
-    const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-    const res = await fetch(proxyUrl1);
-    if (res.ok) {
-      const xmlText = await res.text();
-      const parsed = parseAladinXml(xmlText);
-      if (parsed && parsed.items && parsed.items.length > 0) {
-        return parsed.items[0].cover;
-      }
-    } else {
-      console.warn(`corsproxy.io returned status ${res.status} for Aladin cover search.`);
+function fetchAladinCover(title, author) {
+  return new Promise((resolve) => {
+    const key = getApiKey();
+    let query = title.trim();
+    const colonIdx = query.indexOf(':');
+    if (colonIdx !== -1) query = query.substring(0, colonIdx).trim();
+    const parenIdx = query.indexOf('(');
+    if (parenIdx !== -1) query = query.substring(0, parenIdx).trim();
+    
+    if (author) {
+      const cleanAuthor = author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '').trim();
+      query += ' ' + cleanAuthor;
     }
-  } catch (e) {
-    console.warn('Failed to fetch cover from Aladin with corsproxy.io for:', title, e);
-  }
+    
+    const cbName = '_aladinCb_cover_' + (++aladinCallbackCounter);
+    const script = document.createElement('script');
+    const params = new URLSearchParams({
+      ttbkey: key,
+      Query: query,
+      QueryType: 'Keyword',
+      MaxResults: '1',
+      start: '1',
+      SearchTarget: 'Book',
+      output: 'JS',
+      Cover: 'Big',
+      callback: cbName
+    });
 
-  // Try Proxy 2: api.allorigins.win
-  try {
-    const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-    const res = await fetch(proxyUrl2);
-    if (res.ok) {
-      const data = await res.json();
-      const xmlText = data.contents;
-      const parsed = parseAladinXml(xmlText);
-      if (parsed && parsed.items && parsed.items.length > 0) {
-        return parsed.items[0].cover;
+    let done = false;
+    const cleanup = () => {
+      if (!done) {
+        done = true;
+        delete window[cbName];
+        script.remove();
       }
-    }
-  } catch (e) {
-    console.warn('Failed to fetch cover from Aladin with allorigins for:', title, e);
-  }
+    };
 
-  return null;
+    window[cbName] = function(arg1, arg2) {
+      const data = (typeof arg1 === 'boolean' || typeof arg1 === 'number') ? arg2 : arg1;
+      cleanup();
+      if (data && data.item && data.item.length > 0 && data.item[0].cover) {
+        let cover = (data.item[0].cover || '').replace('/coversum/', '/cover500/').replace('/cover200/', '/cover500/');
+        resolve(cover);
+      } else {
+        resolve(null);
+      }
+    };
+
+    script.onerror = () => { cleanup(); resolve(null); };
+    setTimeout(() => { cleanup(); resolve(null); }, 6000);
+    script.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${params}`;
+    document.body.appendChild(script);
+  });
 }
 
 function searchAladin() {
@@ -1226,7 +1229,6 @@ function runAladinLookUpJsonp(isbn, key, results) {
     itemIdType: 'ISBN13',
     ItemId: isbn,
     output: 'JS',
-    Version: '20131101',
     Cover: 'Big',
     OptResult: 'subInfo',
     callback: cbName
@@ -1234,10 +1236,11 @@ function runAladinLookUpJsonp(isbn, key, results) {
 
   script.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?${params}`;
 
-  window[cbName] = function(data) {
+  window[cbName] = function(arg1, arg2) {
     delete window[cbName];
     script.remove();
-    if (data && data.item) {
+    const data = (typeof arg1 === 'boolean' || typeof arg1 === 'number') ? arg2 : arg1;
+    if (data && data.item && data.item.length > 0) {
       handleAladinResults(data.item);
     } else {
       const cbName10 = '_aladinCb_lookup10_' + (++aladinCallbackCounter);
@@ -1247,16 +1250,16 @@ function runAladinLookUpJsonp(isbn, key, results) {
         itemIdType: 'ISBN',
         ItemId: isbn,
         output: 'JS',
-        Version: '20131101',
         Cover: 'Big',
         OptResult: 'subInfo',
         callback: cbName10
       });
       script10.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?${params10}`;
-      window[cbName10] = function(data10) {
+      window[cbName10] = function(tArg1, tArg2) {
         delete window[cbName10];
         script10.remove();
-        if (data10 && data10.item) {
+        const data10 = (typeof tArg1 === 'boolean' || typeof tArg1 === 'number') ? tArg2 : tArg1;
+        if (data10 && data10.item && data10.item.length > 0) {
           handleAladinResults(data10.item);
         } else {
           results.innerHTML = `<div class="search-empty">❌ 바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})</div>`;
@@ -1683,7 +1686,6 @@ function runAladinJsonp(query, key, results) {
     start: '1',
     SearchTarget: 'Book',
     output: 'JS',
-    Version: '20131101',
     Cover: 'Big',
     OptResult: 'subInfo',
     callback: cbName
@@ -1691,9 +1693,10 @@ function runAladinJsonp(query, key, results) {
 
   script.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${params}`;
 
-  window[cbName] = function(data) {
+  window[cbName] = function(arg1, arg2) {
     delete window[cbName];
     script.remove();
+    const data = (typeof arg1 === 'boolean' || typeof arg1 === 'number') ? arg2 : arg1;
     if (data && data.item && data.item.length > 0) {
       handleAladinResults(data);
     } else {
@@ -1708,15 +1711,15 @@ function runAladinJsonp(query, key, results) {
         start: '1',
         SearchTarget: 'Book',
         output: 'JS',
-        Version: '20131101',
         Cover: 'Big',
         OptResult: 'subInfo',
         callback: cbNameTitle
       });
       scriptTitle.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${paramsTitle}`;
-      window[cbNameTitle] = function(dataTitle) {
+      window[cbNameTitle] = function(tArg1, tArg2) {
         delete window[cbNameTitle];
         scriptTitle.remove();
+        const dataTitle = (typeof tArg1 === 'boolean' || typeof tArg1 === 'number') ? tArg2 : tArg1;
         handleAladinResults(dataTitle);
       };
       scriptTitle.onerror = function() {
@@ -1756,14 +1759,16 @@ function handleAladinResults(data) {
     items = data.item.map(item => {
       let pagesVal = (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) || 
                      (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
+                     (item.bookinfo ? (item.bookinfo.itemPage || item.bookinfo.itempage) : null) ||
                      item.itemPage || item.itempage || '';
       let pages = pagesVal ? String(pagesVal).replace(/[^0-9]/g, '') : '';
       let author = item.author || '';
       let cleanAuthor = author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '');
+      let cover = (item.cover || '').replace('/coversum/', '/cover500/').replace('/cover200/', '/cover500/');
       return {
         title: item.title || '',
         author: cleanAuthor,
-        cover: item.cover || '',
+        cover: cover,
         publisher: item.publisher || '',
         pubDate: item.pubDate || '',
         pages: pages,
