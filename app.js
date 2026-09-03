@@ -927,14 +927,14 @@ async function editScrap(bookId, scrapId) {
 }
 
 function showGallery() {
+  closeAppMenu();
   document.getElementById('view-gallery').style.display = '';
   document.getElementById('view-detail').classList.remove('show');
   document.getElementById('view-stats').classList.remove('show');
   document.getElementById('view-community').classList.remove('show');
   document.getElementById('back-btn').classList.remove('show');
-  document.getElementById('sidebar-toggle').style.display = '';
-  document.getElementById('community-nav-btn').style.display = 'inline-flex';
-  document.getElementById('view-label').textContent = '📚 내 서재';
+  const vl = document.getElementById('view-label');
+  if (vl) vl.style.display = 'none';
   currentBookId = null;
   renderGallery();
 }
@@ -953,14 +953,17 @@ function clearGallerySearch() {
 }
 
 function showStats() {
+  closeAppMenu();
   document.getElementById('view-gallery').style.display = 'none';
   document.getElementById('view-detail').classList.remove('show');
   document.getElementById('view-stats').classList.add('show');
   document.getElementById('view-community').classList.remove('show');
   document.getElementById('back-btn').classList.add('show');
-  document.getElementById('sidebar-toggle').style.display = 'none';
-  document.getElementById('community-nav-btn').style.display = 'inline-flex';
-  document.getElementById('view-label').textContent = '📊 독서 통계';
+  const vl = document.getElementById('view-label');
+  if (vl) {
+    vl.style.display = 'inline-block';
+    vl.textContent = '📊 독서 통계';
+  }
   showRandomQuote();
   updateSidebar();
 }
@@ -3255,25 +3258,60 @@ async function checkAuth() {
 }
 
 function updateAuthUI(session) {
-  const loginBtn = document.getElementById('auth-login-btn');
-  const logoutBtn = document.getElementById('auth-logout-btn');
+  const loggedInDiv = document.getElementById('menu-user-logged-in');
+  const loggedOutDiv = document.getElementById('menu-user-logged-out');
   const usernameSpan = document.getElementById('auth-username');
+  const shortUsernameSpan = document.getElementById('auth-username-short');
+  const headerChip = document.getElementById('header-user-chip');
 
   if (session && session.user) {
     currentUser = session.user;
-    loginBtn.style.display = 'none';
-    logoutBtn.style.display = 'inline-flex';
-    usernameSpan.style.display = 'inline';
+    if (loggedInDiv) loggedInDiv.style.display = 'block';
+    if (loggedOutDiv) loggedOutDiv.style.display = 'none';
     const metadata = session.user.user_metadata;
-    usernameSpan.textContent = (metadata && metadata.full_name) || session.user.email || '사용자';
+    const fullName = (metadata && metadata.full_name) || session.user.email || '사용자';
+    if (usernameSpan) usernameSpan.textContent = fullName;
+    if (shortUsernameSpan) shortUsernameSpan.textContent = fullName.split(' ')[0] || fullName;
+    if (headerChip) headerChip.style.display = 'inline-flex';
   } else {
     currentUser = null;
-    loginBtn.style.display = 'inline-flex';
-    logoutBtn.style.display = 'none';
-    usernameSpan.style.display = 'none';
-    usernameSpan.textContent = '';
+    if (loggedInDiv) loggedInDiv.style.display = 'none';
+    if (loggedOutDiv) loggedOutDiv.style.display = 'block';
+    if (usernameSpan) usernameSpan.textContent = '';
+    if (headerChip) headerChip.style.display = 'none';
   }
 }
+
+function toggleAppMenu() {
+  const drawer = document.getElementById('app-menu-drawer');
+  const backdrop = document.getElementById('app-menu-backdrop');
+  const btn = document.getElementById('main-menu-btn');
+  if (!drawer) return;
+  const isOpen = drawer.classList.contains('open');
+  if (isOpen) {
+    closeAppMenu();
+  } else {
+    drawer.classList.add('open');
+    if (backdrop) backdrop.classList.add('open');
+    if (btn) btn.classList.add('active');
+  }
+}
+
+function closeAppMenu() {
+  const drawer = document.getElementById('app-menu-drawer');
+  const backdrop = document.getElementById('app-menu-backdrop');
+  const btn = document.getElementById('main-menu-btn');
+  if (drawer) drawer.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+  if (btn) btn.classList.remove('active');
+}
+
+// Close drawer on ESC key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeAppMenu();
+  }
+});
 
 if (supabaseClient) {
   supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -3367,14 +3405,17 @@ const MOCK_COMMUNITY_REVIEWS = {
 };
 
 function showCommunity() {
+  closeAppMenu();
   document.getElementById('view-gallery').style.display = 'none';
   document.getElementById('view-detail').classList.remove('show');
   document.getElementById('view-stats').classList.remove('show');
   document.getElementById('view-community').classList.add('show');
   document.getElementById('back-btn').classList.add('show');
-  document.getElementById('sidebar-toggle').style.display = 'none';
-  document.getElementById('community-nav-btn').style.display = 'none';
-  document.getElementById('view-label').textContent = '💬 커뮤니티';
+  const vl = document.getElementById('view-label');
+  if (vl) {
+    vl.style.display = 'inline-block';
+    vl.textContent = '💬 커뮤니티';
+  }
   renderCommunityFeed();
   renderWordCloud();
 }
