@@ -531,7 +531,35 @@ function renderGallery() {
   });
 
   if (isSpineShelf) {
-    // Group books by year
+    const shelfContainer = document.createElement('div');
+    shelfContainer.className = 'yearly-shelves-container';
+
+    // 인생작 책장: 연도별/월별 구분 없이 단 하나의 선반(한 책장)에 모두 모아서 렌더링
+    if (galleryViewMode === 'stars') {
+      const shelfRow = document.createElement('div');
+      shelfRow.className = 'spine-shelf-row';
+
+      shelfRow.appendChild(addCard);
+
+      sortedBooks.forEach((book, i) => {
+        const card = createBookCardElement(book, i, true);
+        shelfRow.appendChild(card);
+      });
+
+      shelfContainer.appendChild(shelfRow);
+      grid.appendChild(shelfContainer);
+
+      requestAnimationFrame(() => {
+        shelfContainer.querySelectorAll('.spine-real-img').forEach(img => {
+          if (img.complete && img.naturalWidth) {
+            adjustSpineCardWidth(img);
+          }
+        });
+      });
+      return;
+    }
+
+    // 전체 책장: 연도별 층 + 월별 인덱스 디바이더 렌더링
     const yearGroups = {};
     sortedBooks.forEach(book => {
       let y = '기타';
@@ -550,9 +578,6 @@ function renderGallery() {
       if (b === '기타') return -1;
       return Number(b) - Number(a);
     });
-
-    const shelfContainer = document.createElement('div');
-    shelfContainer.className = 'yearly-shelves-container';
 
     let isFirstRow = true;
     let globalIndex = 0;
