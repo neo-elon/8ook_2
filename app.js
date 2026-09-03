@@ -307,6 +307,19 @@ function getSpineWidth(pages) {
   return 68;
 }
 
+function adjustSpineCardWidth(img) {
+  if (!img || !img.naturalWidth || !img.naturalHeight) return;
+  const card = img.closest('.book-card.spine-mode');
+  if (!card) return;
+  const h = 270;
+  const ratio = img.naturalWidth / img.naturalHeight;
+  let w = Math.round(h * ratio);
+  if (w < 32) w = 32;
+  if (w > 68) w = 68;
+  card.style.width = w + 'px';
+  card.style.setProperty('--spine-w', w + 'px');
+}
+
 function getGalleryViewMode() {
   try { return localStorage.getItem('rj_gallery_view_mode') || 'spine'; } catch(e) { return 'spine'; }
 }
@@ -510,6 +523,15 @@ function renderGallery() {
     shelfContainer.appendChild(row1);
     shelfContainer.appendChild(row2);
     grid.appendChild(shelfContainer);
+
+    // Sync already-cached spine images immediately
+    requestAnimationFrame(() => {
+      shelfContainer.querySelectorAll('.spine-real-img').forEach(img => {
+        if (img.complete && img.naturalWidth) {
+          adjustSpineCardWidth(img);
+        }
+      });
+    });
     return;
   }
 
@@ -551,7 +573,7 @@ function createBookCardElement(book, i, isSpineMode) {
     const spineImgUrl = book.spineCover || book.spine || getSpineImageUrl(book.cover);
 
     const realSpineTag = spineImgUrl
-      ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="${esc(book.title)}" onerror="
+      ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="${esc(book.title)}" onload="adjustSpineCardWidth(this)" onerror="
           if (!this.dataset.tried1 && this.src.includes('/Spine/')) {
             this.dataset.tried1 = 'true';
             this.src = this.src.replace('/Spine/', '/spine/');

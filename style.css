@@ -618,18 +618,20 @@
     }
 
     /* Real Aladin Spine Image */
-    .spine-real-img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: fill;
-      border-radius: 2px 2px 0 0;
+    .book-card.spine-mode .spine-real-img,
+    img.spine-real-img {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: fill !important;
+      border-radius: 2px 2px 0 0 !important;
       z-index: 1;
-      display: block;
+      display: block !important;
       transition: opacity 0.2s;
     }
-    .spine-real-img.hide-real {
+    .book-card.spine-mode .spine-real-img.hide-real,
+    img.spine-real-img.hide-real {
       display: none !important;
     }
 
