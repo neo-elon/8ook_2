@@ -1264,7 +1264,77 @@
     .frow { display:flex; gap:10px; }
     .frow .fg { flex:1; }
 
-    /* Image preview */
+    /* Unified Book (Spine + Cover) Preview */
+    .book-preview-column {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .unified-book-prev-container {
+      display: flex;
+      align-items: stretch;
+      height: 172px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .unified-book-prev-container:hover {
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    }
+    .unified-spine-box {
+      width: 44px;
+      min-width: 36px;
+      max-width: 52px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.12);
+      border-right: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .unified-spine-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      display: block;
+    }
+    .unified-cover-box {
+      width: 120px;
+      min-width: 110px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .unified-cover-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .img-prev-ph.spine-ph {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 4px 2px;
+      color: var(--text-400);
+      user-select: none;
+    }
+
+    /* Legacy image preview */
     .img-prev-box {
       width:100%; height:150px;
       background:var(--glass); border:1px dashed var(--border);
@@ -1292,11 +1362,15 @@
         flex-direction: column;
         align-items: stretch;
       }
+      .book-preview-column {
+        align-items: center;
+        width: 100%;
+        margin-bottom: 8px;
+      }
       .modal-flex-row > .fg {
         flex: 0 0 auto !important;
         width: 100% !important;
       }
-      .modal-flex-row > .fg .img-prev-box,
       .modal-flex-row > .fg .img-row {
         width: 100% !important;
       }

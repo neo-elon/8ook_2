@@ -821,6 +821,8 @@ function openAddModal() {
   hideSearchResults();
   resetPrev();
   resetSpinePrev();
+  const spineEl = document.getElementById('spine-prev');
+  if (spineEl) { spineEl.style.width = '44px'; spineEl.style.minWidth = '44px'; }
   updateStarBtns(0);
   openModal('book-modal');
 }
@@ -837,7 +839,7 @@ async function openEditModal(id, focusKeywords = false) {
   editingBookId = id;
   currentRating = b.rating || 0;
   modalCover = b.cover || '';
-  modalSpineCover = b.spineCover || b.spine || '';
+  modalSpineCover = b.spineCover || b.spine || getSpineImageUrl(b.cover) || '';
 
   document.getElementById('book-modal-ttl').textContent = '✏️ 책 편집';
   document.getElementById('bk-title').value = b.title || '';
@@ -865,6 +867,18 @@ async function openEditModal(id, focusKeywords = false) {
 
   hideSearchResults();
   if (b.cover) setPrev(b.cover); else resetPrev();
+  const editSpineEl = document.getElementById('spine-prev');
+  if (editSpineEl) {
+    const p = parseInt(b.pages, 10) || 280;
+    let w = 44;
+    if (p < 180) w = 36;
+    else if (p < 250) w = 40;
+    else if (p < 350) w = 46;
+    else if (p < 500) w = 50;
+    else w = 54;
+    editSpineEl.style.width = w + 'px';
+    editSpineEl.style.minWidth = w + 'px';
+  }
   if (modalSpineCover) setSpinePrev(modalSpineCover); else resetSpinePrev();
   updateStarBtns(currentRating);
   openModal('book-modal');
@@ -914,13 +928,17 @@ function onSpineFileSelect(inp) {
 }
 
 function setPrev(src) {
-  document.getElementById('book-prev').innerHTML =
-    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;" onerror="this.parentElement.innerHTML='<div class=\\'img-prev-ph\\'><span class=\\'img-prev-ph-icon\\'>❌</span><span style=\\'font-size:9px;\\'>실패</span></div>'">`;
+  if (!src) { resetPrev(); return; }
+  const el = document.getElementById('book-prev');
+  if (!el) return;
+  el.innerHTML =
+    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.parentElement.innerHTML='<div class=\\'img-prev-ph\\'><span class=\\'img-prev-ph-icon\\'>❌</span><span style=\\'font-size:10px;\\'>표지 오류</span></div>'">`;
 }
 
 function resetPrev() {
-  document.getElementById('book-prev').innerHTML =
-    `<div class="img-prev-ph"><span class="img-prev-ph-icon">🖼️</span><span style="font-size:9px; line-height:1.3; padding:0 4px; text-align:center;">앞표지</span></div>`;
+  const el = document.getElementById('book-prev');
+  if (el) el.innerHTML =
+    `<div class="img-prev-ph"><span class="img-prev-ph-icon">🖼️</span><span style="font-size:10px;">앞표지</span></div>`;
 }
 
 function setSpinePrev(src) {
@@ -928,20 +946,23 @@ function setSpinePrev(src) {
     resetSpinePrev();
     return;
   }
-  document.getElementById('spine-prev').innerHTML =
-    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;" onerror="
+  const el = document.getElementById('spine-prev');
+  if (!el) return;
+  el.innerHTML =
+    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:fill; display:block;" onerror="
       if (!this.dataset.tried1 && this.src.includes('/Spine/')) {
         this.dataset.tried1 = 'true';
         this.src = this.src.replace('/Spine/', '/spine/');
       } else {
-        this.parentElement.innerHTML='<div class=\\'img-prev-ph\\'><span class=\\'img-prev-ph-icon\\'>📕</span><span style=\\'font-size:9px;\\'>기본 책등</span></div>';
+        this.parentElement.innerHTML='<div class=\\'img-prev-ph spine-ph\\'><span style=\\'font-size:14px;\\'>📕</span><span style=\\'font-size:9px; writing-mode:vertical-rl;\\'>기본 책등</span></div>';
       }
     ">`;
 }
 
 function resetSpinePrev() {
-  document.getElementById('spine-prev').innerHTML =
-    `<div class="img-prev-ph"><span class="img-prev-ph-icon">📕</span><span style="font-size:9px; line-height:1.3; padding:0 2px; text-align:center;">책등</span></div>`;
+  const el = document.getElementById('spine-prev');
+  if (el) el.innerHTML =
+    `<div class="img-prev-ph spine-ph"><span style="font-size:14px;">📕</span><span style="font-size:9px; writing-mode:vertical-rl;">책등</span></div>`;
 }
 
 /* ── Keyword input helpers ── */
@@ -1849,6 +1870,19 @@ function applyAladinItem(item) {
     modalCover = item.cover;
     document.getElementById('bk-img-url').value = item.cover;
     setPrev(item.cover);
+
+    const spineEl = document.getElementById('spine-prev');
+    if (spineEl) {
+      const p = parseInt(cleanPages, 10) || 280;
+      let w = 44;
+      if (p < 180) w = 36;
+      else if (p < 250) w = 40;
+      else if (p < 350) w = 46;
+      else if (p < 500) w = 50;
+      else w = 54;
+      spineEl.style.width = w + 'px';
+      spineEl.style.minWidth = w + 'px';
+    }
 
     const spineUrl = getSpineImageUrl(item.cover);
     if (spineUrl) {

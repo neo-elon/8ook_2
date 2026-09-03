@@ -216,25 +216,22 @@
 
       <!-- Flex Container for Cover Image, Spine Image and Book Info -->
       <div class="modal-flex-row" style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 14px;">
-        <!-- Left Column: Front Cover & Spine Image Previews -->
-        <div class="fg" style="flex: 0 0 auto; margin-bottom: 0; display: flex; gap: 8px;">
-          <!-- Front Cover Preview -->
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <div class="flbl" style="font-size: 11px;">📸 앞표지</div>
-            <div class="img-prev-box" id="book-prev" style="width: 100px; height: 145px; margin-bottom: 0;">
-              <div class="img-prev-ph">
-                <span class="img-prev-ph-icon">🖼️</span>
-                <span style="font-size: 9px; line-height: 1.3; padding: 0 4px; text-align: center;">앞표지</span>
+        <!-- Left Column: Front Cover & Spine Image Previews (Integrated Book View) -->
+        <div class="book-preview-column">
+          <div class="flbl" style="font-size: 11px; margin-bottom: 4px;">📖 책등 + 앞표지</div>
+          <div class="unified-book-prev-container" id="unified-book-prev">
+            <!-- Spine Preview (Left) -->
+            <div class="unified-spine-box" id="spine-prev" title="책등 미리보기">
+              <div class="img-prev-ph spine-ph">
+                <span style="font-size: 14px;">📕</span>
+                <span style="font-size: 9px; writing-mode: vertical-rl;">책등</span>
               </div>
             </div>
-          </div>
-          <!-- Spine Image Preview -->
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <div class="flbl" style="font-size: 11px;">📕 책등</div>
-            <div class="img-prev-box" id="spine-prev" style="width: 48px; height: 145px; margin-bottom: 0;">
+            <!-- Front Cover Preview (Right) -->
+            <div class="unified-cover-box" id="book-prev" title="앞표지 미리보기">
               <div class="img-prev-ph">
-                <span class="img-prev-ph-icon">📕</span>
-                <span style="font-size: 9px; line-height: 1.3; padding: 0 2px; text-align: center;">책등</span>
+                <span class="img-prev-ph-icon">🖼️</span>
+                <span style="font-size: 10px;">앞표지</span>
               </div>
             </div>
           </div>
