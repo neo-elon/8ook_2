@@ -299,10 +299,10 @@ function applyTheme() {
 
 function getSpineWidth(pages) {
   const p = parseInt(pages, 10) || 280;
-  // 알라딘 실제 책등 평균 비율(약 0.08~0.10)과 맞춘 슬림한 기본 두께
-  let w = Math.round(20 + (p * 0.06));
-  if (w < 26) w = 26;
-  if (w > 85) w = 85;
+  // 세로 길이 1.3배(351px) 기준 슬림한 기본 두께
+  let w = Math.round(18 + (p * 0.055));
+  if (w < 24) w = 24;
+  if (w > 78) w = 78;
   return w;
 }
 
@@ -310,11 +310,11 @@ function adjustSpineCardWidth(img) {
   if (!img || !img.naturalWidth || !img.naturalHeight) return;
   const card = img.closest('.book-card.spine-mode');
   if (!card) return;
-  const h = 405; // 1.5배 세로 높이
+  const h = 351; // 1.3배 세로 높이
   // 알라딘에서 실제 불러온 원본 이미지의 가로/세로 비율 100% 그대로 적용
   const ratio = img.naturalWidth / img.naturalHeight;
   let w = Math.round(h * ratio);
-  if (w < 18) w = 18;
+  if (w < 16) w = 16;
   card.style.width = w + 'px';
   card.style.setProperty('--spine-w', w + 'px');
 }
@@ -948,9 +948,9 @@ async function openEditModal(id, focusKeywords = false) {
   const editSpineEl = document.getElementById('spine-prev');
   if (editSpineEl) {
     const p = parseInt(b.pages, 10) || 280;
-    let w = Math.round(getSpineWidth(p) * 0.42);
-    if (w < 22) w = 22;
-    if (w > 60) w = 60;
+    let w = Math.round(getSpineWidth(p) * 0.49);
+    if (w < 20) w = 20;
+    if (w > 56) w = 56;
     editSpineEl.style.width = w + 'px';
     editSpineEl.style.minWidth = w + 'px';
   }
@@ -1967,9 +1967,9 @@ function applyAladinItem(item) {
     const spineEl = document.getElementById('spine-prev');
     if (spineEl) {
       const p = parseInt(cleanPages, 10) || 280;
-      let w = Math.round(getSpineWidth(p) * 0.42);
-      if (w < 22) w = 22;
-      if (w > 60) w = 60;
+      let w = Math.round(getSpineWidth(p) * 0.49);
+      if (w < 20) w = 20;
+      if (w > 56) w = 56;
       spineEl.style.width = w + 'px';
       spineEl.style.minWidth = w + 'px';
     }
