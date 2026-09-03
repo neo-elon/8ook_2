@@ -298,24 +298,27 @@ function applyTheme() {
 }
 
 function getSpineWidth(pages) {
-  const p = parseInt(pages, 10) || 260;
-  if (p <= 160) return 32;
-  if (p <= 240) return 38;
-  if (p <= 340) return 44;
-  if (p <= 460) return 52;
-  if (p <= 600) return 60;
-  return 68;
+  const p = parseInt(pages, 10) || 280;
+  // 실제 도서 두께 비례식: 기본 표지/제본 두께 18px + 100페이지당 약 8px
+  let w = Math.round(18 + (p * 0.08));
+  if (w < 26) w = 26; // 최소 26px (얇은 시집/단편)
+  if (w > 92) w = 92; // 최대 92px (대형 벽돌책)
+  return w;
 }
 
 function adjustSpineCardWidth(img) {
   if (!img || !img.naturalWidth || !img.naturalHeight) return;
   const card = img.closest('.book-card.spine-mode');
   if (!card) return;
+  // 페이지 수 정보가 유효하게 등록된 도서는 페이지 비례 두께를 절대 덮어쓰지 않음
+  if (card.dataset.hasPages === 'true') {
+    return;
+  }
   const h = 270;
   const ratio = img.naturalWidth / img.naturalHeight;
   let w = Math.round(h * ratio);
-  if (w < 32) w = 32;
-  if (w > 68) w = 68;
+  if (w < 26) w = 26;
+  if (w > 92) w = 92;
   card.style.width = w + 'px';
   card.style.setProperty('--spine-w', w + 'px');
 }
@@ -594,6 +597,11 @@ function createBookCardElement(book, i, isSpineMode) {
   card.className = `book-card${isSpineMode ? ' spine-mode' : ''}${book.rating === 5 ? ' five-stars' : ''}`;
   card.style.animationDelay = ((i + 1) * 0.03) + 's';
   card.setAttribute('data-id', book.id);
+  const hasPages = Boolean(book.pages && parseInt(book.pages, 10) > 0);
+  card.setAttribute('data-has-pages', hasPages ? 'true' : 'false');
+  if (hasPages) {
+    card.setAttribute('data-pages', String(book.pages));
+  }
 
   let imgPart = '';
   if (book.cover) {
@@ -944,12 +952,9 @@ async function openEditModal(id, focusKeywords = false) {
   const editSpineEl = document.getElementById('spine-prev');
   if (editSpineEl) {
     const p = parseInt(b.pages, 10) || 280;
-    let w = 44;
-    if (p < 180) w = 36;
-    else if (p < 250) w = 40;
-    else if (p < 350) w = 46;
-    else if (p < 500) w = 50;
-    else w = 54;
+    let w = Math.round(getSpineWidth(p) * 0.64);
+    if (w < 22) w = 22;
+    if (w > 60) w = 60;
     editSpineEl.style.width = w + 'px';
     editSpineEl.style.minWidth = w + 'px';
   }
@@ -1966,12 +1971,9 @@ function applyAladinItem(item) {
     const spineEl = document.getElementById('spine-prev');
     if (spineEl) {
       const p = parseInt(cleanPages, 10) || 280;
-      let w = 44;
-      if (p < 180) w = 36;
-      else if (p < 250) w = 40;
-      else if (p < 350) w = 46;
-      else if (p < 500) w = 50;
-      else w = 54;
+      let w = Math.round(getSpineWidth(p) * 0.64);
+      if (w < 22) w = 22;
+      if (w > 60) w = 60;
       spineEl.style.width = w + 'px';
       spineEl.style.minWidth = w + 'px';
     }
