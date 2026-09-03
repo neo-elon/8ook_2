@@ -848,6 +848,7 @@
         2px 4px 12px rgba(0, 0, 0, 0.3);
       background: var(--bg-card);
       backface-visibility: hidden;
+      white-space: normal;
       z-index: 3;
     }
 
@@ -994,22 +995,43 @@
     /* Hover overlay */
     .book-hover-overlay {
       position:absolute; inset:0;
-      background:linear-gradient(to top, var(--card-overlay-from) 45%, var(--card-overlay-to) 100%);
+      background:linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.72) 42%, rgba(0,0,0,0.15) 75%, transparent 100%);
       opacity:0; transition:opacity .3s;
       display:flex; flex-direction:column; justify-content:flex-end;
-      padding:14px 12px 12px;
-      gap:3px;
+      padding:16px 14px 14px;
+      gap:4px;
+      white-space: normal;
     }
-    .book-card:hover .book-hover-overlay { opacity:1; }
-    .ov-title { font-size:13px; font-weight:700; color:#fff; line-height:1.3; }
-    .ov-author { font-size:11px; color:rgba(255,255,255,.65); }
+    .book-card:hover .book-hover-overlay,
+    .book-card.is-hovered .book-hover-overlay { opacity:1; }
+    .ov-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.35;
+      white-space: normal;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+    }
+    .ov-author {
+      font-size: 11px;
+      color: rgba(255,255,255,.75);
+      white-space: normal;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      line-height: 1.3;
+    }
     .ov-sentence {
-      font-size:10px; color:rgba(255,255,255,.45);
-      font-style:italic; margin-top:3px;
+      font-size:10px; color:rgba(255,255,255,.55);
+      font-style:italic; margin-top:2px;
+      white-space: normal;
+      word-break: keep-all;
+      overflow-wrap: break-word;
       display:-webkit-box;
-      -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+      -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
     }
-    .ov-stars { font-size:11px; margin-top:5px; letter-spacing:1px; }
+    .ov-stars { font-size:12px; margin-top:4px; letter-spacing:1px; }
 
 
 
