@@ -299,10 +299,10 @@ function applyTheme() {
 
 function getSpineWidth(pages) {
   const p = parseInt(pages, 10) || 280;
-  // 세로 길이 1.5배(405px) 기준 오리지널 비율 유지: 기본 27px + 100페이지당 약 12px
-  let w = Math.round(27 + (p * 0.12));
-  if (w < 38) w = 38; // 최소 38px
-  if (w > 138) w = 138; // 최대 138px
+  // 알라딘 실제 책등 평균 비율(약 0.08~0.10)과 맞춘 슬림한 기본 두께
+  let w = Math.round(20 + (p * 0.06));
+  if (w < 26) w = 26;
+  if (w > 85) w = 85;
   return w;
 }
 
@@ -310,14 +310,11 @@ function adjustSpineCardWidth(img) {
   if (!img || !img.naturalWidth || !img.naturalHeight) return;
   const card = img.closest('.book-card.spine-mode');
   if (!card) return;
-  if (card.dataset.hasPages === 'true') {
-    return;
-  }
-  const h = 405; // 1.5배 세로 길이
+  const h = 405; // 1.5배 세로 높이
+  // 알라딘에서 실제 불러온 원본 이미지의 가로/세로 비율 100% 그대로 적용
   const ratio = img.naturalWidth / img.naturalHeight;
   let w = Math.round(h * ratio);
-  if (w < 38) w = 38;
-  if (w > 138) w = 138;
+  if (w < 18) w = 18;
   card.style.width = w + 'px';
   card.style.setProperty('--spine-w', w + 'px');
 }

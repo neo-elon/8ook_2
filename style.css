@@ -608,7 +608,7 @@
     /* Spine Mode Card */
     .book-card.spine-mode {
       position: relative;
-      width: var(--spine-w, 63px);
+      width: var(--spine-w, 38px);
       height: 405px;
       aspect-ratio: auto;
       overflow: visible;
