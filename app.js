@@ -299,10 +299,10 @@ function applyTheme() {
 
 function getSpineWidth(pages) {
   const p = parseInt(pages, 10) || 280;
-  // 실제 도서 두께 비례식: 기본 표지/제본 두께 18px + 100페이지당 약 8px
-  let w = Math.round(18 + (p * 0.08));
-  if (w < 26) w = 26; // 최소 26px (얇은 시집/단편)
-  if (w > 92) w = 92; // 최대 92px (대형 벽돌책)
+  // 세로 길이 1.5배(405px) 기준 오리지널 비율 유지: 기본 27px + 100페이지당 약 12px
+  let w = Math.round(27 + (p * 0.12));
+  if (w < 38) w = 38; // 최소 38px
+  if (w > 138) w = 138; // 최대 138px
   return w;
 }
 
@@ -310,15 +310,14 @@ function adjustSpineCardWidth(img) {
   if (!img || !img.naturalWidth || !img.naturalHeight) return;
   const card = img.closest('.book-card.spine-mode');
   if (!card) return;
-  // 페이지 수 정보가 유효하게 등록된 도서는 페이지 비례 두께를 절대 덮어쓰지 않음
   if (card.dataset.hasPages === 'true') {
     return;
   }
-  const h = 270;
+  const h = 405; // 1.5배 세로 길이
   const ratio = img.naturalWidth / img.naturalHeight;
   let w = Math.round(h * ratio);
-  if (w < 26) w = 26;
-  if (w > 92) w = 92;
+  if (w < 38) w = 38;
+  if (w > 138) w = 138;
   card.style.width = w + 'px';
   card.style.setProperty('--spine-w', w + 'px');
 }
@@ -952,7 +951,7 @@ async function openEditModal(id, focusKeywords = false) {
   const editSpineEl = document.getElementById('spine-prev');
   if (editSpineEl) {
     const p = parseInt(b.pages, 10) || 280;
-    let w = Math.round(getSpineWidth(p) * 0.64);
+    let w = Math.round(getSpineWidth(p) * 0.42);
     if (w < 22) w = 22;
     if (w > 60) w = 60;
     editSpineEl.style.width = w + 'px';
@@ -1971,7 +1970,7 @@ function applyAladinItem(item) {
     const spineEl = document.getElementById('spine-prev');
     if (spineEl) {
       const p = parseInt(cleanPages, 10) || 280;
-      let w = Math.round(getSpineWidth(p) * 0.64);
+      let w = Math.round(getSpineWidth(p) * 0.42);
       if (w < 22) w = 22;
       if (w > 60) w = 60;
       spineEl.style.width = w + 'px';
