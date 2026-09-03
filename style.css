@@ -594,6 +594,95 @@
       scrollbar-width: thin;
     }
 
+    /* Spine Month Divider (Book Separator Tab) */
+    .spine-month-divider {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      width: 32px;
+      height: 351px;
+      flex-shrink: 0;
+      margin: 0 4px;
+      position: relative;
+      user-select: none;
+      pointer-events: auto;
+      opacity: 0.88;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .spine-month-divider:hover {
+      opacity: 1;
+      transform: translateY(-3px);
+    }
+
+    .month-tab-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 38px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+      color: var(--text-100);
+      margin-top: 6px;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    .month-tab-badge .month-num {
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.1;
+      color: #fff;
+      font-family: var(--font-sans);
+    }
+
+    .month-tab-badge .month-txt {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--text-300);
+      line-height: 1;
+    }
+
+    .month-divider-stem {
+      flex: 1;
+      width: 2px;
+      margin-top: 6px;
+      margin-bottom: 4px;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.25) 0%,
+        rgba(255, 255, 255, 0.08) 40%,
+        rgba(255, 255, 255, 0.02) 100%
+      );
+      border-radius: 1px;
+    }
+
+    body.light-theme .month-tab-badge {
+      background: linear-gradient(145deg, #ffffff, #f1f5f9);
+      border-color: rgba(0, 0, 0, 0.12);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      color: var(--text-100);
+    }
+    body.light-theme .month-tab-badge .month-num {
+      color: var(--text-100);
+    }
+    body.light-theme .month-tab-badge .month-txt {
+      color: var(--text-300);
+    }
+    body.light-theme .month-divider-stem {
+      background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.2) 0%,
+        rgba(0, 0, 0, 0.08) 40%,
+        rgba(0, 0, 0, 0.02) 100%
+      );
+    }
+
     /* Book Card Base */
     .book-card {
       position:relative; border-radius:var(--radius-lg);

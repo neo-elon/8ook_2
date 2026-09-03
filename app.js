@@ -552,7 +552,22 @@ function renderGallery() {
         isFirstRow = false;
       }
 
+      let lastMonth = null;
       booksInYear.forEach(book => {
+        let currentMonth = null;
+        if (book.date) {
+          const d = new Date(book.date);
+          if (!isNaN(d.getMonth())) {
+            currentMonth = d.getMonth() + 1;
+          }
+        }
+
+        if (currentMonth && currentMonth !== lastMonth) {
+          lastMonth = currentMonth;
+          const monthDivider = createMonthDivider(currentMonth);
+          shelfRow.appendChild(monthDivider);
+        }
+
         const card = createBookCardElement(book, globalIndex++, true);
         shelfRow.appendChild(card);
       });
@@ -586,6 +601,20 @@ function renderGallery() {
     const card = createBookCardElement(book, i, false);
     grid.appendChild(card);
   });
+}
+
+function createMonthDivider(month) {
+  const div = document.createElement('div');
+  div.className = 'spine-month-divider';
+  div.setAttribute('title', `${month}월 완독`);
+  div.innerHTML = `
+    <div class="month-tab-badge">
+      <span class="month-num">${month}</span>
+      <span class="month-txt">월</span>
+    </div>
+    <div class="month-divider-stem"></div>
+  `;
+  return div;
 }
 
 function createBookCardElement(book, i, isSpineMode) {
