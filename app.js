@@ -374,23 +374,30 @@ function setGalleryViewMode(mode) {
 
 function updateViewModeButtons() {
   const btnSpine = document.getElementById('btn-view-spine');
+  const btnStars = document.getElementById('btn-view-stars');
   const btnCover = document.getElementById('btn-view-cover');
-  if (btnSpine && btnCover) {
-    if (galleryViewMode === 'spine') {
-      btnSpine.style.background = 'var(--violet)';
-      btnSpine.style.color = '#fff';
-      btnSpine.style.fontWeight = '600';
-      btnCover.style.background = 'transparent';
-      btnCover.style.color = 'var(--text-300)';
-      btnCover.style.fontWeight = '400';
-    } else {
-      btnCover.style.background = 'var(--violet)';
-      btnCover.style.color = '#fff';
-      btnCover.style.fontWeight = '600';
-      btnSpine.style.background = 'transparent';
-      btnSpine.style.color = 'var(--text-300)';
-      btnSpine.style.fontWeight = '400';
-    }
+  const resetBtn = (btn) => {
+    if (!btn) return;
+    btn.style.background = 'transparent';
+    btn.style.color = 'var(--text-300)';
+    btn.style.fontWeight = '400';
+    btn.style.boxShadow = 'none';
+  };
+  [btnSpine, btnStars, btnCover].forEach(resetBtn);
+
+  if (galleryViewMode === 'stars' && btnStars) {
+    btnStars.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+    btnStars.style.color = '#fff';
+    btnStars.style.fontWeight = '700';
+    btnStars.style.boxShadow = '0 2px 8px rgba(245, 158, 11, 0.4)';
+  } else if (galleryViewMode === 'cover' && btnCover) {
+    btnCover.style.background = 'var(--violet)';
+    btnCover.style.color = '#fff';
+    btnCover.style.fontWeight = '600';
+  } else if (btnSpine) {
+    btnSpine.style.background = 'var(--violet)';
+    btnSpine.style.color = '#fff';
+    btnSpine.style.fontWeight = '600';
   }
 }
 
@@ -411,7 +418,8 @@ function renderGallery() {
   grid.innerHTML = '';
 
   updateViewModeButtons();
-  grid.classList.toggle('spine-view', galleryViewMode === 'spine');
+  const isSpineShelf = galleryViewMode === 'spine' || galleryViewMode === 'stars';
+  grid.classList.toggle('spine-view', isSpineShelf);
 
   // Handle Search Input display
   const searchInput = document.getElementById('gallery-search-input');
@@ -419,6 +427,22 @@ function renderGallery() {
   const clearBtn = document.getElementById('gallery-search-clear');
   if (clearBtn) {
     clearBtn.style.display = searchQuery ? 'flex' : 'none';
+  }
+
+  // If stars view is active, prepend 5-star banner
+  if (galleryViewMode === 'stars') {
+    const starsBanner = document.createElement('div');
+    starsBanner.className = 'stars-shelf-banner';
+    starsBanner.style.cssText = 'grid-column: 1 / -1; width: 100%; background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(217, 119, 6, 0.06) 100%); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: var(--radius-md); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--text-100); margin-bottom: 8px; box-sizing: border-box;';
+    starsBanner.innerHTML = `
+      <span style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:16px;">⭐</span>
+        <strong>별점 5점 인생작 책장</strong>
+        <span style="font-size:11px; color:var(--amber); background:rgba(245,158,11,0.18); padding:2px 8px; border-radius:10px; font-weight:700;">★ 5점 컬렉션</span>
+      </span>
+      <button class="btn btn-ghost btn-xs" onclick="setGalleryViewMode('spine')" style="font-size:11px; color:var(--text-300); cursor:pointer; height:24px; padding:0 8px;">전체 책장 보기 ✕</button>
+    `;
+    grid.appendChild(starsBanner);
   }
 
   // If filter is active, prepend a filter banner / indicator card
@@ -435,7 +459,7 @@ function renderGallery() {
 
   // Prepend the 점선 책 추가 카드
   const addCard = document.createElement('div');
-  if (galleryViewMode === 'spine') {
+  if (isSpineShelf) {
     addCard.className = 'add-book-card spine-mode';
     addCard.innerHTML = `
       <span class="add-book-icon">＋</span>
@@ -458,10 +482,13 @@ function renderGallery() {
   });
   grid.appendChild(addCard);
 
-  // Filter books if filter is active
+  // Filter books
   let displayBooks = books;
+  if (galleryViewMode === 'stars') {
+    displayBooks = displayBooks.filter(b => b.rating === 5);
+  }
   if (currentGalleryFilter) {
-    displayBooks = books.filter(b => b.keywords && b.keywords.includes(currentGalleryFilter));
+    displayBooks = displayBooks.filter(b => b.keywords && b.keywords.includes(currentGalleryFilter));
   }
 
   if (searchQuery) {
@@ -480,6 +507,10 @@ function renderGallery() {
       empty.querySelector('.empty-icon').textContent = '🔍';
       empty.querySelector('.empty-h').textContent = '검색 결과가 없습니다';
       empty.querySelector('.empty-p').innerHTML = `"${esc(searchQuery)}"에 매칭되는 책을 찾지 못했어요.<br>다른 검색어로 검색해 보세요!`;
+    } else if (galleryViewMode === 'stars') {
+      empty.querySelector('.empty-icon').textContent = '⭐';
+      empty.querySelector('.empty-h').textContent = '아직 등록된 인생작이 없어요';
+      empty.querySelector('.empty-p').innerHTML = '도서를 기록하거나 수정할 때 <strong>별점 5점(★★★★★)</strong>을 부여하면<br>이곳 인생작 전용 서재에 소중히 모아집니다.';
     } else if (currentGalleryFilter) {
       empty.querySelector('.empty-icon').textContent = '🏷️';
       empty.querySelector('.empty-h').textContent = '필터 결과가 없습니다';
@@ -499,7 +530,7 @@ function renderGallery() {
     return new Date(b.date) - new Date(a.date);
   });
 
-  if (galleryViewMode === 'spine') {
+  if (isSpineShelf) {
     // Group books by year
     const yearGroups = {};
     sortedBooks.forEach(book => {
