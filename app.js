@@ -2760,17 +2760,9 @@ galleryScroll.addEventListener('scroll', () => {
 
 let pinchDist0 = null;
 
-let galleryTouchStartX = 0;
-let galleryTouchStartY = 0;
-let galleryTouchEndX = 0;
-let galleryTouchEndY = 0;
-
 galleryScroll.addEventListener('touchstart', e => {
   if (e.touches.length === 2) {
     pinchDist0 = pinchD(e);
-  } else if (e.touches.length === 1) {
-    galleryTouchStartX = e.touches[0].screenX;
-    galleryTouchStartY = e.touches[0].screenY;
   }
 }, { passive: true });
 
@@ -2787,28 +2779,7 @@ galleryScroll.addEventListener('touchend', e => {
   if (e.touches.length < 2) {
     pinchDist0 = null;
   }
-  if (e.changedTouches.length === 1) {
-    galleryTouchEndX = e.changedTouches[0].screenX;
-    galleryTouchEndY = e.changedTouches[0].screenY;
-    handleGallerySwipe();
-  }
 }, { passive: true });
-
-function handleGallerySwipe() {
-  const diffX = galleryTouchEndX - galleryTouchStartX;
-  const diffY = galleryTouchEndY - galleryTouchStartY;
-  
-  // Horizontal swipe: left goes to Community, right goes to Stats
-  if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
-    if (diffX < 0) {
-      showCommunity();
-      toast('💬 커뮤니티로 이동');
-    } else {
-      showStats();
-      toast('📊 통계 페이지로 이동');
-    }
-  }
-}
 
 // Community Touch Swipe Gestures
 let commTouchStartX = 0;
