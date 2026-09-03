@@ -2966,26 +2966,30 @@ document.addEventListener('keydown', e => {
 ============================================= */
 loadTheme();
 (async () => {
-  // Handle OAuth Redirect Errors or parameters
-  const urlParams = new URLSearchParams(window.location.search);
-  const authError = urlParams.get('error') || urlParams.get('error_code');
-  if (authError) {
-    const errorDescription = urlParams.get('error_description') || '알 수 없는 로그인 오류가 발생했습니다.';
-    let userMsg = `⚠️ 로그인 오류: ${errorDescription}`;
-    if (errorDescription.includes('state') || authError.includes('state')) {
-      userMsg = `⚠️ 로그인 오류: 브라우저 보안 설정이나 카카오톡/네이버 등의 인앱 브라우저 제한으로 인해 로그인 세션(OAuth State)이 유실되었습니다. 크롬(Chrome)이나 사파리(Safari) 같은 일반 브라우저로 접속해 다시 로그인해주세요.`;
-    }
-    setTimeout(() => {
-      toast(userMsg, 8000);
-    }, 500);
-
-    // Clear URL parameters to clean up the address bar
-    const cleanUrl = window.location.origin + window.location.pathname;
-    window.history.replaceState({}, document.title, cleanUrl);
-  }
-
   if (supabaseClient) {
     await checkAuth();
+  }
+
+  // Handle OAuth Redirect Errors or parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const hashParams = new URLSearchParams(window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash);
+  const authError = urlParams.get('error') || urlParams.get('error_code') || hashParams.get('error') || hashParams.get('error_code');
+  if (authError) {
+    // Clear URL parameters immediately so they don't persist across refreshes or tabs
+    const cleanUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+
+    // Only display error toast if user is actually NOT logged in!
+    if (!currentUser) {
+      const errorDescription = urlParams.get('error_description') || hashParams.get('error_description') || '알 수 없는 로그인 오류가 발생했습니다.';
+      let userMsg = `⚠️ 로그인 오류: ${errorDescription}`;
+      if (errorDescription.includes('state') || authError.includes('state')) {
+        userMsg = `⚠️ 로그인 오류: 브라우저 보안 설정이나 카카오톡/네이버 등의 인앱 브라우저 제한으로 인해 로그인 세션(OAuth State)이 유실되었습니다. 크롬(Chrome)이나 사파리(Safari) 같은 일반 브라우저로 접속해 다시 로그인해주세요.`;
+      }
+      setTimeout(() => {
+        toast(userMsg, 8000);
+      }, 500);
+    }
   }
   await loadData();
   
