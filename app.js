@@ -286,6 +286,19 @@ function applyTheme() {
   document.getElementById('theme-icon').textContent = isDarkTheme ? '🌙' : '☀️';
 }
 
+function getSpineWidth(pages) {
+  const p = parseInt(pages, 10) || 280;
+  if (p < 180) return 34;
+  if (p < 250) return 40;
+  if (p < 350) return 46;
+  if (p < 500) return 54;
+  return 62;
+}
+
+function getGalleryViewMode() {
+  try { return localStorage.getItem('rj_gallery_view_mode') || 'spine'; } catch(e) { return 'spine'; }
+}
+
 let galleryViewMode = (function() {
   try { return localStorage.getItem('rj_gallery_view_mode') || 'spine'; } catch(e) { return 'spine'; }
 })();
@@ -431,7 +444,6 @@ function renderGallery() {
     displayBooks = books.filter(b => b.keywords && b.keywords.includes(currentGalleryFilter));
   }
 
-  // Apply search filtering
   if (searchQuery) {
     displayBooks = displayBooks.filter(b => {
       const titleMatch = b.title && b.title.toLowerCase().includes(searchQuery);
@@ -442,143 +454,166 @@ function renderGallery() {
     });
   }
 
-  if (!displayBooks.length) {
+  if (!displayBooks.length && !currentGalleryFilter && !searchQuery) {
     empty.classList.add('show');
-    if (searchQuery) {
-      empty.querySelector('.empty-icon').textContent = '🔍';
-      empty.querySelector('.empty-h').textContent = '검색 결과가 없습니다';
-      empty.querySelector('.empty-p').innerHTML = `"${esc(searchQuery)}"에 매칭되는 책을 찾지 못했어요.<br>다른 검색어로 검색해 보세요!`;
-    } else if (currentGalleryFilter) {
-      empty.querySelector('.empty-icon').textContent = '🏷️';
-      empty.querySelector('.empty-h').textContent = '필터 결과가 없습니다';
-      empty.querySelector('.empty-p').innerHTML = `#${esc(currentGalleryFilter)} 태그를 가진 책이 없습니다.`;
-    } else {
-      empty.querySelector('.empty-icon').textContent = '📖';
-      empty.querySelector('.empty-h').textContent = '아직 기록된 책이 없어요';
-      empty.querySelector('.empty-p').innerHTML = '오른쪽 상단의 <strong>+ 책 추가</strong> 버튼으로<br>첫 번째 책을 기록해보세요!';
-    }
+    empty.querySelector('.empty-icon').textContent = '📖';
+    empty.querySelector('.empty-h').textContent = '아직 기록된 책이 없어요';
+    empty.querySelector('.empty-p').innerHTML = '오른쪽 상단의 <strong>+ 책 추가</strong> 버튼으로<br>첫 번째 책을 기록해보세요!';
   } else {
     empty.classList.remove('show');
   }
 
-  // Sort books by completion date (date) descending. Empty dates go to the bottom.
   const sortedBooks = [...displayBooks].sort((a, b) => {
     if (!a.date) return 1;
     if (!b.date) return -1;
     return new Date(b.date) - new Date(a.date);
   });
 
+  if (galleryViewMode === 'spine') {
+    const shelfContainer = document.createElement('div');
+    shelfContainer.className = 'two-row-spine-container';
+    
+    const row1 = document.createElement('div');
+    row1.className = 'spine-shelf-row';
+    const row2 = document.createElement('div');
+    row2.className = 'spine-shelf-row';
+
+    row1.appendChild(addCard);
+
+    sortedBooks.forEach((book, i) => {
+      const card = createBookCardElement(book, i, true);
+      if ((i + 1) % 2 === 1) {
+        row1.appendChild(card);
+      } else {
+        row2.appendChild(card);
+      }
+    });
+
+    shelfContainer.appendChild(row1);
+    shelfContainer.appendChild(row2);
+    grid.appendChild(shelfContainer);
+    return;
+  }
+
+  grid.appendChild(addCard);
   sortedBooks.forEach((book, i) => {
-    const card = document.createElement('div');
-    const isSpineMode = (galleryViewMode === 'spine');
-
-    card.className = `book-card${isSpineMode ? ' spine-mode' : ''}${book.rating === 5 ? ' five-stars' : ''}`;
-    card.style.animationDelay = ((i + 1) * 0.03) + 's';
-    card.setAttribute('data-id', book.id);
-
-    let imgPart = '';
-    if (book.cover) {
-      imgPart = `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}"
-        onerror="this.outerHTML='<div class=\\'book-card-placeholder\\'><span class=\\'placeholder-icon\\'>📚</span><span class=\\'placeholder-title\\'>${esc(book.title)}</span></div>'">`;
-    } else {
-      imgPart = `<div class="book-card-placeholder">
-        <span class="placeholder-icon">📚</span>
-        <span class="placeholder-title">${esc(book.title)}</span>
-      </div>`;
-    }
-
-    const sentence = book.sentence
-      ? `<div class="ov-sentence">${esc(book.sentence)}</div>` : '';
-    const kingStarBadge = book.rating === 5
-      ? `<div class="king-star-badge" title="인생작 (별점 5점)">★</div>` : '';
-
-    if (isSpineMode) {
-      const spineW = getSpineWidth(book.pages);
-      card.style.width = spineW + 'px';
-      card.style.setProperty('--spine-w', spineW + 'px');
-
-      const theme = getSpineTheme(book);
-      const spineImgUrl = getSpineImageUrl(book.cover);
-
-      const realSpineTag = spineImgUrl
-        ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="${esc(book.title)}" onerror="
-            if (!this.dataset.tried1 && this.src.includes('_spine.jpg')) {
-              this.dataset.tried1 = 'true';
-              this.src = this.src.replace('_spine.jpg', '_spine1.jpg');
-            } else if (!this.dataset.tried2 && this.src.includes('_spine1.jpg')) {
-              this.dataset.tried2 = 'true';
-              this.src = this.src.replace('_spine1.jpg', '_b.jpg');
-            } else {
-              this.classList.add('hide-real');
-              const fb = this.nextElementSibling;
-              if (fb) fb.classList.add('show-fallback');
-            }
-          ">`
-        : '';
-
-      card.innerHTML = `
-        <div class="spine-3d-wrapper">
-          <div class="spine-face">
-            ${realSpineTag}
-            <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}" style="background: ${theme.bg}; color: ${theme.text}; border-color: ${theme.border};">
-              <div class="spine-series-tag" style="background: ${theme.tagBg}; color: ${theme.tagText};">
-                <span>8ook Collection</span>
-              </div>
-              <div class="spine-title-wrap">
-                <span class="spine-title-serif">${esc(book.title)}</span>
-              </div>
-              <div class="spine-author-wrap">
-                <span class="spine-author-serif" style="color: ${theme.authorColor};">✻ ${esc(book.author || '작자 미상')}</span>
-              </div>
-              <div class="spine-publisher-emblem">
-                <div class="emblem-fig"></div>
-                <span class="publisher-name">8ook</span>
-              </div>
-            </div>
-          </div>
-          <div class="cover-face">
-            ${imgPart}
-            ${kingStarBadge}
-            <div class="book-hover-overlay">
-              <div class="ov-title">${esc(book.title)}</div>
-              <div class="ov-author">${esc(book.author||'')}</div>
-              ${sentence}
-              ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
-            </div>
-          </div>
-        </div>
-      `;
-
-      card.addEventListener('click', (e) => {
-        const isTouch = window.matchMedia('(pointer: coarse)').matches;
-        if (isTouch) {
-          if (!card.classList.contains('is-hovered')) {
-            e.stopPropagation();
-            document.querySelectorAll('.book-card.spine-mode.is-hovered').forEach(c => {
-              if (c !== card) c.classList.remove('is-hovered');
-            });
-            card.classList.add('is-hovered');
-            return;
-          }
-        }
-        showDetail(book.id);
-      });
-    } else {
-      card.innerHTML = `
-        ${imgPart}
-        ${kingStarBadge}
-        <div class="book-hover-overlay">
-          <div class="ov-title">${esc(book.title)}</div>
-          <div class="ov-author">${esc(book.author||'')}</div>
-          ${sentence}
-          ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
-        </div>
-      `;
-      card.addEventListener('click', () => showDetail(book.id));
-    }
-
+    const card = createBookCardElement(book, i, false);
     grid.appendChild(card);
   });
+}
+
+function createBookCardElement(book, i, isSpineMode) {
+  const card = document.createElement('div');
+  card.className = `book-card${isSpineMode ? ' spine-mode' : ''}${book.rating === 5 ? ' five-stars' : ''}`;
+  card.style.animationDelay = ((i + 1) * 0.03) + 's';
+  card.setAttribute('data-id', book.id);
+
+  let imgPart = '';
+  if (book.cover) {
+    imgPart = `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}"
+      onerror="this.outerHTML='<div class=\\'book-card-placeholder\\'><span class=\\'placeholder-icon\\'>📚</span><span class=\\'placeholder-title\\'>${esc(book.title)}</span></div>'">`;
+  } else {
+    imgPart = `<div class="book-card-placeholder">
+      <span class="placeholder-icon">📚</span>
+      <span class="placeholder-title">${esc(book.title)}</span>
+    </div>`;
+  }
+
+  const sentence = book.sentence
+    ? `<div class="ov-sentence">${esc(book.sentence)}</div>` : '';
+  const kingStarBadge = book.rating === 5
+    ? `<div class="king-star-badge" title="인생작 (별점 5점)">★</div>` : '';
+
+  if (isSpineMode) {
+    const spineW = getSpineWidth(book.pages);
+    card.style.width = spineW + 'px';
+    card.style.setProperty('--spine-w', spineW + 'px');
+
+    const theme = getSpineTheme(book);
+    const spineImgUrl = getSpineImageUrl(book.cover);
+
+    const realSpineTag = spineImgUrl
+      ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="${esc(book.title)}" onerror="
+          if (!this.dataset.tried1 && this.src.includes('_spine.jpg')) {
+            this.dataset.tried1 = 'true';
+            this.src = this.src.replace('_spine.jpg', '_spine1.jpg');
+          } else if (!this.dataset.tried2 && this.src.includes('_spine1.jpg')) {
+            this.dataset.tried2 = 'true';
+            this.src = this.src.replace('_spine1.jpg', '_b.jpg');
+          } else {
+            this.classList.add('hide-real');
+            const fb = this.nextElementSibling;
+            if (fb) fb.classList.add('show-fallback');
+          }
+        ">`
+      : '';
+
+    card.innerHTML = `
+      <div class="spine-3d-wrapper">
+        <div class="spine-face">
+          ${realSpineTag}
+          <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}" style="background: ${theme.bg}; color: ${theme.text}; border-color: ${theme.border};">
+            <div class="spine-series-tag" style="background: ${theme.tagBg}; color: ${theme.tagText};">
+              <span>8ook Collection</span>
+            </div>
+            <div class="spine-title-wrap">
+              <span class="spine-title-serif">${esc(book.title)}</span>
+            </div>
+            <div class="spine-author-wrap">
+              <span class="spine-author-serif" style="color: ${theme.authorColor};">✻ ${esc(book.author || '작자 미상')}</span>
+            </div>
+            <div class="spine-publisher-emblem">
+              <div class="emblem-fig"></div>
+              <span class="publisher-name">8ook</span>
+            </div>
+          </div>
+        </div>
+        <div class="cover-face">
+          ${imgPart}
+          ${kingStarBadge}
+          <div class="book-hover-overlay">
+            <div class="ov-title">${esc(book.title)}</div>
+            <div class="ov-author">${esc(book.author||'')}</div>
+            ${sentence}
+            ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+
+    card.addEventListener('click', (e) => {
+      const isTouch = window.matchMedia('(pointer: coarse)').matches;
+      if (isTouch) {
+        if (!card.classList.contains('is-hovered')) {
+          e.stopPropagation();
+          document.querySelectorAll('.book-card.spine-mode.is-hovered').forEach(c => {
+            if (c !== card) c.classList.remove('is-hovered');
+          });
+          card.classList.add('is-hovered');
+          return;
+        }
+      }
+      showDetail(book.id);
+    });
+  } else {
+    card.innerHTML = `
+      ${imgPart}
+      ${kingStarBadge}
+      <div class="book-hover-overlay">
+        <div class="ov-title">${esc(book.title)}</div>
+        <div class="ov-author">${esc(book.author||'')}</div>
+        ${sentence}
+        ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
+      </div>
+    `;
+
+    card.addEventListener('click', () => {
+      showDetail(book.id);
+    });
+  }
+
+  return card;
+}
 }
 
 /* ==============================================

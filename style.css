@@ -487,26 +487,44 @@
        BOOKSHELF SPINE VIEW (3D Interactive)
     ====================================== */
     #gallery-grid.spine-view {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      justify-content: flex-start;
-      gap: 16px 14px;
-      padding: 16px 12px 28px;
+      display: block;
+      padding: 10px 4px 20px;
       perspective: 1200px;
       position: relative;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
     }
 
-    /* Realistic Shelf Board Ledge */
-    #gallery-grid.spine-view::after {
-      content: '';
-      width: 100%;
-      height: 10px;
-      background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-elevated) 100%);
-      border-radius: 4px;
-      border-bottom: 2px solid var(--border-accent);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.45);
-      order: 999;
+    #gallery-grid.spine-view::-webkit-scrollbar {
+      height: 6px;
+    }
+    #gallery-grid.spine-view::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.1);
+      border-radius: 3px;
+    }
+    #gallery-grid.spine-view::-webkit-scrollbar-thumb {
+      background: var(--violet);
+      border-radius: 3px;
+    }
+
+    .two-row-spine-container {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      padding-bottom: 8px;
+    }
+
+    .spine-shelf-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      position: relative;
+      padding-bottom: 6px;
+      border-bottom: 3px solid rgba(160, 140, 120, 0.4);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
     /* Book Card Base */
@@ -523,18 +541,18 @@
     /* Spine Mode Card */
     .book-card.spine-mode {
       position: relative;
-      width: var(--spine-w, 64px);
-      height: 280px;
+      width: var(--spine-w, 46px);
+      height: 260px;
       aspect-ratio: auto;
       overflow: visible;
       background: transparent;
       box-shadow: none;
-      border-radius: 6px;
+      border-radius: 6px 6px 4px 4px;
       cursor: pointer;
       perspective: 1000px;
       flex-shrink: 0;
       transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s var(--ease), margin 0.4s var(--ease);
-      margin-bottom: 2px;
+      margin-bottom: 0px;
     }
 
     /* Hover or Touch Reveal ("촤르륵") */
@@ -557,17 +575,17 @@
     .spine-face {
       position: absolute;
       inset: 0;
-      border-radius: 6px 8px 8px 6px;
+      border-radius: 6px 6px 3px 3px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
       box-shadow: 
-        inset 2px 0 4px rgba(255,255,255,0.2),
-        inset -3px 0 6px rgba(0,0,0,0.5),
-        4px 8px 20px rgba(0,0,0,0.45);
-      border: 1px solid var(--border);
+        inset 1px 0 3px rgba(255,255,255,0.25),
+        inset -2px 0 4px rgba(0,0,0,0.45),
+        2px 6px 14px rgba(0,0,0,0.35);
+      border: 1px solid rgba(0, 0, 0, 0.15);
       backface-visibility: hidden;
       transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       transform-origin: center center;
@@ -588,7 +606,7 @@
       width: 100%;
       height: 100%;
       object-fit: fill;
-      border-radius: 5px 7px 7px 5px;
+      border-radius: 5px 5px 3px 3px;
       z-index: 1;
       display: block;
       transition: opacity 0.2s;
