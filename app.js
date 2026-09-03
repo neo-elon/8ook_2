@@ -454,11 +454,21 @@ function renderGallery() {
     });
   }
 
-  if (!displayBooks.length && !currentGalleryFilter && !searchQuery) {
+  if (!displayBooks.length) {
     empty.classList.add('show');
-    empty.querySelector('.empty-icon').textContent = '📖';
-    empty.querySelector('.empty-h').textContent = '아직 기록된 책이 없어요';
-    empty.querySelector('.empty-p').innerHTML = '오른쪽 상단의 <strong>+ 책 추가</strong> 버튼으로<br>첫 번째 책을 기록해보세요!';
+    if (searchQuery) {
+      empty.querySelector('.empty-icon').textContent = '🔍';
+      empty.querySelector('.empty-h').textContent = '검색 결과가 없습니다';
+      empty.querySelector('.empty-p').innerHTML = `"${esc(searchQuery)}"에 매칭되는 책을 찾지 못했어요.<br>다른 검색어로 검색해 보세요!`;
+    } else if (currentGalleryFilter) {
+      empty.querySelector('.empty-icon').textContent = '🏷️';
+      empty.querySelector('.empty-h').textContent = '필터 결과가 없습니다';
+      empty.querySelector('.empty-p').innerHTML = `#${esc(currentGalleryFilter)} 태그를 가진 책이 없습니다.`;
+    } else {
+      empty.querySelector('.empty-icon').textContent = '📖';
+      empty.querySelector('.empty-h').textContent = '아직 기록된 책이 없어요';
+      empty.querySelector('.empty-p').innerHTML = '오른쪽 상단의 <strong>+ 책 추가</strong> 버튼으로<br>첫 번째 책을 기록해보세요!';
+    }
   } else {
     empty.classList.remove('show');
   }
