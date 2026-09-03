@@ -287,12 +287,13 @@ function applyTheme() {
 }
 
 function getSpineWidth(pages) {
-  const p = parseInt(pages, 10) || 280;
-  if (p < 180) return 34;
-  if (p < 250) return 40;
-  if (p < 350) return 46;
-  if (p < 500) return 54;
-  return 62;
+  const p = parseInt(pages, 10) || 260;
+  if (p <= 160) return 32;
+  if (p <= 240) return 38;
+  if (p <= 340) return 44;
+  if (p <= 460) return 52;
+  if (p <= 600) return 60;
+  return 68;
 }
 
 function getGalleryViewMode() {
@@ -302,16 +303,6 @@ function getGalleryViewMode() {
 let galleryViewMode = (function() {
   try { return localStorage.getItem('rj_gallery_view_mode') || 'spine'; } catch(e) { return 'spine'; }
 })();
-
-function getSpineWidth(pages) {
-  const p = Number(pages) || 250;
-  if (p <= 130) return 48;
-  if (p <= 220) return 58;
-  if (p <= 320) return 70;
-  if (p <= 480) return 84;
-  if (p <= 650) return 98;
-  return 115;
-}
 
 function getSpineImageUrl(url) {
   if (!url) return '';
