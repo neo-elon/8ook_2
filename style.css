@@ -558,9 +558,9 @@
     /* Hover or Touch Reveal ("촤르륵") */
     .book-card.spine-mode:hover,
     .book-card.spine-mode.is-hovered {
-      width: 186px;
+      width: 186px !important;
       z-index: 40;
-      transform: translateY(-12px);
+      transform: none !important;
     }
 
     .spine-3d-wrapper {
@@ -743,14 +743,18 @@
       top: 0;
       left: 0;
       width: 186px;
-      height: 280px;
-      border-radius: var(--radius-lg);
+      height: 270px;
+      border-radius: 2px 5px 5px 2px;
       overflow: hidden;
       opacity: 0;
       transform: rotateY(-90deg);
       transform-origin: left center;
-      transition: opacity 0.3s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.65), 0 0 0 1px var(--violet), var(--shadow-glow);
+      transition: opacity 0.28s ease, transform 0.38s cubic-bezier(0.2, 0.8, 0.25, 1), box-shadow 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 
+        inset 3px 0 6px rgba(0, 0, 0, 0.35),
+        0 14px 36px rgba(0, 0, 0, 0.5),
+        2px 4px 12px rgba(0, 0, 0, 0.3);
       background: var(--bg-card);
       backface-visibility: hidden;
       z-index: 3;
@@ -769,7 +773,7 @@
       display: block;
     }
 
-    .book-card:hover {
+    .book-card:not(.spine-mode):hover {
       transform:translateY(-8px) scale(1.02);
       box-shadow:0 24px 60px rgba(0,0,0,.35),
                  0 0 0 1px var(--card-hover-border),
