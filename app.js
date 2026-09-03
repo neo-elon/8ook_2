@@ -652,6 +652,14 @@ function createBookCardElement(book, i, isSpineMode) {
     card.style.setProperty('--spine-w', spineW + 'px');
 
     const theme = getSpineTheme(book);
+    const titleLen = (book.title || '').length;
+    let titleStyleExtra = '';
+    if (titleLen > 15) {
+      titleStyleExtra = 'font-size: 12.5px; letter-spacing: 1px;';
+    } else if (titleLen > 10) {
+      titleStyleExtra = 'font-size: 13.5px; letter-spacing: 1.2px;';
+    }
+
     const spineImgUrl = book.spineCover || book.spine || getSpineImageUrl(book.cover);
 
     const realSpineTag = spineImgUrl
@@ -676,7 +684,7 @@ function createBookCardElement(book, i, isSpineMode) {
               <span>8ook</span>
             </div>
             <div class="spine-title-wrap">
-              <span class="spine-title-serif" style="color: ${theme.text} !important; ${theme.isLight ? 'text-shadow: none;' : ''}">${esc(book.title)}</span>
+              <span class="spine-title-serif" style="color: ${theme.text} !important; ${theme.isLight ? 'text-shadow: none;' : ''} ${titleStyleExtra}">${esc(book.title)}</span>
             </div>
             <div class="spine-author-wrap">
               <span class="spine-author-serif" style="color: ${theme.authorColor} !important;">✻ ${esc(book.author || '작자 미상')}</span>
