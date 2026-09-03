@@ -349,10 +349,10 @@ function getSpineImageUrl(url) {
 
 function getSpineTheme(book) {
   const spineThemes = [
-    { bg: '#f9f8f3', text: '#1a1a1a', authorColor: '#4a4a4a', border: '#e5e0d3', tagBg: '#1a1a1a', tagText: '#f9f8f3', isLight: true },
+    { bg: '#f8f6f0', text: '#111827', authorColor: '#374151', border: '#d1cdc3', tagBg: '#111827', tagText: '#f9fafb', isLight: true },
     { bg: '#1c2838', text: '#e2edee', authorColor: '#a0b2c6', border: '#2d3e54', tagBg: '#d4af37', tagText: '#1c2838', isLight: false },
     { bg: '#233830', text: '#e6f4ed', authorColor: '#9ec4b3', border: '#345247', tagBg: '#e6f4ed', tagText: '#233830', isLight: false },
-    { bg: '#f3edd9', text: '#2c221e', authorColor: '#63534b', border: '#e2d4b9', tagBg: '#8c2d19', tagText: '#f3edd9', isLight: true },
+    { bg: '#ede6d4', text: '#1c1917', authorColor: '#44403c', border: '#d6cbaf', tagBg: '#7f1d1d', tagText: '#fef2f2', isLight: true },
     { bg: '#4a151b', text: '#fce8ea', authorColor: '#e0a3aa', border: '#6e222a', tagBg: '#fce8ea', tagText: '#4a151b', isLight: false },
     { bg: '#1e1e24', text: '#f0f0f5', authorColor: '#9e9ea6', border: '#33333d', tagBg: '#8b5cf6', tagText: '#ffffff', isLight: false }
   ];
@@ -643,19 +643,19 @@ function createBookCardElement(book, i, isSpineMode) {
         <div class="spine-face">
           ${realSpineTag}
           ${spineGoldStar}
-          <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}" style="background: ${theme.bg}; color: ${theme.text}; border-color: ${theme.border};">
-            <div class="spine-series-tag" style="background: ${theme.tagBg}; color: ${theme.tagText};">
+          <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}" style="background: ${theme.bg}; color: ${theme.text} !important; border-color: ${theme.border};">
+            <div class="spine-series-tag" style="background: ${theme.tagBg}; color: ${theme.tagText} !important;">
               <span>8ook</span>
             </div>
             <div class="spine-title-wrap">
-              <span class="spine-title-serif">${esc(book.title)}</span>
+              <span class="spine-title-serif" style="color: ${theme.text} !important; ${theme.isLight ? 'text-shadow: none;' : ''}">${esc(book.title)}</span>
             </div>
             <div class="spine-author-wrap">
-              <span class="spine-author-serif" style="color: ${theme.authorColor};">✻ ${esc(book.author || '작자 미상')}</span>
+              <span class="spine-author-serif" style="color: ${theme.authorColor} !important;">✻ ${esc(book.author || '작자 미상')}</span>
             </div>
-            <div class="spine-publisher-emblem">
-              <div class="emblem-fig"></div>
-              <span class="publisher-name">8ook</span>
+            <div class="spine-publisher-emblem" style="color: ${theme.text} !important;">
+              <div class="emblem-fig" style="border-color: ${theme.text} !important;"></div>
+              <span class="publisher-name" style="color: ${theme.text} !important;">8ook</span>
             </div>
           </div>
         </div>
