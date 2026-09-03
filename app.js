@@ -661,7 +661,7 @@ function createBookCardElement(book, i, isSpineMode) {
             this.src = this.src.replace('/Spine/', '/spine/');
           } else {
             this.classList.add('hide-real');
-            const fb = this.nextElementSibling;
+            const fb = this.parentElement ? this.parentElement.querySelector('.spine-custom-view') : null;
             if (fb) fb.classList.add('show-fallback');
           }
         ">`
@@ -671,7 +671,6 @@ function createBookCardElement(book, i, isSpineMode) {
       <div class="spine-3d-wrapper">
         <div class="spine-face">
           ${realSpineTag}
-          ${spineGoldStar}
           <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}" style="background: ${theme.bg}; color: ${theme.text} !important; border-color: ${theme.border};">
             <div class="spine-series-tag" style="background: ${theme.tagBg}; color: ${theme.tagText} !important;">
               <span>8ook</span>
@@ -687,6 +686,7 @@ function createBookCardElement(book, i, isSpineMode) {
               <span class="publisher-name" style="color: ${theme.text} !important;">8ook</span>
             </div>
           </div>
+          ${spineGoldStar}
         </div>
         <div class="cover-face">
           ${imgPart}
