@@ -316,12 +316,18 @@ function getSpineWidth(pages) {
 function getSpineImageUrl(url) {
   if (!url) return '';
   if (url.includes('image.aladin.co.kr')) {
-    const m = url.match(/\/product\/(\d+)\/(\d+)\/(?:cover\d*|cover|coversum)\/([a-zA-Z0-9]+)/);
+    const m = url.match(/\/product\/(\d+)\/(\d+)\/(?:cover\d*|coversum|cover|letslook)\/([^/?#]+)/i);
     if (m) {
       const dir1 = m[1];
       const dir2 = m[2];
-      const itemId = m[3];
-      return getSafeImageUrl(`https://image.aladin.co.kr/product/${dir1}/${dir2}/letslook/${itemId}_spine.jpg`);
+      let filename = m[3];
+      // Strip extension (.jpg, .png, etc)
+      filename = filename.replace(/\.[a-zA-Z0-9]+$/, '');
+      // Strip trailing _1, _2, _3, _b, _f, _spine
+      filename = filename.replace(/_[0-9a-zA-Z]+$/, '');
+      if (filename) {
+        return getSafeImageUrl(`https://image.aladin.co.kr/product/${dir1}/${dir2}/Spine/${filename}_d.jpg`);
+      }
     }
   }
   return '';
@@ -540,16 +546,13 @@ function createBookCardElement(book, i, isSpineMode) {
     card.style.setProperty('--spine-w', spineW + 'px');
 
     const theme = getSpineTheme(book);
-    const spineImgUrl = getSpineImageUrl(book.cover);
+    const spineImgUrl = book.spineCover || book.spine || getSpineImageUrl(book.cover);
 
     const realSpineTag = spineImgUrl
       ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="${esc(book.title)}" onerror="
-          if (!this.dataset.tried1 && this.src.includes('_spine.jpg')) {
+          if (!this.dataset.tried1 && this.src.includes('/Spine/')) {
             this.dataset.tried1 = 'true';
-            this.src = this.src.replace('_spine.jpg', '_spine1.jpg');
-          } else if (!this.dataset.tried2 && this.src.includes('_spine1.jpg')) {
-            this.dataset.tried2 = 'true';
-            this.src = this.src.replace('_spine1.jpg', '_b.jpg');
+            this.src = this.src.replace('/Spine/', '/spine/');
           } else {
             this.classList.add('hide-real');
             const fb = this.nextElementSibling;
@@ -921,8 +924,19 @@ function resetPrev() {
 }
 
 function setSpinePrev(src) {
+  if (!src) {
+    resetSpinePrev();
+    return;
+  }
   document.getElementById('spine-prev').innerHTML =
-    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;" onerror="this.parentElement.innerHTML='<div class=\\'img-prev-ph\\'><span class=\\'img-prev-ph-icon\\'>❌</span><span style=\\'font-size:9px;\\'>실패</span></div>'">`;
+    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;" onerror="
+      if (!this.dataset.tried1 && this.src.includes('/Spine/')) {
+        this.dataset.tried1 = 'true';
+        this.src = this.src.replace('/Spine/', '/spine/');
+      } else {
+        this.parentElement.innerHTML='<div class=\\'img-prev-ph\\'><span class=\\'img-prev-ph-icon\\'>📕</span><span style=\\'font-size:9px;\\'>기본 책등</span></div>';
+      }
+    ">`;
 }
 
 function resetSpinePrev() {
