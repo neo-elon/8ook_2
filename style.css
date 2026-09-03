@@ -510,11 +510,74 @@
       border-radius: 3px;
     }
 
+    .yearly-shelves-container,
     .two-row-spine-container {
       display: flex;
       flex-direction: column;
-      gap: 22px;
-      padding-bottom: 8px;
+      gap: 26px;
+      padding-bottom: 24px;
+      width: 100%;
+    }
+
+    .shelf-year-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+    }
+
+    .shelf-year-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 4px;
+      user-select: none;
+    }
+
+    .shelf-year-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-200);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 3px 12px;
+      border-radius: 12px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .shelf-year-count {
+      font-size: 11px;
+      color: var(--text-400);
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 1px 6px;
+      border-radius: 8px;
+    }
+
+    .shelf-year-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.02) 100%);
+    }
+
+    body.light-theme .shelf-year-badge {
+      background: rgba(0, 0, 0, 0.05);
+      border-color: rgba(0, 0, 0, 0.12);
+      color: var(--text-100);
+    }
+    body.light-theme .shelf-year-count {
+      background: rgba(0, 0, 0, 0.06);
+      color: var(--text-400);
+    }
+    body.light-theme .shelf-year-line {
+      background: linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.02) 100%);
+    }
+    body.light-theme .spine-shelf-row {
+      border-bottom-color: #6d4c3d;
     }
 
     .spine-shelf-row {
@@ -525,6 +588,10 @@
       padding-bottom: 4px;
       border-bottom: 7px solid #4a3328;
       box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+      overflow-x: auto;
+      overflow-y: visible;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
     }
 
     /* Book Card Base */

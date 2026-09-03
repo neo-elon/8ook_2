@@ -501,27 +501,74 @@ function renderGallery() {
   });
 
   if (galleryViewMode === 'spine') {
-    const shelfContainer = document.createElement('div');
-    shelfContainer.className = 'two-row-spine-container';
-    
-    const row1 = document.createElement('div');
-    row1.className = 'spine-shelf-row';
-    const row2 = document.createElement('div');
-    row2.className = 'spine-shelf-row';
-
-    row1.appendChild(addCard);
-
-    sortedBooks.forEach((book, i) => {
-      const card = createBookCardElement(book, i, true);
-      if ((i + 1) % 2 === 1) {
-        row1.appendChild(card);
-      } else {
-        row2.appendChild(card);
+    // Group books by year
+    const yearGroups = {};
+    sortedBooks.forEach(book => {
+      let y = '기타';
+      if (book.date) {
+        const d = new Date(book.date);
+        if (!isNaN(d.getFullYear())) {
+          y = String(d.getFullYear());
+        }
       }
+      if (!yearGroups[y]) yearGroups[y] = [];
+      yearGroups[y].push(book);
     });
 
-    shelfContainer.appendChild(row1);
-    shelfContainer.appendChild(row2);
+    const years = Object.keys(yearGroups).sort((a, b) => {
+      if (a === '기타') return 1;
+      if (b === '기타') return -1;
+      return Number(b) - Number(a);
+    });
+
+    const shelfContainer = document.createElement('div');
+    shelfContainer.className = 'yearly-shelves-container';
+
+    let isFirstRow = true;
+    let globalIndex = 0;
+
+    years.forEach(year => {
+      const yearSection = document.createElement('div');
+      yearSection.className = 'shelf-year-section';
+
+      const booksInYear = yearGroups[year];
+      const yearLabel = year === '기타' ? '이전 기록' : `${year}년`;
+
+      const header = document.createElement('div');
+      header.className = 'shelf-year-header';
+      header.innerHTML = `
+        <div class="shelf-year-badge">
+          <span>📅 ${yearLabel}</span>
+          <span class="shelf-year-count">${booksInYear.length}권</span>
+        </div>
+        <div class="shelf-year-line"></div>
+      `;
+      yearSection.appendChild(header);
+
+      const shelfRow = document.createElement('div');
+      shelfRow.className = 'spine-shelf-row';
+
+      if (isFirstRow) {
+        shelfRow.appendChild(addCard);
+        isFirstRow = false;
+      }
+
+      booksInYear.forEach(book => {
+        const card = createBookCardElement(book, globalIndex++, true);
+        shelfRow.appendChild(card);
+      });
+
+      yearSection.appendChild(shelfRow);
+      shelfContainer.appendChild(yearSection);
+    });
+
+    if (!years.length) {
+      const emptyRow = document.createElement('div');
+      emptyRow.className = 'spine-shelf-row';
+      emptyRow.appendChild(addCard);
+      shelfContainer.appendChild(emptyRow);
+    }
+
     grid.appendChild(shelfContainer);
 
     // Sync already-cached spine images immediately
