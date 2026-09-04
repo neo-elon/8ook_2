@@ -106,7 +106,7 @@ let calDate = new Date();
 let gridMin = window.innerWidth <= 640 ? 90 : 170;
 let zoomTimer = null;
 let sidebarOpen = false;
-let isDarkTheme = true;
+let isDarkTheme = false;
 let chartMode = 'month';
 let statsPeriod = 'all';
 let editingScrapId = null;
