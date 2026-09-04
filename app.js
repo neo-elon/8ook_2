@@ -708,7 +708,7 @@ async function downloadStarsShelfImage() {
 }
 
 async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
-  toast('📸 책장 이미지를 생성하는 중입니다...');
+  toast('📸 인스타그램용 책장 이미지를 생성하는 중입니다...');
 
   try {
     const dpr = 2;
@@ -753,36 +753,31 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       });
     }));
 
-    // 2. 정사각(1:1) 캔버스 규격 및 책장 최대화(Maximize) 스케일 계산
-    const baseCanvasSize = 1080;
-    const sumAspect = loadedItems.reduce((acc, item) => acc + item.aspect, 0);
+    // 2. 인스타그램용 1:1 완벽 정사각형 규격 (1080 x 1080)
+    const S = 1080;
     const count = loadedItems.length;
+    const sumAspect = loadedItems.reduce((acc, item) => acc + item.aspect, 0);
 
-    // 좌우/상하 패딩 (정사각 대비 비율)
-    const paddingX = Math.round(baseCanvasSize * 0.05); // 약 54px
-    const headerH = Math.round(baseCanvasSize * 0.11);  // 약 118px
-    const footerH = Math.round(baseCanvasSize * 0.07);  // 약 75px
-    const availW = baseCanvasSize - paddingX * 2;
-    const availH = baseCanvasSize - headerH - footerH - 30; // 약 855px
+    // 미니멀 헤더/푸터 여백
+    const paddingX = Math.round(S * 0.06); // 약 65px
+    const topMargin = Math.round(S * 0.10); // 약 108px
+    const bottomMargin = Math.round(S * 0.08); // 약 86px
 
-    // 간격
-    const gap = Math.max(3, Math.round(baseCanvasSize * 0.0035));
+    const availW = S - paddingX * 2; // 약 950px
+    const availH = S - topMargin - bottomMargin; // 약 886px
 
-    // 정사각 안에서 책장을 최대한 크게 하기 위한 bookH 계산:
+    // 책 간격
+    const gap = Math.max(3, Math.round(S * 0.0035));
+
+    // 책장을 최대한 크게(Maximize) 하기 위한 bookH 계산:
     const maxHByWidth = (availW - (count - 1) * gap) / sumAspect;
-    const maxHByHeight = availH * 0.92;
+    const maxHByHeight = availH * 0.94; // 약 830px
 
-    // 정사각 캔버스 크기 S 결정 (책이 아주 많을 때도 정사각 비율 유지하면서 확장)
-    let S = baseCanvasSize;
     let bookH = Math.min(maxHByWidth, maxHByHeight);
-
-    if (bookH < 420) {
-      const targetBookH = 460;
-      const neededW = Math.round(targetBookH * sumAspect + (count - 1) * gap + paddingX * 2);
-      S = Math.max(baseCanvasSize, neededW);
-      bookH = targetBookH;
-    } else if (count <= 2) {
-      bookH = Math.min(680, maxHByHeight);
+    if (count <= 3) {
+      bookH = Math.min(820, maxHByHeight);
+    } else if (bookH > 820) {
+      bookH = 820;
     }
 
     // 각 책의 최종 너비 계산
@@ -793,7 +788,7 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
 
     const totalBooksW = itemsWithWidth.reduce((acc, item) => acc + item.width, 0) + (count - 1) * gap;
 
-    // 1:1 완벽 정사각 캔버스 생성
+    // 1:1 정사각형 캔버스 생성
     const canvas = document.createElement('canvas');
     canvas.width = S * dpr;
     canvas.height = S * dpr;
@@ -809,59 +804,47 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
     ctx.fillRect(0, 0, S, S);
 
     // 은은한 보라빛 앰비언트 글로우
-    const glow = ctx.createRadialGradient(S * 0.85, 0, 10, S * 0.85, 0, S * 0.7);
-    glow.addColorStop(0, 'rgba(124, 58, 237, 0.045)');
+    const glow = ctx.createRadialGradient(S * 0.82, 0, 10, S * 0.82, 0, S * 0.7);
+    glow.addColorStop(0, 'rgba(124, 58, 237, 0.04)');
     glow.addColorStop(1, 'rgba(240, 236, 239, 0)');
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, S, S);
 
-    // 4. 상단 헤더
-    const curPaddingX = (S - totalBooksW > paddingX * 2) ? Math.round((S - totalBooksW) / 2) : paddingX;
-    const headerLeftX = Math.min(paddingX + 8, curPaddingX);
-    const headerRightX = S - headerLeftX;
+    // 4. 인스타그램 감성 미니멀 헤더
+    let displayTitle = shelfTitle;
+    const ymMatch = shelfTitle.match(/(\d{4})년\s*(\d{1,2})월/);
+    if (ymMatch) {
+      displayTitle = `${ymMatch[1]}. ${String(ymMatch[2]).padStart(2, '0')}`;
+    } else if (shelfTitle.includes('인생작')) {
+      displayTitle = 'My Favorites';
+    }
 
-    // 헤더 타이틀
+    // 상단 좌측: 감성 타이포그래피
     ctx.fillStyle = '#18181b';
-    ctx.font = `bold ${Math.round(22 * (S / baseCanvasSize))}px "Noto Sans KR", -apple-system, sans-serif`;
-    ctx.fillText(shelfTitle, headerLeftX, 48 * (S / baseCanvasSize));
+    ctx.font = `600 21px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Noto Serif KR", serif`;
+    ctx.fillText(displayTitle, paddingX, 62);
 
-    // 서브타이틀
-    ctx.fillStyle = 'rgba(24, 24, 27, 0.58)';
-    ctx.font = `500 ${Math.round(12.5 * (S / baseCanvasSize))}px "Noto Sans KR", -apple-system, sans-serif`;
-    ctx.fillText(subtitle, headerLeftX, 74 * (S / baseCanvasSize));
-
-    // 우측 8ook. 로고
-    ctx.font = `800 ${Math.round(24 * (S / baseCanvasSize))}px "Noto Sans KR", -apple-system, sans-serif`;
-    const logoGrad = ctx.createLinearGradient(headerRightX - 80, 0, headerRightX, 0);
-    logoGrad.addColorStop(0, '#7c3aed');
-    logoGrad.addColorStop(1, '#4f46e5');
-    ctx.fillStyle = logoGrad;
+    // 상단 우측: 미니멀한 8ook. 로고
+    ctx.fillStyle = '#7c3aed';
+    ctx.font = `800 21px -apple-system, BlinkMacSystemFont, sans-serif`;
     ctx.textAlign = 'right';
-    ctx.fillText('8ook.', headerRightX, 54 * (S / baseCanvasSize));
+    ctx.fillText('8ook.', S - paddingX, 62);
     ctx.textAlign = 'left';
-
-    // 헤더 구분선
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(headerLeftX, headerH - 10);
-    ctx.lineTo(headerRightX, headerH - 10);
-    ctx.stroke();
 
     // 5. 책등 렌더링 (화면 정중앙에 최대 크기로 배치)
     const scale = bookH / 351;
     let curX = Math.round((S - totalBooksW) / 2);
-    // 수직 중앙 정렬: 헤더와 푸터 사이 공간의 한가운데에 배치
-    const startY = Math.round(headerH + ((S - headerH - footerH) - bookH) / 2);
+    // 수직 중앙 정렬: 상단 헤더와 하단 푸터 사이의 완벽한 중앙 배치
+    const startY = Math.round(topMargin + (availH - bookH) / 2);
 
     // 책장 바닥 라인 및 은은한 선반 그림자
     const shelfBaseY = startY + bookH;
-    const shadowGrad = ctx.createLinearGradient(0, shelfBaseY, 0, shelfBaseY + 16 * scale);
-    shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.12)');
-    shadowGrad.addColorStop(0.35, 'rgba(0, 0, 0, 0.035)');
+    const shadowGrad = ctx.createLinearGradient(0, shelfBaseY, 0, shelfBaseY + 18 * scale);
+    shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.14)');
+    shadowGrad.addColorStop(0.35, 'rgba(0, 0, 0, 0.04)');
     shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = shadowGrad;
-    ctx.fillRect(curX - 16 * scale, shelfBaseY, totalBooksW + 32 * scale, 16 * scale);
+    ctx.fillRect(curX - 20 * scale, shelfBaseY, totalBooksW + 40 * scale, 18 * scale);
 
     itemsWithWidth.forEach(item => {
       const { book, img, width: w } = item;
@@ -997,11 +980,11 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       curX += w + gap;
     });
 
-    // 6. 하단 푸터 워터마크
-    ctx.fillStyle = '#64748b';
-    ctx.font = '500 11px "Noto Sans KR", -apple-system, sans-serif';
+    // 6. 하단: 인스타그램 감성 미니멀 워터마크
+    ctx.fillStyle = 'rgba(24, 24, 27, 0.40)';
+    ctx.font = `500 12px -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif`;
     ctx.textAlign = 'center';
-    ctx.fillText('나만의 작은 온라인 서재 · 8ook', canvasW / 2, canvasH - 22);
+    ctx.fillText(`${count} books read`, S / 2, S - 36);
     ctx.textAlign = 'left';
 
     // 7. PNG 다운로드 실행
