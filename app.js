@@ -464,17 +464,18 @@ function renderGallery() {
 
   // If stars view is active, prepend 5-star banner
   if (galleryViewMode === 'stars') {
+    const starCount = books.filter(b => b.rating === 5).length;
     const starsBanner = document.createElement('div');
     starsBanner.className = 'stars-shelf-banner';
     starsBanner.style.cssText = 'grid-column: 1 / -1; width: 100%; background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(217, 119, 6, 0.06) 100%); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: var(--radius-md); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--text-100); margin-bottom: 8px; box-sizing: border-box;';
     starsBanner.innerHTML = `
-      <span style="display:flex; align-items:center; gap:8px;">
+      <span style="display:flex; align-items:center; gap:6px;">
         <span style="font-size:16px;">⭐</span>
         <strong>별점 5점 인생작 책장</strong>
-        <span style="font-size:11px; color:var(--amber); background:rgba(245,158,11,0.18); padding:2px 8px; border-radius:10px; font-weight:700;">★ 5점 컬렉션</span>
+        <span class="shelf-year-count" style="margin-left:2px; font-weight:700; color:var(--amber); background:rgba(245,158,11,0.18);">${starCount}권</span>
+        <button class="shelf-download-btn" onclick="downloadStarsShelfImage()" title="인생작 책장 이미지 저장" aria-label="인생작 책장 이미지 저장" style="border-color:rgba(245,158,11,0.4); color:var(--amber);">📷</button>
       </span>
       <div style="display:flex; align-items:center; gap:6px;">
-        <button class="shelf-download-btn" onclick="downloadStarsShelfImage()" title="인생작 책장 이미지로 저장" style="background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.35); color:var(--amber); font-weight:600;">📷 이미지 저장</button>
         <button class="btn btn-ghost btn-xs" onclick="setGalleryViewMode('spine')" style="font-size:11px; color:var(--text-300); cursor:pointer; height:24px; padding:0 8px;">전체 책장 보기 ✕</button>
       </div>
     `;
@@ -609,10 +610,8 @@ function renderGallery() {
         <div class="shelf-year-badge">
           <span>📅 ${monthLabel}</span>
           <span class="shelf-year-count">${booksInMonth.length}권</span>
+          <button class="shelf-download-btn" onclick="downloadMonthShelfImage('${esc(ymKey)}', '${esc(monthLabel)}')" title="${esc(monthLabel)} 책장 이미지 저장" aria-label="책장 이미지 저장">📷</button>
         </div>
-        <button class="shelf-download-btn" onclick="downloadMonthShelfImage('${esc(ymKey)}', '${esc(monthLabel)}')" title="${esc(monthLabel)} 책장 이미지로 저장" aria-label="책장 이미지 저장">
-          <span>📷 이미지 저장</span>
-        </button>
         <div class="shelf-year-line"></div>
       `;
       monthSection.appendChild(header);
@@ -712,14 +711,14 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
   toast('📸 책장 이미지를 생성하는 중입니다...');
 
   try {
-    const bookH = 351;
     const dpr = 2;
 
-    // 1. 책등 이미지 사전 로드 및 너비 계산
+    // 1. 책등 이미지 사전 로드 및 종횡비(aspect) 계산
     const loadedItems = await Promise.all(targetBooks.map(book => {
       const spineImgUrl = book.spineCover || book.spine || getSpineImageUrl(book.cover);
       if (!spineImgUrl) {
-        return Promise.resolve({ book, img: null, width: getSpineWidth(book.pages) });
+        const rawW = getSpineWidth(book.pages);
+        return Promise.resolve({ book, img: null, aspect: rawW / 351 });
       }
 
       return new Promise(resolve => {
@@ -733,11 +732,12 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
         const onDone = (loadedImg) => {
           if (loadedImg && loadedImg.naturalWidth && loadedImg.naturalHeight) {
             const aspect = loadedImg.naturalWidth / loadedImg.naturalHeight;
-            let w = Math.round(aspect * bookH);
-            w = Math.max(26, Math.min(95, w));
-            resolve({ book, img: loadedImg, width: w });
+            // 실물 책등 비율 안전 제한: 0.08 ~ 0.32
+            const clampedAspect = Math.max(0.08, Math.min(0.32, aspect));
+            resolve({ book, img: loadedImg, aspect: clampedAspect });
           } else {
-            resolve({ book, img: null, width: getSpineWidth(book.pages) });
+            const rawW = getSpineWidth(book.pages);
+            resolve({ book, img: null, aspect: rawW / 351 });
           }
         };
 
@@ -753,71 +753,123 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       });
     }));
 
-    // 2. 캔버스 규격 계산
-    const gap = 3;
-    const totalBooksW = loadedItems.reduce((acc, item) => acc + item.width, 0) + (loadedItems.length - 1) * gap;
-    const paddingX = 40;
-    const headerH = 95;
-    const footerH = 55;
-    const canvasW = Math.max(680, totalBooksW + paddingX * 2);
-    const canvasH = headerH + bookH + footerH;
+    // 2. 정사각(1:1) 캔버스 규격 및 책장 최대화(Maximize) 스케일 계산
+    const baseCanvasSize = 1080;
+    const sumAspect = loadedItems.reduce((acc, item) => acc + item.aspect, 0);
+    const count = loadedItems.length;
 
+    // 좌우/상하 패딩 (정사각 대비 비율)
+    const paddingX = Math.round(baseCanvasSize * 0.05); // 약 54px
+    const headerH = Math.round(baseCanvasSize * 0.11);  // 약 118px
+    const footerH = Math.round(baseCanvasSize * 0.07);  // 약 75px
+    const availW = baseCanvasSize - paddingX * 2;
+    const availH = baseCanvasSize - headerH - footerH - 30; // 약 855px
+
+    // 간격
+    const gap = Math.max(3, Math.round(baseCanvasSize * 0.0035));
+
+    // 정사각 안에서 책장을 최대한 크게 하기 위한 bookH 계산:
+    const maxHByWidth = (availW - (count - 1) * gap) / sumAspect;
+    const maxHByHeight = availH * 0.92;
+
+    // 정사각 캔버스 크기 S 결정 (책이 아주 많을 때도 정사각 비율 유지하면서 확장)
+    let S = baseCanvasSize;
+    let bookH = Math.min(maxHByWidth, maxHByHeight);
+
+    if (bookH < 420) {
+      const targetBookH = 460;
+      const neededW = Math.round(targetBookH * sumAspect + (count - 1) * gap + paddingX * 2);
+      S = Math.max(baseCanvasSize, neededW);
+      bookH = targetBookH;
+    } else if (count <= 2) {
+      bookH = Math.min(680, maxHByHeight);
+    }
+
+    // 각 책의 최종 너비 계산
+    const itemsWithWidth = loadedItems.map(item => ({
+      ...item,
+      width: Math.round(item.aspect * bookH)
+    }));
+
+    const totalBooksW = itemsWithWidth.reduce((acc, item) => acc + item.width, 0) + (count - 1) * gap;
+
+    // 1:1 완벽 정사각 캔버스 생성
     const canvas = document.createElement('canvas');
-    canvas.width = canvasW * dpr;
-    canvas.height = canvasH * dpr;
+    canvas.width = S * dpr;
+    canvas.height = S * dpr;
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
 
-    // 3. 배경 그리기
-    const bgGrad = ctx.createLinearGradient(0, 0, canvasW, canvasH);
-    bgGrad.addColorStop(0, '#11111a');
-    bgGrad.addColorStop(0.5, '#181827');
-    bgGrad.addColorStop(1, '#0e0e16');
+    // 3. 배경 그리기 (책장 배경과 동일한 색상 그라데이션)
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, S);
+    bgGrad.addColorStop(0, '#F0ECEF');
+    bgGrad.addColorStop(0.5, '#F3F0EF');
+    bgGrad.addColorStop(1, '#F4F2EF');
     ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, canvasW, canvasH);
+    ctx.fillRect(0, 0, S, S);
 
-    const glow = ctx.createRadialGradient(canvasW / 2, 0, 10, canvasW / 2, 0, canvasW * 0.7);
-    glow.addColorStop(0, 'rgba(124, 58, 237, 0.12)');
-    glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    // 은은한 보라빛 앰비언트 글로우
+    const glow = ctx.createRadialGradient(S * 0.85, 0, 10, S * 0.85, 0, S * 0.7);
+    glow.addColorStop(0, 'rgba(124, 58, 237, 0.045)');
+    glow.addColorStop(1, 'rgba(240, 236, 239, 0)');
     ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, canvasW, canvasH);
+    ctx.fillRect(0, 0, S, S);
 
     // 4. 상단 헤더
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 20px "Noto Sans KR", -apple-system, sans-serif';
-    ctx.fillText(shelfTitle, paddingX, 42);
+    const curPaddingX = (S - totalBooksW > paddingX * 2) ? Math.round((S - totalBooksW) / 2) : paddingX;
+    const headerLeftX = Math.min(paddingX + 8, curPaddingX);
+    const headerRightX = S - headerLeftX;
 
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '500 12px "Noto Sans KR", -apple-system, sans-serif';
-    ctx.fillText(subtitle, paddingX, 66);
+    // 헤더 타이틀
+    ctx.fillStyle = '#18181b';
+    ctx.font = `bold ${Math.round(22 * (S / baseCanvasSize))}px "Noto Sans KR", -apple-system, sans-serif`;
+    ctx.fillText(shelfTitle, headerLeftX, 48 * (S / baseCanvasSize));
 
-    ctx.font = '800 22px "Noto Sans KR", -apple-system, sans-serif';
-    const logoGrad = ctx.createLinearGradient(canvasW - paddingX - 65, 0, canvasW - paddingX, 0);
-    logoGrad.addColorStop(0, '#a855f7');
-    logoGrad.addColorStop(1, '#6366f1');
+    // 서브타이틀
+    ctx.fillStyle = 'rgba(24, 24, 27, 0.58)';
+    ctx.font = `500 ${Math.round(12.5 * (S / baseCanvasSize))}px "Noto Sans KR", -apple-system, sans-serif`;
+    ctx.fillText(subtitle, headerLeftX, 74 * (S / baseCanvasSize));
+
+    // 우측 8ook. 로고
+    ctx.font = `800 ${Math.round(24 * (S / baseCanvasSize))}px "Noto Sans KR", -apple-system, sans-serif`;
+    const logoGrad = ctx.createLinearGradient(headerRightX - 80, 0, headerRightX, 0);
+    logoGrad.addColorStop(0, '#7c3aed');
+    logoGrad.addColorStop(1, '#4f46e5');
     ctx.fillStyle = logoGrad;
     ctx.textAlign = 'right';
-    ctx.fillText('8ook.', canvasW - paddingX, 48);
+    ctx.fillText('8ook.', headerRightX, 54 * (S / baseCanvasSize));
     ctx.textAlign = 'left';
 
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.09)';
+    // 헤더 구분선
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(paddingX, headerH - 8);
-    ctx.lineTo(canvasW - paddingX, headerH - 8);
+    ctx.moveTo(headerLeftX, headerH - 10);
+    ctx.lineTo(headerRightX, headerH - 10);
     ctx.stroke();
 
-    // 5. 책등 렌더링
-    let curX = paddingX + (canvasW - paddingX * 2 - totalBooksW) / 2;
-    const startY = headerH + 6;
+    // 5. 책등 렌더링 (화면 정중앙에 최대 크기로 배치)
+    const scale = bookH / 351;
+    let curX = Math.round((S - totalBooksW) / 2);
+    // 수직 중앙 정렬: 헤더와 푸터 사이 공간의 한가운데에 배치
+    const startY = Math.round(headerH + ((S - headerH - footerH) - bookH) / 2);
 
-    loadedItems.forEach(item => {
+    // 책장 바닥 라인 및 은은한 선반 그림자
+    const shelfBaseY = startY + bookH;
+    const shadowGrad = ctx.createLinearGradient(0, shelfBaseY, 0, shelfBaseY + 16 * scale);
+    shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.12)');
+    shadowGrad.addColorStop(0.35, 'rgba(0, 0, 0, 0.035)');
+    shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = shadowGrad;
+    ctx.fillRect(curX - 16 * scale, shelfBaseY, totalBooksW + 32 * scale, 16 * scale);
+
+    itemsWithWidth.forEach(item => {
       const { book, img, width: w } = item;
 
       const drawCardPath = () => {
         ctx.beginPath();
         if (ctx.roundRect) {
-          ctx.roundRect(curX, startY, w, bookH, [2, 2, 0, 0]);
+          ctx.roundRect(curX, startY, w, bookH, [3 * scale, 3 * scale, 0, 0]);
         } else {
           ctx.rect(curX, startY, w, bookH);
         }
@@ -846,30 +898,32 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
         ctx.fillStyle = theme.bg || '#1e1e2d';
         ctx.fillRect(curX, startY, w, bookH);
 
+        const tagW = Math.round(24 * scale);
+        const tagH = Math.round(15 * scale);
         ctx.fillStyle = theme.tagBg || '#8b5cf6';
-        ctx.fillRect(curX + (w - 24) / 2, startY + 2, 24, 15);
+        ctx.fillRect(curX + (w - tagW) / 2, startY + 2 * scale, tagW, tagH);
         ctx.fillStyle = theme.tagText || '#ffffff';
-        ctx.font = 'bold 8px "Noto Sans KR", sans-serif';
+        ctx.font = `bold ${Math.round(8 * scale)}px "Noto Sans KR", sans-serif`;
         ctx.textAlign = 'center';
-        ctx.fillText('8ook', curX + w / 2, startY + 13);
+        ctx.fillText('8ook', curX + w / 2, startY + 13 * scale);
 
         const title = book.title || '';
-        let titleFontSize = 13;
-        let lineSpacing = 16;
+        let titleFontSize = 13 * scale;
+        let lineSpacing = 16 * scale;
         if (title.length > 15) {
-          titleFontSize = 10.5;
-          lineSpacing = 13;
+          titleFontSize = 10.5 * scale;
+          lineSpacing = 13 * scale;
         } else if (title.length > 10) {
-          titleFontSize = 11.5;
-          lineSpacing = 14.5;
+          titleFontSize = 11.5 * scale;
+          lineSpacing = 14.5 * scale;
         }
 
         ctx.fillStyle = theme.text || '#ffffff';
         ctx.font = `bold ${titleFontSize}px "Noto Serif KR", Batang, serif`;
         ctx.textAlign = 'center';
 
-        let textY = startY + 28;
-        const maxTextY = startY + 250;
+        let textY = startY + 28 * scale;
+        const maxTextY = startY + 250 * scale;
         for (let c = 0; c < title.length; c++) {
           if (textY > maxTextY) {
             ctx.fillText('…', curX + w / 2, textY);
@@ -882,43 +936,44 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
         const author = book.author || '';
         if (author) {
           ctx.fillStyle = theme.authorColor || 'rgba(255,255,255,0.6)';
-          ctx.font = '10px "Noto Serif KR", Batang, serif';
-          let authorY = startY + 270;
+          ctx.font = `${Math.round(10 * scale)}px "Noto Serif KR", Batang, serif`;
+          let authorY = startY + 270 * scale;
           ctx.fillText('✻', curX + w / 2, authorY);
-          authorY += 12;
+          authorY += 12 * scale;
           for (let c = 0; c < Math.min(author.length, 5); c++) {
             ctx.fillText(author[c], curX + w / 2, authorY);
-            authorY += 12;
+            authorY += 12 * scale;
           }
         }
 
         ctx.strokeStyle = theme.text || '#ffffff';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = Math.max(1, 1 * scale);
         ctx.beginPath();
-        ctx.arc(curX + w / 2, startY + bookH - 24, 6, 0, Math.PI * 2);
+        ctx.arc(curX + w / 2, startY + bookH - 24 * scale, 6 * scale, 0, Math.PI * 2);
         ctx.stroke();
 
         ctx.fillStyle = theme.text || '#ffffff';
-        ctx.font = 'bold 8px "Noto Serif KR", serif';
-        ctx.fillText('8ook', curX + w / 2, startY + bookH - 8);
+        ctx.font = `bold ${Math.round(8 * scale)}px "Noto Serif KR", serif`;
+        ctx.fillText('8ook', curX + w / 2, startY + bookH - 8 * scale);
 
         const spineShade = ctx.createLinearGradient(curX, 0, curX + w, 0);
-        spineShade.addColorStop(0, 'rgba(255,255,255,0.12)');
+        spineShade.addColorStop(0, 'rgba(255,255,255,0.14)');
         spineShade.addColorStop(0.5, 'rgba(0,0,0,0)');
-        spineShade.addColorStop(1, 'rgba(0,0,0,0.3)');
+        spineShade.addColorStop(1, 'rgba(0,0,0,0.28)');
         ctx.fillStyle = spineShade;
         ctx.fillRect(curX, startY, w, bookH);
 
         ctx.restore();
       }
 
+      // 별점 5점 뱃지
       if (book.rating === 5) {
         ctx.save();
         const starX = curX + w / 2;
-        const starY = startY + 15;
-        const starR = 9;
+        const starY = startY + 16 * scale;
+        const starR = 9.5 * scale;
 
-        const starGrad = ctx.createRadialGradient(starX - 2, starY - 2, 1, starX, starY, starR);
+        const starGrad = ctx.createRadialGradient(starX - 2 * scale, starY - 2 * scale, 1, starX, starY, starR);
         starGrad.addColorStop(0, '#fbbf24');
         starGrad.addColorStop(1, '#b45309');
         ctx.fillStyle = starGrad;
@@ -927,14 +982,14 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
         ctx.fill();
 
         ctx.strokeStyle = '#fef08a';
-        ctx.lineWidth = 0.8;
+        ctx.lineWidth = 0.8 * scale;
         ctx.stroke();
 
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 10px sans-serif';
+        ctx.font = `bold ${Math.round(10.5 * scale)}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('★', starX, starY + 0.5);
+        ctx.fillText('★', starX, starY + 0.5 * scale);
         ctx.textBaseline = 'alphabetic';
         ctx.restore();
       }
