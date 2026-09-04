@@ -749,11 +749,11 @@
       transition:grid-template-columns .3s;
     }
 
-    /* Quick Add Book Button left of Search Input */
+    /* Quick Add Book Button (Second line left of '월별') */
     .quick-add-book-btn {
-      width: 40px;
-      height: 40px;
-      min-width: 40px;
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
       flex-shrink: 0;
       border-radius: 50%;
       background: var(--grad-main);
@@ -765,22 +765,34 @@
       line-height: 1;
       padding: 0;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(140, 98, 57, 0.25);
+      box-shadow: 0 2px 8px rgba(140, 98, 57, 0.28);
       transition: all 0.2s ease;
     }
     .quick-add-book-btn svg {
       display: block;
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       stroke-width: 2.5;
     }
     .quick-add-book-btn:hover {
-      transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 4px 16px rgba(140, 98, 57, 0.4);
+      transform: translateY(-2px) scale(1.06);
+      box-shadow: 0 4px 16px rgba(140, 98, 57, 0.42);
       filter: brightness(1.08);
     }
     .quick-add-book-btn:active {
       transform: translateY(0) scale(0.95);
+    }
+
+    .gallery-search-wrap {
+      max-width: 900px;
+      margin: 0 auto 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0 4px;
     }
 
     /* View Mode Toggle Base */
@@ -2442,20 +2454,9 @@
       #header-search-group {
         display: flex !important;
         align-items: center !important;
-        gap: 6px !important;
         flex: 1 !important;
         min-width: 0 !important;
-        margin: 0 2px !important;
-      }
-      .quick-add-book-btn {
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
-        box-shadow: 0 2px 6px rgba(140, 98, 57, 0.25) !important;
-      }
-      .quick-add-book-btn svg {
-        width: 17px !important;
-        height: 17px !important;
+        margin: 0 4px !important;
       }
       .search-input-wrapper {
         flex: 1 !important;
@@ -2497,10 +2498,30 @@
       }
       .gallery-search-wrap {
         margin-bottom: 12px !important;
-        padding: 0 2px !important;
+        padding: 0 4px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .quick-add-book-btn {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        border-radius: 50% !important;
+        flex-shrink: 0 !important;
+        box-shadow: 0 2px 8px rgba(140, 98, 57, 0.28) !important;
+      }
+      .quick-add-book-btn svg {
+        width: 18px !important;
+        height: 18px !important;
       }
       .view-mode-toggle {
-        width: 100% !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+        width: auto !important;
         display: flex !important;
         align-items: stretch !important;
         justify-content: space-between !important;
@@ -2509,8 +2530,7 @@
         box-sizing: border-box !important;
         border-radius: 20px !important;
       }
-      .view-mode-toggle .view-toggle-btn,
-      .view-mode-toggle button {
+      .view-mode-toggle .view-toggle-btn {
         flex: 1 1 0 !important;
         width: 0 !important;
         min-width: 0 !important;
