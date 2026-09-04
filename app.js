@@ -2076,6 +2076,7 @@ function runAladinLookUpJsonp(isbn, key, results) {
     if (data && data.item && data.item.length > 0) {
       handleAladinResults(data.item);
     } else {
+      // Step 2: Try 10-digit ISBN ItemLookUp
       const cbName10 = '_aladinCb_lookup10_' + (++aladinCallbackCounter);
       const script10 = document.createElement('script');
       const params10 = new URLSearchParams({
@@ -2088,6 +2089,42 @@ function runAladinLookUpJsonp(isbn, key, results) {
         callback: cbName10
       });
       script10.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?${params10}`;
+
+      const tryKeywordFallback = () => {
+        // Step 3: Fallback to ItemSearch with Keyword=ISBN (captures books indexed by keyword)
+        const cbNameKw = '_aladinCb_lookupKw_' + (++aladinCallbackCounter);
+        const scriptKw = document.createElement('script');
+        const paramsKw = new URLSearchParams({
+          ttbkey: key,
+          Query: isbn,
+          QueryType: 'Keyword',
+          MaxResults: '12',
+          start: '1',
+          SearchTarget: 'Book',
+          output: 'JS',
+          Cover: 'Big',
+          OptResult: 'subInfo',
+          callback: cbNameKw
+        });
+        scriptKw.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${paramsKw}`;
+        window[cbNameKw] = function (kw1, kw2) {
+          delete window[cbNameKw];
+          scriptKw.remove();
+          const kwData = (typeof kw1 === 'boolean' || typeof kw1 === 'number') ? kw2 : kw1;
+          if (kwData && kwData.item && kwData.item.length > 0) {
+            handleAladinResults(kwData.item);
+          } else {
+            results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})<br><span style="font-size:12px; opacity:0.8; margin-top:6px; display:inline-block;">도서 제목이나 저자명으로 직접 검색해 보세요.</span></div>`;
+          }
+        };
+        scriptKw.onerror = function () {
+          delete window[cbNameKw];
+          scriptKw.remove();
+          results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})</div>`;
+        };
+        document.body.appendChild(scriptKw);
+      };
+
       window[cbName10] = function (tArg1, tArg2) {
         delete window[cbName10];
         script10.remove();
@@ -2095,13 +2132,13 @@ function runAladinLookUpJsonp(isbn, key, results) {
         if (data10 && data10.item && data10.item.length > 0) {
           handleAladinResults(data10.item);
         } else {
-          results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})</div>`;
+          tryKeywordFallback();
         }
       };
       script10.onerror = function () {
         delete window[cbName10];
         script10.remove();
-        results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})</div>`;
+        tryKeywordFallback();
       };
       document.body.appendChild(script10);
     }
@@ -2165,56 +2202,96 @@ function preprocessOcrImage(dataUrl) {
   });
 }
 
-function handleCameraScan(input) {
+async function handleCameraScan(input) {
   const file = input.files[0];
   if (!file) return;
 
   const results = document.getElementById('aladin-results');
-  results.classList.add('show');
-  results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드 인식 중...</div>`;
+  if (results) {
+    results.classList.add('show');
+    results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드 고정밀 분석 중...</div>`;
+  }
 
+  _initBarcodeEngines();
+
+  // 1. Try ZXingWASM directly on the file
+  if (typeof ZXingWASM !== 'undefined' && ZXingWASM.readBarcodes) {
+    try {
+      const detected = await ZXingWASM.readBarcodes(file, {
+        formats: ['EAN13', 'ISBN', 'EAN8', 'UPCA', 'UPCE', 'Code128', 'Code39'],
+        tryHarder: true,
+        tryRotate: true,
+        tryInvert: true,
+        tryDownscale: true,
+        binarizer: 'LocalAverage',
+        maxNumberOfSymbols: 5
+      });
+      if (detected && detected.length > 0) {
+        const codes = detected.map(r => r.text).filter(Boolean);
+        const best = pickBestBookBarcode(codes);
+        if (best) {
+          toast(`바코드 인식 완료: ${best}`);
+          searchAladinByIsbn(best);
+          input.value = '';
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('WASM file scan error:', e);
+    }
+  }
+
+  // 2. Fallback using canvas & ZXing
   const reader = new FileReader();
   reader.onload = function (e) {
     const tempImg = new Image();
-    tempImg.onload = function () {
-      // Draw to canvas to bake EXIF orientation
+    tempImg.onload = async function () {
       const canvas = document.createElement('canvas');
       canvas.width = tempImg.naturalWidth;
       canvas.height = tempImg.naturalHeight;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(tempImg, 0, 0, tempImg.naturalWidth, tempImg.naturalHeight);
-      const orientedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      ctx.drawImage(tempImg, 0, 0);
 
-      // Now create oriented image for ZXing
-      const orientedImg = new Image();
-      orientedImg.onload = function () {
-        const codeReader = new ZXing.BrowserMultiFormatReader();
-        codeReader.decodeFromImageElement(orientedImg)
-          .then(result => {
-            const barcode = result.text;
-            toast(`바코드 인식 완료: ${barcode}`);
-            searchAladinByIsbn(barcode);
-          })
-          .catch(err => {
-            results.innerHTML = `<div class="search-empty">바코드를 인식하지 못했습니다. 책 뒷면의 바코드가 선명하게 보이도록 다시 촬영해 주세요.</div>`;
-          });
-      };
-      orientedImg.src = orientedDataUrl;
+      // Try WASM from canvas
+      const wasmCode = await _scanFrameWithZxingWasm(canvas, { tryHarder: true, tryRotate: true });
+      if (wasmCode && wasmCode.code) {
+        toast(`바코드 인식 완료: ${wasmCode.code}`);
+        searchAladinByIsbn(wasmCode.code);
+        input.value = '';
+        return;
+      }
+
+      // Old ZXing fallback
+      if (sharedZXingReaderInstance) {
+        try {
+          const res = await sharedZXingReaderInstance.decodeFromCanvas(canvas);
+          if (res && res.text) {
+            toast(`바코드 인식 완료: ${res.text}`);
+            searchAladinByIsbn(res.text);
+            input.value = '';
+            return;
+          }
+        } catch (_) {}
+      }
+
+      if (results) {
+        results.innerHTML = `<div class="search-empty">바코드를 인식하지 못했습니다. 책 뒷면의 바코드가 선명하게 보이도록 다시 촬영해 주세요.</div>`;
+      }
     };
     tempImg.src = e.target.result;
   };
   reader.readAsDataURL(file);
+  input.value = '';
 }
 
 /* ============================================================
-/* ============================================================
-   BARCODE SCANNER ENGINE & MODAL LOGIC (NEXT-GEN)
-   - 싱글톤 Native BarcodeDetector (하드웨어 가속 우선)
-   - 최적화된 ZXing 고대비 이미지 전처리 폴백
+   BARCODE SCANNER ENGINE & MODAL LOGIC (ZXING-WASM NEXT-GEN)
+   - 최신 WebAssembly 엔진 (zxing-wasm / ZXing-C++ v2.2+)
+   - 360도 전방위 회전 인식 (tryRotate) & 적응형 국소 이진화 (LocalAverage)
+   - 싱글톤 Native BarcodeDetector (EAN-13 지원 환경 하드웨어 가속)
    - ISBN-13 (978/979) 체크섬 검증 & 도서 바코드 우선 매칭
-   - 손전등(Torch), 줌(Zoom 1x/2x), 탭 투 포커스 지원
-   - 앨범 사진 선택 바코드 인식 지원
-   - 실시간 트래킹 박스 오버레이 & 사운드/햅틱 피드백
+   - 실시간 트래킹 박스 오버레이, 손전등(Torch), 줌(Zoom 1x/2x), 탭 투 포커스
+   - 사진 앨범 직접 분석 & 모달 내 수동 ISBN 직접 입력 지원
    ============================================================ */
 let barcodeStream = null;
 let barcodeScanLoop = null;
@@ -2226,6 +2303,8 @@ let isBarcodeTorchOn = false;
 let barcodeCurrentZoom = 1;
 let barcodeSupportedZoomRange = null;
 let barcodeHasTorch = false;
+let barcodeProcessingCanvas = null;
+let barcodeProcessingCtx = null;
 
 // Initialize Web Audio Context for scanning feedback sound
 let barcodeAudioCtx = null;
@@ -2293,6 +2372,8 @@ function openBarcodeScannerModal() {
   openModal('barcode-scanner-modal');
   isBarcodeTorchOn = false;
   barcodeCurrentZoom = 1;
+  const manualInput = document.getElementById('barcode-manual-isbn-input');
+  if (manualInput) manualInput.value = '';
   _initBarcodeEngines();
   _startBarcodeCamera(barcodeCurrentFacing);
   _setupTapToFocus();
@@ -2305,20 +2386,53 @@ function closeBarcodeScannerModal() {
   document.body.style.overflow = '';
 }
 
-function _initBarcodeEngines() {
+async function _initBarcodeEngines() {
+  // 1. Pre-warm ZXingWASM WebAssembly engine
+  if (typeof ZXingWASM !== 'undefined' && ZXingWASM.prepareZXingModule) {
+    try {
+      ZXingWASM.prepareZXingModule();
+    } catch (e) {
+      console.warn('ZXingWASM prepare error:', e);
+    }
+  }
+
+  // 2. Check native BarcodeDetector if EAN-13 is actively supported
   if (!nativeBarcodeDetectorInstance && 'BarcodeDetector' in window) {
     try {
-      nativeBarcodeDetectorInstance = new BarcodeDetector({
-        formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'qr_code']
-      });
+      let formats = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'qr_code'];
+      if (typeof BarcodeDetector.getSupportedFormats === 'function') {
+        const supported = await BarcodeDetector.getSupportedFormats();
+        if (supported && supported.includes('ean_13')) {
+          formats = formats.filter(f => supported.includes(f));
+          nativeBarcodeDetectorInstance = new BarcodeDetector({ formats });
+        } else {
+          nativeBarcodeDetectorInstance = null;
+        }
+      } else {
+        nativeBarcodeDetectorInstance = new BarcodeDetector({ formats });
+      }
     } catch (e) {
       console.warn('Native BarcodeDetector init error:', e);
       nativeBarcodeDetectorInstance = null;
     }
   }
+
+  // 3. Fallback shared ZXing pure JS reader
   if (!sharedZXingReaderInstance && typeof ZXing !== 'undefined') {
     try {
-      sharedZXingReaderInstance = new ZXing.BrowserMultiFormatReader();
+      const hints = new Map();
+      if (ZXing.DecodeHintType) {
+        hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+        hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+          ZXing.BarcodeFormat.EAN_13,
+          ZXing.BarcodeFormat.EAN_8,
+          ZXing.BarcodeFormat.UPC_A,
+          ZXing.BarcodeFormat.UPC_E,
+          ZXing.BarcodeFormat.CODE_128,
+          ZXing.BarcodeFormat.CODE_39
+        ]);
+      }
+      sharedZXingReaderInstance = new ZXing.BrowserMultiFormatReader(hints);
     } catch (e) {
       console.warn('ZXing init error:', e);
     }
@@ -2421,16 +2535,12 @@ async function _startBarcodeCamera(facing) {
       }
     }
 
-    _setBarcodeScannerStatus('자동 스캔 중...', '#34d399');
+    _setBarcodeScannerStatus('자동 스캔 중 (AI/WASM)', '#34d399');
     _startBarcodeScanLoop();
   } catch (err) {
     console.warn('Barcode camera error:', err);
     _setBarcodeScannerStatus('카메라 오류', '#ef4444');
-    toast('카메라를 열 수 없습니다. 사진 선택으로 대체합니다.');
-    setTimeout(() => {
-      closeBarcodeScannerModal();
-      document.getElementById('barcode-album-input')?.click();
-    }, 1200);
+    toast('카메라를 열 수 없습니다. 사진 선택 또는 직접 입력을 이용해 주세요.');
   }
 }
 
@@ -2534,124 +2644,214 @@ function _drawTrackingBox(cornerPoints, videoEl) {
   ctx.stroke();
 }
 
-function _startBarcodeScanLoop() {
-  const video = document.getElementById('barcode-video');
-  if (!video) return;
-
-  let lastScanTime = 0;
-  const scanInterval = 65; // ~15 FPS analysis rate for silky smooth UI & minimal CPU drain
-
-  async function loop(now) {
-    if (!barcodeStream || !barcodeAutoScanningActive) return;
-
-    if (now - lastScanTime >= scanInterval && video.readyState >= 2) {
-      lastScanTime = now;
-
-      // ── Path 1: Native BarcodeDetector (Zero-copy GPU Hardware Accelerated) ──
-      if (nativeBarcodeDetectorInstance) {
-        try {
-          const barcodes = await nativeBarcodeDetectorInstance.detect(video);
-          if (barcodes && barcodes.length > 0) {
-            const rawCodes = barcodes.map(b => b.rawValue);
-            const bestCode = pickBestBookBarcode(rawCodes);
-            if (bestCode) {
-              const matchedBarcodeObj = barcodes.find(b => b.rawValue === bestCode) || barcodes[0];
-              if (matchedBarcodeObj.cornerPoints) {
-                _drawTrackingBox(matchedBarcodeObj.cornerPoints, video);
-              }
-              barcodeAutoScanningActive = false;
-              _onBarcodeDetected(bestCode);
-              return;
-            }
-          }
-        } catch (_) { }
-      }
-
-      // ── Path 2: Optimized ZXing Fallback with Adaptive Contrast ──
-      if (sharedZXingReaderInstance && barcodeAutoScanningActive) {
-        try {
-          const decoded = await _zxingScanFromVideoCrop(video);
-          if (decoded) {
-            barcodeAutoScanningActive = false;
-            _onBarcodeDetected(decoded);
-            return;
-          }
-        } catch (_) { }
-      }
-    }
-
-    barcodeScanLoop = requestAnimationFrame(loop);
+function _drawTrackingBoxFromPosition(position, videoEl, canvasW, canvasH) {
+  if (!position || !videoEl) return;
+  const vw = videoEl.videoWidth || 1;
+  const vh = videoEl.videoHeight || 1;
+  let pts = null;
+  if (Array.isArray(position) && position.length >= 4) {
+    pts = position;
+  } else if (position.topLeft && position.topRight && position.bottomRight && position.bottomLeft) {
+    const scaleX = vw / (canvasW || vw);
+    const scaleY = vh / (canvasH || vh);
+    pts = [
+      { x: position.topLeft.x * scaleX, y: position.topLeft.y * scaleY },
+      { x: position.topRight.x * scaleX, y: position.topRight.y * scaleY },
+      { x: position.bottomRight.x * scaleX, y: position.bottomRight.y * scaleY },
+      { x: position.bottomLeft.x * scaleX, y: position.bottomLeft.y * scaleY }
+    ];
   }
-
-  barcodeScanLoop = requestAnimationFrame(loop);
+  if (pts) _drawTrackingBox(pts, videoEl);
 }
 
-// Cropped & Enhanced ZXing Decode
-async function _zxingScanFromVideoCrop(video) {
+// Helper: Scan single canvas or image data with ZXingWASM
+async function _scanFrameWithZxingWasm(canvasOrImageData, options = {}) {
+  if (typeof ZXingWASM === 'undefined' || !ZXingWASM.readBarcodesFromImageData) return null;
+  try {
+    const opts = {
+      formats: ['EAN13', 'ISBN', 'EAN8', 'UPCA', 'UPCE', 'Code128', 'Code39'],
+      tryHarder: true,
+      tryRotate: true,
+      tryInvert: true,
+      tryDownscale: true,
+      binarizer: options.binarizer || 'LocalAverage',
+      maxNumberOfSymbols: 4,
+      ...options
+    };
+    const imgData = (canvasOrImageData instanceof ImageData)
+      ? canvasOrImageData
+      : canvasOrImageData.getContext('2d').getImageData(0, 0, canvasOrImageData.width, canvasOrImageData.height);
+
+    const results = await ZXingWASM.readBarcodesFromImageData(imgData, opts);
+    if (results && results.length > 0) {
+      const codes = results.map(r => r.text).filter(Boolean);
+      const best = pickBestBookBarcode(codes);
+      if (best) {
+        const item = results.find(r => r.text === best) || results[0];
+        return { code: best, item, position: item.position };
+      }
+    }
+  } catch (_) { }
+  return null;
+}
+
+// Center guide cropped region canvas
+function _getCroppedCanvas(video) {
   const vw = video.videoWidth;
   const vh = video.videoHeight;
   if (!vw || !vh) return null;
 
-  // Viewport guide frame mapping
-  const renderW = video.clientWidth || 480;
-  const renderH = video.clientHeight || 640;
-  const videoAR = vw / vh;
-  const renderAR = renderW / renderH;
-
-  let srcX = 0, srcY = 0, srcW = vw, srcH = vh;
-  if (videoAR > renderAR) {
-    srcW = vh * renderAR;
-    srcX = (vw - srcW) / 2;
-  } else {
-    srcH = vw / renderAR;
-    srcY = (vh - srcH) / 2;
-  }
-
-  const scaleX = srcW / renderW;
-  const scaleY = srcH / renderH;
-
-  const guideW = 280, guideH = 140;
-  const gx = (renderW - guideW) / 2;
-  const gy = (renderH - guideH) / 2;
-
-  const margin = 40;
-  const cropX = Math.max(0, srcX + (gx - margin) * scaleX);
-  const cropY = Math.max(0, srcY + (gy - margin) * scaleY);
-  const cropW = Math.min(vw - cropX, (guideW + margin * 2) * scaleX);
-  const cropH = Math.min(vh - cropY, (guideH + margin * 2) * scaleY);
-
-  if (cropW <= 20 || cropH <= 20) return null;
+  const cropW = Math.round(vw * 0.72);
+  const cropH = Math.round(vh * 0.48);
+  const cropX = Math.round((vw - cropW) / 2);
+  const cropY = Math.round((vh - cropH) / 2);
 
   const canvas = document.createElement('canvas');
   canvas.width = cropW;
   canvas.height = cropH;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+  return canvas;
+}
 
-  // 1. Direct Try
+// Contrast Boost helper
+function _applyContrastBoost(ctx, width, height) {
   try {
-    const res = await sharedZXingReaderInstance.decodeFromCanvas(canvas);
-    if (res && res.text) return res.text;
-  } catch (_) { }
-
-  // 2. High-contrast enhancement for shadows & low-light barcodes
-  try {
-    const imgData = ctx.getImageData(0, 0, cropW, cropH);
+    const imgData = ctx.getImageData(0, 0, width, height);
     const d = imgData.data;
     for (let i = 0; i < d.length; i += 4) {
       const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-      const val = gray < 120 ? Math.max(0, gray * 0.6) : Math.min(255, gray * 1.4);
+      const val = gray < 128 ? Math.max(0, gray * 0.6) : Math.min(255, gray * 1.4);
       d[i] = val; d[i + 1] = val; d[i + 2] = val;
     }
     ctx.putImageData(imgData, 0, 0);
-    const res2 = await sharedZXingReaderInstance.decodeFromCanvas(canvas);
-    if (res2 && res2.text) return res2.text;
   } catch (_) { }
-
-  return null;
 }
 
-function _onBarcodeDetected(rawCode) {
+function _startBarcodeScanLoop() {
+  const video = document.getElementById('barcode-video');
+  if (!video) return;
+
+  let lastScanTime = 0;
+  const scanInterval = 75; // ~13 FPS: optimal for WASM throughput and minimal CPU heat
+  let isScanningFrame = false;
+  let frameCounter = 0;
+
+  async function loop(now) {
+    if (!barcodeStream || !barcodeAutoScanningActive) return;
+
+    if (now - lastScanTime >= scanInterval && video.readyState >= 2 && !isScanningFrame) {
+      lastScanTime = now;
+      isScanningFrame = true;
+      frameCounter++;
+
+      try {
+        const vw = video.videoWidth;
+        const vh = video.videoHeight;
+        if (vw > 0 && vh > 0) {
+          // Normalize frame dimension to max 900px for sub-5ms WebAssembly execution
+          const maxDim = 900;
+          let targetW = vw;
+          let targetH = vh;
+          if (Math.max(vw, vh) > maxDim) {
+            const scale = maxDim / Math.max(vw, vh);
+            targetW = Math.round(vw * scale);
+            targetH = Math.round(vh * scale);
+          }
+
+          if (!barcodeProcessingCanvas) {
+            barcodeProcessingCanvas = document.createElement('canvas');
+          }
+          if (barcodeProcessingCanvas.width !== targetW || barcodeProcessingCanvas.height !== targetH) {
+            barcodeProcessingCanvas.width = targetW;
+            barcodeProcessingCanvas.height = targetH;
+            barcodeProcessingCtx = barcodeProcessingCanvas.getContext('2d', { willReadFrequently: true });
+          }
+
+          barcodeProcessingCtx.drawImage(video, 0, 0, targetW, targetH);
+
+          let detected = null;
+
+          // ── Tier 1: Modern ZXingWASM (ZXing-C++ WebAssembly) ──
+          if (typeof ZXingWASM !== 'undefined' && ZXingWASM.readBarcodesFromImageData) {
+            try {
+              const imgData = barcodeProcessingCtx.getImageData(0, 0, targetW, targetH);
+              const binarizerType = (frameCounter % 3 === 0) ? 'GlobalHistogram' : 'LocalAverage';
+              const results = await ZXingWASM.readBarcodesFromImageData(imgData, {
+                formats: ['EAN13', 'ISBN', 'EAN8', 'UPCA', 'UPCE', 'Code128', 'Code39'],
+                tryHarder: true,
+                tryRotate: true,
+                tryInvert: true,
+                tryDownscale: true,
+                binarizer: binarizerType,
+                maxNumberOfSymbols: 4
+              });
+              if (results && results.length > 0) {
+                const codes = results.map(r => r.text).filter(Boolean);
+                const best = pickBestBookBarcode(codes);
+                if (best) {
+                  const item = results.find(r => r.text === best) || results[0];
+                  detected = { code: best, position: item.position, canvasW: targetW, canvasH: targetH };
+                }
+              }
+            } catch (_) { }
+          }
+
+          // ── Tier 2: Native BarcodeDetector (Zero-copy GPU Hardware Accelerated) ──
+          if (!detected && nativeBarcodeDetectorInstance) {
+            try {
+              const barcodes = await nativeBarcodeDetectorInstance.detect(video);
+              if (barcodes && barcodes.length > 0) {
+                const rawCodes = barcodes.map(b => b.rawValue).filter(Boolean);
+                const best = pickBestBookBarcode(rawCodes);
+                if (best) {
+                  const matched = barcodes.find(b => b.rawValue === best) || barcodes[0];
+                  detected = { code: best, points: matched.cornerPoints || null };
+                }
+              }
+            } catch (_) { }
+          }
+
+          // ── Tier 3: ZXing Legacy Fallback with Center Crop ──
+          if (!detected && sharedZXingReaderInstance && (frameCounter % 2 === 0)) {
+            try {
+              const cropCanvas = _getCroppedCanvas(video);
+              if (cropCanvas) {
+                const res = await sharedZXingReaderInstance.decodeFromCanvas(cropCanvas);
+                if (res && res.text) {
+                  detected = { code: res.text };
+                }
+              }
+            } catch (_) { }
+          }
+
+          if (detected && detected.code) {
+            barcodeAutoScanningActive = false;
+            if (detected.position) {
+              _drawTrackingBoxFromPosition(detected.position, video, detected.canvasW, detected.canvasH);
+            } else if (detected.points) {
+              _drawTrackingBox(detected.points, video);
+            }
+            _onBarcodeDetected(detected.code);
+            return;
+          }
+        }
+      } catch (err) {
+        // Continue loop
+      } finally {
+        isScanningFrame = false;
+      }
+    }
+
+    if (barcodeAutoScanningActive && barcodeStream) {
+      barcodeScanLoop = requestAnimationFrame(loop);
+    }
+  }
+
+  barcodeScanLoop = requestAnimationFrame(loop);
+}
+
+function _onBarcodeDetected(rawCode, position) {
   if (barcodeScanLoop) {
     cancelAnimationFrame(barcodeScanLoop);
     clearTimeout(barcodeScanLoop);
@@ -2660,6 +2860,11 @@ function _onBarcodeDetected(rawCode) {
   barcodeAutoScanningActive = false;
 
   const cleanCode = String(rawCode).replace(/[^0-9Xx]/g, '');
+
+  if (position) {
+    const video = document.getElementById('barcode-video');
+    _drawTrackingBoxFromPosition(position, video);
+  }
 
   // Sound feedback
   playBarcodeBeep();
@@ -2690,10 +2895,10 @@ function _onBarcodeDetected(rawCode) {
       results.innerHTML = `<div class="search-loading"><span class="spin"></span> 도서 정보 검색 중...</div>`;
     }
     searchAladinByIsbn(cleanCode);
-  }, 600);
+  }, 500);
 }
 
-// Manual Capture Button Action
+// Manual Capture Button Action (high-resolution multi-binarizer deep scan)
 async function triggerBarcodeCapture() {
   const video = document.getElementById('barcode-video');
   if (!video || !barcodeStream) return;
@@ -2705,7 +2910,7 @@ async function triggerBarcodeCapture() {
     barcodeScanLoop = null;
   }
 
-  _setBarcodeScannerStatus('분석 중...', '#f59e0b');
+  _setBarcodeScannerStatus('고화질 정밀 분석 중...', '#f59e0b');
 
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth || 1280;
@@ -2713,39 +2918,54 @@ async function triggerBarcodeCapture() {
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  let detectedCode = null;
+  let detected = null;
 
-  // 1. Native detector on full frame
-  if (nativeBarcodeDetectorInstance) {
+  // 1. ZXingWASM full frame high resolution (LocalAverage)
+  if (typeof ZXingWASM !== 'undefined') {
+    detected = await _scanFrameWithZxingWasm(canvas, { binarizer: 'LocalAverage', tryHarder: true, tryRotate: true });
+  }
+
+  // 2. ZXingWASM full frame (GlobalHistogram)
+  if (!detected && typeof ZXingWASM !== 'undefined') {
+    detected = await _scanFrameWithZxingWasm(canvas, { binarizer: 'GlobalHistogram', tryHarder: true, tryRotate: true });
+  }
+
+  // 3. Center crop WASM
+  if (!detected && typeof ZXingWASM !== 'undefined') {
+    const crop = _getCroppedCanvas(video);
+    if (crop) {
+      detected = await _scanFrameWithZxingWasm(crop, { tryHarder: true, tryRotate: true });
+    }
+  }
+
+  // 4. Native detector
+  if (!detected && nativeBarcodeDetectorInstance) {
     try {
       const barcodes = await nativeBarcodeDetectorInstance.detect(canvas);
       if (barcodes && barcodes.length > 0) {
-        detectedCode = pickBestBookBarcode(barcodes.map(b => b.rawValue));
+        const best = pickBestBookBarcode(barcodes.map(b => b.rawValue));
+        if (best) {
+          const matched = barcodes.find(b => b.rawValue === best) || barcodes[0];
+          detected = { code: best, points: matched.cornerPoints };
+        }
       }
     } catch (_) { }
   }
 
-  // 2. ZXing on full frame
-  if (!detectedCode && sharedZXingReaderInstance) {
+  // 5. Shared ZXing reader fallback
+  if (!detected && sharedZXingReaderInstance) {
     try {
       const res = await sharedZXingReaderInstance.decodeFromCanvas(canvas);
-      if (res && res.text) detectedCode = res.text;
+      if (res && res.text) detected = { code: res.text };
     } catch (_) { }
   }
 
-  // 3. ZXing on cropped center
-  if (!detectedCode && sharedZXingReaderInstance) {
-    try {
-      detectedCode = await _zxingScanFromVideoCrop(video);
-    } catch (_) { }
-  }
-
-  if (detectedCode) {
-    _onBarcodeDetected(detectedCode);
+  if (detected && detected.code) {
+    _onBarcodeDetected(detected.code, detected.item?.position || detected.points);
   } else {
     _setBarcodeScannerStatus('미인식 — 재시도', '#ef4444');
     const gt = document.getElementById('barcode-guide-text');
-    if (gt) gt.innerHTML = '바코드를 <strong style="color:#c99365;">박스 안</strong>에 맞추고 다시 촬영해주세요';
+    if (gt) gt.innerHTML = '바코드를 <strong style="color:#c99365;">박스 안</strong>에 맞추거나, 아래에 <strong style="color:#c99365;">ISBN</strong>을 직접 입력해주세요';
 
     setTimeout(() => {
       if (!barcodeStream) return;
@@ -2753,32 +2973,68 @@ async function triggerBarcodeCapture() {
       if (gt) gt.innerHTML = '도서 뒷면 바코드를 <strong style="color:#c99365;">박스 안</strong>에 맞춰주세요';
       barcodeAutoScanningActive = true;
       _startBarcodeScanLoop();
-    }, 1800);
+    }, 2000);
   }
 }
 
-// Album Photo Select Handler
-function handleBarcodeAlbumSelect(input) {
+// Album Photo Select Handler (handles 360-degree rotation, gallery uploads)
+async function handleBarcodeAlbumSelect(input) {
   const file = input.files[0];
   if (!file) return;
 
   _setBarcodeScannerStatus('사진 분석 중...', '#f59e0b');
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const img = new Image();
-    img.onload = async function () {
-      // Bake orientation & draw to canvas
+  toast('사진에서 고정밀 바코드 분석 중...');
+
+  _initBarcodeEngines();
+  let foundCode = null;
+
+  // 1. ZXingWASM direct file read (Best in industry, handles 360° rotation & inversion)
+  if (typeof ZXingWASM !== 'undefined' && ZXingWASM.readBarcodes) {
+    try {
+      const results = await ZXingWASM.readBarcodes(file, {
+        formats: ['EAN13', 'ISBN', 'EAN8', 'UPCA', 'UPCE', 'Code128', 'Code39'],
+        tryHarder: true,
+        tryRotate: true,
+        tryInvert: true,
+        tryDownscale: true,
+        binarizer: 'LocalAverage',
+        maxNumberOfSymbols: 5
+      });
+      if (results && results.length > 0) {
+        foundCode = pickBestBookBarcode(results.map(r => r.text));
+      }
+    } catch (e) {
+      console.warn('ZXingWASM album file decode error:', e);
+    }
+  }
+
+  // 2. If not found, try GlobalHistogram binarizer via image canvas
+  if (!foundCode) {
+    try {
+      const imgBitmap = await createImageBitmap(file);
       const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
+      canvas.width = imgBitmap.width;
+      canvas.height = imgBitmap.height;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
+      ctx.drawImage(imgBitmap, 0, 0);
 
-      _initBarcodeEngines();
-      let foundCode = null;
+      // Try ZXingWASM with GlobalHistogram
+      if (typeof ZXingWASM !== 'undefined' && ZXingWASM.readBarcodesFromImageData) {
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const res = await ZXingWASM.readBarcodesFromImageData(imgData, {
+          formats: ['EAN13', 'ISBN', 'EAN8', 'UPCA', 'UPCE', 'Code128'],
+          tryHarder: true,
+          tryRotate: true,
+          tryInvert: true,
+          binarizer: 'GlobalHistogram'
+        });
+        if (res && res.length > 0) {
+          foundCode = pickBestBookBarcode(res.map(r => r.text));
+        }
+      }
 
-      // Try Native detector first
-      if (nativeBarcodeDetectorInstance) {
+      // Try Native detector
+      if (!foundCode && nativeBarcodeDetectorInstance) {
         try {
           const barcodes = await nativeBarcodeDetectorInstance.detect(canvas);
           if (barcodes && barcodes.length > 0) {
@@ -2787,7 +3043,7 @@ function handleBarcodeAlbumSelect(input) {
         } catch (_) { }
       }
 
-      // Try ZXing
+      // Try ZXing with contrast stretching
       if (!foundCode && sharedZXingReaderInstance) {
         try {
           const res = await sharedZXingReaderInstance.decodeFromCanvas(canvas);
@@ -2795,33 +3051,46 @@ function handleBarcodeAlbumSelect(input) {
         } catch (_) { }
       }
 
-      // Try with contrast stretch
       if (!foundCode && sharedZXingReaderInstance) {
+        _applyContrastBoost(ctx, canvas.width, canvas.height);
         try {
-          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const d = imgData.data;
-          for (let i = 0; i < d.length; i += 4) {
-            const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-            const val = gray < 128 ? Math.max(0, gray * 0.6) : Math.min(255, gray * 1.4);
-            d[i] = val; d[i + 1] = val; d[i + 2] = val;
-          }
-          ctx.putImageData(imgData, 0, 0);
           const res2 = await sharedZXingReaderInstance.decodeFromCanvas(canvas);
           if (res2 && res2.text) foundCode = res2.text;
         } catch (_) { }
       }
+    } catch (err) {
+      console.warn('Canvas image processing error:', err);
+    }
+  }
 
-      if (foundCode) {
-        _onBarcodeDetected(foundCode);
-      } else {
-        toast('사진에서 바코드를 찾을 수 없습니다. 선명한 사진으로 다시 시도해주세요.');
-        _setBarcodeScannerStatus('자동 스캔 중...', '#34d399');
-      }
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
+  if (foundCode) {
+    _onBarcodeDetected(foundCode);
+  } else {
+    toast('사진에서 바코드를 찾을 수 없습니다. 선명한 사진을 사용하시거나 직접 ISBN을 입력해주세요.');
+    _setBarcodeScannerStatus('자동 스캔 중...', '#34d399');
+  }
   input.value = '';
+}
+
+// Manual ISBN Direct Input Handler from Scanner Modal
+function submitBarcodeManualIsbn() {
+  const input = document.getElementById('barcode-manual-isbn-input');
+  if (!input) return;
+  const raw = input.value.trim();
+  const clean = raw.replace(/[^0-9Xx]/g, '');
+  if (!clean || (clean.length !== 10 && clean.length !== 13)) {
+    toast('10자리 또는 13자리 ISBN 번호를 입력해주세요');
+    input.focus();
+    return;
+  }
+  closeBarcodeScannerModal();
+  toast(`ISBN 직접 검색: ${clean}`);
+  const results = document.getElementById('aladin-results');
+  if (results) {
+    results.classList.add('show');
+    results.innerHTML = `<div class="search-loading"><span class="spin"></span> 도서 정보 검색 중...</div>`;
+  }
+  searchAladinByIsbn(clean);
 }
 
 function switchBarcodeCamera() {

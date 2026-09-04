@@ -588,11 +588,18 @@
       </div>
     </div>
 
-    <!-- Guide text -->
-    <div style="position:absolute; bottom:110px; left:0; right:0; text-align:center; z-index:5; pointer-events:none;">
-      <p id="barcode-guide-text" style="display:inline-block; color:#fff; font-size:12px; font-weight:500; padding:8px 20px; background:rgba(0,0,0,0.65); backdrop-filter:blur(6px); border-radius:20px; border:1px solid rgba(255,255,255,0.12); line-height:1.5;">
+    <!-- Guide text & Manual ISBN input -->
+    <div style="position:absolute; bottom:102px; left:16px; right:16px; text-align:center; z-index:12;">
+      <p id="barcode-guide-text" style="display:inline-block; margin:0 0 8px 0; color:#fff; font-size:12px; font-weight:500; padding:5px 16px; background:rgba(0,0,0,0.65); backdrop-filter:blur(6px); border-radius:20px; border:1px solid rgba(255,255,255,0.12); line-height:1.4; pointer-events:none;">
         도서 뒷면 바코드를 <strong style="color:#c99365;">박스 안</strong>에 맞춰주세요
       </p>
+      <!-- Direct ISBN input form -->
+      <div id="barcode-manual-input-box" style="display:flex; align-items:center; max-width:320px; margin:0 auto; background:rgba(18,18,22,0.85); backdrop-filter:blur(10px); border:1px solid rgba(201,147,101,0.5); border-radius:24px; padding:3px 4px 3px 12px; box-shadow:0 4px 16px rgba(0,0,0,0.6);">
+        <input type="text" id="barcode-manual-isbn-input" placeholder="바코드 미인식 시 ISBN 직접 입력" inputmode="numeric" style="flex:1; background:transparent; border:none; color:#fff; font-size:12px; outline:none;" onkeydown="if(event.key==='Enter') submitBarcodeManualIsbn()">
+        <button type="button" onclick="submitBarcodeManualIsbn()" style="background:var(--grad-main, #c99365); border:none; color:#fff; border-radius:18px; padding:5px 12px; font-size:11px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:3px;">
+          검색
+        </button>
+      </div>
     </div>
 
     <!-- Result toast -->
@@ -712,9 +719,11 @@
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <!-- Tesseract.js -->
 <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
-<!-- ZXing Barcode Decoder -->
+<!-- ZXing Barcode Decoder (Fallback) -->
 <script src="https://unpkg.com/@zxing/library@0.21.0/umd/index.min.js"></script>
+<!-- Next-Gen WebAssembly Barcode Engine (ZXing-C++ compiled to WASM) -->
+<script src="https://cdn.jsdelivr.net/npm/zxing-wasm@latest/dist/iife/reader/index.js"></script>
 
-  <script src="app.js?v=20260904_29" defer></script>
+  <script src="app.js?v=20260904_30" defer></script>
 </body>
 </html>
