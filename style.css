@@ -745,6 +745,34 @@
       transition:grid-template-columns .3s;
     }
 
+    /* Quick Add Book Button left of Search Input */
+    .quick-add-book-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--grad-main);
+      color: #fff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      font-size: 20px;
+      line-height: 1;
+      padding: 0;
+    }
+    .quick-add-book-btn:hover {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.48);
+      filter: brightness(1.1);
+    }
+    .quick-add-book-btn:active {
+      transform: translateY(0) scale(0.96);
+    }
+
     /* ======================================
        BOOKSHELF SPINE VIEW (3D Interactive)
     ====================================== */

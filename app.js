@@ -457,31 +457,6 @@ function renderGallery() {
     grid.appendChild(filterCard);
   }
 
-  // Prepend the 점선 책 추가 카드
-  const addCard = document.createElement('div');
-  if (isSpineShelf) {
-    addCard.className = 'add-book-card spine-mode';
-    addCard.innerHTML = `
-      <span class="add-book-icon">＋</span>
-      <span class="add-book-label-v">책 기록</span>
-    `;
-  } else {
-    addCard.className = 'add-book-card';
-    addCard.innerHTML = `
-      <span class="add-book-icon">＋</span>
-      <span class="add-book-label">책 기록하기</span>
-    `;
-  }
-  addCard.addEventListener('click', () => {
-    if (supabaseClient && !currentUser) {
-      toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
-      loginWithGoogle();
-      return;
-    }
-    openAddModal();
-  });
-  grid.appendChild(addCard);
-
   // Filter books
   let displayBooks = books;
   if (galleryViewMode === 'stars') {
@@ -539,8 +514,6 @@ function renderGallery() {
       const shelfRow = document.createElement('div');
       shelfRow.className = 'spine-shelf-row';
 
-      shelfRow.appendChild(addCard);
-
       sortedBooks.forEach((book, i) => {
         const card = createBookCardElement(book, i, true);
         shelfRow.appendChild(card);
@@ -581,7 +554,6 @@ function renderGallery() {
       return b.localeCompare(a);
     });
 
-    let isFirstRow = true;
     let globalIndex = 0;
 
     monthKeys.forEach(ymKey => {
@@ -609,11 +581,6 @@ function renderGallery() {
       const shelfRow = document.createElement('div');
       shelfRow.className = 'spine-shelf-row';
 
-      if (isFirstRow) {
-        shelfRow.appendChild(addCard);
-        isFirstRow = false;
-      }
-
       booksInMonth.forEach(book => {
         const card = createBookCardElement(book, globalIndex++, true);
         shelfRow.appendChild(card);
@@ -622,13 +589,6 @@ function renderGallery() {
       monthSection.appendChild(shelfRow);
       shelfContainer.appendChild(monthSection);
     });
-
-    if (!monthKeys.length) {
-      const emptyRow = document.createElement('div');
-      emptyRow.className = 'spine-shelf-row';
-      emptyRow.appendChild(addCard);
-      shelfContainer.appendChild(emptyRow);
-    }
 
     grid.appendChild(shelfContainer);
 
@@ -643,11 +603,19 @@ function renderGallery() {
     return;
   }
 
-  grid.appendChild(addCard);
   sortedBooks.forEach((book, i) => {
     const card = createBookCardElement(book, i, false);
     grid.appendChild(card);
   });
+}
+
+function handleQuickAddBook() {
+  if (supabaseClient && !currentUser) {
+    toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
+    loginWithGoogle();
+    return;
+  }
+  openAddModal();
 }
 
 function createMonthDivider(month) {
