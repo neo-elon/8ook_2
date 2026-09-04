@@ -1,39 +1,40 @@
     /* ======================================
-       CSS VARIABLES & RESET (Unified Reference Theme)
+       CSS VARIABLES & RESET (Warm Wood & Kraft Ivory/Beige Theme)
     ====================================== */
     :root {
-      /* ── Reference Warm Off-White Tone ── */
-      --bg-deep:     #F0ECEF;
-      --bg-primary:  #F3F0EF;
+      /* ── Natural Wood Craft & Warm Ivory/Beige Palette ── */
+      --bg-deep:     #f5f0e8;
+      --bg-primary:  #ede6db;
       --bg-surface:  #ffffff;
       --bg-card:     #ffffff;
-      --bg-elevated: #FAF9F7;
-      --glass:       rgba(0, 0, 0, 0.035);
-      --glass-hover: rgba(0, 0, 0, 0.065);
-      --border:      rgba(0, 0, 0, 0.08);
-      --border-muted:rgba(0, 0, 0, 0.045);
-      --border-accent: rgba(124, 58, 237, 0.25);
+      --bg-elevated: #faf7f2;
+      --glass:       rgba(100, 75, 50, 0.035);
+      --glass-hover: rgba(100, 75, 50, 0.065);
+      --border:      rgba(100, 75, 50, 0.08);
+      --border-muted:rgba(100, 75, 50, 0.045);
+      --border-accent: rgba(140, 98, 57, 0.28);
 
-      --violet:   #7c3aed;
-      --indigo:   #4f46e5;
-      --lavender: #8b5cf6;
-      --mint:     #10b981;
-      --amber:    #f59e0b;
+      /* Wood Craft Tone Mapping */
+      --violet:   #8c6239; /* Rich Wood Kraft Brown */
+      --indigo:   #704826; /* Deep Walnut Wood */
+      --lavender: #a67c52; /* Warm Tan Kraft */
+      --mint:     #52796f; /* Muted Sage Green */
+      --amber:    #c97a2b; /* Warm Caramel Amber */
 
-      --grad-main: linear-gradient(135deg, #7c3aed, #4f46e5);
-      --grad-gold: linear-gradient(135deg, #f59e0b, #fbbf24);
+      --grad-main: linear-gradient(135deg, #8c6239, #6d4726);
+      --grad-gold: linear-gradient(135deg, #c97a2b, #df9b4b);
 
-      --text-100: #18181b;
-      --text-200: rgba(24, 24, 27, 0.76);
-      --text-300: rgba(24, 24, 27, 0.52);
-      --text-400: rgba(24, 24, 27, 0.32);
+      --text-100: #231d17; /* Deep Espresso Charcoal */
+      --text-200: rgba(35, 29, 23, 0.78);
+      --text-300: rgba(35, 29, 23, 0.54);
+      --text-400: rgba(35, 29, 23, 0.35);
 
-      --header-bg: rgba(244, 242, 239, 0.88);
-      --modal-overlay: rgba(0, 0, 0, 0.42);
+      --header-bg: rgba(247, 244, 238, 0.88);
+      --modal-overlay: rgba(35, 25, 15, 0.42);
       --card-hover-border: var(--violet);
-      --card-overlay-from: rgba(0, 0, 0, 0.82);
-      --card-overlay-to:   rgba(0, 0, 0, 0.08);
-      --star-off:  rgba(0, 0, 0, 0.2);
+      --card-overlay-from: rgba(25, 18, 12, 0.84);
+      --card-overlay-to:   rgba(25, 18, 12, 0.08);
+      --star-off:  rgba(35, 29, 23, 0.2);
 
       --sidebar-w: 272px;
       --header-h:  60px;
@@ -42,9 +43,9 @@
       --radius-sm: 8px;
       --radius-xs: 5px;
 
-      --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.07);
-      --shadow-float: 0 12px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px var(--border);
-      --shadow-glow: 0 0 20px rgba(124, 58, 237, 0.12);
+      --shadow-card: 0 4px 24px rgba(70, 50, 30, 0.07);
+      --shadow-float: 0 12px 40px rgba(70, 50, 30, 0.1), 0 0 0 1px var(--border);
+      --shadow-glow: 0 0 20px rgba(140, 98, 57, 0.15);
 
       --ease: cubic-bezier(0.4, 0, 0.2, 1);
       --dur: 0.3s;
@@ -57,7 +58,7 @@
 
     body {
       font-family:'Noto Sans KR', sans-serif;
-      background: linear-gradient(180deg, #F0ECEF 0%, #F3F0EF 50%, #F4F2EF 100%);
+      background: linear-gradient(180deg, #f7f4ee 0%, #f3eee5 50%, #eae3d7 100%);
       background-attachment: fixed;
       color: var(--text-100);
       min-height:100vh;
@@ -67,19 +68,19 @@
       transition: background .4s, color .4s;
     }
 
-    /* ambient glow */
+    /* ambient warm sunshine/wood glow */
     body::before {
       content:'';
       position:fixed; top:-200px; right:-100px;
       width:700px; height:700px;
-      background:radial-gradient(circle, rgba(124,58,237,.05) 0%, transparent 65%);
+      background:radial-gradient(circle, rgba(162, 116, 75, 0.06) 0%, transparent 65%);
       pointer-events:none; z-index:0;
     }
     body::after {
       content:'';
       position:fixed; bottom:-200px; left:50px;
       width:500px; height:500px;
-      background:radial-gradient(circle, rgba(79,70,229,.03) 0%, transparent 65%);
+      background:radial-gradient(circle, rgba(120, 85, 55, 0.04) 0%, transparent 65%);
       pointer-events:none; z-index:0;
     }
 
@@ -276,7 +277,7 @@
     .cal-d.has-book {
       background:var(--grad-main); color:#fff;
       font-weight:700; cursor:pointer;
-      box-shadow:0 2px 8px rgba(139,92,246,.35);
+      box-shadow:0 2px 8px rgba(140, 98, 57, 0.3);
     }
     .cal-d.today {
       outline:1px solid var(--violet);
@@ -490,7 +491,7 @@
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: rgba(139, 92, 246, 0.15);
+      background: rgba(140, 98, 57, 0.12);
       border: 1px solid var(--border-accent);
       display: flex;
       align-items: center;
@@ -632,10 +633,10 @@
       padding:9px 18px; border-radius:var(--radius-sm);
       cursor:pointer; font-family:'Noto Sans KR', sans-serif;
       font-size:13px; font-weight:500;
-      box-shadow:0 4px 18px rgba(139,92,246,.35);
+      box-shadow:0 4px 18px rgba(140, 98, 57, 0.28);
       transition:all .2s; white-space:nowrap;
     }
-    #add-book-btn:hover { transform:translateY(-1px); box-shadow:0 8px 30px rgba(139,92,246,.45); }
+    #add-book-btn:hover { transform:translateY(-1px); box-shadow:0 8px 30px rgba(140, 98, 57, 0.38); }
     #add-book-btn:active { transform:translateY(0); }
 
     /* ======================================
@@ -706,8 +707,8 @@
     }
     .quick-add-book-btn:hover {
       transform: translateY(-2px) scale(1.04);
-      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.48);
-      filter: brightness(1.1);
+      box-shadow: 0 4px 16px rgba(140, 98, 57, 0.35);
+      filter: brightness(1.08);
     }
     .quick-add-book-btn:active {
       transform: translateY(0) scale(0.96);
@@ -1271,7 +1272,7 @@
       animation:fadeUp .4s var(--ease) both;
     }
     .add-book-card:hover {
-      background:rgba(139,92,246,.03);
+      background:rgba(140,98,57,.04);
       border-color:var(--violet);
       color:var(--violet);
       transform:translateY(-8px) scale(1.02);
@@ -1289,7 +1290,7 @@
     }
     .notion-import-card {
       position:relative; border-radius:var(--radius-lg);
-      border: 2px dashed rgba(139, 92, 246, 0.4) !important;
+      border: 2px dashed rgba(140, 98, 57, 0.4) !important;
       aspect-ratio:2/3;
       cursor:pointer;
       background:var(--glass);
@@ -1301,7 +1302,7 @@
       animation:fadeUp .4s var(--ease) both;
     }
     .notion-import-card:hover {
-      background:rgba(139,92,246,.04) !important;
+      background:rgba(140,98,57,.05) !important;
       border-color:var(--violet) !important;
       color:var(--violet) !important;
       transform:translateY(-8px) scale(1.02);
@@ -1529,8 +1530,8 @@
     /* ── Keyword tag chip in detail ── */
     .kw-chip {
       display:inline-flex; align-items:center; gap:3px;
-      background: rgba(139,92,246,0.12);
-      border: 1px solid rgba(139,92,246,0.28);
+      background: rgba(140,98,57,0.1);
+      border: 1px solid rgba(140,98,57,0.25);
       border-radius: var(--radius-sm); padding: 5px 12px;
       font-size: 11px; font-weight: 600;
       color: var(--lavender);
@@ -1544,7 +1545,7 @@
       color: #fff;
       border-color: var(--violet);
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(139,92,246,0.25);
+      box-shadow: 0 4px 12px rgba(140,98,57,0.25);
     }
     .kw-chip:active {
       transform: translateY(0);
@@ -1658,14 +1659,14 @@
     }
     .btn-primary {
       background:var(--grad-main); color:#fff;
-      box-shadow:0 4px 16px rgba(139,92,246,.3);
+      box-shadow:0 4px 16px rgba(140,98,57,.28);
     }
-    .btn-primary:hover { transform:translateY(-1px); box-shadow:0 7px 24px rgba(139,92,246,.42); }
+    .btn-primary:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(140,98,57,.38); }
     .btn-ghost {
       background:var(--glass); border:1px solid var(--border);
       color:var(--text-300);
     }
-    .btn-ghost:hover { color:var(--violet); border-color:var(--violet); background:rgba(139,92,246,.06); }
+    .btn-ghost:hover { color:var(--violet); border-color:var(--violet); background:rgba(140,98,57,.06); }
     .btn-danger {
       background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.25);
       color:#f87171;
@@ -1957,8 +1958,8 @@
     }
     .ocr-line-highlight {
       position: absolute;
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      background: rgba(139, 92, 246, 0.08);
+      border: 1px solid rgba(140, 98, 57, 0.3);
+      background: rgba(140, 98, 57, 0.08);
       border-radius: 3px;
       cursor: pointer;
       pointer-events: auto;
@@ -1966,14 +1967,14 @@
       box-sizing: border-box;
     }
     .ocr-line-highlight:hover {
-      background: rgba(139, 92, 246, 0.22);
-      border-color: rgba(139, 92, 246, 0.7);
-      box-shadow: 0 0 5px rgba(139, 92, 246, 0.35);
+      background: rgba(140, 98, 57, 0.18);
+      border-color: rgba(140, 98, 57, 0.7);
+      box-shadow: 0 0 5px rgba(140, 98, 57, 0.35);
     }
     .ocr-line-highlight.selected {
-      background: rgba(139, 92, 246, 0.4);
+      background: rgba(140, 98, 57, 0.32);
       border: 2px solid var(--violet);
-      box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+      box-shadow: 0 0 8px rgba(140, 98, 57, 0.4);
     }
     .ocr-scan-line {
       position: absolute;
@@ -1998,7 +1999,7 @@
     }
     .ocr-sel {
       position:absolute; border:2px solid var(--violet);
-      background:rgba(139,92,246,.14); pointer-events:none;
+      background:rgba(140,98,57,.14); pointer-events:none;
     }
     .ocr-ph {
       display:flex; flex-direction:column; align-items:center;
@@ -2057,7 +2058,7 @@
     /* Spinner */
     .spin {
       display:inline-block; width:14px; height:14px;
-      border:2px solid rgba(139,92,246,.3);
+      border:2px solid rgba(140,98,57,.3);
       border-top-color:var(--violet);
       border-radius:50%; animation:spinning .75s linear infinite;
     }
@@ -2067,9 +2068,9 @@
        COMMUNITY & AR OVERLAY STYLING
     ====================================== */
     @keyframes pulse {
-      0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(139,92,246,0.3)); }
-      50% { transform: scale(1.06); filter: drop-shadow(0 0 10px rgba(139,92,246,0.55)); }
-      100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(139,92,246,0.3)); }
+      0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(140,98,57,0.3)); }
+      50% { transform: scale(1.06); filter: drop-shadow(0 0 8px rgba(140,98,57,0.45)); }
+      100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(140,98,57,0.3)); }
     }
     #view-community {
       display: none;

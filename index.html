@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260904_6">
+  <link rel="stylesheet" href="style.css?v=20260904_7">
 </head>
 <body>
 
@@ -234,7 +234,7 @@
     <div class="community-wrap" style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px;">
       
       <!-- Keyword Word Cloud Card -->
-      <div class="wordcloud-card" style="background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(99,102,241,0.1)); border: 1px solid var(--border-accent); border-radius: var(--radius-lg); padding: 24px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow-glow); transition: all 0.3s var(--ease);">
+      <div class="wordcloud-card" style="background: linear-gradient(135deg, rgba(140,98,57,0.08), rgba(166,124,82,0.08)); border: 1px solid var(--border-accent); border-radius: var(--radius-lg); padding: 24px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow-glow); transition: all 0.3s var(--ease);">
         <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
           <h3 style="font-size: 16px; font-weight: 700; color: var(--text-100); display:flex; align-items:center; gap:8px; margin:0;">
             <span>🏷️</span> 독서 키워드 클라우드
@@ -531,17 +531,17 @@
     <!-- Guide frame (barcode alignment box) -->
     <div id="barcode-guide-frame" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:260px; height:104px; z-index:3; pointer-events:none;">
       <!-- Corner brackets -->
-      <div style="position:absolute; top:-2px; left:-2px; width:22px; height:22px; border-top:3px solid #a78bfa; border-left:3px solid #a78bfa; border-radius:4px 0 0 0;"></div>
-      <div style="position:absolute; top:-2px; right:-2px; width:22px; height:22px; border-top:3px solid #a78bfa; border-right:3px solid #a78bfa; border-radius:0 4px 0 0;"></div>
-      <div style="position:absolute; bottom:-2px; left:-2px; width:22px; height:22px; border-bottom:3px solid #a78bfa; border-left:3px solid #a78bfa; border-radius:0 0 0 4px;"></div>
-      <div style="position:absolute; bottom:-2px; right:-2px; width:22px; height:22px; border-bottom:3px solid #a78bfa; border-right:3px solid #a78bfa; border-radius:0 0 4px 0;"></div>
+      <div style="position:absolute; top:-2px; left:-2px; width:22px; height:22px; border-top:3px solid #c99365; border-left:3px solid #c99365; border-radius:4px 0 0 0;"></div>
+      <div style="position:absolute; top:-2px; right:-2px; width:22px; height:22px; border-top:3px solid #c99365; border-right:3px solid #c99365; border-radius:0 4px 0 0;"></div>
+      <div style="position:absolute; bottom:-2px; left:-2px; width:22px; height:22px; border-bottom:3px solid #c99365; border-left:3px solid #c99365; border-radius:0 0 0 4px;"></div>
+      <div style="position:absolute; bottom:-2px; right:-2px; width:22px; height:22px; border-bottom:3px solid #c99365; border-right:3px solid #c99365; border-radius:0 0 4px 0;"></div>
       <!-- Scan line animation -->
-      <div id="barcode-scan-line" style="position:absolute; left:0; right:0; top:0; height:2px; background:linear-gradient(90deg, transparent, #8b5cf6, #a78bfa, #8b5cf6, transparent); box-shadow:0 0 8px rgba(139,92,246,0.9); animation: barcodeScan 1.6s ease-in-out infinite;"></div>
+      <div id="barcode-scan-line" style="position:absolute; left:0; right:0; top:0; height:2px; background:linear-gradient(90deg, transparent, #8c6239, #c99365, #8c6239, transparent); box-shadow:0 0 8px rgba(140,98,57,0.8); animation: barcodeScan 1.6s ease-in-out infinite;"></div>
     </div>
 
     <!-- Top info -->
     <div style="position:absolute; top:18px; left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:8px; z-index:5; pointer-events:none;">
-      <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(0,0,0,0.65); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.1); padding:5px 14px; border-radius:20px; color:#a78bfa; font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">
+      <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(0,0,0,0.65); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.1); padding:5px 14px; border-radius:20px; color:#c99365; font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">
         <span id="barcode-status-dot" style="display:inline-block; width:6px; height:6px; background:#34d399; border-radius:50%; box-shadow:0 0 8px #34d399;"></span>
         <span id="barcode-status-label">바코드 스캐너</span>
       </div>
@@ -550,7 +550,7 @@
     <!-- Guide text -->
     <div style="position:absolute; bottom:100px; left:0; right:0; text-align:center; z-index:5; pointer-events:none;">
       <p id="barcode-guide-text" style="display:inline-block; color:#fff; font-size:12px; font-weight:500; padding:7px 18px; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); border-radius:10px; border:1px solid rgba(255,255,255,0.08); line-height:1.5;">
-        바코드를 <strong style="color:#a78bfa;">박스 안</strong>에 맞추면 자동으로 인식됩니다
+        바코드를 <strong style="color:#c99365;">박스 안</strong>에 맞추면 자동으로 인식됩니다
       </p>
     </div>
 
@@ -562,7 +562,7 @@
       <!-- Close -->
       <button onclick="closeBarcodeScannerModal()" style="width:44px; height:44px; border-radius:50%; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
       <!-- Manual capture fallback -->
-      <button id="barcode-capture-btn" onclick="triggerBarcodeCapture()" style="width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,#8b5cf6,#6366f1); border:3px solid #fff; color:#fff; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(139,92,246,0.6);" title="촬영">📷</button>
+      <button id="barcode-capture-btn" onclick="triggerBarcodeCapture()" style="width:64px; height:64px; border-radius:50%; background:var(--grad-main); border:3px solid #fff; color:#fff; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(140,98,57,0.6);" title="촬영">📷</button>
       <!-- Switch camera -->
       <button onclick="switchBarcodeCamera()" style="width:44px; height:44px; border-radius:50%; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="카메라 전환">🔄</button>
     </div>
@@ -666,6 +666,6 @@
 <!-- ZXing Barcode Decoder -->
 <script src="https://unpkg.com/@zxing/library@0.21.0/umd/index.min.js"></script>
 
-  <script src="app.js?v=20260904_6" defer></script>
+  <script src="app.js?v=20260904_7" defer></script>
 </body>
 </html>

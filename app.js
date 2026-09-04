@@ -387,7 +387,7 @@ function getSpineTheme(book) {
     { bg: '#233830', text: '#e6f4ed', authorColor: '#9ec4b3', border: '#345247', tagBg: '#e6f4ed', tagText: '#233830', isLight: false },
     { bg: '#ede6d4', text: '#1c1917', authorColor: '#44403c', border: '#d6cbaf', tagBg: '#7f1d1d', tagText: '#fef2f2', isLight: true },
     { bg: '#4a151b', text: '#fce8ea', authorColor: '#e0a3aa', border: '#6e222a', tagBg: '#fce8ea', tagText: '#4a151b', isLight: false },
-    { bg: '#1e1e24', text: '#f0f0f5', authorColor: '#9e9ea6', border: '#33333d', tagBg: '#8b5cf6', tagText: '#ffffff', isLight: false }
+    { bg: '#1e1e24', text: '#f0f0f5', authorColor: '#9e9ea6', border: '#33333d', tagBg: '#8c6239', tagText: '#ffffff', isLight: false }
   ];
   let hash = 0;
   const str = (book.title || '') + (book.id || '');
@@ -830,18 +830,18 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
 
-    // 3. 배경 그리기 (책장 배경과 동일한 색상 그라데이션)
+    // 3. 배경 그리기 (책장 배경과 동일한 색상 그라데이션 - 웜 베이지 & 크라프트 아이보리)
     const bgGrad = ctx.createLinearGradient(0, 0, 0, S);
-    bgGrad.addColorStop(0, '#F0ECEF');
-    bgGrad.addColorStop(0.5, '#F3F0EF');
-    bgGrad.addColorStop(1, '#F4F2EF');
+    bgGrad.addColorStop(0, '#f7f4ee');
+    bgGrad.addColorStop(0.5, '#f3eee5');
+    bgGrad.addColorStop(1, '#eae3d7');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, S, S);
 
-    // 은은한 보라빛 앰비언트 글로우
+    // 은은한 우드 선샤인 앰비언트 글로우
     const glow = ctx.createRadialGradient(S * 0.82, 0, 10, S * 0.82, 0, S * 0.7);
-    glow.addColorStop(0, 'rgba(124, 58, 237, 0.04)');
-    glow.addColorStop(1, 'rgba(240, 236, 239, 0)');
+    glow.addColorStop(0, 'rgba(140, 98, 57, 0.06)');
+    glow.addColorStop(1, 'rgba(245, 240, 232, 0)');
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, S, S);
 
@@ -854,13 +854,13 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       displayTitle = 'My Favorites';
     }
 
-    // 상단 좌측: 감성 타이포그래피
-    ctx.fillStyle = '#18181b';
+    // 상단 좌측: 감성 타이포그래피 (딥 에스프레소 차콜)
+    ctx.fillStyle = '#231d17';
     ctx.font = `600 21px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Noto Serif KR", serif`;
     ctx.fillText(displayTitle, paddingX, 62);
 
-    // 상단 우측: 미니멀한 8ook. 로고
-    ctx.fillStyle = '#7c3aed';
+    // 상단 우측: 미니멀한 8ook. 로고 (우드 크라프트 브라운)
+    ctx.fillStyle = '#8c6239';
     ctx.font = `800 21px -apple-system, BlinkMacSystemFont, sans-serif`;
     ctx.textAlign = 'right';
     ctx.fillText('8ook.', S - paddingX, 62);
@@ -918,7 +918,7 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
 
         const tagW = Math.round(24 * scale);
         const tagH = Math.round(15 * scale);
-        ctx.fillStyle = theme.tagBg || '#8b5cf6';
+        ctx.fillStyle = theme.tagBg || '#8c6239';
         ctx.fillRect(curX + (w - tagW) / 2, startY + 2 * scale, tagW, tagH);
         ctx.fillStyle = theme.tagText || '#ffffff';
         ctx.font = `bold ${Math.round(8 * scale)}px "Noto Sans KR", sans-serif`;
@@ -2257,12 +2257,12 @@ async function triggerBarcodeCapture() {
     console.warn('Manual capture failed or timed out:', err);
     _setBarcodeScannerStatus('미인식 — 다시 시도', '#ef4444');
     const gt = document.getElementById('barcode-guide-text');
-    if (gt) gt.innerHTML = '❌ 인식 실패. 바코드를 <strong style="color:#a78bfa;">박스 안</strong>에 맞추고 다시 누르세요.';
+    if (gt) gt.innerHTML = '❌ 인식 실패. 바코드를 <strong style="color:#c99365;">박스 안</strong>에 맞추고 다시 누르세요.';
     
     setTimeout(() => {
       if (!barcodeStream) return;
       _setBarcodeScannerStatus('자동 스캔 중...', '#34d399');
-      if (gt) gt.innerHTML = '책 뒷면 바코드를 <strong style="color:#a78bfa;">박스 안</strong>에 맞춰주세요';
+      if (gt) gt.innerHTML = '책 뒷면 바코드를 <strong style="color:#c99365;">박스 안</strong>에 맞춰주세요';
       // Resume automatic scanning
       barcodeAutoScanningActive = true;
       _startBarcodeScanLoop();
@@ -3553,7 +3553,7 @@ loadTheme();
       author: '8ook 제작팀',
       pages: 10,
       date: new Date().toISOString().slice(0, 10),
-      cover: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%238b5cf6"/><stop offset="100%" stop-color="%23ec4899"/></linearGradient></defs><rect width="400" height="600" fill="url(%23g)"/><rect x="20" y="20" width="360" height="560" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" rx="10"/><circle cx="200" cy="180" r="60" fill="rgba(255,255,255,0.15)"/><text x="200" y="195" fill="white" font-size="60" font-weight="bold" text-anchor="middle" font-family="sans-serif">📚</text><text x="200" y="320" fill="white" font-size="28" font-weight="bold" text-anchor="middle" font-family="sans-serif">8ook. 이용 가이드</text><text x="200" y="370" fill="rgba(255,255,255,0.8)" font-size="16" text-anchor="middle" font-family="sans-serif">나만의 스마트한 독서 일기</text><line x1="100" y1="420" x2="300" y2="420" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><text x="200" y="470" fill="white" font-size="14" font-weight="500" text-anchor="middle" font-family="sans-serif">책 기록 • 문장 스크랩 • 독서 통계</text><text x="200" y="530" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle" font-family="sans-serif">© 8ook Team</text></svg>',
+      cover: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%238c6239"/><stop offset="100%" stop-color="%23c97a2b"/></linearGradient></defs><rect width="400" height="600" fill="url(%23g)"/><rect x="20" y="20" width="360" height="560" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" rx="10"/><circle cx="200" cy="180" r="60" fill="rgba(255,255,255,0.15)"/><text x="200" y="195" fill="white" font-size="60" font-weight="bold" text-anchor="middle" font-family="sans-serif">📚</text><text x="200" y="320" fill="white" font-size="28" font-weight="bold" text-anchor="middle" font-family="sans-serif">8ook. 이용 가이드</text><text x="200" y="370" fill="rgba(255,255,255,0.8)" font-size="16" text-anchor="middle" font-family="sans-serif">나만의 스마트한 독서 일기</text><line x1="100" y1="420" x2="300" y2="420" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><text x="200" y="470" fill="white" font-size="14" font-weight="500" text-anchor="middle" font-family="sans-serif">책 기록 • 문장 스크랩 • 독서 통계</text><text x="200" y="530" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle" font-family="sans-serif">© 8ook Team</text></svg>',
       rating: 5,
       sentence: '독서 기록, 문장 스크랩, 완독 통계 및 독서 수다 피드까지! 8ook를 100% 활용하는 상세 가이드북입니다.',
       scraps: [
@@ -4202,7 +4202,7 @@ function startArCanvasAnimation() {
       ctx.stroke();
 
       // Advanced grid representation
-      ctx.strokeStyle = 'rgba(139, 92, 246, 0.15)';
+      ctx.strokeStyle = 'rgba(140, 98, 57, 0.15)';
       ctx.lineWidth = 1;
       const gridCount = 8;
       for (let i = 1; i < gridCount; i++) {
@@ -4221,7 +4221,7 @@ function startArCanvasAnimation() {
 
       // Draw simulated AI outline tracking boxes detecting items
       const pulseScale = 0.85 + Math.sin(Date.now() * 0.02) * 0.08;
-      ctx.strokeStyle = 'rgba(139, 92, 246, 0.5)';
+      ctx.strokeStyle = 'rgba(140, 98, 57, 0.5)';
       ctx.lineWidth = 1.5;
       ctx.setLineDash([4, 4]);
 
@@ -4245,13 +4245,13 @@ function startArCanvasAnimation() {
       const y = (Math.sin(time) + 1) * 0.5 * canvas.height;
       const grad = ctx.createLinearGradient(0, y - 4, 0, y + 4);
       grad.addColorStop(0, 'transparent');
-      grad.addColorStop(0.5, 'rgba(139, 92, 246, 0.75)');
+      grad.addColorStop(0.5, 'rgba(140, 98, 57, 0.75)');
       grad.addColorStop(1, 'transparent');
       
       ctx.fillStyle = grad;
       ctx.fillRect(0, y - 4, canvas.width, 8);
       
-      ctx.strokeStyle = 'rgba(139, 92, 246, 0.35)';
+      ctx.strokeStyle = 'rgba(140, 98, 57, 0.35)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, y);
@@ -4279,7 +4279,7 @@ function triggerArScan() {
   statusToast.querySelector('span:last-child').textContent = "책 테두리 감지 중 (Edge Detection)...";
 
   canvas.style.transition = 'none';
-  canvas.style.backgroundColor = 'rgba(139, 92, 246, 0.35)';
+  canvas.style.backgroundColor = 'rgba(140, 98, 57, 0.35)';
   setTimeout(() => {
     canvas.style.transition = 'background-color 0.8s ease';
     canvas.style.backgroundColor = 'transparent';
@@ -4440,7 +4440,7 @@ function renderDetectedBooks() {
       boxEl.style.boxShadow = '0 0 20px rgba(52, 211, 153, 0.8)';
     } else {
       boxEl.style.border = '2px dashed var(--violet)';
-      boxEl.style.boxShadow = '0 0 10px rgba(139, 92, 246, 0.4)';
+      boxEl.style.boxShadow = '0 0 10px rgba(140, 98, 57, 0.4)';
     }
 
     const labelEl = document.createElement('div');
