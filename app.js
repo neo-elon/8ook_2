@@ -4,10 +4,49 @@
 const supabaseUrl = 'https://guaimwzlmdacerpvsxxw.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1YWltd3psbWRhY2VycHZzeHh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODM1NDIsImV4cCI6MjA5NjY1OTU0Mn0.zF8A_Ul3Y5aIPjZcVTYIj1gUkConuQ-b9eO7EjnoWUE';
 
+// Persistent storage adapter (LocalStorage + Cookie backup for iOS Safari ITP)
+const persistentStorage = {
+  getItem: (key) => {
+    try {
+      const val = localStorage.getItem(key);
+      if (val) return val;
+    } catch (e) {}
+
+    try {
+      const match = document.cookie.match(new RegExp('(?:^|;\\s*)' + encodeURIComponent(key) + '=([^;]*)'));
+      if (match) return decodeURIComponent(match[1]);
+    } catch (e) {}
+    return null;
+  },
+  setItem: (key, value) => {
+    try { localStorage.setItem(key, value); } catch (e) {}
+    try {
+      const expDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
+      const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
+      document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}; expires=${expDate}; path=/; SameSite=Lax${secureFlag}`;
+    } catch (e) {}
+  },
+  removeItem: (key) => {
+    try { localStorage.removeItem(key); } catch (e) {}
+    try {
+      document.cookie = `${encodeURIComponent(key)}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
+    } catch (e) {}
+  }
+};
+
 let supabaseClient = null;
 try {
   if (window.supabase) {
-    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        storage: persistentStorage,
+        storageKey: 'rj_8ook_auth_token',
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        flowType: 'pkce'
+      }
+    });
   } else {
     console.warn("Supabase SDK not loaded. Operating in LocalStorage-only mode.");
   }
@@ -3518,7 +3557,11 @@ async function loginWithGoogle() {
   const { error } = await supabaseClient.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: redirectUrl
+      redirectTo: redirectUrl,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'select_account'
+      }
     }
   });
   if (error) { console.error(error); toast('❌ 로그인 실패'); }
@@ -3532,9 +3575,25 @@ async function logout() {
 
 async function checkAuth() {
   if (!supabaseClient) return;
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  currentUser = session?.user || null;
-  updateAuthUI(session);
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session && session.user) {
+      currentUser = session.user;
+      updateAuthUI(session);
+    } else {
+      // 탭 닫힘 복원: Refresh Token을 통한 백그라운드 자동 세션 복구
+      const { data: refreshData } = await supabaseClient.auth.refreshSession();
+      if (refreshData && refreshData.session) {
+        currentUser = refreshData.session.user;
+        updateAuthUI(refreshData.session);
+      } else {
+        currentUser = null;
+        updateAuthUI(null);
+      }
+    }
+  } catch (err) {
+    console.warn("Auth session check error:", err);
+  }
 }
 
 function updateAuthUI(session) {
