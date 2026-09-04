@@ -353,11 +353,23 @@ function adjustSpineCardWidth(img) {
 }
 
 function getGalleryViewMode() {
-  try { return localStorage.getItem('rj_gallery_view_mode') || 'spine'; } catch(e) { return 'spine'; }
+  try {
+    const m = localStorage.getItem('rj_gallery_view_mode');
+    if (m === 'spine') return 'spine-month';
+    return m || 'spine-month';
+  } catch(e) {
+    return 'spine-month';
+  }
 }
 
 let galleryViewMode = (function() {
-  try { return localStorage.getItem('rj_gallery_view_mode') || 'spine'; } catch(e) { return 'spine'; }
+  try {
+    const m = localStorage.getItem('rj_gallery_view_mode');
+    if (m === 'spine') return 'spine-month';
+    return m || 'spine-month';
+  } catch(e) {
+    return 'spine-month';
+  }
 })();
 
 function getSpineImageUrl(url) {
@@ -399,6 +411,7 @@ function getSpineTheme(book) {
 }
 
 function setGalleryViewMode(mode) {
+  if (mode === 'spine') mode = 'spine-month';
   galleryViewMode = mode;
   try { localStorage.setItem('rj_gallery_view_mode', mode); } catch(e) {}
   updateViewModeButtons();
@@ -406,7 +419,8 @@ function setGalleryViewMode(mode) {
 }
 
 function updateViewModeButtons() {
-  const btnSpine = document.getElementById('btn-view-spine');
+  const btnMonth = document.getElementById('btn-view-month');
+  const btnYear = document.getElementById('btn-view-year');
   const btnStars = document.getElementById('btn-view-stars');
   const btnCover = document.getElementById('btn-view-cover');
   const resetBtn = (btn) => {
@@ -416,21 +430,25 @@ function updateViewModeButtons() {
     btn.style.fontWeight = '400';
     btn.style.boxShadow = 'none';
   };
-  [btnSpine, btnStars, btnCover].forEach(resetBtn);
+  [btnMonth, btnYear, btnStars, btnCover].forEach(resetBtn);
 
   if (galleryViewMode === 'stars' && btnStars) {
-    btnStars.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+    btnStars.style.background = 'linear-gradient(135deg, #c97a2b 0%, #a6601e 100%)';
     btnStars.style.color = '#fff';
     btnStars.style.fontWeight = '700';
-    btnStars.style.boxShadow = '0 2px 8px rgba(245, 158, 11, 0.4)';
+    btnStars.style.boxShadow = '0 2px 8px rgba(201, 122, 43, 0.4)';
   } else if (galleryViewMode === 'cover' && btnCover) {
     btnCover.style.background = 'var(--violet)';
     btnCover.style.color = '#fff';
     btnCover.style.fontWeight = '600';
-  } else if (btnSpine) {
-    btnSpine.style.background = 'var(--violet)';
-    btnSpine.style.color = '#fff';
-    btnSpine.style.fontWeight = '600';
+  } else if (galleryViewMode === 'spine-year' && btnYear) {
+    btnYear.style.background = 'var(--violet)';
+    btnYear.style.color = '#fff';
+    btnYear.style.fontWeight = '600';
+  } else if (btnMonth) {
+    btnMonth.style.background = 'var(--violet)';
+    btnMonth.style.color = '#fff';
+    btnMonth.style.fontWeight = '600';
   }
 }
 
@@ -451,7 +469,7 @@ function renderGallery() {
   grid.innerHTML = '';
 
   updateViewModeButtons();
-  const isSpineShelf = galleryViewMode === 'spine' || galleryViewMode === 'stars';
+  const isSpineShelf = galleryViewMode === 'spine' || galleryViewMode === 'spine-month' || galleryViewMode === 'spine-year' || galleryViewMode === 'stars';
   grid.classList.toggle('spine-view', isSpineShelf);
 
   // Handle Search Input display
@@ -482,7 +500,7 @@ function renderGallery() {
         </button>
       </span>
       <div style="display:flex; align-items:center; gap:6px;">
-        <button class="btn btn-ghost btn-xs" onclick="setGalleryViewMode('spine')" style="font-size:11px; color:var(--text-300); cursor:pointer; height:24px; padding:0 8px;">전체 책장 보기 ✕</button>
+        <button class="btn btn-ghost btn-xs" onclick="setGalleryViewMode('spine-month')" style="font-size:11px; color:var(--text-300); cursor:pointer; height:24px; padding:0 8px;">책장 보기 ✕</button>
       </div>
     `;
     grid.appendChild(starsBanner);
@@ -576,7 +594,81 @@ function renderGallery() {
       return;
     }
 
-    // 전체 책장: 월별(연-월) 층 선반 렌더링
+    // 연도별 책장 렌더링
+    if (galleryViewMode === 'spine-year') {
+      const yearGroups = {};
+      sortedBooks.forEach(book => {
+        let yKey = '기타';
+        if (book.date) {
+          const d = new Date(book.date);
+          const y = d.getFullYear();
+          if (!isNaN(y)) {
+            yKey = String(y);
+          }
+        }
+        if (!yearGroups[yKey]) yearGroups[yKey] = [];
+        yearGroups[yKey].push(book);
+      });
+
+      const yearKeys = Object.keys(yearGroups).sort((a, b) => {
+        if (a === '기타') return 1;
+        if (b === '기타') return -1;
+        return b.localeCompare(a);
+      });
+
+      let globalIndex = 0;
+
+      yearKeys.forEach(yKey => {
+        const yearSection = document.createElement('div');
+        yearSection.className = 'shelf-year-section';
+
+        const booksInYear = yearGroups[yKey];
+        const yearLabel = yKey !== '기타' ? `${yKey}년` : '완독일 미정';
+
+        const header = document.createElement('div');
+        header.className = 'shelf-year-header';
+        header.innerHTML = `
+          <div class="shelf-year-badge">
+            <span class="shelf-year-title">${yearLabel}</span>
+            <span class="shelf-year-count">${booksInYear.length}권</span>
+            <button class="shelf-download-btn" onclick="downloadYearShelfImage('${esc(yKey)}', '${esc(yearLabel)}')" title="${esc(yearLabel)} 책장 이미지 저장" aria-label="책장 이미지 저장">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3v12"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="shelf-year-line"></div>
+        `;
+        yearSection.appendChild(header);
+
+        const shelfRow = document.createElement('div');
+        shelfRow.className = 'spine-shelf-row';
+        enableSpineShelfWheel(shelfRow);
+
+        booksInYear.forEach(book => {
+          const card = createBookCardElement(book, globalIndex++, true);
+          shelfRow.appendChild(card);
+        });
+
+        yearSection.appendChild(shelfRow);
+        shelfContainer.appendChild(yearSection);
+      });
+
+      grid.appendChild(shelfContainer);
+
+      requestAnimationFrame(() => {
+        shelfContainer.querySelectorAll('.spine-real-img').forEach(img => {
+          if (img.complete && img.naturalWidth) {
+            adjustSpineCardWidth(img);
+          }
+        });
+      });
+      return;
+    }
+
+    // 기본: 월별(연-월) 층 선반 렌더링
     const monthGroups = {};
     sortedBooks.forEach(book => {
       let ymKey = '기타';
@@ -725,6 +817,37 @@ async function downloadMonthShelfImage(ymKey, monthLabel) {
   await generateShelfImage(targetBooks, `${monthLabel} 독서 서재`, subtitle, `8ook_${monthLabel.replace(/[^\w가-힣]/g, '_')}_책장`);
 }
 
+async function downloadYearShelfImage(yKey, yearLabel) {
+  let targetBooks = [];
+  if (yKey === '기타') {
+    targetBooks = books.filter(b => {
+      if (!b.date) return true;
+      const d = new Date(b.date);
+      return isNaN(d.getFullYear());
+    });
+  } else {
+    targetBooks = books.filter(b => {
+      if (!b.date) return false;
+      const d = new Date(b.date);
+      return String(d.getFullYear()) === yKey;
+    });
+  }
+
+  targetBooks.sort((a, b) => {
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return new Date(b.date) - new Date(a.date);
+  });
+
+  if (!targetBooks.length) {
+    toast('⚠️ 저장할 도서가 없습니다.');
+    return;
+  }
+
+  const subtitle = `총 ${targetBooks.length}권 완독 · ${targetBooks.reduce((sum, b) => sum + (parseInt(b.pages, 10) || 0), 0)}페이지`;
+  await generateShelfImage(targetBooks, `${yearLabel} 독서 서재`, subtitle, `8ook_${yearLabel.replace(/[^\w가-힣]/g, '_')}_책장`);
+}
+
 async function downloadStarsShelfImage() {
   const targetBooks = books.filter(b => b.rating === 5);
   targetBooks.sort((a, b) => {
@@ -848,8 +971,11 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
     // 4. 인스타그램 감성 미니멀 헤더
     let displayTitle = shelfTitle;
     const ymMatch = shelfTitle.match(/(\d{4})년\s*(\d{1,2})월/);
+    const yMatch = shelfTitle.match(/(\d{4})년/);
     if (ymMatch) {
       displayTitle = `${ymMatch[1]}. ${String(ymMatch[2]).padStart(2, '0')}`;
+    } else if (yMatch) {
+      displayTitle = `${yMatch[1]} Bookshelf`;
     } else if (shelfTitle.includes('인생작')) {
       displayTitle = 'My Favorites';
     }

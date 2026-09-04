@@ -2283,14 +2283,28 @@
         width: 100% !important;
         display: flex !important;
         justify-content: space-between !important;
+        gap: 2px !important;
       }
       .view-mode-toggle button {
         flex: 1 !important;
         text-align: center !important;
-        padding: 6px 4px !important;
-        font-size: 11px !important;
+        padding: 6px 2px !important;
+        font-size: 10.5px !important;
         white-space: nowrap !important;
       }
+      .view-toggle-text-full {
+        display: none !important;
+      }
+      .view-toggle-text-short {
+        display: inline !important;
+      }
+    }
+
+    .view-toggle-text-short {
+      display: none;
+    }
+    .view-toggle-text-full {
+      display: inline;
     }
 
 @keyframes barcodeScan {

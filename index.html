@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260904_7">
+  <link rel="stylesheet" href="style.css?v=20260904_8">
 </head>
 <body>
 
@@ -206,9 +206,18 @@
         </div>
 
         <div class="view-mode-toggle" style="display: flex; gap: 3px; background: var(--glass); padding: 3px; border-radius: 20px; border: 1px solid var(--border); flex-shrink: 0;">
-          <button id="btn-view-spine" class="btn btn-xs" onclick="setGalleryViewMode('spine')" title="책등으로 보기 (3D 서재)" style="padding: 4px 11px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">📚 전체 책장</button>
-          <button id="btn-view-stars" class="btn btn-xs" onclick="setGalleryViewMode('stars')" title="별점 5점 인생작 전용 서재" style="padding: 4px 11px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">⭐ 인생작 책장</button>
-          <button id="btn-view-cover" class="btn btn-xs" onclick="setGalleryViewMode('cover')" title="앞표지 격자로 보기" style="padding: 4px 11px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">🖼️ 표지 보기</button>
+          <button id="btn-view-month" class="btn btn-xs" onclick="setGalleryViewMode('spine-month')" title="월별 책장 (3D 서재)" style="padding: 4px 10px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
+            <span class="view-toggle-text-full">📅 월별 책장</span><span class="view-toggle-text-short">📅 월별</span>
+          </button>
+          <button id="btn-view-year" class="btn btn-xs" onclick="setGalleryViewMode('spine-year')" title="연도별 책장 (3D 서재)" style="padding: 4px 10px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
+            <span class="view-toggle-text-full">🗓️ 연도별 책장</span><span class="view-toggle-text-short">🗓️ 연도별</span>
+          </button>
+          <button id="btn-view-stars" class="btn btn-xs" onclick="setGalleryViewMode('stars')" title="별점 5점 인생작 전용 서재" style="padding: 4px 10px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
+            <span class="view-toggle-text-full">⭐ 인생작 책장</span><span class="view-toggle-text-short">⭐ 인생작</span>
+          </button>
+          <button id="btn-view-cover" class="btn btn-xs" onclick="setGalleryViewMode('cover')" title="앞표지 격자로 보기" style="padding: 4px 10px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
+            <span class="view-toggle-text-full">🖼️ 표지 보기</span><span class="view-toggle-text-short">🖼️ 표지</span>
+          </button>
         </div>
       </div>
 
@@ -666,6 +675,6 @@
 <!-- ZXing Barcode Decoder -->
 <script src="https://unpkg.com/@zxing/library@0.21.0/umd/index.min.js"></script>
 
-  <script src="app.js?v=20260904_7" defer></script>
+  <script src="app.js?v=20260904_8" defer></script>
 </body>
 </html>
