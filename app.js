@@ -2050,10 +2050,10 @@ function searchAladinByIsbn(isbn) {
   results.classList.add('show');
   results.innerHTML = `<div class="search-loading"><span class="spin"></span> 바코드로 도서 검색 중...</div>`;
 
-  runAladinLookUpJsonp(isbn, key, results);
+  runAladinLookUpJsonp(isbn, key, results, true);
 }
 
-function runAladinLookUpJsonp(isbn, key, results) {
+function runAladinLookUpJsonp(isbn, key, results, isBarcodeScan = false) {
   const cbName = '_aladinCb_lookup_' + (++aladinCallbackCounter);
   const script = document.createElement('script');
 
@@ -2074,7 +2074,7 @@ function runAladinLookUpJsonp(isbn, key, results) {
     script.remove();
     const data = (typeof arg1 === 'boolean' || typeof arg1 === 'number') ? arg2 : arg1;
     if (data && data.item && data.item.length > 0) {
-      handleAladinResults(data.item);
+      handleAladinResults(data.item, isBarcodeScan, isbn);
     } else {
       // Step 2: Try 10-digit ISBN ItemLookUp
       const cbName10 = '_aladinCb_lookup10_' + (++aladinCallbackCounter);
@@ -2112,7 +2112,7 @@ function runAladinLookUpJsonp(isbn, key, results) {
           scriptKw.remove();
           const kwData = (typeof kw1 === 'boolean' || typeof kw1 === 'number') ? kw2 : kw1;
           if (kwData && kwData.item && kwData.item.length > 0) {
-            handleAladinResults(kwData.item);
+            handleAladinResults(kwData.item, isBarcodeScan, isbn);
           } else {
             results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})<br><span style="font-size:12px; opacity:0.8; margin-top:6px; display:inline-block;">도서 제목이나 저자명으로 직접 검색해 보세요.</span></div>`;
           }
@@ -2130,7 +2130,7 @@ function runAladinLookUpJsonp(isbn, key, results) {
         script10.remove();
         const data10 = (typeof tArg1 === 'boolean' || typeof tArg1 === 'number') ? tArg2 : tArg1;
         if (data10 && data10.item && data10.item.length > 0) {
-          handleAladinResults(data10.item);
+          handleAladinResults(data10.item, isBarcodeScan, isbn);
         } else {
           tryKeywordFallback();
         }
@@ -3172,7 +3172,7 @@ function runAladinJsonp(query, key, results) {
   document.body.appendChild(script);
 }
 
-function handleAladinResults(data) {
+function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
   const results = document.getElementById('aladin-results');
 
   // Normalize items from XML array or raw JSON response
@@ -3208,6 +3208,28 @@ function handleAladinResults(data) {
   if (items.length === 0) {
     results.innerHTML = `<div class="search-empty">검색 결과가 없습니다</div>`;
     return;
+  }
+
+  // ✨ 바코드 스캔 결과가 1권이면 번거로운 선택 과정 없이 즉시 도서 정보 자동 입력!
+  if (autoApplySingle) {
+    if (items.length === 1) {
+      applyAladinItem(items[0]);
+      toast(`'${items[0].title}' 도서 정보가 자동 입력되었습니다`);
+      return;
+    } else if (searchedIsbn) {
+      // 2권 이상 검색되었더라도 스캔한 ISBN과 일치하는 도서가 있으면 자동 선택
+      const cleanTarget = String(searchedIsbn).replace(/[^0-9]/g, '');
+      const exactMatch = items.find(it => {
+        const c13 = String(it.isbn13 || '').replace(/[^0-9]/g, '');
+        const c10 = String(it.isbn || '').replace(/[^0-9]/g, '');
+        return (c13 && c13 === cleanTarget) || (c10 && c10 === cleanTarget);
+      });
+      if (exactMatch) {
+        applyAladinItem(exactMatch);
+        toast(`'${exactMatch.title}' 도서 정보가 자동 입력되었습니다`);
+        return;
+      }
+    }
   }
 
   let html = '';
