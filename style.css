@@ -84,11 +84,18 @@
     }
 
     /* ======================================
-       SCROLLBAR
+       SCROLLBAR (회색 스크롤바 제거, 스크롤 기능 유지)
     ====================================== */
-    ::-webkit-scrollbar { width:4px; height:4px; }
-    ::-webkit-scrollbar-track { background:transparent; }
-    ::-webkit-scrollbar-thumb { background:var(--violet); border-radius:2px; opacity:.6; }
+    html, body, * {
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+    *::-webkit-scrollbar {
+      display: none !important;
+      width: 0px !important;
+      height: 0px !important;
+      background: transparent !important;
+    }
 
     /* ======================================
        SIDEBAR
@@ -665,7 +672,16 @@
       transform: translateY(0) scale(1);
     }
     #gallery-scroll {
-      flex:1; overflow-y:auto; padding:24px;
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+    #gallery-scroll::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
     }
     #gallery-grid {
       display:grid;
@@ -685,11 +701,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      flex-shrink: 0;
-      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
-      transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-      font-size: 20px;
       line-height: 1;
       padding: 0;
     }
@@ -715,18 +726,14 @@
       white-space: nowrap;
       scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
     }
 
     #gallery-grid.spine-view::-webkit-scrollbar {
-      height: 6px;
-    }
-    #gallery-grid.spine-view::-webkit-scrollbar-track {
-      background: rgba(0,0,0,0.1);
-      border-radius: 3px;
-    }
-    #gallery-grid.spine-view::-webkit-scrollbar-thumb {
-      background: var(--violet);
-      border-radius: 3px;
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
     }
 
     .yearly-shelves-container,
@@ -825,7 +832,13 @@
       overflow-x: auto;
       overflow-y: visible;
       -webkit-overflow-scrolling: touch;
-      scrollbar-width: thin;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+    .spine-shelf-row::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
     }
 
     /* Spine Month Divider (Book Separator Tab) */
