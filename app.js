@@ -860,7 +860,7 @@ async function downloadStarsShelfImage() {
 }
 
 async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
-  toast('책장 이미지를 생성하는 중입니다...');
+  toast('책장 이미지 저장 중');
 
   try {
     const dpr = 2;
@@ -905,43 +905,61 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       });
     }));
 
-    // 2. 책 크기 및 여백 최소화 레이아웃 계산
+    // 2. 1:1 정사각형 비율 유지 및 여백 최소화 레이아웃 계산
+    const S = 1080; // 1:1 고해상도 정사각형 규격
     const count = loadedItems.length;
-    const bookH = 702; // 세로 기준 높이 (351 * 2: 레티나 고해상도)
-    const scale = bookH / 351;
     const gap = 2; // 책 사이 실물처럼 밀착
+
+    // 최소 여백 설정 (1:1 정사각형 안에서 책들을 최대한 크게 채움)
+    const paddingX = 36;
+    const topMargin = 72; // 상단 헤더 공간
+    const bottomMargin = 40; // 하단 바닥 그림자 공간
+
+    const availW = S - paddingX * 2;
+    const availH = S - topMargin - bottomMargin;
+
+    const sumAspect = loadedItems.reduce((acc, item) => acc + item.aspect, 0);
+
+    // 책 크기를 1:1 정사각형 공간에 맞춰 최대한 크게(Maximize) 계산하여 여백 최소화
+    let bookH = (availW - (count - 1) * gap) / (sumAspect || 1);
+    if (bookH > availH) {
+      bookH = availH;
+    }
+    // 권수가 적을 때 너무 과도하게 커지는 것 방지
+    if (bookH > 880) bookH = 880;
+    if (bookH < 280) bookH = 280;
+
+    const scale = bookH / 351;
 
     // 각 책의 너비 계산 (최소 두께 보장)
     const itemsWithWidth = loadedItems.map(item => {
       let w = Math.round(item.aspect * bookH);
-      if (w < 32) w = 32;
+      if (w < Math.round(26 * scale)) w = Math.round(26 * scale);
       return { ...item, width: w };
     });
 
     const totalBooksW = itemsWithWidth.reduce((acc, item) => acc + item.width, 0) + (count - 1) * gap;
 
-    // 최소 여백 설정 (스크린샷 형태와 일치)
-    const paddingX = 24;
-    const topMargin = 54; // 상단 타이틀 및 라인 공간
-    const bottomMargin = 26; // 하단 바닥 선반 접점 및 그림자 공간
+    // 수평 정렬: 책들을 중앙에 배치
+    const booksStartX = Math.max(paddingX, Math.round((S - totalBooksW) / 2));
 
-    const canvasW = Math.max(totalBooksW + paddingX * 2, 380);
-    const canvasH = topMargin + bookH + bottomMargin;
+    // 수직 정렬: 상단 헤더 아래, 바닥 선반 위에 안정적으로 배치
+    const startY = Math.round(topMargin + (availH - bookH) / 2);
 
-    // 고해상도 캔버스 생성 (2x Retina)
+    // 1:1 정사각형 고해상도 캔버스 생성 (2x Retina)
     const canvas = document.createElement('canvas');
-    canvas.width = canvasW * dpr;
-    canvas.height = canvasH * dpr;
+    canvas.width = S * dpr;
+    canvas.height = S * dpr;
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
 
     // 3. 배경 그리기 (서재 배경과 일치하는 내추럴 웜 베이지 & 크라프트 그라데이션)
-    const bgGrad = ctx.createLinearGradient(0, 0, 0, canvasH);
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, S);
     bgGrad.addColorStop(0, '#f9f6f1');
     bgGrad.addColorStop(0.45, '#f4eee5');
     bgGrad.addColorStop(1, '#ece4d8');
     ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, canvasW, canvasH);
+    ctx.fillRect(0, 0, S, S);
 
     // 4. 상단 타이틀 헤더 렌더링 (스크린샷 형태: [2025년 11월 9권 ↓ ────────])
     let titleText = shelfTitle;
@@ -959,24 +977,24 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
     }
 
     ctx.save();
-    const titleY = 28;
+    const titleY = Math.max(34, Math.min(48, Math.round(startY * 0.55)));
 
     // 제목 텍스트 (볼드 차콜 블랙)
-    ctx.font = '700 20px -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Noto Sans KR", sans-serif';
+    ctx.font = '700 22px -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Noto Sans KR", sans-serif';
     ctx.fillStyle = '#1c1917';
     ctx.textBaseline = 'middle';
     ctx.fillText(titleText, paddingX, titleY);
     const titleMetrics = ctx.measureText(titleText);
 
     // 권수 텍스트 (그레이시 톤)
-    const countX = paddingX + titleMetrics.width + 10;
-    ctx.font = '600 18px -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Noto Sans KR", sans-serif';
+    const countX = paddingX + titleMetrics.width + 12;
+    ctx.font = '600 19px -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Noto Sans KR", sans-serif';
     ctx.fillStyle = '#78716c';
     ctx.fillText(countText, countX, titleY);
     const countMetrics = ctx.measureText(countText);
 
     // 다운로드 화살표 아이콘 (스크린샷 형태 재현)
-    const iconX = countX + countMetrics.width + 12;
+    const iconX = countX + countMetrics.width + 14;
     const iconY = titleY;
     ctx.strokeStyle = '#a8a29e';
     ctx.lineWidth = 1.6;
@@ -998,8 +1016,8 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
     ctx.stroke();
 
     // 우측 페이드아웃 구분선
-    const lineStartX = iconX + 12;
-    const lineEndX = canvasW - paddingX;
+    const lineStartX = iconX + 14;
+    const lineEndX = S - paddingX;
     if (lineEndX > lineStartX) {
       const lineGrad = ctx.createLinearGradient(lineStartX, 0, lineEndX, 0);
       lineGrad.addColorStop(0, 'rgba(0, 0, 0, 0.08)');
@@ -1015,26 +1033,25 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
     ctx.restore();
 
     // 5. 책등 및 바닥 선반 렌더링
-    const startY = topMargin;
-    let curX = paddingX;
+    let curX = booksStartX;
 
     // 책장 바닥 접점 짙은 그림자 & 앰비언트 섀도우
     const shelfBaseY = startY + bookH;
 
     // 1) 책 바로 밑바닥 접점(Contact) 그림자
-    const contactGrad = ctx.createLinearGradient(0, shelfBaseY, 0, shelfBaseY + 4);
+    const contactGrad = ctx.createLinearGradient(0, shelfBaseY, 0, shelfBaseY + 5 * scale);
     contactGrad.addColorStop(0, 'rgba(0, 0, 0, 0.28)');
     contactGrad.addColorStop(1, 'rgba(0, 0, 0, 0.06)');
     ctx.fillStyle = contactGrad;
-    ctx.fillRect(paddingX - 4, shelfBaseY, totalBooksW + 8, 4);
+    ctx.fillRect(booksStartX - 6, shelfBaseY, totalBooksW + 12, 5 * scale);
 
     // 2) 바닥으로 부드럽게 퍼지는 선반 그림자
-    const shadowGrad = ctx.createLinearGradient(0, shelfBaseY + 2, 0, shelfBaseY + 18);
+    const shadowGrad = ctx.createLinearGradient(0, shelfBaseY + 2, 0, shelfBaseY + 22 * scale);
     shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.12)');
     shadowGrad.addColorStop(0.45, 'rgba(0, 0, 0, 0.04)');
     shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = shadowGrad;
-    ctx.fillRect(paddingX - 12, shelfBaseY + 2, totalBooksW + 24, 16);
+    ctx.fillRect(booksStartX - 16, shelfBaseY + 2, totalBooksW + 32, 22 * scale);
 
     itemsWithWidth.forEach(item => {
       const { book, img, width: w } = item;
@@ -1042,7 +1059,7 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       const drawCardPath = () => {
         ctx.beginPath();
         if (ctx.roundRect) {
-          ctx.roundRect(curX, startY, w, bookH, [3, 3, 0, 0]);
+          ctx.roundRect(curX, startY, w, bookH, [3 * scale, 3 * scale, 0, 0]);
         } else {
           ctx.rect(curX, startY, w, bookH);
         }
@@ -1151,14 +1168,14 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       if (book.rating === 5) {
         ctx.save();
         const starX = curX + w / 2;
-        const starY = startY + 20;
-        const starR = 11;
+        const starY = startY + 20 * scale;
+        const starR = 11 * scale;
 
         ctx.shadowColor = 'rgba(0, 0, 0, 0.32)';
-        ctx.shadowBlur = 4;
-        ctx.shadowOffsetY = 2;
+        ctx.shadowBlur = 4 * scale;
+        ctx.shadowOffsetY = 2 * scale;
 
-        const starGrad = ctx.createRadialGradient(starX - 2.5, starY - 2.5, 1, starX, starY, starR);
+        const starGrad = ctx.createRadialGradient(starX - 2.5 * scale, starY - 2.5 * scale, 1, starX, starY, starR);
         starGrad.addColorStop(0, '#ffd700');
         starGrad.addColorStop(0.7, '#ffae00');
         starGrad.addColorStop(1, '#d48800');
@@ -1169,14 +1186,14 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
 
         ctx.shadowColor = 'transparent';
         ctx.strokeStyle = '#fff5cc';
-        ctx.lineWidth = 1.2;
+        ctx.lineWidth = 1.2 * scale;
         ctx.stroke();
 
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 11px sans-serif';
+        ctx.font = `bold ${Math.round(11 * scale)}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('★', starX, starY + 0.5);
+        ctx.fillText('★', starX, starY + 0.5 * scale);
         ctx.restore();
       }
 
