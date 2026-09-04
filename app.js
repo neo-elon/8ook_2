@@ -631,13 +631,6 @@ function renderGallery() {
           <div class="shelf-year-badge">
             <span class="shelf-year-title">${yearLabel}</span>
             <span class="shelf-year-count">${booksInYear.length}권</span>
-            <button class="shelf-download-btn" onclick="downloadYearShelfImage('${esc(yKey)}', '${esc(yearLabel)}')" title="${esc(yearLabel)} 책장 이미지 저장" aria-label="책장 이미지 저장">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 3v12"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path>
-              </svg>
-            </button>
           </div>
           <div class="shelf-year-line"></div>
         `;
