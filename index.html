@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260904_24">
+  <link rel="stylesheet" href="style.css?v=20260904_26">
 </head>
 <body>
 
@@ -324,29 +324,29 @@
         <!-- Right Column: Info fields (Author, Pages, Date, Rating, Image URLs) -->
         <div class="book-info-fields" style="flex: 1; display: flex; flex-direction: column; gap: 10px; align-self: stretch; min-width: 0; width: 100%;">
           <!-- 2x2 Grid: Author, Pages, Date, Rating -->
-          <div class="book-info-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; width: 100%; box-sizing: border-box;">
+          <div class="book-info-grid">
             <!-- 저자 -->
-            <div class="fg" style="margin-bottom: 0; min-width: 0;">
+            <div class="fg">
               <div class="flbl">저자</div>
               <input type="text" class="fi" id="bk-author" placeholder="저자명">
             </div>
 
             <!-- 페이지수 -->
-            <div class="fg" style="margin-bottom: 0; min-width: 0;">
+            <div class="fg">
               <div class="flbl">페이지수</div>
               <input type="number" class="fi" id="bk-pages" placeholder="0" min="0">
             </div>
 
             <!-- 완독일 -->
-            <div class="fg" style="margin-bottom: 0; min-width: 0;">
+            <div class="fg">
               <div class="flbl">완독일</div>
-              <input type="date" id="bk-date" class="fi bk-date-inp" style="width: 100%; min-width: 0; box-sizing: border-box;">
+              <input type="date" id="bk-date" class="fi bk-date-inp">
             </div>
 
             <!-- 별점 -->
-            <div class="fg" style="margin-bottom: 0; min-width: 0;">
+            <div class="fg">
               <div class="flbl">별점</div>
-              <div class="star-row" id="star-inp" style="height: 38px; display: flex; align-items: center; justify-content: flex-start; gap: 3px; box-sizing: border-box;">
+              <div class="star-row" id="star-inp">
                 <button class="star-btn-inp" data-v="1" onclick="setRating(1)" aria-label="별점 1" type="button">☆</button>
                 <button class="star-btn-inp" data-v="2" onclick="setRating(2)" aria-label="별점 2" type="button">☆</button>
                 <button class="star-btn-inp" data-v="3" onclick="setRating(3)" aria-label="별점 3" type="button">☆</button>
@@ -715,6 +715,6 @@
 <!-- ZXing Barcode Decoder -->
 <script src="https://unpkg.com/@zxing/library@0.21.0/umd/index.min.js"></script>
 
-  <script src="app.js?v=20260904_25" defer></script>
+  <script src="app.js?v=20260904_26" defer></script>
 </body>
 </html>

@@ -1960,54 +1960,96 @@
       align-items: flex-start;
       margin-bottom: 14px;
     }
-    @media (max-width: 480px) {
+    @media (max-width: 640px) {
       .modal-flex-row {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 12px !important;
       }
       .book-preview-column {
-        align-items: center;
-        width: 100%;
-        margin-bottom: 8px;
+        align-items: center !important;
+        width: 100% !important;
+        margin-bottom: 4px !important;
       }
       .book-info-fields {
         width: 100% !important;
+        min-width: 0 !important;
       }
       .book-info-grid {
-        grid-template-columns: 1fr 1fr !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
         gap: 8px 10px !important;
         width: 100% !important;
       }
       .bk-date-inp {
-        padding: 8px 6px !important;
-        font-size: 12px !important;
+        padding: 8px 4px !important;
+        font-size: 11.5px !important;
       }
       .star-btn-inp {
-        font-size: 18px !important;
+        font-size: 16px !important;
       }
     }
 
-    /* Book Info Grid */
+    /* Book Info Grid (Strict 50/50 2-Column Grid) */
     .book-info-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px 12px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .book-info-grid .fg {
-      min-width: 0 !important;
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+      gap: 10px 12px !important;
       width: 100% !important;
-      box-sizing: border-box !important;
-    }
-    .bk-date-inp {
-      width: 100% !important;
-      min-width: 0 !important;
       max-width: 100% !important;
       box-sizing: border-box !important;
-      padding: 8px 10px !important;
-      font-size: 12.5px !important;
-      color-scheme: light;
+    }
+    .book-info-grid > .fg {
+      min-width: 0 !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      margin-bottom: 0 !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+    }
+    
+    /* Date input Safari & WebKit Normalization */
+    .bk-date-inp,
+    input[type="date"].bk-date-inp {
+      -webkit-appearance: none !important;
+      -moz-appearance: none !important;
+      appearance: none !important;
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
+      padding: 8px 6px !important;
+      font-size: 12px !important;
+      height: 38px !important;
+      line-height: normal !important;
+      text-align: center !important;
+      background: var(--glass) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius-sm) !important;
+      color: var(--text-100) !important;
+      color-scheme: light !important;
+      overflow: hidden !important;
+    }
+    .bk-date-inp::-webkit-date-and-time-value {
+      min-width: 0 !important;
+      text-align: center !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      line-height: 20px !important;
+    }
+    .bk-date-inp::-webkit-datetime-edit {
+      display: inline-flex !important;
+      justify-content: center !important;
+      padding: 0 !important;
+      min-width: 0 !important;
+    }
+    .bk-date-inp::-webkit-calendar-picker-indicator {
+      display: none !important;
+      -webkit-appearance: none !important;
+      width: 0 !important;
+      height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
 
     .img-prev-ph {
@@ -2018,25 +2060,38 @@
     .img-row { display:flex; gap:7px; }
     .img-row .fi { flex:1; }
 
-    /* Star input */
+    /* Star input (enclosed matching container) */
     .star-row { 
-      display: flex; 
-      gap: 3px; 
-      align-items: center;
-      height: 38px;
-      min-width: 0;
-      box-sizing: border-box;
+      display: flex !important; 
+      align-items: center !important;
+      justify-content: space-between !important;
+      height: 38px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
+      background: var(--glass) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius-sm) !important;
+      padding: 0 6px !important;
+      overflow: hidden !important;
     }
     .star-btn-inp {
-      font-size: 20px; 
-      cursor: pointer; 
-      background: none; 
-      border: none;
-      padding: 0 1px; 
-      line-height: 1; 
-      transition: transform .15s;
-      color: var(--star-off);
-      flex-shrink: 0;
+      font-size: 18px !important;
+      line-height: 1 !important;
+      cursor: pointer !important; 
+      background: none !important; 
+      border: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      color: var(--star-off) !important;
+      flex: 1 1 0 !important;
+      min-width: 0 !important;
+      text-align: center !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      transition: transform .15s !important;
     }
     .star-btn-inp:hover { transform: scale(1.18); }
 
