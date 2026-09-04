@@ -1058,11 +1058,26 @@
     }
 
     /* Hover or Touch Reveal ("촤르륵") */
-    .book-card.spine-mode:hover,
-    .book-card.spine-mode.is-hovered {
+    .book-card.spine-mode:hover:not(.is-closed),
+    .book-card.spine-mode.is-hovered:not(.is-closed) {
       width: 240px !important;
       z-index: 40;
       transform: none !important;
+    }
+
+    .book-card.spine-mode.is-closed {
+      width: var(--spine-w, 48px) !important;
+      z-index: 10 !important;
+    }
+    .book-card.spine-mode.is-closed .spine-face {
+      opacity: 1 !important;
+      transform: none !important;
+      pointer-events: auto !important;
+    }
+    .book-card.spine-mode.is-closed .cover-face {
+      opacity: 0 !important;
+      transform: rotateY(-90deg) !important;
+      pointer-events: none !important;
     }
 
     .spine-3d-wrapper {
@@ -1112,8 +1127,8 @@
       z-index: 3;
     }
 
-    .book-card.spine-mode:hover .spine-face,
-    .book-card.spine-mode.is-hovered .spine-face {
+    .book-card.spine-mode:hover:not(.is-closed) .spine-face,
+    .book-card.spine-mode.is-hovered:not(.is-closed) .spine-face {
       opacity: 0;
       transform: rotateY(90deg) scale(0.92);
       pointer-events: none;
@@ -1292,8 +1307,8 @@
       z-index: 3;
     }
 
-    .book-card.spine-mode:hover .cover-face,
-    .book-card.spine-mode.is-hovered .cover-face {
+    .book-card.spine-mode:hover:not(.is-closed) .cover-face,
+    .book-card.spine-mode.is-hovered:not(.is-closed) .cover-face {
       opacity: 1;
       transform: rotateY(0deg);
     }
