@@ -355,34 +355,11 @@
             </div>
           </div>
 
-          <!-- Image URLs: Front Cover & Spine -->
-          <div style="display: flex; flex-direction: column; gap: 6px;">
-            <!-- Front Cover URL -->
-            <div class="fg" style="margin-bottom: 0;">
-              <div class="flbl" style="font-size: 11px;">📸 앞표지 URL</div>
-              <div class="img-row" style="display: flex; gap: 4px; width: 100%;">
-                <input type="text" class="fi" id="bk-img-url"
-                  placeholder="앞표지 이미지 URL"
-                  oninput="onUrlInput(this.value)" autocomplete="off" style="font-size: 11px; padding: 5px 8px; flex: 1; min-width: 0;">
-                <input type="file" id="bk-img-file" accept="image/*"
-                  style="display:none" onchange="onFileSelect(this)">
-                <button class="btn btn-ghost" onclick="document.getElementById('bk-img-file').click()" style="padding: 5px 8px; font-size: 11px; flex-shrink: 0;" type="button">📂 파일</button>
-              </div>
-            </div>
-
-            <!-- Spine Cover URL -->
-            <div class="fg" style="margin-bottom: 0;">
-              <div class="flbl" style="font-size: 11px;">📕 책등 URL</div>
-              <div class="img-row" style="display: flex; gap: 4px; width: 100%;">
-                <input type="text" class="fi" id="bk-spine-url"
-                  placeholder="책등 이미지 URL"
-                  oninput="onSpineUrlInput(this.value)" autocomplete="off" style="font-size: 11px; padding: 5px 8px; flex: 1; min-width: 0;">
-                <input type="file" id="bk-spine-file" accept="image/*"
-                  style="display:none" onchange="onSpineFileSelect(this)">
-                <button class="btn btn-ghost" onclick="document.getElementById('bk-spine-file').click()" style="padding: 5px 8px; font-size: 11px; flex-shrink: 0;" type="button">📂 파일</button>
-              </div>
-            </div>
-          </div>
+          <!-- Hidden inputs for backward compatibility -->
+          <input type="hidden" id="bk-img-url">
+          <input type="file" id="bk-img-file" style="display:none">
+          <input type="hidden" id="bk-spine-url">
+          <input type="file" id="bk-spine-file" style="display:none">
         </div>
       </div>
 
