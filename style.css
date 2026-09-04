@@ -839,7 +839,7 @@
       background: linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.02) 100%);
     }
     body.light-theme .spine-shelf-row {
-      border-bottom-color: #6d4c3d;
+      border-bottom: none;
     }
 
     .spine-shelf-row {
@@ -847,9 +847,9 @@
       align-items: flex-end;
       gap: 2px;
       position: relative;
-      padding-bottom: 4px;
-      border-bottom: 7px solid #4a3328;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+      padding-bottom: 2px;
+      border-bottom: none;
+      box-shadow: none;
       overflow-x: auto;
       overflow-y: visible;
       -webkit-overflow-scrolling: touch;
