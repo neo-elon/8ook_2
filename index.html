@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260904_10">
+  <link rel="stylesheet" href="style.css?v=20260904_15">
 </head>
 <body>
 
@@ -196,7 +196,10 @@
       <div class="gallery-search-wrap" style="max-width: 900px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; padding: 0 4px; gap: 10px; flex-wrap: wrap;">
         <div class="search-and-add-group" style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 250px; max-width: 480px;">
           <button id="quick-add-book-btn" class="quick-add-book-btn" onclick="handleQuickAddBook()" title="새 책 기록하기" aria-label="새 책 기록하기">
-            <span>＋</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
           </button>
           <div class="search-input-wrapper" style="position: relative; flex: 1;">
             <svg style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-300); pointer-events: none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -205,17 +208,17 @@
           </div>
         </div>
 
-        <div class="view-mode-toggle" style="display: flex; gap: 3px; background: var(--glass); padding: 3px; border-radius: 20px; border: 1px solid var(--border); flex-shrink: 0;">
-          <button id="btn-view-month" class="btn btn-xs" onclick="setGalleryViewMode('spine-month')" title="월별 책장 (3D 서재)" style="padding: 4px 11px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
+        <div class="view-mode-toggle">
+          <button id="btn-view-month" class="view-toggle-btn" onclick="setGalleryViewMode('spine-month')" title="월별 책장 (3D 서재)">
             <span class="view-toggle-text-full">월별 책장</span><span class="view-toggle-text-short">월별</span>
           </button>
-          <button id="btn-view-year" class="btn btn-xs" onclick="setGalleryViewMode('spine-year')" title="연도별 책장 (3D 서재)" style="padding: 4px 11px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
+          <button id="btn-view-year" class="view-toggle-btn" onclick="setGalleryViewMode('spine-year')" title="연도별 책장 (3D 서재)">
             <span class="view-toggle-text-full">연도별 책장</span><span class="view-toggle-text-short">연도별</span>
           </button>
-          <button id="btn-view-stars" class="btn btn-xs" onclick="setGalleryViewMode('stars')" title="별점 5점 인생작 전용 서재" style="padding: 4px 11px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
+          <button id="btn-view-stars" class="view-toggle-btn" onclick="setGalleryViewMode('stars')" title="별점 5점 인생작 전용 서재">
             <span class="view-toggle-text-full">인생작 책장</span><span class="view-toggle-text-short">인생작</span>
           </button>
-          <button id="btn-view-cover" class="btn btn-xs" onclick="setGalleryViewMode('cover')" title="앞표지 격자로 보기" style="padding: 4px 11px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
+          <button id="btn-view-cover" class="view-toggle-btn" onclick="setGalleryViewMode('cover')" title="앞표지 격자로 보기">
             <span class="view-toggle-text-full">표지 보기</span><span class="view-toggle-text-short">표지</span>
           </button>
         </div>
@@ -712,6 +715,6 @@
 <!-- ZXing Barcode Decoder -->
 <script src="https://unpkg.com/@zxing/library@0.21.0/umd/index.min.js"></script>
 
-  <script src="app.js?v=20260904_14" defer></script>
+  <script src="app.js?v=20260904_15" defer></script>
 </body>
 </html>
