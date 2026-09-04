@@ -1,39 +1,39 @@
     /* ======================================
-       CSS VARIABLES & RESET
+       CSS VARIABLES & RESET (Unified Reference Theme)
     ====================================== */
     :root {
-      /* ── Dark Theme (Default) ── */
-      --bg-deep:     #080810;
-      --bg-primary:  #0d0d1a;
-      --bg-surface:  #13132b;
-      --bg-card:     #18182e;
-      --bg-elevated: #1e1e38;
-      --glass:       rgba(255,255,255,0.04);
-      --glass-hover: rgba(255,255,255,0.07);
-      --border:      rgba(255,255,255,0.07);
-      --border-muted:rgba(255,255,255,0.04);
-      --border-accent: rgba(147,112,219,0.35);
+      /* ── Reference Warm Off-White Tone ── */
+      --bg-deep:     #F0ECEF;
+      --bg-primary:  #F3F0EF;
+      --bg-surface:  #ffffff;
+      --bg-card:     #ffffff;
+      --bg-elevated: #FAF9F7;
+      --glass:       rgba(0, 0, 0, 0.035);
+      --glass-hover: rgba(0, 0, 0, 0.065);
+      --border:      rgba(0, 0, 0, 0.08);
+      --border-muted:rgba(0, 0, 0, 0.045);
+      --border-accent: rgba(124, 58, 237, 0.25);
 
-      --violet:   #8b5cf6;
-      --indigo:   #6366f1;
-      --lavender: #a78bfa;
-      --mint:     #34d399;
+      --violet:   #7c3aed;
+      --indigo:   #4f46e5;
+      --lavender: #8b5cf6;
+      --mint:     #10b981;
       --amber:    #f59e0b;
 
-      --grad-main: linear-gradient(135deg, var(--violet), var(--indigo));
+      --grad-main: linear-gradient(135deg, #7c3aed, #4f46e5);
       --grad-gold: linear-gradient(135deg, #f59e0b, #fbbf24);
 
-      --text-100: #f0f0fa;
-      --text-200: rgba(240,240,250,0.75);
-      --text-300: rgba(240,240,250,0.50);
-      --text-400: rgba(240,240,250,0.28);
+      --text-100: #18181b;
+      --text-200: rgba(24, 24, 27, 0.76);
+      --text-300: rgba(24, 24, 27, 0.52);
+      --text-400: rgba(24, 24, 27, 0.32);
 
-      --header-bg: rgba(13,13,26,.85);
-      --modal-overlay: rgba(0,0,0,.72);
+      --header-bg: rgba(244, 242, 239, 0.88);
+      --modal-overlay: rgba(0, 0, 0, 0.42);
       --card-hover-border: var(--violet);
-      --card-overlay-from: rgba(0,0,0,.96);
-      --card-overlay-to:   rgba(0,0,0,.18);
-      --star-off:  var(--text-400);
+      --card-overlay-from: rgba(0, 0, 0, 0.82);
+      --card-overlay-to:   rgba(0, 0, 0, 0.08);
+      --star-off:  rgba(0, 0, 0, 0.2);
 
       --sidebar-w: 272px;
       --header-h:  60px;
@@ -42,60 +42,14 @@
       --radius-sm: 8px;
       --radius-xs: 5px;
 
-      --shadow-card: 0 8px 40px rgba(0,0,0,0.5);
-      --shadow-float:0 20px 60px rgba(0,0,0,0.65), 0 0 0 1px var(--border);
-      --shadow-glow: 0 0 30px rgba(139,92,246,0.25);
+      --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.07);
+      --shadow-float: 0 12px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px var(--border);
+      --shadow-glow: 0 0 20px rgba(124, 58, 237, 0.12);
 
-      --ease: cubic-bezier(0.4,0,0.2,1);
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
       --dur: 0.3s;
 
       --grid-min: 170px;
-    }
-
-    /* ── Light Theme ── */
-    body.light-theme {
-      --bg-deep:     #f5f3f0;
-      --bg-primary:  #ece9e3;
-      --bg-surface:  #ffffff;
-      --bg-card:     #ffffff;
-      --bg-elevated: #f8f6f2;
-      --glass:       rgba(0,0,0,0.03);
-      --glass-hover: rgba(0,0,0,0.06);
-      --border:      rgba(0,0,0,0.09);
-      --border-muted:rgba(0,0,0,0.05);
-      --border-accent: rgba(139,92,246,0.25);
-
-      --violet:   #7c3aed;
-      --indigo:   #4f46e5;
-      --lavender: #8b5cf6;
-
-      --grad-main: linear-gradient(135deg, #7c3aed, #4f46e5);
-
-      --text-100: #1a1a2e;
-      --text-200: rgba(26,26,46,0.72);
-      --text-300: rgba(26,26,46,0.50);
-      --text-400: rgba(26,26,46,0.30);
-
-      --header-bg: rgba(255,255,255,.88);
-      --modal-overlay: rgba(0,0,0,.38);
-      --card-hover-border: var(--violet);
-      --card-overlay-from: rgba(0,0,0,.82);
-      --card-overlay-to:   rgba(0,0,0,.08);
-      --star-off:  rgba(0,0,0,.22);
-
-      --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
-      --shadow-float:0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px var(--border);
-      --shadow-glow: 0 0 20px rgba(124,58,237,0.12);
-    }
-
-    body.light-theme::before {
-      background: radial-gradient(circle, rgba(124,58,237,.06) 0%, transparent 65%) !important;
-    }
-    body.light-theme::after {
-      background: radial-gradient(circle, rgba(79,70,229,.04) 0%, transparent 65%) !important;
-    }
-    body.light-theme ::-webkit-scrollbar-thumb {
-      background: var(--violet);
     }
 
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
@@ -103,7 +57,8 @@
 
     body {
       font-family:'Noto Sans KR', sans-serif;
-      background: var(--bg-deep);
+      background: linear-gradient(180deg, #F0ECEF 0%, #F3F0EF 50%, #F4F2EF 100%);
+      background-attachment: fixed;
       color: var(--text-100);
       min-height:100vh;
       overflow:hidden;
@@ -117,17 +72,15 @@
       content:'';
       position:fixed; top:-200px; right:-100px;
       width:700px; height:700px;
-      background:radial-gradient(circle, rgba(139,92,246,.07) 0%, transparent 65%);
+      background:radial-gradient(circle, rgba(124,58,237,.05) 0%, transparent 65%);
       pointer-events:none; z-index:0;
-      transition: background .4s;
     }
     body::after {
       content:'';
       position:fixed; bottom:-200px; left:50px;
       width:500px; height:500px;
-      background:radial-gradient(circle, rgba(99,102,241,.05) 0%, transparent 65%);
+      background:radial-gradient(circle, rgba(79,70,229,.03) 0%, transparent 65%);
       pointer-events:none; z-index:0;
-      transition: background .4s;
     }
 
     /* ======================================
@@ -461,11 +414,11 @@
       bottom: 0;
       width: 320px;
       max-width: 85vw;
-      background: rgba(22, 22, 30, 0.94);
+      background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-left: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5);
+      border-left: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
       z-index: 999;
       transform: translateX(100%);
       transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -477,12 +430,6 @@
     }
     .app-menu-drawer.open {
       transform: translateX(0);
-    }
-
-    body.light-theme .app-menu-drawer {
-      background: rgba(255, 255, 255, 0.96);
-      border-left-color: rgba(0, 0, 0, 0.08);
-      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
     }
 
     .menu-drawer-header {
@@ -661,21 +608,6 @@
       transition: background .4s, border-color .4s;
     }
 
-    /* Theme Toggle */
-    #theme-toggle {
-      background:var(--glass); border:1px solid var(--border);
-      color:var(--text-300);
-      width:36px; height:36px; border-radius:50%;
-      cursor:pointer; display:flex; align-items:center; justify-content:center;
-      font-size:17px; transition:all .3s; flex-shrink:0;
-      position:relative; overflow:hidden;
-    }
-    #theme-toggle:hover {
-      color:var(--amber); border-color:var(--amber);
-      background:rgba(245,158,11,.08);
-      transform:rotate(20deg);
-    }
-
     #back-btn {
       display:none; align-items:center; gap:6px;
       background:var(--glass); border:1px solid var(--border);
@@ -710,11 +642,11 @@
       position: absolute;
       right: 28px;
       top: 28px;
-      background: rgba(24, 24, 46, 0.65);
+      background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--border-accent);
-      color: var(--lavender);
+      color: var(--violet);
       font-family: 'Noto Sans KR', sans-serif;
       font-size: 13px;
       font-weight: 700;
@@ -727,9 +659,6 @@
       pointer-events: none;
       z-index: 10;
       letter-spacing: 0.5px;
-    }
-    body.light-theme #floating-year-badge {
-      background: rgba(255, 255, 255, 0.85);
     }
     #floating-year-badge.show {
       opacity: 1;
@@ -827,31 +756,31 @@
     .shelf-year-badge {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       font-size: 13px;
       font-weight: 700;
-      color: var(--text-200);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-100);
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.12);
       padding: 3px 12px;
       border-radius: 12px;
       letter-spacing: 0.5px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
     }
 
     .shelf-year-count {
       font-size: 11px;
       color: var(--text-400);
-      font-weight: 500;
-      background: rgba(255, 255, 255, 0.08);
-      padding: 1px 6px;
-      border-radius: 8px;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.06);
+      padding: 2px 7px;
+      border-radius: 10px;
     }
 
     .shelf-year-line {
       flex: 1;
       height: 1px;
-      background: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.02) 100%);
+      background: linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.02) 100%);
     }
 
     /* Shelf Download Image Button */
@@ -861,49 +790,25 @@
       gap: 5px;
       padding: 4px 11px;
       border-radius: 12px;
-      background: var(--glass);
-      border: 1px solid var(--border);
-      color: var(--text-300);
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      color: var(--text-200);
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
       user-select: none;
       white-space: nowrap;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
     .shelf-download-btn:hover {
-      background: var(--glass-hover);
+      background: #ffffff;
       border-color: var(--violet);
-      color: var(--text-100);
+      color: var(--violet);
       transform: translateY(-1px);
     }
     .shelf-download-btn:active {
       transform: translateY(0);
-    }
-    body.light-theme .shelf-download-btn {
-      background: #ffffff;
-      border-color: rgba(0, 0, 0, 0.12);
-      color: var(--text-200);
-    }
-    body.light-theme .shelf-download-btn:hover {
-      border-color: var(--violet);
-      color: var(--violet);
-    }
-
-    body.light-theme .shelf-year-badge {
-      background: rgba(0, 0, 0, 0.05);
-      border-color: rgba(0, 0, 0, 0.12);
-      color: var(--text-100);
-    }
-    body.light-theme .shelf-year-count {
-      background: rgba(0, 0, 0, 0.06);
-      color: var(--text-400);
-    }
-    body.light-theme .shelf-year-line {
-      background: linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.02) 100%);
-    }
-    body.light-theme .spine-shelf-row {
-      border-bottom: none;
     }
 
     .spine-shelf-row {
@@ -949,21 +854,20 @@
       justify-content: center;
       width: 28px;
       height: 38px;
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: linear-gradient(145deg, #ffffff, #f1f5f9);
+      border: 1px solid rgba(0, 0, 0, 0.12);
       border-radius: 6px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       color: var(--text-100);
       margin-top: 6px;
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
+      user-select: none;
     }
 
     .month-tab-badge .month-num {
       font-size: 14px;
       font-weight: 800;
       line-height: 1.1;
-      color: #fff;
+      color: var(--text-100);
       font-family: var(--font-sans);
     }
 
@@ -981,32 +885,11 @@
       margin-bottom: 4px;
       background: linear-gradient(
         180deg,
-        rgba(255, 255, 255, 0.25) 0%,
-        rgba(255, 255, 255, 0.08) 40%,
-        rgba(255, 255, 255, 0.02) 100%
-      );
-      border-radius: 1px;
-    }
-
-    body.light-theme .month-tab-badge {
-      background: linear-gradient(145deg, #ffffff, #f1f5f9);
-      border-color: rgba(0, 0, 0, 0.12);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      color: var(--text-100);
-    }
-    body.light-theme .month-tab-badge .month-num {
-      color: var(--text-100);
-    }
-    body.light-theme .month-tab-badge .month-txt {
-      color: var(--text-300);
-    }
-    body.light-theme .month-divider-stem {
-      background: linear-gradient(
-        180deg,
         rgba(0, 0, 0, 0.2) 0%,
         rgba(0, 0, 0, 0.08) 40%,
         rgba(0, 0, 0, 0.02) 100%
       );
+      border-radius: 1px;
     }
 
     /* Book Card Base */
@@ -1658,9 +1541,8 @@
     }
     .kw-inp::placeholder { color:var(--text-400); }
 
-    /* date picker color-scheme per theme */
-    input[type="date"], .bk-date-inp { color-scheme: dark; }
-    body.light-theme input[type="date"], body.light-theme .bk-date-inp { color-scheme: light; }
+    /* date picker color-scheme */
+    input[type="date"], .bk-date-inp { color-scheme: light; }
 
     .detail-stars { display:flex; gap:5px; margin-top:2px; }
     .detail-star {

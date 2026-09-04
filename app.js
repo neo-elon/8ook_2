@@ -316,24 +316,18 @@ function toast(msg, dur=2600) {
 }
 
 /* ==============================================
-   THEME TOGGLE
+   THEME (레퍼런스 톤 단일 테마 고정)
 ============================================== */
 function loadTheme() {
-  const saved = localStorage.getItem('rj_theme');
-  isDarkTheme = saved !== 'light';
-  applyTheme();
+  document.body.classList.remove('light-theme');
 }
 
 function toggleTheme() {
-  isDarkTheme = !isDarkTheme;
-  localStorage.setItem('rj_theme', isDarkTheme ? 'dark' : 'light');
-  applyTheme();
-  toast(isDarkTheme ? '🌙 어두운 테마' : '☀️ 밝은 테마', 1200);
+  // 낮/밤 전환 기능 제거됨 (단일 배경색 고정)
 }
 
 function applyTheme() {
-  document.body.classList.toggle('light-theme', !isDarkTheme);
-  document.getElementById('theme-icon').textContent = isDarkTheme ? '🌙' : '☀️';
+  document.body.classList.remove('light-theme');
 }
 
 function getSpineWidth(pages) {
