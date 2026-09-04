@@ -1943,14 +1943,46 @@
         width: 100%;
         margin-bottom: 8px;
       }
-      .modal-flex-row > .fg {
-        flex: 0 0 auto !important;
+      .book-info-fields {
         width: 100% !important;
       }
-      .modal-flex-row > .fg .img-row {
+      .book-info-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px 10px !important;
         width: 100% !important;
+      }
+      .bk-date-inp {
+        padding: 8px 6px !important;
+        font-size: 12px !important;
+      }
+      .star-btn-inp {
+        font-size: 18px !important;
       }
     }
+
+    /* Book Info Grid */
+    .book-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .book-info-grid .fg {
+      min-width: 0 !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .bk-date-inp {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+      padding: 8px 10px !important;
+      font-size: 12.5px !important;
+      color-scheme: light;
+    }
+
     .img-prev-ph {
       display:flex; flex-direction:column; align-items:center; gap:7px;
       color:var(--text-400); font-size:12px; text-align:center;
@@ -1960,13 +1992,26 @@
     .img-row .fi { flex:1; }
 
     /* Star input */
-    .star-row { display:flex; gap:4px; }
-    .star-btn-inp {
-      font-size:22px; cursor:pointer; background:none; border:none;
-      padding:0; line-height:1; transition:transform .15s;
-      color:var(--star-off);
+    .star-row { 
+      display: flex; 
+      gap: 3px; 
+      align-items: center;
+      height: 38px;
+      min-width: 0;
+      box-sizing: border-box;
     }
-    .star-btn-inp:hover { transform:scale(1.18); }
+    .star-btn-inp {
+      font-size: 20px; 
+      cursor: pointer; 
+      background: none; 
+      border: none;
+      padding: 0 1px; 
+      line-height: 1; 
+      transition: transform .15s;
+      color: var(--star-off);
+      flex-shrink: 0;
+    }
+    .star-btn-inp:hover { transform: scale(1.18); }
 
     /* ── Aladin Search Results ── */
     .search-row { display:flex; gap:6px; margin-bottom:4px; }
