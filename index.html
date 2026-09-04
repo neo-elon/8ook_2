@@ -518,60 +518,97 @@
 
 <!-- ==================== BARCODE SCANNER MODAL ==================== -->
 <div class="modal-bg" id="barcode-scanner-modal" role="dialog" aria-modal="true" style="z-index: 2100;">
-  <div style="position: relative; width: min(100vw, 480px); height: min(100vh, 640px); max-height: 100vh; background: #000; border-radius: var(--radius-lg); border: 1px solid rgba(255,255,255,0.15); overflow: hidden; margin: auto;">
+  <div style="position: relative; width: min(100vw, 500px); height: min(100vh, 700px); max-height: 100vh; background: #000; border-radius: var(--radius-lg); border: 1px solid rgba(255,255,255,0.15); overflow: hidden; margin: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.6);">
 
     <!-- Live video feed -->
     <video id="barcode-video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover; display:block;"></video>
 
+    <!-- Canvas for realtime barcode box tracking & effects -->
+    <canvas id="barcode-track-canvas" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:3;"></canvas>
+
+    <!-- Tap to focus indicator -->
+    <div id="barcode-focus-indicator" style="position:absolute; width:60px; height:60px; border:2px solid #c99365; border-radius:10px; transform:translate(-50%,-50%) scale(1.3); opacity:0; pointer-events:none; transition: all 0.25s ease; z-index:4;"></div>
+
     <!-- Dark vignette overlay with cutout illusion -->
     <div id="barcode-overlay" style="position:absolute; inset:0; pointer-events:none; z-index:2;">
       <!-- Top dark band -->
-      <div style="position:absolute; top:0; left:0; right:0; height:calc(50% - 52px); background:rgba(0,0,0,0.58);"></div>
+      <div style="position:absolute; top:0; left:0; right:0; height:calc(50% - 70px); background:rgba(0,0,0,0.6);"></div>
       <!-- Bottom dark band -->
-      <div style="position:absolute; bottom:0; left:0; right:0; height:calc(50% - 52px); background:rgba(0,0,0,0.58);"></div>
+      <div style="position:absolute; bottom:0; left:0; right:0; height:calc(50% - 70px); background:rgba(0,0,0,0.6);"></div>
       <!-- Left dark band -->
-      <div style="position:absolute; top:calc(50% - 52px); left:0; width:calc(50% - 130px); height:104px; background:rgba(0,0,0,0.58);"></div>
+      <div style="position:absolute; top:calc(50% - 70px); left:0; width:calc(50% - 140px); height:140px; background:rgba(0,0,0,0.6);"></div>
       <!-- Right dark band -->
-      <div style="position:absolute; top:calc(50% - 52px); right:0; width:calc(50% - 130px); height:104px; background:rgba(0,0,0,0.58);"></div>
+      <div style="position:absolute; top:calc(50% - 70px); right:0; width:calc(50% - 140px); height:140px; background:rgba(0,0,0,0.6);"></div>
     </div>
 
     <!-- Guide frame (barcode alignment box) -->
-    <div id="barcode-guide-frame" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:260px; height:104px; z-index:3; pointer-events:none;">
+    <div id="barcode-guide-frame" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:280px; height:140px; z-index:4; pointer-events:none; border-radius:12px; transition:box-shadow .2s ease;">
       <!-- Corner brackets -->
-      <div style="position:absolute; top:-2px; left:-2px; width:22px; height:22px; border-top:3px solid #c99365; border-left:3px solid #c99365; border-radius:4px 0 0 0;"></div>
-      <div style="position:absolute; top:-2px; right:-2px; width:22px; height:22px; border-top:3px solid #c99365; border-right:3px solid #c99365; border-radius:0 4px 0 0;"></div>
-      <div style="position:absolute; bottom:-2px; left:-2px; width:22px; height:22px; border-bottom:3px solid #c99365; border-left:3px solid #c99365; border-radius:0 0 0 4px;"></div>
-      <div style="position:absolute; bottom:-2px; right:-2px; width:22px; height:22px; border-bottom:3px solid #c99365; border-right:3px solid #c99365; border-radius:0 0 4px 0;"></div>
+      <div style="position:absolute; top:-2px; left:-2px; width:26px; height:26px; border-top:3px solid #c99365; border-left:3px solid #c99365; border-radius:8px 0 0 0;"></div>
+      <div style="position:absolute; top:-2px; right:-2px; width:26px; height:26px; border-top:3px solid #c99365; border-right:3px solid #c99365; border-radius:0 8px 0 0;"></div>
+      <div style="position:absolute; bottom:-2px; left:-2px; width:26px; height:26px; border-bottom:3px solid #c99365; border-left:3px solid #c99365; border-radius:0 0 0 8px;"></div>
+      <div style="position:absolute; bottom:-2px; right:-2px; width:26px; height:26px; border-bottom:3px solid #c99365; border-right:3px solid #c99365; border-radius:0 0 8px 0;"></div>
       <!-- Scan line animation -->
-      <div id="barcode-scan-line" style="position:absolute; left:0; right:0; top:0; height:2px; background:linear-gradient(90deg, transparent, #8c6239, #c99365, #8c6239, transparent); box-shadow:0 0 8px rgba(140,98,57,0.8); animation: barcodeScan 1.6s ease-in-out infinite;"></div>
+      <div id="barcode-scan-line" style="position:absolute; left:4px; right:4px; top:0; height:2px; background:linear-gradient(90deg, transparent, #c99365, #f5d0a9, #c99365, transparent); box-shadow:0 0 10px rgba(201,147,101,0.9); animation: barcodeScan 1.6s ease-in-out infinite;"></div>
     </div>
 
-    <!-- Top info -->
-    <div style="position:absolute; top:18px; left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:8px; z-index:5; pointer-events:none;">
-      <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(0,0,0,0.65); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.1); padding:5px 14px; border-radius:20px; color:#c99365; font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">
+    <!-- Top Toolbar (Status, Torch, Zoom, Gallery, Close) -->
+    <div style="position:absolute; top:16px; left:16px; right:16px; display:flex; justify-content:space-between; align-items:center; z-index:10;">
+      <!-- Status pill -->
+      <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(0,0,0,0.65); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.12); padding:6px 14px; border-radius:20px; color:#c99365; font-size:11px; font-weight:600; letter-spacing:0.5px;">
         <span id="barcode-status-dot" style="display:inline-block; width:6px; height:6px; background:#34d399; border-radius:50%; box-shadow:0 0 8px #34d399;"></span>
-        <span id="barcode-status-label">바코드 스캐너</span>
+        <span id="barcode-status-label">스캐너 활성</span>
+      </div>
+
+      <!-- Action buttons -->
+      <div style="display:flex; align-items:center; gap:8px;">
+        <!-- Torch/Flash toggle -->
+        <button id="barcode-torch-btn" onclick="toggleBarcodeTorch()" style="width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:14px; cursor:pointer; display:none; align-items:center; justify-content:center;" title="손전등 켜기/끄기">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        </button>
+
+        <!-- Zoom toggle (1x / 2x) -->
+        <button id="barcode-zoom-btn" onclick="toggleBarcodeZoom()" style="width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:11px; font-weight:700; cursor:pointer; display:none; align-items:center; justify-content:center;" title="확대/축소">
+          1x
+        </button>
+
+        <!-- Gallery pick -->
+        <label for="barcode-album-input" style="width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="앨범에서 사진 선택">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          <input type="file" id="barcode-album-input" accept="image/*" style="display:none;" onchange="handleBarcodeAlbumSelect(this)">
+        </label>
+
+        <!-- Close modal -->
+        <button onclick="closeBarcodeScannerModal()" style="width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="닫기">×</button>
       </div>
     </div>
 
     <!-- Guide text -->
-    <div style="position:absolute; bottom:100px; left:0; right:0; text-align:center; z-index:5; pointer-events:none;">
-      <p id="barcode-guide-text" style="display:inline-block; color:#fff; font-size:12px; font-weight:500; padding:7px 18px; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); border-radius:10px; border:1px solid rgba(255,255,255,0.08); line-height:1.5;">
-        바코드를 <strong style="color:#c99365;">박스 안</strong>에 맞추면 자동으로 인식됩니다
+    <div style="position:absolute; bottom:110px; left:0; right:0; text-align:center; z-index:5; pointer-events:none;">
+      <p id="barcode-guide-text" style="display:inline-block; color:#fff; font-size:12px; font-weight:500; padding:8px 20px; background:rgba(0,0,0,0.65); backdrop-filter:blur(6px); border-radius:20px; border:1px solid rgba(255,255,255,0.12); line-height:1.5;">
+        도서 뒷면 바코드를 <strong style="color:#c99365;">박스 안</strong>에 맞춰주세요
       </p>
     </div>
 
     <!-- Result toast -->
-    <div id="barcode-result-toast" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(52,211,153,0.95); color:#fff; font-size:14px; font-weight:700; padding:12px 24px; border-radius:14px; z-index:10; text-align:center; box-shadow:0 4px 24px rgba(0,0,0,0.4);"></div>
+    <div id="barcode-result-toast" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(52,211,153,0.95); color:#fff; font-size:15px; font-weight:700; padding:14px 28px; border-radius:16px; z-index:15; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,0.5); backdrop-filter:blur(4px);"></div>
 
     <!-- Bottom controls -->
-    <div style="position:absolute; bottom:20px; left:0; right:0; display:flex; align-items:center; justify-content:center; gap:20px; z-index:5;">
-      <!-- Close -->
-      <button onclick="closeBarcodeScannerModal()" style="width:44px; height:44px; border-radius:50%; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
-      <!-- Manual capture fallback -->
-      <button id="barcode-capture-btn" onclick="triggerBarcodeCapture()" style="width:64px; height:64px; border-radius:50%; background:var(--grad-main); border:3px solid #fff; color:#fff; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(140,98,57,0.6);" title="촬영"><span style="display:inline-block; width:22px; height:22px; border-radius:50%; border:2px solid #fff;"></span></button>
+    <div style="position:absolute; bottom:24px; left:0; right:0; display:flex; align-items:center; justify-content:center; gap:28px; z-index:10;">
       <!-- Switch camera -->
-      <button onclick="switchBarcodeCamera()" style="width:44px; height:44px; border-radius:50%; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="카메라 전환">전환</button>
+      <button onclick="switchBarcodeCamera()" style="width:48px; height:48px; border-radius:50%; background:rgba(0,0,0,0.65); border:1px solid rgba(255,255,255,0.25); color:#fff; font-size:12px; font-weight:600; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;" title="카메라 전환">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+      </button>
+
+      <!-- Manual capture fallback -->
+      <button id="barcode-capture-btn" onclick="triggerBarcodeCapture()" style="width:68px; height:68px; border-radius:50%; background:var(--grad-main); border:3px solid rgba(255,255,255,0.9); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 0 24px rgba(140,98,57,0.7);" title="수동 촬영 인식">
+        <span style="display:inline-block; width:24px; height:24px; border-radius:50%; border:2.5px solid #fff;"></span>
+      </button>
+
+      <!-- Album file button as symmetrical counterpart -->
+      <button onclick="document.getElementById('barcode-album-input').click()" style="width:48px; height:48px; border-radius:50%; background:rgba(0,0,0,0.65); border:1px solid rgba(255,255,255,0.25); color:#fff; font-size:12px; font-weight:600; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;" title="사진첩에서 선택">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+      </button>
     </div>
   </div>
 </div>
@@ -673,6 +710,6 @@
 <!-- ZXing Barcode Decoder -->
 <script src="https://unpkg.com/@zxing/library@0.21.0/umd/index.min.js"></script>
 
-  <script src="app.js?v=20260904_12" defer></script>
+  <script src="app.js?v=20260904_13" defer></script>
 </body>
 </html>
