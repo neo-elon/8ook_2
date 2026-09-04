@@ -329,6 +329,64 @@
       box-sizing: border-box;
     }
 
+    /* Header Search & Add Group (Desktop & Base) */
+    #header-search-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      max-width: 480px;
+      min-width: 140px;
+      margin: 0 10px;
+    }
+    .search-input-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+    }
+    .search-input-wrapper .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-300);
+      pointer-events: none;
+    }
+    #gallery-search-input {
+      width: 100%;
+      height: 36px;
+      padding-left: 34px;
+      padding-right: 30px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--glass);
+      color: var(--text-100);
+      font-size: 12.5px;
+      box-sizing: border-box;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    #gallery-search-input:focus {
+      border-color: var(--violet);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(140, 98, 57, 0.12);
+    }
+    #gallery-search-clear {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-300);
+      cursor: pointer;
+      font-size: 12px;
+      display: none;
+      line-height: 1;
+      padding: 3px;
+    }
 
     /* Header User Chip */
     .header-user-chip {
@@ -2305,34 +2363,81 @@
       .detail-thumb { width:100px; height:150px; }
 
       #app-header {
-        height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
+        height: calc(56px + env(safe-area-inset-top, 0px));
         flex-direction: row;
-        padding: env(safe-area-inset-top, 0px) 14px 0;
-        gap: 8px;
+        padding: env(safe-area-inset-top, 0px) 10px 0;
+        gap: 6px;
         box-sizing: border-box;
+      }
+      .header-left {
+        gap: 6px !important;
+        flex-shrink: 0;
+      }
+      .header-logo {
+        font-size: 21px !important;
       }
       #view-label {
         display: none !important;
       }
-      .gallery-search-wrap {
-        margin-bottom: 12px !important;
-        gap: 10px !important;
-        flex-direction: column !important;
-        align-items: stretch !important;
-      }
-      .search-and-add-group {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
+      #header-search-group {
         display: flex !important;
         align-items: center !important;
-        gap: 8px !important;
+        gap: 6px !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+        margin: 0 2px !important;
+      }
+      .quick-add-book-btn {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        box-shadow: 0 2px 6px rgba(140, 98, 57, 0.25) !important;
+      }
+      .quick-add-book-btn svg {
+        width: 17px !important;
+        height: 17px !important;
       }
       .search-input-wrapper {
-        max-width: 100% !important;
-        width: 100% !important;
-        min-width: 0 !important;
         flex: 1 !important;
+        min-width: 0 !important;
+        position: relative !important;
+      }
+      #gallery-search-input {
+        width: 100% !important;
+        height: 34px !important;
+        font-size: 12px !important;
+        padding-left: 28px !important;
+        padding-right: 26px !important;
+        border-radius: 17px !important;
+      }
+      .search-input-wrapper .search-icon {
+        left: 9px !important;
+        width: 12px !important;
+        height: 12px !important;
+      }
+      .header-right {
+        gap: 6px !important;
+        flex-shrink: 0;
+      }
+      .header-user-chip {
+        padding: 4px 7px !important;
+        font-size: 11px !important;
+        gap: 4px !important;
+      }
+      #auth-username-short {
+        max-width: 44px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .main-menu-btn {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+      }
+      .gallery-search-wrap {
+        margin-bottom: 12px !important;
+        padding: 0 2px !important;
       }
       .view-mode-toggle {
         width: 100% !important;

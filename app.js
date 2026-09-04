@@ -1398,6 +1398,8 @@ function showDetail(id, direction = null) {
   document.getElementById('view-community').classList.remove('show');
   document.getElementById('view-detail').classList.add('show');
   document.getElementById('back-btn').classList.add('show');
+  const searchGroup = document.getElementById('header-search-group');
+  if (searchGroup) searchGroup.style.display = 'none';
   document.getElementById('community-nav-btn').style.display = 'none';
   document.getElementById('view-label').textContent = book.title;
 }
@@ -1457,6 +1459,8 @@ function showGallery() {
   document.getElementById('view-stats').classList.remove('show');
   document.getElementById('view-community').classList.remove('show');
   document.getElementById('back-btn').classList.remove('show');
+  const searchGroup = document.getElementById('header-search-group');
+  if (searchGroup) searchGroup.style.display = '';
   const vl = document.getElementById('view-label');
   if (vl) vl.style.display = 'none';
   currentBookId = null;
@@ -1464,15 +1468,22 @@ function showGallery() {
 }
 
 function handleGallerySearch() {
+  const input = document.getElementById('gallery-search-input');
+  const clearBtn = document.getElementById('gallery-search-clear');
+  if (clearBtn) {
+    clearBtn.style.display = input && input.value ? 'block' : 'none';
+  }
   renderGallery();
 }
 
 function clearGallerySearch() {
   const input = document.getElementById('gallery-search-input');
+  const clearBtn = document.getElementById('gallery-search-clear');
   if (input) {
     input.value = '';
     input.focus();
   }
+  if (clearBtn) clearBtn.style.display = 'none';
   renderGallery();
 }
 
@@ -1483,6 +1494,8 @@ function showStats() {
   document.getElementById('view-stats').classList.add('show');
   document.getElementById('view-community').classList.remove('show');
   document.getElementById('back-btn').classList.add('show');
+  const searchGroup = document.getElementById('header-search-group');
+  if (searchGroup) searchGroup.style.display = 'none';
   const vl = document.getElementById('view-label');
   if (vl) {
     vl.style.display = 'inline-block';
@@ -4342,6 +4355,8 @@ function showCommunity() {
   document.getElementById('view-stats').classList.remove('show');
   document.getElementById('view-community').classList.add('show');
   document.getElementById('back-btn').classList.add('show');
+  const searchGroup = document.getElementById('header-search-group');
+  if (searchGroup) searchGroup.style.display = 'none';
   const vl = document.getElementById('view-label');
   if (vl) {
     vl.style.display = 'inline-block';
