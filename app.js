@@ -559,46 +559,52 @@ function renderGallery() {
       return;
     }
 
-    // 전체 책장: 연도별 층 + 월별 인덱스 디바이더 렌더링
-    const yearGroups = {};
+    // 전체 책장: 월별(연-월) 층 선반 렌더링
+    const monthGroups = {};
     sortedBooks.forEach(book => {
-      let y = '기타';
+      let ymKey = '기타';
       if (book.date) {
         const d = new Date(book.date);
-        if (!isNaN(d.getFullYear())) {
-          y = String(d.getFullYear());
+        const y = d.getFullYear();
+        const m = d.getMonth() + 1;
+        if (!isNaN(y) && !isNaN(m)) {
+          ymKey = `${y}-${String(m).padStart(2, '0')}`;
         }
       }
-      if (!yearGroups[y]) yearGroups[y] = [];
-      yearGroups[y].push(book);
+      if (!monthGroups[ymKey]) monthGroups[ymKey] = [];
+      monthGroups[ymKey].push(book);
     });
 
-    const years = Object.keys(yearGroups).sort((a, b) => {
+    const monthKeys = Object.keys(monthGroups).sort((a, b) => {
       if (a === '기타') return 1;
       if (b === '기타') return -1;
-      return Number(b) - Number(a);
+      return b.localeCompare(a);
     });
 
     let isFirstRow = true;
     let globalIndex = 0;
 
-    years.forEach(year => {
-      const yearSection = document.createElement('div');
-      yearSection.className = 'shelf-year-section';
+    monthKeys.forEach(ymKey => {
+      const monthSection = document.createElement('div');
+      monthSection.className = 'shelf-year-section';
 
-      const booksInYear = yearGroups[year];
-      const yearLabel = year === '기타' ? '이전 기록' : `${year}년`;
+      const booksInMonth = monthGroups[ymKey];
+      let monthLabel = '완독일 미정';
+      if (ymKey !== '기타') {
+        const parts = ymKey.split('-');
+        monthLabel = `${parts[0]}년 ${parseInt(parts[1], 10)}월`;
+      }
 
       const header = document.createElement('div');
       header.className = 'shelf-year-header';
       header.innerHTML = `
         <div class="shelf-year-badge">
-          <span>📅 ${yearLabel}</span>
-          <span class="shelf-year-count">${booksInYear.length}권</span>
+          <span>📅 ${monthLabel}</span>
+          <span class="shelf-year-count">${booksInMonth.length}권</span>
         </div>
         <div class="shelf-year-line"></div>
       `;
-      yearSection.appendChild(header);
+      monthSection.appendChild(header);
 
       const shelfRow = document.createElement('div');
       shelfRow.className = 'spine-shelf-row';
@@ -608,31 +614,16 @@ function renderGallery() {
         isFirstRow = false;
       }
 
-      let lastMonth = null;
-      booksInYear.forEach(book => {
-        let currentMonth = null;
-        if (book.date) {
-          const d = new Date(book.date);
-          if (!isNaN(d.getMonth())) {
-            currentMonth = d.getMonth() + 1;
-          }
-        }
-
-        if (currentMonth && currentMonth !== lastMonth) {
-          lastMonth = currentMonth;
-          const monthDivider = createMonthDivider(currentMonth);
-          shelfRow.appendChild(monthDivider);
-        }
-
+      booksInMonth.forEach(book => {
         const card = createBookCardElement(book, globalIndex++, true);
         shelfRow.appendChild(card);
       });
 
-      yearSection.appendChild(shelfRow);
-      shelfContainer.appendChild(yearSection);
+      monthSection.appendChild(shelfRow);
+      shelfContainer.appendChild(monthSection);
     });
 
-    if (!years.length) {
+    if (!monthKeys.length) {
       const emptyRow = document.createElement('div');
       emptyRow.className = 'spine-shelf-row';
       emptyRow.appendChild(addCard);
