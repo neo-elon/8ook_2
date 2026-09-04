@@ -4,30 +4,50 @@
 const supabaseUrl = 'https://guaimwzlmdacerpvsxxw.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1YWltd3psbWRhY2VycHZzeHh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODM1NDIsImV4cCI6MjA5NjY1OTU0Mn0.zF8A_Ul3Y5aIPjZcVTYIj1gUkConuQ-b9eO7EjnoWUE';
 
-// Persistent storage adapter (LocalStorage + Cookie backup for iOS Safari ITP)
+// Persistent storage adapter (LocalStorage + SessionStorage + Safe Cookie backup for Mobile & iOS Safari ITP)
 const persistentStorage = {
   getItem: (key) => {
+    let val = null;
     try {
-      const val = localStorage.getItem(key);
+      val = localStorage.getItem(key);
       if (val) return val;
     } catch (e) {}
 
     try {
+      val = sessionStorage.getItem(key);
+      if (val) {
+        // Sync to localStorage for persistence
+        try { localStorage.setItem(key, val); } catch (e) {}
+        return val;
+      }
+    } catch (e) {}
+
+    try {
       const match = document.cookie.match(new RegExp('(?:^|;\\s*)' + encodeURIComponent(key) + '=([^;]*)'));
-      if (match) return decodeURIComponent(match[1]);
+      if (match) {
+        val = decodeURIComponent(match[1]);
+        try { localStorage.setItem(key, val); } catch (e) {}
+        try { sessionStorage.setItem(key, val); } catch (e) {}
+        return val;
+      }
     } catch (e) {}
     return null;
   },
   setItem: (key, value) => {
     try { localStorage.setItem(key, value); } catch (e) {}
+    try { sessionStorage.setItem(key, value); } catch (e) {}
+    // Only store in cookie if under 3200 chars to strictly prevent browser 4KB cookie silent drop
     try {
-      const expDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
-      const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
-      document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}; expires=${expDate}; path=/; SameSite=Lax${secureFlag}`;
+      if (value && value.length < 3200) {
+        const expDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
+        const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
+        document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}; expires=${expDate}; path=/; SameSite=Lax${secureFlag}`;
+      }
     } catch (e) {}
   },
   removeItem: (key) => {
     try { localStorage.removeItem(key); } catch (e) {}
+    try { sessionStorage.removeItem(key); } catch (e) {}
     try {
       document.cookie = `${encodeURIComponent(key)}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
     } catch (e) {}
@@ -3934,30 +3954,74 @@ document.addEventListener('keydown', e => {
 loadTheme();
 (async () => {
   if (supabaseClient) {
-    await checkAuth();
-  }
+    const urlParams = new URLSearchParams(window.location.search);
+    const hashStr = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
+    const hashParams = new URLSearchParams(hashStr);
 
-  // Handle OAuth Redirect Errors or parameters
-  const urlParams = new URLSearchParams(window.location.search);
-  const hashParams = new URLSearchParams(window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash);
-  const authError = urlParams.get('error') || urlParams.get('error_code') || hashParams.get('error') || hashParams.get('error_code');
-  if (authError) {
-    // Clear URL parameters immediately so they don't persist across refreshes or tabs
-    const cleanUrl = window.location.origin + window.location.pathname;
-    window.history.replaceState({}, document.title, cleanUrl);
+    const code = urlParams.get('code');
+    const authError = urlParams.get('error') || urlParams.get('error_code') || hashParams.get('error') || hashParams.get('error_code');
 
-    // Only display error toast if user is actually NOT logged in!
-    if (!currentUser) {
-      const errorDescription = urlParams.get('error_description') || hashParams.get('error_description') || '알 수 없는 로그인 오류가 발생했습니다.';
-      let userMsg = `로그인 오류: ${errorDescription}`;
-      if (errorDescription.includes('state') || authError.includes('state')) {
-        userMsg = `로그인 오류: 브라우저 보안 설정이나 카카오톡/네이버 등의 인앱 브라우저 제한으로 인해 로그인 세션(OAuth State)이 유실되었습니다. 크롬(Chrome)이나 사파리(Safari) 같은 일반 브라우저로 접속해 다시 로그인해주세요.`;
+    // 1. OAuth Code 교환 (PKCE Flow)
+    if (code) {
+      try {
+        console.log('[Auth] Exchanging OAuth code for session...');
+        const { data, error } = await supabaseClient.auth.exchangeCodeForSession(code);
+        if (error) {
+          console.error('[Auth] Exchange code error:', error);
+          if (error.message?.includes('code verifier') || error.message?.includes('invalid request')) {
+            setTimeout(() => {
+              toast('모바일 보안 설정으로 로그인 인증이 만료되었습니다. 다시 시도해주세요.', 6000);
+            }, 300);
+          }
+        } else if (data?.session) {
+          currentUser = data.session.user;
+          updateAuthUI(data.session);
+          console.log('[Auth] Successfully logged in as:', currentUser.email);
+        }
+      } catch (err) {
+        console.error('[Auth] Unexpected error during code exchange:', err);
       }
-      setTimeout(() => {
-        toast(userMsg, 8000);
-      }, 500);
+      // URL에서 code 파라미터 정리
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    } 
+    // 2. Hash Access Token 확인 (Implicit Flow fallback)
+    else if (hashStr.includes('access_token=') || hashStr.includes('refresh_token=')) {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session && session.user) {
+          currentUser = session.user;
+          updateAuthUI(session);
+        }
+      } catch (err) {
+        console.error('[Auth] Hash session parse error:', err);
+      }
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+    // 3. 에러 발생 시 처리
+    else if (authError) {
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+
+      if (!currentUser) {
+        const errorDescription = urlParams.get('error_description') || hashParams.get('error_description') || '로그인 인증이 완료되지 않았습니다.';
+        let userMsg = `로그인 오류: ${errorDescription}`;
+        if (errorDescription.includes('state') || authError.includes('state')) {
+          userMsg = `로그인 안내: 브라우저 보안 또는 인앱 브라우저 제한으로 세션이 만료되었습니다. 사파리(Safari)나 크롬(Chrome) 일반 탭에서 다시 로그인해주세요.`;
+        }
+        setTimeout(() => {
+          toast(userMsg, 7000);
+        }, 500);
+      }
+    }
+
+    // 4. 일반 세션 확인 및 복구
+    if (!currentUser) {
+      await checkAuth();
     }
   }
+
   await loadData();
   
   // Unique sentences representing the 6 demo books
@@ -4056,22 +4120,43 @@ async function loginWithGoogle() {
     return;
   }
 
+  // 모바일 인앱 브라우저 (카카오톡, 네이버, 인스타그램, 페이스북, 라인 등) 감지
+  const ua = navigator.userAgent || navigator.vendor || window.opera || '';
+  const isInApp = /KAKAOTALK|NAVER|Instagram|FBAN|FBAV|Line/i.test(ua);
+  if (isInApp) {
+    const currentUrl = window.location.href;
+    if (/KAKAOTALK/i.test(ua)) {
+      // 카카오톡 외부 브라우저(Safari/Chrome) 강제 호출 스킴
+      location.href = `kakaotalk://web/openExternalApp?url=${encodeURIComponent(currentUrl)}`;
+      return;
+    } else {
+      alert('카카오톡, 네이버, 인스타그램 등 인앱 브라우저에서는 구글 보안 정책상 로그인이 차단됩니다.\n\n화면 우측 상단이나 하단의 메뉴(⋯)를 눌러 [Safari로 열기] 또는 [기본 브라우저로 열기]로 접속해주세요.');
+      return;
+    }
+  }
+
+  // 현재 호스팅 경로 기준 리다이렉트 URL 정규화 (파라미터 및 해시 제거)
   let redirectUrl = window.location.origin + window.location.pathname;
   if (!redirectUrl.endsWith('/') && !redirectUrl.endsWith('.html')) {
     redirectUrl += '/';
   }
+
+  toast('구글 로그인으로 연결 중...', 2500);
 
   const { error } = await supabaseClient.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo: redirectUrl,
       queryParams: {
-        access_type: 'offline',
-        prompt: 'select_account'
+        access_type: 'offline'
+        // 'select_account'를 생략하여 모바일에서 반복적인 2단계 인증 루프 방지
       }
     }
   });
-  if (error) { console.error(error); toast('로그인 실패'); }
+  if (error) { 
+    console.error('[Auth] signInWithOAuth error:', error); 
+    toast(`로그인 오류: ${error.message || '연결에 실패했습니다'}`); 
+  }
 }
 
 async function logout() {
