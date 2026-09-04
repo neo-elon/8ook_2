@@ -64,7 +64,7 @@ try {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
-        flowType: 'pkce'
+        flowType: 'implicit'
       }
     });
   } else {
@@ -3985,13 +3985,20 @@ loadTheme();
       const cleanUrl = window.location.origin + window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
     } 
-    // 2. Hash Access Token 확인 (Implicit Flow fallback)
+    // 2. Hash Access Token 확인 (Implicit Flow)
     else if (hashStr.includes('access_token=') || hashStr.includes('refresh_token=')) {
+      console.log('[Auth] Detected OAuth tokens in URL hash, establishing session...');
       try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
+        let { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          await new Promise(r => setTimeout(r, 150));
+          const res = await supabaseClient.auth.getSession();
+          session = res.data?.session;
+        }
         if (session && session.user) {
           currentUser = session.user;
           updateAuthUI(session);
+          console.log('[Auth] Implicit session established successfully:', currentUser.email);
         }
       } catch (err) {
         console.error('[Auth] Hash session parse error:', err);
@@ -4005,11 +4012,8 @@ loadTheme();
       window.history.replaceState({}, document.title, cleanUrl);
 
       if (!currentUser) {
-        const errorDescription = urlParams.get('error_description') || hashParams.get('error_description') || '로그인 인증이 완료되지 않았습니다.';
-        let userMsg = `로그인 오류: ${errorDescription}`;
-        if (errorDescription.includes('state') || authError.includes('state')) {
-          userMsg = `로그인 안내: 브라우저 보안 또는 인앱 브라우저 제한으로 세션이 만료되었습니다. 사파리(Safari)나 크롬(Chrome) 일반 탭에서 다시 로그인해주세요.`;
-        }
+        const errorDescription = urlParams.get('error_description') || hashParams.get('error_description') || '인증이 완료되지 않았습니다.';
+        let userMsg = `로그인 오류 (${authError}): ${errorDescription}`;
         setTimeout(() => {
           toast(userMsg, 7000);
         }, 500);
@@ -4146,11 +4150,7 @@ async function loginWithGoogle() {
   const { error } = await supabaseClient.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: redirectUrl,
-      queryParams: {
-        access_type: 'offline'
-        // 'select_account'를 생략하여 모바일에서 반복적인 2단계 인증 루프 방지
-      }
+      redirectTo: redirectUrl
     }
   });
   if (error) { 
