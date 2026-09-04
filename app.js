@@ -14,27 +14,27 @@ const persistentStorage = {
     try {
       const val = localStorage.getItem(key);
       if (val !== null) return val;
-    } catch (e) {}
+    } catch (e) { }
 
     try {
       const val = sessionStorage.getItem(key);
       if (val !== null) {
-        try { localStorage.setItem(key, val); } catch (e) {}
+        try { localStorage.setItem(key, val); } catch (e) { }
         return val;
       }
-    } catch (e) {}
+    } catch (e) { }
 
     return memoryStore[key] || null;
   },
   setItem: (key, value) => {
     memoryStore[key] = value;
-    try { localStorage.setItem(key, value); } catch (e) {}
-    try { sessionStorage.setItem(key, value); } catch (e) {}
+    try { localStorage.setItem(key, value); } catch (e) { }
+    try { sessionStorage.setItem(key, value); } catch (e) { }
   },
   removeItem: (key) => {
     delete memoryStore[key];
-    try { localStorage.removeItem(key); } catch (e) {}
-    try { sessionStorage.removeItem(key); } catch (e) {}
+    try { localStorage.removeItem(key); } catch (e) { }
+    try { sessionStorage.removeItem(key); } catch (e) { }
   }
 };
 
@@ -139,7 +139,7 @@ function saveData() {
     } else {
       localStorage.setItem('rj_books', JSON.stringify(books));
     }
-  } catch(e) {}
+  } catch (e) { }
 }
 async function loadData() {
   let localBooks = [];
@@ -147,7 +147,7 @@ async function loadData() {
     const key = currentUser ? `rj_books_${currentUser.id}` : 'rj_books';
     const d = localStorage.getItem(key);
     if (d) localBooks = JSON.parse(d);
-  } catch(e) {}
+  } catch (e) { }
 
   if (currentUser) {
     localBooks = localBooks.map(b => {
@@ -177,14 +177,14 @@ async function loadData() {
       }
       throw error;
     }
-    
+
     const remoteBooks = data || [];
-    
+
     // Migration: If Supabase is empty but we have local guest books, upload them to Supabase
     const guestBooksStr = localStorage.getItem('rj_books');
     let guestBooks = [];
     if (guestBooksStr) {
-      try { guestBooks = JSON.parse(guestBooksStr); } catch(e) {}
+      try { guestBooks = JSON.parse(guestBooksStr); } catch (e) { }
     }
 
     if (remoteBooks.length === 0 && guestBooks.length > 0) {
@@ -214,7 +214,7 @@ async function loadData() {
         books = booksToUpload;
         toast('기존 로컬 책장 데이터를 Supabase에 동기화했습니다.');
         // Clear guest books so we don't sync them again next time
-        try { localStorage.removeItem('rj_books'); } catch(e) {}
+        try { localStorage.removeItem('rj_books'); } catch (e) { }
       } else {
         console.error('Failed to sync local books to Supabase:', syncError);
         books = remoteBooks;
@@ -223,7 +223,7 @@ async function loadData() {
       books = remoteBooks;
     }
     saveData();
-  } catch(e) {
+  } catch (e) {
     console.error('Supabase load error, using local storage backup:', e);
     books = localBooks;
   }
@@ -241,7 +241,7 @@ function copySqlCode() {
   });
 }
 function uid() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
 /* ==============================================
@@ -250,21 +250,21 @@ function uid() {
 function esc(s) {
   if (!s) return '';
   return String(s)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function getSafeImageUrl(url) {
   if (!url) return '';
-  
+
   // Prepend Notion origin to relative paths (e.g., /image/... or /images/...)
   if (url.startsWith('/')) {
     url = 'https://www.notion.so' + url;
   }
-  
+
   // Convert Notion attachment scheme to a valid proxy URL
   if (url.startsWith('attachment:')) {
     const rest = url.substring(11); // Skip 'attachment:'
@@ -279,13 +279,13 @@ function getSafeImageUrl(url) {
       blockId = rest.substring(0, slashIndex);
       filename = rest.substring(slashIndex + 1);
     }
-    
+
     if (blockId && filename) {
       const s3Url = `https://s3.us-west-2.amazonaws.com/secure.notion-static.com/${blockId}/${filename}`;
       url = `https://www.notion.so/image/${encodeURIComponent(s3Url)}?table=block&id=${blockId}&cache=v2`;
     }
   }
-  
+
   return url;
 }
 
@@ -293,25 +293,25 @@ function fmtDate(s) {
   if (!s) return '';
   const d = new Date(s);
   if (isNaN(d)) return s;
-  return `${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()}.`;
+  return `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}.`;
 }
 
 function starsHtml(n, size) {
   let h = '';
   for (let i = 1; i <= 5; i++) {
-    const on = i <= (n||0);
-    h += `<span class="detail-star${on?' on':''}" style="color:${on?'var(--amber)':'var(--star-off)'};font-size:${size||20}px">${on?'★':'☆'}</span>`;
+    const on = i <= (n || 0);
+    h += `<span class="detail-star${on ? ' on' : ''}" style="color:${on ? 'var(--amber)' : 'var(--star-off)'};font-size:${size || 20}px">${on ? '★' : '☆'}</span>`;
   }
   return h;
 }
 
 function starsPlain(n) {
   let s = '';
-  for (let i = 1; i <= 5; i++) s += i <= (n||0) ? '⭐' : '·';
+  for (let i = 1; i <= 5; i++) s += i <= (n || 0) ? '⭐' : '·';
   return s;
 }
 
-function toast(msg, dur=2600) {
+function toast(msg, dur = 2600) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
@@ -361,17 +361,17 @@ function getGalleryViewMode() {
     const m = localStorage.getItem('rj_gallery_view_mode');
     if (m === 'spine') return 'spine-month';
     return m || 'spine-month';
-  } catch(e) {
+  } catch (e) {
     return 'spine-month';
   }
 }
 
-let galleryViewMode = (function() {
+let galleryViewMode = (function () {
   try {
     const m = localStorage.getItem('rj_gallery_view_mode');
     if (m === 'spine') return 'spine-month';
     return m || 'spine-month';
-  } catch(e) {
+  } catch (e) {
     return 'spine-month';
   }
 })();
@@ -417,7 +417,7 @@ function getSpineTheme(book) {
 function setGalleryViewMode(mode) {
   if (mode === 'spine') mode = 'spine-month';
   galleryViewMode = mode;
-  try { localStorage.setItem('rj_gallery_view_mode', mode); } catch(e) {}
+  try { localStorage.setItem('rj_gallery_view_mode', mode); } catch (e) { }
   updateViewModeButtons();
   renderGallery();
 }
@@ -810,8 +810,7 @@ async function downloadMonthShelfImage(ymKey, monthLabel) {
     return;
   }
 
-  const subtitle = `총 ${targetBooks.length}권 완독 · ${targetBooks.reduce((sum, b) => sum + (parseInt(b.pages, 10) || 0), 0)}페이지`;
-  await generateShelfImage(targetBooks, `${monthLabel} 독서 서재`, subtitle, `8ook_${monthLabel.replace(/[^\w가-힣]/g, '_')}_책장`);
+  await generateShelfImage(targetBooks, monthLabel, `${targetBooks.length}권`, `8ook_${monthLabel.replace(/[^\w가-힣]/g, '_')}_책장`);
 }
 
 async function downloadYearShelfImage(yKey, yearLabel) {
@@ -841,8 +840,7 @@ async function downloadYearShelfImage(yKey, yearLabel) {
     return;
   }
 
-  const subtitle = `총 ${targetBooks.length}권 완독 · ${targetBooks.reduce((sum, b) => sum + (parseInt(b.pages, 10) || 0), 0)}페이지`;
-  await generateShelfImage(targetBooks, `${yearLabel} 독서 서재`, subtitle, `8ook_${yearLabel.replace(/[^\w가-힣]/g, '_')}_책장`);
+  await generateShelfImage(targetBooks, yearLabel, `${targetBooks.length}권`, `8ook_${yearLabel.replace(/[^\w가-힣]/g, '_')}_책장`);
 }
 
 async function downloadStarsShelfImage() {
@@ -858,12 +856,11 @@ async function downloadStarsShelfImage() {
     return;
   }
 
-  const subtitle = `나만의 인생작 (★ 5점 컬렉션) · 총 ${targetBooks.length}권 완독`;
-  await generateShelfImage(targetBooks, '인생작 명예의 전당 (8ook Collection)', subtitle, '8ook_인생작_책장');
+  await generateShelfImage(targetBooks, '인생작', `${targetBooks.length}권`, '8ook_인생작_책장');
 }
 
 async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
-  toast('인스타그램용 책장 이미지를 생성하는 중입니다...');
+  toast('책장 이미지를 생성하는 중입니다...');
 
   try {
     const dpr = 2;
@@ -887,8 +884,8 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
         const onDone = (loadedImg) => {
           if (loadedImg && loadedImg.naturalWidth && loadedImg.naturalHeight) {
             const aspect = loadedImg.naturalWidth / loadedImg.naturalHeight;
-            // 실물 책등 비율 안전 제한: 0.08 ~ 0.32
-            const clampedAspect = Math.max(0.08, Math.min(0.32, aspect));
+            // 실물 책등 비율 안전 제한: 0.07 ~ 0.35
+            const clampedAspect = Math.max(0.07, Math.min(0.35, aspect));
             resolve({ book, img: loadedImg, aspect: clampedAspect });
           } else {
             const rawW = getSpineWidth(book.pages);
@@ -908,101 +905,136 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       });
     }));
 
-    // 2. 인스타그램용 1:1 완벽 정사각형 규격 (1080 x 1080)
-    const S = 1080;
+    // 2. 책 크기 및 여백 최소화 레이아웃 계산
     const count = loadedItems.length;
-    const sumAspect = loadedItems.reduce((acc, item) => acc + item.aspect, 0);
+    const bookH = 702; // 세로 기준 높이 (351 * 2: 레티나 고해상도)
+    const scale = bookH / 351;
+    const gap = 2; // 책 사이 실물처럼 밀착
 
-    // 미니멀 헤더/푸터 여백
-    const paddingX = Math.round(S * 0.06); // 약 65px
-    const topMargin = Math.round(S * 0.10); // 약 108px
-    const bottomMargin = Math.round(S * 0.08); // 약 86px
-
-    const availW = S - paddingX * 2; // 약 950px
-    const availH = S - topMargin - bottomMargin; // 약 886px
-
-    // 책 간격
-    const gap = Math.max(3, Math.round(S * 0.0035));
-
-    // 책장을 최대한 크게(Maximize) 하기 위한 bookH 계산:
-    const maxHByWidth = (availW - (count - 1) * gap) / sumAspect;
-    const maxHByHeight = availH * 0.94; // 약 830px
-
-    let bookH = Math.min(maxHByWidth, maxHByHeight);
-    if (count <= 3) {
-      bookH = Math.min(820, maxHByHeight);
-    } else if (bookH > 820) {
-      bookH = 820;
-    }
-
-    // 각 책의 최종 너비 계산
-    const itemsWithWidth = loadedItems.map(item => ({
-      ...item,
-      width: Math.round(item.aspect * bookH)
-    }));
+    // 각 책의 너비 계산 (최소 두께 보장)
+    const itemsWithWidth = loadedItems.map(item => {
+      let w = Math.round(item.aspect * bookH);
+      if (w < 32) w = 32;
+      return { ...item, width: w };
+    });
 
     const totalBooksW = itemsWithWidth.reduce((acc, item) => acc + item.width, 0) + (count - 1) * gap;
 
-    // 1:1 정사각형 캔버스 생성
+    // 최소 여백 설정 (스크린샷 형태와 일치)
+    const paddingX = 24;
+    const topMargin = 54; // 상단 타이틀 및 라인 공간
+    const bottomMargin = 26; // 하단 바닥 선반 접점 및 그림자 공간
+
+    const canvasW = Math.max(totalBooksW + paddingX * 2, 380);
+    const canvasH = topMargin + bookH + bottomMargin;
+
+    // 고해상도 캔버스 생성 (2x Retina)
     const canvas = document.createElement('canvas');
-    canvas.width = S * dpr;
-    canvas.height = S * dpr;
+    canvas.width = canvasW * dpr;
+    canvas.height = canvasH * dpr;
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
 
-    // 3. 배경 그리기 (책장 배경과 동일한 색상 그라데이션 - 웜 베이지 & 크라프트 아이보리)
-    const bgGrad = ctx.createLinearGradient(0, 0, 0, S);
-    bgGrad.addColorStop(0, '#f7f4ee');
-    bgGrad.addColorStop(0.5, '#f3eee5');
-    bgGrad.addColorStop(1, '#eae3d7');
+    // 3. 배경 그리기 (서재 배경과 일치하는 내추럴 웜 베이지 & 크라프트 그라데이션)
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, canvasH);
+    bgGrad.addColorStop(0, '#f9f6f1');
+    bgGrad.addColorStop(0.45, '#f4eee5');
+    bgGrad.addColorStop(1, '#ece4d8');
     ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, S, S);
+    ctx.fillRect(0, 0, canvasW, canvasH);
 
-    // 은은한 우드 선샤인 앰비언트 글로우
-    const glow = ctx.createRadialGradient(S * 0.82, 0, 10, S * 0.82, 0, S * 0.7);
-    glow.addColorStop(0, 'rgba(140, 98, 57, 0.06)');
-    glow.addColorStop(1, 'rgba(245, 240, 232, 0)');
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, S, S);
-
-    // 4. 인스타그램 감성 미니멀 헤더
-    let displayTitle = shelfTitle;
-    const ymMatch = shelfTitle.match(/(\d{4})년\s*(\d{1,2})월/);
-    const yMatch = shelfTitle.match(/(\d{4})년/);
+    // 4. 상단 타이틀 헤더 렌더링 (스크린샷 형태: [2025년 11월 9권 ↓ ────────])
+    let titleText = shelfTitle;
+    let countText = `${count}권`;
+    const ymMatch = shelfTitle.match(/(\d{4}년\s*\d{1,2}월)/);
+    const yMatch = shelfTitle.match(/(\d{4}년)/);
     if (ymMatch) {
-      displayTitle = `${ymMatch[1]}. ${String(ymMatch[2]).padStart(2, '0')}`;
+      titleText = ymMatch[1];
     } else if (yMatch) {
-      displayTitle = `${yMatch[1]} Bookshelf`;
+      titleText = yMatch[1];
     } else if (shelfTitle.includes('인생작')) {
-      displayTitle = 'My Favorites';
+      titleText = '인생작';
+    } else if (shelfTitle.includes('미정')) {
+      titleText = '완독일 미정';
     }
 
-    // 상단 좌측: 감성 타이포그래피 (딥 에스프레소 차콜)
-    ctx.fillStyle = '#231d17';
-    ctx.font = `600 21px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Noto Serif KR", serif`;
-    ctx.fillText(displayTitle, paddingX, 62);
+    ctx.save();
+    const titleY = 28;
 
-    // 상단 우측: 미니멀한 8ook. 로고 (우드 크라프트 브라운)
-    ctx.fillStyle = '#8c6239';
-    ctx.font = `800 21px -apple-system, BlinkMacSystemFont, sans-serif`;
-    ctx.textAlign = 'right';
-    ctx.fillText('8ook.', S - paddingX, 62);
-    ctx.textAlign = 'left';
+    // 제목 텍스트 (볼드 차콜 블랙)
+    ctx.font = '700 20px -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Noto Sans KR", sans-serif';
+    ctx.fillStyle = '#1c1917';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(titleText, paddingX, titleY);
+    const titleMetrics = ctx.measureText(titleText);
 
-    // 5. 책등 렌더링 (화면 정중앙에 최대 크기로 배치)
-    const scale = bookH / 351;
-    let curX = Math.round((S - totalBooksW) / 2);
-    // 수직 중앙 정렬: 상단 헤더와 하단 푸터 사이의 완벽한 중앙 배치
-    const startY = Math.round(topMargin + (availH - bookH) / 2);
+    // 권수 텍스트 (그레이시 톤)
+    const countX = paddingX + titleMetrics.width + 10;
+    ctx.font = '600 18px -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Noto Sans KR", sans-serif';
+    ctx.fillStyle = '#78716c';
+    ctx.fillText(countText, countX, titleY);
+    const countMetrics = ctx.measureText(countText);
 
-    // 책장 바닥 라인 및 은은한 선반 그림자
+    // 다운로드 화살표 아이콘 (스크린샷 형태 재현)
+    const iconX = countX + countMetrics.width + 12;
+    const iconY = titleY;
+    ctx.strokeStyle = '#a8a29e';
+    ctx.lineWidth = 1.6;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    ctx.beginPath();
+    // 화살표
+    ctx.moveTo(iconX, iconY - 5);
+    ctx.lineTo(iconX, iconY + 2);
+    ctx.moveTo(iconX - 3, iconY - 1);
+    ctx.lineTo(iconX, iconY + 2);
+    ctx.lineTo(iconX + 3, iconY - 1);
+    // 트레이 받침
+    ctx.moveTo(iconX - 5, iconY + 3);
+    ctx.lineTo(iconX - 5, iconY + 6);
+    ctx.lineTo(iconX + 5, iconY + 6);
+    ctx.lineTo(iconX + 5, iconY + 3);
+    ctx.stroke();
+
+    // 우측 페이드아웃 구분선
+    const lineStartX = iconX + 12;
+    const lineEndX = canvasW - paddingX;
+    if (lineEndX > lineStartX) {
+      const lineGrad = ctx.createLinearGradient(lineStartX, 0, lineEndX, 0);
+      lineGrad.addColorStop(0, 'rgba(0, 0, 0, 0.08)');
+      lineGrad.addColorStop(0.6, 'rgba(0, 0, 0, 0.03)');
+      lineGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.strokeStyle = lineGrad;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(lineStartX, titleY);
+      ctx.lineTo(lineEndX, titleY);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 5. 책등 및 바닥 선반 렌더링
+    const startY = topMargin;
+    let curX = paddingX;
+
+    // 책장 바닥 접점 짙은 그림자 & 앰비언트 섀도우
     const shelfBaseY = startY + bookH;
-    const shadowGrad = ctx.createLinearGradient(0, shelfBaseY, 0, shelfBaseY + 18 * scale);
-    shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.14)');
-    shadowGrad.addColorStop(0.35, 'rgba(0, 0, 0, 0.04)');
+
+    // 1) 책 바로 밑바닥 접점(Contact) 그림자
+    const contactGrad = ctx.createLinearGradient(0, shelfBaseY, 0, shelfBaseY + 4);
+    contactGrad.addColorStop(0, 'rgba(0, 0, 0, 0.28)');
+    contactGrad.addColorStop(1, 'rgba(0, 0, 0, 0.06)');
+    ctx.fillStyle = contactGrad;
+    ctx.fillRect(paddingX - 4, shelfBaseY, totalBooksW + 8, 4);
+
+    // 2) 바닥으로 부드럽게 퍼지는 선반 그림자
+    const shadowGrad = ctx.createLinearGradient(0, shelfBaseY + 2, 0, shelfBaseY + 18);
+    shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.12)');
+    shadowGrad.addColorStop(0.45, 'rgba(0, 0, 0, 0.04)');
     shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = shadowGrad;
-    ctx.fillRect(curX - 20 * scale, shelfBaseY, totalBooksW + 40 * scale, 18 * scale);
+    ctx.fillRect(paddingX - 12, shelfBaseY + 2, totalBooksW + 24, 16);
 
     itemsWithWidth.forEach(item => {
       const { book, img, width: w } = item;
@@ -1010,7 +1042,7 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       const drawCardPath = () => {
         ctx.beginPath();
         if (ctx.roundRect) {
-          ctx.roundRect(curX, startY, w, bookH, [3 * scale, 3 * scale, 0, 0]);
+          ctx.roundRect(curX, startY, w, bookH, [3, 3, 0, 0]);
         } else {
           ctx.rect(curX, startY, w, bookH);
         }
@@ -1022,15 +1054,19 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
         ctx.clip();
         ctx.drawImage(img, curX, startY, w, bookH);
 
+        // 실물 책등 입체 볼륨감 그라데이션 (CSS .spine-face::after 와 100% 동일)
         const shadeGrad = ctx.createLinearGradient(curX, 0, curX + w, 0);
-        shadeGrad.addColorStop(0, 'rgba(0, 0, 0, 0.18)');
-        shadeGrad.addColorStop(0.2, 'rgba(255, 255, 255, 0.08)');
-        shadeGrad.addColorStop(0.8, 'rgba(0, 0, 0, 0.02)');
-        shadeGrad.addColorStop(1, 'rgba(0, 0, 0, 0.32)');
+        shadeGrad.addColorStop(0, 'rgba(0, 0, 0, 0.22)');
+        shadeGrad.addColorStop(0.07, 'rgba(255, 255, 255, 0.16)');
+        shadeGrad.addColorStop(0.24, 'rgba(255, 255, 255, 0)');
+        shadeGrad.addColorStop(0.76, 'rgba(0, 0, 0, 0)');
+        shadeGrad.addColorStop(0.93, 'rgba(0, 0, 0, 0.15)');
+        shadeGrad.addColorStop(1, 'rgba(0, 0, 0, 0.38)');
         ctx.fillStyle = shadeGrad;
         ctx.fillRect(curX, startY, w, bookH);
         ctx.restore();
       } else {
+        // 대체 표지 책등 (알라딘 이미지 없을 때)
         const theme = getSpineTheme(book);
         ctx.save();
         drawCardPath();
@@ -1097,53 +1133,55 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
         ctx.font = `bold ${Math.round(8 * scale)}px "Noto Serif KR", serif`;
         ctx.fillText('8ook', curX + w / 2, startY + bookH - 8 * scale);
 
+        // 입체 음영
         const spineShade = ctx.createLinearGradient(curX, 0, curX + w, 0);
-        spineShade.addColorStop(0, 'rgba(255,255,255,0.14)');
-        spineShade.addColorStop(0.5, 'rgba(0,0,0,0)');
-        spineShade.addColorStop(1, 'rgba(0,0,0,0.28)');
+        spineShade.addColorStop(0, 'rgba(0, 0, 0, 0.22)');
+        spineShade.addColorStop(0.07, 'rgba(255, 255, 255, 0.16)');
+        spineShade.addColorStop(0.24, 'rgba(255, 255, 255, 0)');
+        spineShade.addColorStop(0.76, 'rgba(0, 0, 0, 0)');
+        spineShade.addColorStop(0.93, 'rgba(0, 0, 0, 0.15)');
+        spineShade.addColorStop(1, 'rgba(0, 0, 0, 0.38)');
         ctx.fillStyle = spineShade;
         ctx.fillRect(curX, startY, w, bookH);
 
         ctx.restore();
       }
 
-      // 별점 5점 뱃지
+      // 6. 별점 5점 (인생작) 골드 스타 뱃지 렌더링
       if (book.rating === 5) {
         ctx.save();
         const starX = curX + w / 2;
-        const starY = startY + 16 * scale;
-        const starR = 9.5 * scale;
+        const starY = startY + 20;
+        const starR = 11;
 
-        const starGrad = ctx.createRadialGradient(starX - 2 * scale, starY - 2 * scale, 1, starX, starY, starR);
-        starGrad.addColorStop(0, '#fbbf24');
-        starGrad.addColorStop(1, '#b45309');
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.32)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetY = 2;
+
+        const starGrad = ctx.createRadialGradient(starX - 2.5, starY - 2.5, 1, starX, starY, starR);
+        starGrad.addColorStop(0, '#ffd700');
+        starGrad.addColorStop(0.7, '#ffae00');
+        starGrad.addColorStop(1, '#d48800');
         ctx.fillStyle = starGrad;
         ctx.beginPath();
         ctx.arc(starX, starY, starR, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.strokeStyle = '#fef08a';
-        ctx.lineWidth = 0.8 * scale;
+        ctx.shadowColor = 'transparent';
+        ctx.strokeStyle = '#fff5cc';
+        ctx.lineWidth = 1.2;
         ctx.stroke();
 
         ctx.fillStyle = '#ffffff';
-        ctx.font = `bold ${Math.round(10.5 * scale)}px sans-serif`;
+        ctx.font = 'bold 11px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('★', starX, starY + 0.5 * scale);
-        ctx.textBaseline = 'alphabetic';
+        ctx.fillText('★', starX, starY + 0.5);
         ctx.restore();
       }
 
       curX += w + gap;
     });
-
-    // 6. 하단: 인스타그램 감성 미니멀 워터마크
-    ctx.fillStyle = 'rgba(24, 24, 27, 0.40)';
-    ctx.font = `500 12px -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.fillText(`${count} books read`, S / 2, S - 36);
-    ctx.textAlign = 'left';
 
     // 7. PNG 다운로드 실행
     canvas.toBlob(blob => {
@@ -1159,7 +1197,7 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       downloadLink.click();
       document.body.removeChild(downloadLink);
       URL.revokeObjectURL(blobUrl);
-      toast(`${shelfTitle} 이미지가 저장되었습니다!`);
+      toast(`${titleText} 책장 이미지가 저장되었습니다!`);
     }, 'image/png');
 
   } catch (err) {
@@ -1265,7 +1303,7 @@ function createBookCardElement(book, i, isSpineMode) {
           ${kingStarBadge}
           <div class="book-hover-overlay">
             <div class="ov-title">${esc(book.title)}</div>
-            <div class="ov-author">${esc(book.author||'')}</div>
+            <div class="ov-author">${esc(book.author || '')}</div>
             ${sentence}
             ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
           </div>
@@ -1316,7 +1354,7 @@ function createBookCardElement(book, i, isSpineMode) {
       ${kingStarBadge}
       <div class="book-hover-overlay">
         <div class="ov-title">${esc(book.title)}</div>
-        <div class="ov-author">${esc(book.author||'')}</div>
+        <div class="ov-author">${esc(book.author || '')}</div>
         ${sentence}
         ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
       </div>
@@ -1354,11 +1392,11 @@ function showDetail(id, direction = null) {
 
   const chips = [];
   if (book.pages) chips.push(`<div class="chip">${Number(book.pages).toLocaleString()}p</div>`);
-  if (book.date)  chips.push(`<div class="chip">${fmtDate(book.date)}</div>`);
-  const scrapCount = (book.scraps||[]).length;
+  if (book.date) chips.push(`<div class="chip">${fmtDate(book.date)}</div>`);
+  const scrapCount = (book.scraps || []).length;
 
   const kwHtml = (book.keywords && book.keywords.length)
-    ? `<div class="meta-chips" style="margin-top:6px;">${book.keywords.map(k=>`<button type="button" class="kw-chip" onclick="openEditModal('${book.id}', true)">#${esc(k)}</button>`).join('')}</div>`
+    ? `<div class="meta-chips" style="margin-top:6px;">${book.keywords.map(k => `<button type="button" class="kw-chip" onclick="openEditModal('${book.id}', true)">#${esc(k)}</button>`).join('')}</div>`
     : '';
 
   const scrapsHtml = buildScrapsHtml(book);
@@ -1368,7 +1406,7 @@ function showDetail(id, direction = null) {
       <div class="detail-thumb">${coverHtml}</div>
       <div class="detail-info">
         <div class="detail-title">${esc(book.title)}</div>
-        <div class="detail-author">${esc(book.author||'저자 미상')}</div>
+        <div class="detail-author">${esc(book.author || '저자 미상')}</div>
         <div class="meta-chips">${chips.join('')}</div>
         ${kwHtml}
       </div>
@@ -1394,9 +1432,9 @@ function showDetail(id, direction = null) {
       </div>
       <div class="scrap-list" id="scrap-list">${scrapsHtml}</div>
       ${scrapCount === 0
-        ? `<div class="scraps-empty">아직 스크랩된 문장이 없습니다.<br>
+      ? `<div class="scraps-empty">아직 스크랩된 문장이 없습니다.<br>
            <small style="font-size:11px;">상단의 "+ 추가" 버튼으로 문장을 기록해보세요</small></div>`
-        : ''}
+      : ''}
     </div>
   `;
 
@@ -1414,7 +1452,7 @@ function showDetail(id, direction = null) {
 function buildScrapsHtml(book) {
   if (!book.scraps || !book.scraps.length) return '';
   const sortedScraps = [...book.scraps].sort((a, b) => (a.page || 0) - (b.page || 0));
-  
+
   return sortedScraps.map(s => `
     <div class="scrap-item" id="sc-${s.id}">
       <div class="scrap-quote">${esc(s.text)}</div>
@@ -1527,7 +1565,7 @@ function openAddModal() {
   document.getElementById('bk-title').value = '';
   document.getElementById('bk-author').value = '';
   document.getElementById('bk-pages').value = '';
-  document.getElementById('bk-date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('bk-date').value = new Date().toISOString().slice(0, 10);
   document.getElementById('bk-sentence').value = '';
   document.getElementById('bk-img-url').value = '';
   document.getElementById('bk-img-file').value = '';
@@ -1722,14 +1760,14 @@ async function saveBook() {
 
   const data = {
     title,
-    author:     document.getElementById('bk-author').value.trim(),
-    pages:      parseInt(document.getElementById('bk-pages').value) || 0,
-    date:       document.getElementById('bk-date').value,
-    sentence:   document.getElementById('bk-sentence').value.trim(),
-    cover:      modalCover,
+    author: document.getElementById('bk-author').value.trim(),
+    pages: parseInt(document.getElementById('bk-pages').value) || 0,
+    date: document.getElementById('bk-date').value,
+    sentence: document.getElementById('bk-sentence').value.trim(),
+    cover: modalCover,
     spineCover: modalSpineCover,
-    rating:     currentRating,
-    keywords:   [
+    rating: currentRating,
+    keywords: [
       document.getElementById('bk-kw1').value.trim(),
       document.getElementById('bk-kw2').value.trim(),
       document.getElementById('bk-kw3').value.trim(),
@@ -1753,7 +1791,7 @@ async function saveBook() {
             .update(updatedBook)
             .eq('id', editingBookId)
             .eq('user_id', user.id);
-          
+
           if (error && (error.code === 'PGRST204' || String(error.message).includes('spineCover'))) {
             const { spineCover, ...safeBook } = updatedBook;
             const res = await supabaseClient
@@ -1777,7 +1815,7 @@ async function saveBook() {
         let { error } = await supabaseClient
           .from('books')
           .insert([data]);
-        
+
         if (error && (error.code === 'PGRST204' || String(error.message).includes('spineCover'))) {
           const { spineCover, ...safeData } = data;
           const res = await supabaseClient
@@ -1899,13 +1937,13 @@ function parseAladinXml(xmlText) {
     let isbn = getXmlNodeText(item, 'isbn');
     let isbn13 = getXmlNodeText(item, 'isbn13');
     let pages = getXmlNodeText(item, 'itemPage') || getXmlNodeText(item, 'itempage') || getXmlNodeText(item, 'ItemPage');
-    
+
     // Extract only digits for pages
     pages = pages ? pages.replace(/[^0-9]/g, '') : '';
 
     // Clean author name (remove parenthesized roles like (지은이))
     let cleanAuthor = author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '');
-    
+
     return { title, author: cleanAuthor, cover, publisher, pubDate, pages, itemId, isbn, isbn13 };
   });
 
@@ -1920,12 +1958,12 @@ function fetchAladinCover(title, author) {
     if (colonIdx !== -1) query = query.substring(0, colonIdx).trim();
     const parenIdx = query.indexOf('(');
     if (parenIdx !== -1) query = query.substring(0, parenIdx).trim();
-    
+
     if (author) {
       const cleanAuthor = author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '').trim();
       query += ' ' + cleanAuthor;
     }
-    
+
     const cbName = '_aladinCb_cover_' + (++aladinCallbackCounter);
     const script = document.createElement('script');
     const params = new URLSearchParams({
@@ -1949,7 +1987,7 @@ function fetchAladinCover(title, author) {
       }
     };
 
-    window[cbName] = function(arg1, arg2) {
+    window[cbName] = function (arg1, arg2) {
       const data = (typeof arg1 === 'boolean' || typeof arg1 === 'number') ? arg2 : arg1;
       cleanup();
       if (data && data.item && data.item.length > 0 && data.item[0].cover) {
@@ -1991,7 +2029,7 @@ function searchAladinByIsbn(isbn) {
 function runAladinLookUpJsonp(isbn, key, results) {
   const cbName = '_aladinCb_lookup_' + (++aladinCallbackCounter);
   const script = document.createElement('script');
-  
+
   const params = new URLSearchParams({
     ttbkey: key,
     itemIdType: 'ISBN13',
@@ -2004,7 +2042,7 @@ function runAladinLookUpJsonp(isbn, key, results) {
 
   script.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?${params}`;
 
-  window[cbName] = function(arg1, arg2) {
+  window[cbName] = function (arg1, arg2) {
     delete window[cbName];
     script.remove();
     const data = (typeof arg1 === 'boolean' || typeof arg1 === 'number') ? arg2 : arg1;
@@ -2023,7 +2061,7 @@ function runAladinLookUpJsonp(isbn, key, results) {
         callback: cbName10
       });
       script10.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?${params10}`;
-      window[cbName10] = function(tArg1, tArg2) {
+      window[cbName10] = function (tArg1, tArg2) {
         delete window[cbName10];
         script10.remove();
         const data10 = (typeof tArg1 === 'boolean' || typeof tArg1 === 'number') ? tArg2 : tArg1;
@@ -2033,7 +2071,7 @@ function runAladinLookUpJsonp(isbn, key, results) {
           results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})</div>`;
         }
       };
-      script10.onerror = function() {
+      script10.onerror = function () {
         delete window[cbName10];
         script10.remove();
         results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})</div>`;
@@ -2042,7 +2080,7 @@ function runAladinLookUpJsonp(isbn, key, results) {
     }
   };
 
-  script.onerror = function() {
+  script.onerror = function () {
     delete window[cbName];
     script.remove();
     results.innerHTML = `<div class="search-empty">검색 실패 — 도서 검색 상태를 확인해주세요.</div>`;
@@ -2068,17 +2106,17 @@ function preprocessOcrImage(dataUrl) {
       canvas.height = img.naturalHeight;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0);
-      
+
       const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imgData.data;
-      
+
       // Convert to grayscale and apply contrast enhancement
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i];
-        const g = data[i+1];
-        const b = data[i+2];
+        const g = data[i + 1];
+        const b = data[i + 2];
         const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-        
+
         // Boost contrast (stretch darks and lights)
         let val = gray;
         if (gray < 128) {
@@ -2086,12 +2124,12 @@ function preprocessOcrImage(dataUrl) {
         } else {
           val = Math.min(255, gray * 1.35);
         }
-        
+
         data[i] = val;
-        data[i+1] = val;
-        data[i+2] = val;
+        data[i + 1] = val;
+        data[i + 2] = val;
       }
-      
+
       ctx.putImageData(imgData, 0, 0);
       resolve(canvas.toDataURL('image/jpeg', 0.9));
     };
@@ -2170,7 +2208,7 @@ function playBarcodeBeep() {
     if (!AudioCtx) return;
     if (!barcodeAudioCtx) barcodeAudioCtx = new AudioCtx();
     if (barcodeAudioCtx.state === 'suspended') barcodeAudioCtx.resume();
-    
+
     const osc = barcodeAudioCtx.createOscillator();
     const gain = barcodeAudioCtx.createGain();
     osc.type = 'sine';
@@ -2181,7 +2219,7 @@ function playBarcodeBeep() {
     gain.connect(barcodeAudioCtx.destination);
     osc.start();
     osc.stop(barcodeAudioCtx.currentTime + 0.08);
-  } catch (_) {}
+  } catch (_) { }
 }
 
 // ISBN-13 Checksum verification (Modulo 10 algorithm)
@@ -2307,7 +2345,7 @@ function _setupTapToFocus() {
           await track.applyConstraints({
             advanced: [{ focusMode: 'continuous' }]
           });
-        } catch (_) {}
+        } catch (_) { }
       }
     }
   };
@@ -2342,7 +2380,7 @@ async function _startBarcodeCamera(facing) {
     const track = stream.getVideoTracks()[0];
     if (track && track.getCapabilities) {
       const caps = track.getCapabilities();
-      
+
       // Torch
       barcodeHasTorch = !!caps.torch;
       const torchBtn = document.getElementById('barcode-torch-btn');
@@ -2424,7 +2462,7 @@ function _clearTrackCanvas() {
 function _drawTrackingBox(cornerPoints, videoEl) {
   const canvas = document.getElementById('barcode-track-canvas');
   if (!canvas || !cornerPoints || cornerPoints.length < 4 || !videoEl) return;
-  
+
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
   const ctx = canvas.getContext('2d');
@@ -2499,7 +2537,7 @@ function _startBarcodeScanLoop() {
               return;
             }
           }
-        } catch (_) {}
+        } catch (_) { }
       }
 
       // ── Path 2: Optimized ZXing Fallback with Adaptive Contrast ──
@@ -2511,7 +2549,7 @@ function _startBarcodeScanLoop() {
             _onBarcodeDetected(decoded);
             return;
           }
-        } catch (_) {}
+        } catch (_) { }
       }
     }
 
@@ -2528,7 +2566,7 @@ async function _zxingScanFromVideoCrop(video) {
   if (!vw || !vh) return null;
 
   // Viewport guide frame mapping
-  const renderW = video.clientWidth  || 480;
+  const renderW = video.clientWidth || 480;
   const renderH = video.clientHeight || 640;
   const videoAR = vw / vh;
   const renderAR = renderW / renderH;
@@ -2567,21 +2605,21 @@ async function _zxingScanFromVideoCrop(video) {
   try {
     const res = await sharedZXingReaderInstance.decodeFromCanvas(canvas);
     if (res && res.text) return res.text;
-  } catch (_) {}
+  } catch (_) { }
 
   // 2. High-contrast enhancement for shadows & low-light barcodes
   try {
     const imgData = ctx.getImageData(0, 0, cropW, cropH);
     const d = imgData.data;
     for (let i = 0; i < d.length; i += 4) {
-      const gray = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+      const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
       const val = gray < 120 ? Math.max(0, gray * 0.6) : Math.min(255, gray * 1.4);
-      d[i] = val; d[i+1] = val; d[i+2] = val;
+      d[i] = val; d[i + 1] = val; d[i + 2] = val;
     }
     ctx.putImageData(imgData, 0, 0);
     const res2 = await sharedZXingReaderInstance.decodeFromCanvas(canvas);
     if (res2 && res2.text) return res2.text;
-  } catch (_) {}
+  } catch (_) { }
 
   return null;
 }
@@ -2657,7 +2695,7 @@ async function triggerBarcodeCapture() {
       if (barcodes && barcodes.length > 0) {
         detectedCode = pickBestBookBarcode(barcodes.map(b => b.rawValue));
       }
-    } catch (_) {}
+    } catch (_) { }
   }
 
   // 2. ZXing on full frame
@@ -2665,14 +2703,14 @@ async function triggerBarcodeCapture() {
     try {
       const res = await sharedZXingReaderInstance.decodeFromCanvas(canvas);
       if (res && res.text) detectedCode = res.text;
-    } catch (_) {}
+    } catch (_) { }
   }
 
   // 3. ZXing on cropped center
   if (!detectedCode && sharedZXingReaderInstance) {
     try {
       detectedCode = await _zxingScanFromVideoCrop(video);
-    } catch (_) {}
+    } catch (_) { }
   }
 
   if (detectedCode) {
@@ -2699,9 +2737,9 @@ function handleBarcodeAlbumSelect(input) {
 
   _setBarcodeScannerStatus('사진 분석 중...', '#f59e0b');
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = function (e) {
     const img = new Image();
-    img.onload = async function() {
+    img.onload = async function () {
       // Bake orientation & draw to canvas
       const canvas = document.createElement('canvas');
       canvas.width = img.naturalWidth;
@@ -2719,7 +2757,7 @@ function handleBarcodeAlbumSelect(input) {
           if (barcodes && barcodes.length > 0) {
             foundCode = pickBestBookBarcode(barcodes.map(b => b.rawValue));
           }
-        } catch (_) {}
+        } catch (_) { }
       }
 
       // Try ZXing
@@ -2727,7 +2765,7 @@ function handleBarcodeAlbumSelect(input) {
         try {
           const res = await sharedZXingReaderInstance.decodeFromCanvas(canvas);
           if (res && res.text) foundCode = res.text;
-        } catch (_) {}
+        } catch (_) { }
       }
 
       // Try with contrast stretch
@@ -2736,14 +2774,14 @@ function handleBarcodeAlbumSelect(input) {
           const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           const d = imgData.data;
           for (let i = 0; i < d.length; i += 4) {
-            const gray = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+            const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
             const val = gray < 128 ? Math.max(0, gray * 0.6) : Math.min(255, gray * 1.4);
-            d[i] = val; d[i+1] = val; d[i+2] = val;
+            d[i] = val; d[i + 1] = val; d[i + 2] = val;
           }
           ctx.putImageData(imgData, 0, 0);
           const res2 = await sharedZXingReaderInstance.decodeFromCanvas(canvas);
           if (res2 && res2.text) foundCode = res2.text;
-        } catch (_) {}
+        } catch (_) { }
       }
 
       if (foundCode) {
@@ -2767,7 +2805,7 @@ function switchBarcodeCamera() {
 function runAladinJsonp(query, key, results) {
   const cbName = '_aladinCb_' + (++aladinCallbackCounter);
   const script = document.createElement('script');
-  
+
   const params = new URLSearchParams({
     ttbkey: key,
     Query: query,
@@ -2783,7 +2821,7 @@ function runAladinJsonp(query, key, results) {
 
   script.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${params}`;
 
-  window[cbName] = function(arg1, arg2) {
+  window[cbName] = function (arg1, arg2) {
     delete window[cbName];
     script.remove();
     const data = (typeof arg1 === 'boolean' || typeof arg1 === 'number') ? arg2 : arg1;
@@ -2806,13 +2844,13 @@ function runAladinJsonp(query, key, results) {
         callback: cbNameTitle
       });
       scriptTitle.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${paramsTitle}`;
-      window[cbNameTitle] = function(tArg1, tArg2) {
+      window[cbNameTitle] = function (tArg1, tArg2) {
         delete window[cbNameTitle];
         scriptTitle.remove();
         const dataTitle = (typeof tArg1 === 'boolean' || typeof tArg1 === 'number') ? tArg2 : tArg1;
         handleAladinResults(dataTitle);
       };
-      scriptTitle.onerror = function() {
+      scriptTitle.onerror = function () {
         delete window[cbNameTitle];
         scriptTitle.remove();
         results.innerHTML = `<div class="search-empty">검색 결과가 없거나 네트워크 오류가 발생했습니다.</div>`;
@@ -2821,7 +2859,7 @@ function runAladinJsonp(query, key, results) {
     }
   };
 
-  script.onerror = function() {
+  script.onerror = function () {
     delete window[cbName];
     script.remove();
     results.innerHTML = `<div class="search-empty">검색 실패 — 네트워크 상태를 확인해주세요.</div>`;
@@ -2847,10 +2885,10 @@ function handleAladinResults(data) {
     items = data;
   } else if (data && data.item) {
     items = data.item.map(item => {
-      let pagesVal = (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) || 
-                     (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
-                     (item.bookinfo ? (item.bookinfo.itemPage || item.bookinfo.itempage) : null) ||
-                     item.itemPage || item.itempage || '';
+      let pagesVal = (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) ||
+        (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
+        (item.bookinfo ? (item.bookinfo.itemPage || item.bookinfo.itempage) : null) ||
+        item.itemPage || item.itempage || '';
       let pages = pagesVal ? String(pagesVal).replace(/[^0-9]/g, '') : '';
       let author = item.author || '';
       let cleanAuthor = author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '');
@@ -2908,12 +2946,12 @@ function applyAladinItemByIndex(index) {
 
 function applyAladinItem(item) {
   if (item.title) document.getElementById('bk-title').value = item.title;
-  
+
   if (item.author) {
     let cleanAuthor = item.author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '');
     document.getElementById('bk-author').value = cleanAuthor;
   }
-  
+
   let cleanPages = item.pages ? String(item.pages).replace(/[^0-9]/g, '') : '';
   if (cleanPages) {
     document.getElementById('bk-pages').value = cleanPages;
@@ -2959,7 +2997,7 @@ function applyAladinItem(item) {
 
 function fetchDetailedPages(itemId) {
   const key = getApiKey();
-  
+
   let itemIdType = 'ItemId';
   const cleanId = String(itemId).trim();
   if (cleanId.length === 13 && (cleanId.startsWith('978') || cleanId.startsWith('979'))) {
@@ -2988,18 +3026,18 @@ function fetchDetailedPages(itemId) {
     callback: cbName
   });
   script.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?${params}`;
-  window[cbName] = function(data) {
+  window[cbName] = function (data) {
     delete window[cbName];
     script.remove();
     if (data && data.item && data.item[0]) {
       const item = data.item[0];
-      const pages = (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) || 
-                    (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
-                    item.itemPage || item.itempage || '';
+      const pages = (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) ||
+        (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
+        item.itemPage || item.itempage || '';
       updatePageField(pages);
     }
   };
-  script.onerror = function() {
+  script.onerror = function () {
     delete window[cbName];
     script.remove();
   };
@@ -3019,7 +3057,7 @@ async function openScrapModal(id) {
 
   const book = books.find(b => b.id === id);
   if (!book) return;
-  if ((book.scraps||[]).length >= 100) {
+  if ((book.scraps || []).length >= 100) {
     toast('스크랩은 최대 100개까지 가능합니다'); return;
   }
   currentScrapBookId = id;
@@ -3047,9 +3085,9 @@ function closeScrapModal() {
 
 function switchTab(tab) {
   currentScrapTab = tab;
-  ['manual','photo'].forEach(t => {
-    document.getElementById('stab-'+t).classList.toggle('on', t===tab);
-    document.getElementById('sbody-'+t).classList.toggle('on', t===tab);
+  ['manual', 'photo'].forEach(t => {
+    document.getElementById('stab-' + t).classList.toggle('on', t === tab);
+    document.getElementById('sbody-' + t).classList.toggle('on', t === tab);
   });
 }
 
@@ -3077,12 +3115,12 @@ async function saveScrap() {
   if (!text) { toast('문장을 입력해주세요'); return; }
 
   if (!book.scraps) book.scraps = [];
-  
+
   let updatedScraps;
   if (editingScrapId) {
-    updatedScraps = book.scraps.map(s => 
-      s.id === editingScrapId 
-        ? { ...s, text, page, memo, at: new Date().toISOString() } 
+    updatedScraps = book.scraps.map(s =>
+      s.id === editingScrapId
+        ? { ...s, text, page, memo, at: new Date().toISOString() }
         : s
     );
   } else {
@@ -3122,7 +3160,7 @@ async function doDeleteScrap(bookId, scrapId) {
 
   const book = books.find(b => b.id === bookId);
   if (!book) return;
-  const updatedScraps = (book.scraps||[]).filter(s => s.id !== scrapId);
+  const updatedScraps = (book.scraps || []).filter(s => s.id !== scrapId);
 
   try {
     if (supabaseClient && user) {
@@ -3212,7 +3250,7 @@ async function runOcr(dataUrl) {
   try {
     const lang = document.getElementById('ocr-lang').value || 'kor';
     if (ocrWorker && activeOcrLang !== lang) {
-      await ocrWorker.terminate().catch(()=>{});
+      await ocrWorker.terminate().catch(() => { });
       ocrWorker = null;
     }
     if (!ocrWorker) {
@@ -3228,7 +3266,7 @@ async function runOcr(dataUrl) {
     }
 
     const { data } = await ocrWorker.recognize(dataUrl);
-    
+
     // Store lines with their bounding boxes and selected states
     if (data && data.lines) {
       ocrLinesData = data.lines
@@ -3263,7 +3301,7 @@ async function runOcr(dataUrl) {
     }
 
     if (scanLine) scanLine.classList.remove('scanning');
-    
+
     if (ocrLinesData.length > 0) {
       statusEl.innerHTML = '분석 완료. 사진에서 스크랩할 문장을 직접 선택하세요.';
       document.getElementById('ocr-ctrl-btns').style.display = 'flex';
@@ -3271,9 +3309,9 @@ async function runOcr(dataUrl) {
     } else {
       statusEl.innerHTML = '인식된 텍스트가 없습니다. 다른 사진을 시도하거나 직접 입력해주세요.';
     }
-    
+
     setTimeout(() => { statusEl.style.display = 'none'; }, 4500);
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     if (scanLine) scanLine.classList.remove('scanning');
     statusEl.innerHTML = '분석 실패. 다시 시도해주세요.';
@@ -3284,7 +3322,7 @@ async function runOcr(dataUrl) {
 async function onOcrLangChange() {
   if (ocrImg && ocrImg.src) {
     if (ocrWorker) {
-      await ocrWorker.terminate().catch(()=>{});
+      await ocrWorker.terminate().catch(() => { });
       ocrWorker = null;
     }
     runOcr(ocrImg.src);
@@ -3375,14 +3413,14 @@ function updateSidebar() {
   }
 
   const total = filteredBooks.length;
-  const pages = filteredBooks.reduce((s, b) => s + (b.pages||0), 0);
-  const scraps = filteredBooks.reduce((s, b) => s + ((b.scraps||[]).length), 0);
-  
+  const pages = filteredBooks.reduce((s, b) => s + (b.pages || 0), 0);
+  const scraps = filteredBooks.reduce((s, b) => s + ((b.scraps || []).length), 0);
+
   document.getElementById('stat-books').textContent = total;
   document.getElementById('stat-pages').textContent =
-    pages >= 10000 ? (pages/1000).toFixed(1)+'k' : pages.toLocaleString();
+    pages >= 10000 ? (pages / 1000).toFixed(1) + 'k' : pages.toLocaleString();
   document.getElementById('stat-scraps').textContent =
-    scraps >= 10000 ? (scraps/1000).toFixed(1)+'k' : scraps.toLocaleString();
+    scraps >= 10000 ? (scraps / 1000).toFixed(1) + 'k' : scraps.toLocaleString();
 
   renderChart();
   renderCal();
@@ -3414,7 +3452,7 @@ function showRandomQuote() {
   }
 
   card.classList.remove('hidden');
-  
+
   // Trigger fluid refresh animation
   card.classList.add('refresh-anim');
   setTimeout(() => {
@@ -3426,7 +3464,7 @@ function showRandomQuote() {
     if (quote.bookAuthor) sourceText += ` (${quote.bookAuthor})`;
     if (quote.page) sourceText += `, p.${quote.page}`;
     bookEl.textContent = sourceText;
-    
+
     card.classList.remove('refresh-anim');
   }, 180);
 }
@@ -3468,7 +3506,7 @@ function renderChart() {
   if (chartMode === 'month') {
     for (let i = 11; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      dataPoints.push({ 
+      dataPoints.push({
         lbl: (d.getMonth() + 1) + '월',
         match: (bDate) => bDate.getFullYear() === d.getFullYear() && bDate.getMonth() === d.getMonth()
       });
@@ -3511,26 +3549,26 @@ function switchChartMode(mode) {
   const btnMonth = document.getElementById('chart-btn-month');
   const btnYear = document.getElementById('chart-btn-year');
   const title = document.getElementById('chart-title');
-  
+
   if (mode === 'month') {
     btnMonth.style.background = 'var(--violet)';
     btnMonth.style.color = '#fff';
     btnMonth.style.border = 'none';
-    
+
     btnYear.style.background = 'var(--glass)';
     btnYear.style.color = 'var(--text-300)';
     btnYear.style.border = '1px solid var(--border)';
-    
+
     title.textContent = '월별 독서량';
   } else {
     btnYear.style.background = 'var(--violet)';
     btnYear.style.color = '#fff';
     btnYear.style.border = 'none';
-    
+
     btnMonth.style.background = 'var(--glass)';
     btnMonth.style.color = 'var(--text-300)';
     btnMonth.style.border = '1px solid var(--border)';
-    
+
     title.textContent = '연도별 독서량';
   }
   renderChart();
@@ -3542,12 +3580,12 @@ function switchChartMode(mode) {
 function renderCal() {
   const y = calDate.getFullYear();
   const m = calDate.getMonth();
-  document.getElementById('cal-lbl').textContent = `${y}. ${m+1}`;
+  document.getElementById('cal-lbl').textContent = `${y}. ${m + 1}`;
 
   const grid = document.getElementById('cal-grid');
   grid.innerHTML = '';
 
-  ['일','월','화','수','목','금','토'].forEach(d => {
+  ['일', '월', '화', '수', '목', '금', '토'].forEach(d => {
     const el = document.createElement('div');
     el.className = 'cal-dn';
     el.textContent = d;
@@ -3555,7 +3593,7 @@ function renderCal() {
   });
 
   const firstDay = new Date(y, m, 1).getDay();
-  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
 
   const dayMap = {};
   books.forEach(book => {
@@ -3591,7 +3629,7 @@ function renderCal() {
       });
     }
 
-    if (today.getFullYear()===y && today.getMonth()===m && today.getDate()===d) {
+    if (today.getFullYear() === y && today.getMonth() === m && today.getDate() === d) {
       el.classList.add('today');
     }
     grid.appendChild(el);
@@ -3599,11 +3637,11 @@ function renderCal() {
 }
 
 document.getElementById('cal-prev').addEventListener('click', () => {
-  calDate = new Date(calDate.getFullYear(), calDate.getMonth()-1, 1);
+  calDate = new Date(calDate.getFullYear(), calDate.getMonth() - 1, 1);
   renderCal();
 });
 document.getElementById('cal-next').addEventListener('click', () => {
-  calDate = new Date(calDate.getFullYear(), calDate.getMonth()+1, 1);
+  calDate = new Date(calDate.getFullYear(), calDate.getMonth() + 1, 1);
   renderCal();
 });
 
@@ -3673,7 +3711,7 @@ function handleDetailSwipe() {
     } else {
       navigateToAdjacentBook('prev');
     }
-  } 
+  }
   // Vertical swipe: Swipe up or down to go back to gallery
   else if (Math.abs(diffY) > 70 && Math.abs(diffY) > Math.abs(diffX)) {
     if (detailEl.scrollTop <= 5) {
@@ -3685,19 +3723,19 @@ function handleDetailSwipe() {
 
 function navigateToAdjacentBook(direction) {
   if (!currentBookId || books.length === 0) return;
-  
+
   // Sort the books copy exactly like the gallery view
   const sorted = [...books].sort((a, b) => {
     if (!a.date) return 1;
     if (!b.date) return -1;
     return new Date(b.date) - new Date(a.date);
   });
-  
+
   const idx = sorted.findIndex(b => b.id === currentBookId);
   if (idx === -1) return;
-  
+
   const wrap = document.getElementById('detail-wrap');
-  
+
   if (direction === 'next') {
     if (idx < sorted.length - 1) {
       showDetail(sorted[idx + 1].id, 'next');
@@ -3816,7 +3854,7 @@ commEl.addEventListener('touchend', e => {
 function handleCommunitySwipe() {
   const diffX = commTouchEndX - commTouchStartX;
   const diffY = commTouchEndY - commTouchStartY;
-  
+
   // Horizontal swipe
   if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
     if (diffX > 0) {
@@ -3861,7 +3899,7 @@ statsEl.addEventListener('touchend', e => {
 function handleStatsSwipe() {
   const diffX = statsTouchEndX - statsTouchStartX;
   const diffY = statsTouchEndY - statsTouchStartY;
-  
+
   // Horizontal swipe
   if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
     if (diffX < 0) {
@@ -3902,7 +3940,7 @@ galleryScroll.addEventListener('wheel', e => {
 function pinchD(e) {
   const dx = e.touches[0].clientX - e.touches[1].clientX;
   const dy = e.touches[0].clientY - e.touches[1].clientY;
-  return Math.sqrt(dx*dx + dy*dy);
+  return Math.sqrt(dx * dx + dy * dy);
 }
 
 function adjustGrid(scale) {
@@ -3911,7 +3949,7 @@ function adjustGrid(scale) {
   grid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${gridMin}px, 1fr))`;
 
   const hud = document.getElementById('zoom-hud');
-  document.getElementById('zoom-val').textContent = Math.round((gridMin/170)*100);
+  document.getElementById('zoom-val').textContent = Math.round((gridMin / 170) * 100);
   hud.classList.add('show');
   clearTimeout(zoomTimer);
   zoomTimer = setTimeout(() => hud.classList.remove('show'), 1600);
@@ -3930,7 +3968,7 @@ function closeModal(id) {
   }
 
   if (id === 'scrap-modal') {
-    if (ocrWorker) { ocrWorker.terminate().catch(()=>{}); ocrWorker = null; }
+    if (ocrWorker) { ocrWorker.terminate().catch(() => { }); ocrWorker = null; }
     activeOcrLang = null;
     ocrImg = null; ocrSelDiv = null;
   }
@@ -4004,7 +4042,7 @@ loadTheme();
       // URL에서 code 파라미터 정리
       const cleanUrl = window.location.origin + window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
-    } 
+    }
     // 2. Hash Access Token 확인 (Implicit Flow)
     else if (hashStr.includes('access_token=') || hashStr.includes('refresh_token=')) {
       console.log('[Auth] Detected OAuth tokens in URL hash, establishing session...');
@@ -4047,7 +4085,7 @@ loadTheme();
   }
 
   await loadData();
-  
+
   // Unique sentences representing the 6 demo books
   const demoSentences = [
     '폭력에 저항하는 방식으로 선택한 침묵과 채식, 그 고요한 절규.',
@@ -4063,7 +4101,7 @@ loadTheme();
   if (demoBooksToDelete.length > 0) {
     books = books.filter(b => !demoSentences.includes(b.sentence));
     saveData();
-    
+
     if (currentUser && supabaseClient) {
       const idsToDelete = demoBooksToDelete.map(b => b.id);
       supabaseClient.from('books').delete().in('id', idsToDelete).then(({ error }) => {
@@ -4119,16 +4157,16 @@ loadTheme();
       keywords: ['이용가이드', '사용법', '시작하기'],
       created_at: new Date().toISOString()
     };
-    
+
     books = [userManual];
     saveData();
-    
+
     if (currentUser && supabaseClient) {
       const manualWithUser = { ...userManual, user_id: currentUser.id };
       supabaseClient.from('books').insert([manualWithUser]).catch(console.error);
     }
   }
-  
+
   renderGallery();
   updateSidebar();
 })();
@@ -4138,7 +4176,7 @@ loadTheme();
 ============================================== */
 async function loginWithGoogle() {
   if (!supabaseClient) { toast('Supabase가 연결되지 않았습니다'); return; }
-  
+
   if (window.location.protocol === 'file:') {
     alert('구글 로그인은 로컬 파일(file://...) 경로에서는 동작하지 않습니다.\nVS Code의 Live Server 등을 사용해 http://localhost:... 주소로 실행하거나, GitHub Pages에 배포 완료 후 테스트해주세요.');
     return;
@@ -4173,9 +4211,9 @@ async function loginWithGoogle() {
       redirectTo: redirectUrl
     }
   });
-  if (error) { 
-    console.error('[Auth] signInWithOAuth error:', error); 
-    toast(`로그인 오류: ${error.message || '연결에 실패했습니다'}`); 
+  if (error) {
+    console.error('[Auth] signInWithOAuth error:', error);
+    toast(`로그인 오류: ${error.message || '연결에 실패했습니다'}`);
   }
 }
 
@@ -4453,16 +4491,16 @@ function renderWordCloud() {
     span.style.cursor = 'pointer';
     span.style.transition = 'transform 0.2s ease, text-shadow 0.2s ease';
     span.style.padding = '2px 6px';
-    
+
     // Organic layout: random rotation (-6, 0, 6deg) and clean margins to prevent overlapping collisions
     const rotateVal = (Math.floor(Math.random() * 3) - 1) * 6;
     span.style.transform = `rotate(${rotateVal}deg)`;
-    span.style.margin = '2px 4px'; 
+    span.style.margin = '2px 4px';
     span.style.lineHeight = '1.2';
     span.style.display = 'inline-block';
     span.style.position = 'relative';
     span.style.userSelect = 'none';
-    
+
     span.onmouseover = () => {
       span.style.transform = `scale(1.25) rotate(${rotateVal}deg)`;
       span.style.textShadow = `0 0 12px ${color}`;
@@ -4491,7 +4529,7 @@ function renderCommunityFeed() {
   try {
     const data = localStorage.getItem('rj_community_posts');
     if (data) stored = JSON.parse(data);
-  } catch(e) {}
+  } catch (e) { }
 
   const allPosts = [...stored, ...communityFeedPosts];
 
@@ -4536,7 +4574,7 @@ function likeFeedPost(id, btnEl) {
   try {
     const data = localStorage.getItem('rj_community_posts');
     if (data) stored = JSON.parse(data);
-  } catch(e) {}
+  } catch (e) { }
 
   let target = stored.find(p => p.id === id);
   if (!target) {
@@ -4553,7 +4591,7 @@ function likeFeedPost(id, btnEl) {
       btnEl.classList.remove('liked');
     }
     btnEl.querySelector('span').textContent = `공감 (${target.likes})`;
-    
+
     if (stored.some(p => p.id === id)) {
       localStorage.setItem('rj_community_posts', JSON.stringify(stored));
     }
@@ -4563,7 +4601,7 @@ function likeFeedPost(id, btnEl) {
 function openAddFeedModal() {
   const select = document.getElementById('feed-bk-id');
   select.innerHTML = '';
-  
+
   if (books.length === 0) {
     toast("책장에 도서가 있어야 소감을 쓸 수 있습니다. 먼저 도서를 등록해주세요.");
     return;
@@ -4621,11 +4659,11 @@ function saveFeedPost() {
   try {
     const data = localStorage.getItem('rj_community_posts');
     if (data) stored = JSON.parse(data);
-  } catch(e) {}
+  } catch (e) { }
 
   stored.unshift(newPost);
   localStorage.setItem('rj_community_posts', JSON.stringify(stored));
-  
+
   closeModal('feed-modal');
   toast("피드가 등록되었습니다.");
   renderCommunityFeed();
@@ -4639,9 +4677,9 @@ let selectedBookIndex = 0;
 function openArScanner() {
   openModal('ar-scanner-modal');
   resetArScan();
-  
+
   const video = document.getElementById('ar-video');
-  
+
   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
     .then(stream => {
       arStream = stream;
@@ -4653,7 +4691,7 @@ function openArScanner() {
       console.warn("Camera access failed:", err);
       toast("실시간 카메라를 사용할 수 없어 파일 선택 모드로 전환합니다.");
       closeModal('ar-scanner-modal');
-      
+
       const fallbackInput = document.createElement('input');
       fallbackInput.type = 'file';
       fallbackInput.accept = 'image/*';
@@ -4667,16 +4705,16 @@ function openArScanner() {
 function handleArFallbackUpload(input) {
   const file = input.files[0];
   if (!file) return;
-  
+
   const reader = new FileReader();
   reader.onload = (e) => {
     openModal('ar-scanner-modal');
     resetArScan();
-    
+
     const video = document.getElementById('ar-video');
     video.srcObject = null;
     video.poster = e.target.result;
-    
+
     setTimeout(() => {
       triggerArScan();
     }, 500);
@@ -4710,7 +4748,7 @@ function resetArScan() {
   detectedBooks = [];
   selectedBookIndex = 0;
   arIsScanning = false;
-  
+
   const canvas = document.getElementById('ar-canvas');
   if (canvas) {
     const ctx = canvas.getContext('2d');
@@ -4722,14 +4760,14 @@ function startArCanvasAnimation() {
   const canvas = document.getElementById('ar-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  
+
   function draw() {
     const video = document.getElementById('ar-video');
     if (!arStream && (!video || !video.poster)) return;
-    
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const time = Date.now() * 0.003;
-    
+
     if (arIsScanning) {
       // Sweeping horizontal scanner line
       const scanY = ((Date.now() % 1500) / 1500) * canvas.height;
@@ -4737,10 +4775,10 @@ function startArCanvasAnimation() {
       scanGrad.addColorStop(0, 'transparent');
       scanGrad.addColorStop(0.5, 'rgba(52, 211, 153, 0.85)');
       scanGrad.addColorStop(1, 'transparent');
-      
+
       ctx.fillStyle = scanGrad;
       ctx.fillRect(0, scanY - 6, canvas.width, 12);
-      
+
       ctx.strokeStyle = 'rgba(52, 211, 153, 0.5)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
@@ -4758,7 +4796,7 @@ function startArCanvasAnimation() {
         ctx.moveTo(x, 0);
         ctx.lineTo(x, canvas.height);
         ctx.stroke();
-        
+
         const y = (canvas.height / gridCount) * i;
         ctx.beginPath();
         ctx.moveTo(0, y);
@@ -4775,17 +4813,17 @@ function startArCanvasAnimation() {
       // Box 1 (Left Area)
       const w1 = canvas.width * 0.22 * pulseScale;
       const h1 = canvas.height * 0.48 * pulseScale;
-      ctx.strokeRect(canvas.width * 0.2 - w1/2, canvas.height * 0.5 - h1/2, w1, h1);
+      ctx.strokeRect(canvas.width * 0.2 - w1 / 2, canvas.height * 0.5 - h1 / 2, w1, h1);
 
       // Box 2 (Center Area)
       const w2 = canvas.width * 0.24 * (1.7 - pulseScale);
       const h2 = canvas.height * 0.52 * (1.7 - pulseScale);
-      ctx.strokeRect(canvas.width * 0.5 - w2/2, canvas.height * 0.46 - h2/2, w2, h2);
+      ctx.strokeRect(canvas.width * 0.5 - w2 / 2, canvas.height * 0.46 - h2 / 2, w2, h2);
 
       // Box 3 (Right Area)
       const w3 = canvas.width * 0.22 * pulseScale;
       const h3 = canvas.height * 0.48 * pulseScale;
-      ctx.strokeRect(canvas.width * 0.8 - w3/2, canvas.height * 0.5 - h3/2, w3, h3);
+      ctx.strokeRect(canvas.width * 0.8 - w3 / 2, canvas.height * 0.5 - h3 / 2, w3, h3);
 
       ctx.setLineDash([]);
     } else {
@@ -4794,10 +4832,10 @@ function startArCanvasAnimation() {
       grad.addColorStop(0, 'transparent');
       grad.addColorStop(0.5, 'rgba(140, 98, 57, 0.75)');
       grad.addColorStop(1, 'transparent');
-      
+
       ctx.fillStyle = grad;
       ctx.fillRect(0, y - 4, canvas.width, 8);
-      
+
       ctx.strokeStyle = 'rgba(140, 98, 57, 0.35)';
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -4805,10 +4843,10 @@ function startArCanvasAnimation() {
       ctx.lineTo(canvas.width, y);
       ctx.stroke();
     }
-    
+
     arCanvasAnimId = requestAnimationFrame(draw);
   }
-  
+
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
   arCanvasAnimId = requestAnimationFrame(draw);
@@ -4838,7 +4876,7 @@ function triggerArScan() {
   capCanvas.width = video.videoWidth || video.clientWidth || 640;
   capCanvas.height = video.videoHeight || video.clientHeight || 480;
   const capCtx = capCanvas.getContext('2d');
-  
+
   if (arStream) {
     capCtx.drawImage(video, 0, 0, capCanvas.width, capCanvas.height);
   } else if (video.poster) {
@@ -4874,20 +4912,20 @@ async function detectAndResolveBooks(dataUrl) {
     canvas.width = 50;
     canvas.height = 50;
     const ctx = canvas.getContext('2d');
-    
+
     const srcX = img.naturalWidth * xStart;
     const srcW = img.naturalWidth * (xEnd - xStart);
     const srcY = img.naturalHeight * 0.2;
     const srcH = img.naturalHeight * 0.6;
-    
+
     ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, 50, 50);
     const imgData = ctx.getImageData(0, 0, 50, 50);
     const data = imgData.data;
     let r = 0, g = 0, b = 0;
     for (let i = 0; i < data.length; i += 4) {
       r += data[i];
-      g += data[i+1];
-      b += data[i+2];
+      g += data[i + 1];
+      b += data[i + 2];
     }
     return {
       r: Math.round(r / (data.length / 4)),
@@ -4963,7 +5001,7 @@ async function detectAndResolveBooks(dataUrl) {
 function renderDetectedBooks() {
   const container = document.getElementById('ar-detected-books-container');
   container.innerHTML = '';
-  
+
   if (detectedBooks.length === 0) return;
 
   detectedBooks.forEach((item, idx) => {
@@ -4981,7 +5019,7 @@ function renderDetectedBooks() {
     boxEl.style.pointerEvents = 'auto';
     boxEl.style.cursor = 'pointer';
     boxEl.style.transition = 'all 0.3s ease';
-    
+
     if (isSelected) {
       boxEl.style.border = '3px solid var(--mint)';
       boxEl.style.boxShadow = '0 0 20px rgba(52, 211, 153, 0.8)';
@@ -5019,7 +5057,7 @@ function renderDetectedBooks() {
       document.getElementById('ar-hud').style.opacity = '0';
       document.getElementById('ar-overlay-layer').style.display = 'block';
       document.getElementById('ar-retry-btn').style.display = 'inline-flex';
-      
+
       renderFloatingReviewsNextToBox(item);
     }
   });
@@ -5028,7 +5066,7 @@ function renderDetectedBooks() {
 function renderFloatingReviewsNextToBox(item) {
   const container = document.getElementById('ar-floating-cards-container');
   container.innerHTML = '';
-  
+
   const book = item.book;
   const box = item.box;
 
@@ -5040,7 +5078,7 @@ function renderFloatingReviewsNextToBox(item) {
   cardContainer.style.overflowY = 'auto';
   cardContainer.style.display = 'flex';
   cardContainer.style.flexDirection = 'column';
-  
+
   const leftSpace = box.left;
   const rightSpace = 100 - (box.left + box.width);
 
@@ -5071,14 +5109,14 @@ function renderFloatingReviewsNextToBox(item) {
   let matchedReviews = [];
   const cleanTitle = book.title.trim();
   let predefined = null;
-  
+
   for (const k in MOCK_COMMUNITY_REVIEWS) {
     if (cleanTitle.includes(k) || k.includes(cleanTitle)) {
       predefined = MOCK_COMMUNITY_REVIEWS[k];
       break;
     }
   }
-  
+
   matchedReviews = [...actualReviews, ...(predefined || MOCK_COMMUNITY_REVIEWS['default'])].slice(0, 3);
 
   matchedReviews.forEach(rev => {
@@ -5102,9 +5140,9 @@ function renderFloatingReviewsNextToBox(item) {
 
 function addArBookToShelf() {
   if (!arMatchedBook) return;
-  
+
   openAddModal();
-  
+
   document.getElementById('bk-title').value = arMatchedBook.title || '';
   document.getElementById('bk-author').value = arMatchedBook.author || '';
   document.getElementById('bk-pages').value = arMatchedBook.pages || '';
@@ -5113,7 +5151,7 @@ function addArBookToShelf() {
     document.getElementById('bk-img-url').value = arMatchedBook.cover;
     setPrev(arMatchedBook.cover);
   }
-  
+
   closeArScanner();
   toast("도서 정보가 책장 폼에 기입되었습니다.");
 }
@@ -5136,13 +5174,13 @@ function openExportModal() {
   const endDateInp = document.getElementById('export-end-date');
   if (startDateInp) startDateInp.value = '';
   if (endDateInp) endDateInp.value = '';
-  
+
   // Set current year/month options dynamically
   const now = new Date();
   const yearOpt = periodSelect ? periodSelect.querySelector('option[value="year"]') : null;
   const monthOpt = periodSelect ? periodSelect.querySelector('option[value="month"]') : null;
   if (yearOpt) yearOpt.textContent = `올해 (${now.getFullYear()}년)`;
-  if (monthOpt) monthOpt.textContent = `이번 달 (${now.getMonth()+1}월)`;
+  if (monthOpt) monthOpt.textContent = `이번 달 (${now.getMonth() + 1}월)`;
 
   updateExportSummary();
   openModal('export-modal');
@@ -5152,7 +5190,7 @@ function handleExportPeriodChange() {
   const periodSelect = document.getElementById('export-period-select');
   const period = periodSelect ? periodSelect.value : 'all';
   const customWrap = document.getElementById('export-custom-date-wrap');
-  
+
   if (customWrap) {
     if (period === 'custom') {
       customWrap.style.setProperty('display', 'flex', 'important');
@@ -5184,15 +5222,15 @@ function getFilteredExportBooks() {
     } else if (period === 'custom') {
       const startVal = document.getElementById('export-start-date')?.value;
       const endVal = document.getElementById('export-end-date')?.value;
-      
+
       if (startVal) {
         const startDate = new Date(startVal);
-        startDate.setHours(0,0,0,0);
+        startDate.setHours(0, 0, 0, 0);
         if (bDate < startDate) return false;
       }
       if (endVal) {
         const endDate = new Date(endVal);
-        endDate.setHours(23,59,59,999);
+        endDate.setHours(23, 59, 59, 999);
         if (bDate > endDate) return false;
       }
       return true;
@@ -5217,7 +5255,7 @@ function exportToGoogleSheetsCSV() {
   }
 
   const headers = ['번호', '제목', '저자', '읽은 날짜', '평점', '페이지 수', '키워드', '한줄 감상평'];
-  
+
   const escapeCSVField = (field) => {
     if (field === null || field === undefined) return '""';
     const str = String(field).replace(/"/g, '""');
@@ -5233,7 +5271,7 @@ function exportToGoogleSheetsCSV() {
     const author = b.author || '';
     const date = b.date || '';
     const starRating = '★'.repeat(numericRating) + '☆'.repeat(5 - numericRating);
-    
+
     const pages = b.pages || 0;
     const keywords = Array.isArray(b.keywords) ? b.keywords.join(', ') : (b.keywords || '');
     const sentence = b.sentence || '';
@@ -5253,9 +5291,9 @@ function exportToGoogleSheetsCSV() {
   const csvContent = [headers.map(escapeCSVField).join(','), ...rows].join('\r\n');
   const BOM = '\uFEFF';
   const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
-  
+
   const now = new Date();
-  const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+  const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
   const filename = `8ook_reading_log_${dateStr}.csv`;
 
   const link = document.createElement('a');
@@ -5273,4 +5311,4 @@ function exportToGoogleSheetsCSV() {
   closeModal('export-modal');
   toast(`선택한 기간의 ${exportBooks.length}권 독서 기록이 다운로드되었습니다.`);
 }
-
+
