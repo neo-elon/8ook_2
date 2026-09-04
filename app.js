@@ -4,53 +4,37 @@
 const supabaseUrl = 'https://guaimwzlmdacerpvsxxw.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1YWltd3psbWRhY2VycHZzeHh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODM1NDIsImV4cCI6MjA5NjY1OTU0Mn0.zF8A_Ul3Y5aIPjZcVTYIj1gUkConuQ-b9eO7EjnoWUE';
 
-// Persistent storage adapter (LocalStorage + SessionStorage + Safe Cookie backup for Mobile & iOS Safari ITP)
+// In-memory fallback cache for privacy/strict tracking prevention modes
+const memoryStore = {};
+
+// Clean Storage Adapter (LocalStorage + SessionStorage + In-Memory Fallback)
+// Avoids document.cookie writes that trigger browser "Tracking Prevention blocked access to storage"
 const persistentStorage = {
   getItem: (key) => {
-    let val = null;
     try {
-      val = localStorage.getItem(key);
-      if (val) return val;
+      const val = localStorage.getItem(key);
+      if (val !== null) return val;
     } catch (e) {}
 
     try {
-      val = sessionStorage.getItem(key);
-      if (val) {
-        // Sync to localStorage for persistence
+      const val = sessionStorage.getItem(key);
+      if (val !== null) {
         try { localStorage.setItem(key, val); } catch (e) {}
         return val;
       }
     } catch (e) {}
 
-    try {
-      const match = document.cookie.match(new RegExp('(?:^|;\\s*)' + encodeURIComponent(key) + '=([^;]*)'));
-      if (match) {
-        val = decodeURIComponent(match[1]);
-        try { localStorage.setItem(key, val); } catch (e) {}
-        try { sessionStorage.setItem(key, val); } catch (e) {}
-        return val;
-      }
-    } catch (e) {}
-    return null;
+    return memoryStore[key] || null;
   },
   setItem: (key, value) => {
+    memoryStore[key] = value;
     try { localStorage.setItem(key, value); } catch (e) {}
     try { sessionStorage.setItem(key, value); } catch (e) {}
-    // Only store in cookie if under 3200 chars to strictly prevent browser 4KB cookie silent drop
-    try {
-      if (value && value.length < 3200) {
-        const expDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
-        const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
-        document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}; expires=${expDate}; path=/; SameSite=Lax${secureFlag}`;
-      }
-    } catch (e) {}
   },
   removeItem: (key) => {
+    delete memoryStore[key];
     try { localStorage.removeItem(key); } catch (e) {}
     try { sessionStorage.removeItem(key); } catch (e) {}
-    try {
-      document.cookie = `${encodeURIComponent(key)}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
-    } catch (e) {}
   }
 };
 
