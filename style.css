@@ -831,14 +831,20 @@
       align-items: flex-end;
       gap: 2px;
       position: relative;
-      padding-bottom: 2px;
+      height: 362px;
+      min-height: 362px;
+      max-height: 362px;
+      padding-top: 6px;
+      padding-bottom: 5px;
       border-bottom: none;
       box-shadow: none;
       overflow-x: auto;
-      overflow-y: visible;
+      overflow-y: hidden !important;
+      overscroll-behavior-y: contain;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none !important;
       -ms-overflow-style: none !important;
+      box-sizing: border-box;
     }
     .spine-shelf-row::-webkit-scrollbar {
       display: none !important;

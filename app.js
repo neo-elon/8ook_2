@@ -556,6 +556,7 @@ function renderGallery() {
     if (galleryViewMode === 'stars') {
       const shelfRow = document.createElement('div');
       shelfRow.className = 'spine-shelf-row';
+      enableSpineShelfWheel(shelfRow);
 
       sortedBooks.forEach((book, i) => {
         const card = createBookCardElement(book, i, true);
@@ -630,6 +631,7 @@ function renderGallery() {
 
       const shelfRow = document.createElement('div');
       shelfRow.className = 'spine-shelf-row';
+      enableSpineShelfWheel(shelfRow);
 
       booksInMonth.forEach(book => {
         const card = createBookCardElement(book, globalIndex++, true);
@@ -657,6 +659,27 @@ function renderGallery() {
     const card = createBookCardElement(book, i, false);
     grid.appendChild(card);
   });
+}
+
+function enableSpineShelfWheel(rowEl) {
+  if (!rowEl) return;
+  rowEl.addEventListener('wheel', (e) => {
+    // 가로 스크롤할 내용이 없으면 세로 스크롤 이벤트 그대로 상위로 통과
+    if (rowEl.scrollWidth <= rowEl.clientWidth + 2) {
+      return;
+    }
+    // 세로 휠 이동량이 더 클 때
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      const atLeft = rowEl.scrollLeft <= 0;
+      const atRight = rowEl.scrollLeft + rowEl.clientWidth >= rowEl.scrollWidth - 2;
+      // 끝에 닿았으면 상하 페이지 스크롤 허용
+      if ((e.deltaY < 0 && atLeft) || (e.deltaY > 0 && atRight)) {
+        return;
+      }
+      e.preventDefault();
+      rowEl.scrollLeft += e.deltaY;
+    }
+  }, { passive: false });
 }
 
 function handleQuickAddBook() {
