@@ -473,7 +473,7 @@ function renderGallery() {
         <span style="font-size:16px;">⭐</span>
         <strong>별점 5점 인생작 책장</strong>
         <span class="shelf-year-count" style="margin-left:2px; font-weight:700; color:var(--amber); background:rgba(245,158,11,0.18);">${starCount}권</span>
-        <button class="shelf-download-btn" onclick="downloadStarsShelfImage()" title="인생작 책장 이미지 저장" aria-label="인생작 책장 이미지 저장" style="border-color:rgba(245,158,11,0.4); color:var(--amber);">
+        <button class="shelf-download-btn" onclick="downloadStarsShelfImage()" title="인생작 책장 이미지 저장" aria-label="인생작 책장 이미지 저장" style="color:var(--amber); opacity:0.75;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 3v12"></path>
             <polyline points="7 10 12 15 17 10"></polyline>
@@ -615,7 +615,7 @@ function renderGallery() {
       header.className = 'shelf-year-header';
       header.innerHTML = `
         <div class="shelf-year-badge">
-          <span>📅 ${monthLabel}</span>
+          <span class="shelf-year-title">${monthLabel}</span>
           <span class="shelf-year-count">${booksInMonth.length}권</span>
           <button class="shelf-download-btn" onclick="downloadMonthShelfImage('${esc(ymKey)}', '${esc(monthLabel)}')" title="${esc(monthLabel)} 책장 이미지 저장" aria-label="책장 이미지 저장">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">

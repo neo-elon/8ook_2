@@ -755,57 +755,63 @@
     .shelf-year-header {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 0 4px;
+      gap: 8px;
+      padding: 2px 2px;
       user-select: none;
+      margin-bottom: 2px;
     }
 
     .shelf-year-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: 13px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+    }
+
+    .shelf-year-title {
+      font-size: 13.5px;
       font-weight: 700;
       color: var(--text-100);
-      background: rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(0, 0, 0, 0.12);
-      padding: 3px 12px;
-      border-radius: 12px;
-      letter-spacing: 0.5px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      letter-spacing: -0.3px;
+      line-height: 1;
     }
 
     .shelf-year-count {
       font-size: 11px;
-      color: var(--text-400);
-      font-weight: 600;
-      background: rgba(0, 0, 0, 0.06);
-      padding: 2px 7px;
-      border-radius: 10px;
+      color: var(--text-300);
+      font-weight: 500;
+      background: none;
+      padding: 0;
+      border-radius: 0;
+      line-height: 1;
     }
 
     .shelf-year-line {
       flex: 1;
       height: 1px;
-      background: linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.02) 100%);
+      background: linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.01) 100%);
     }
 
-    /* Shelf Download Image Button (Download Icon) */
+    /* Shelf Download Image Button (Minimal Subtle Icon) */
     .shelf-download-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       padding: 0;
-      border-radius: 50%;
-      background: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.12);
-      color: var(--text-200);
+      border-radius: 4px;
+      background: transparent;
+      border: none;
+      color: var(--text-400);
+      opacity: 0.65;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: opacity 0.2s ease, color 0.2s ease, transform 0.2s ease;
       user-select: none;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      box-shadow: none;
       line-height: 1;
       flex-shrink: 0;
       margin-left: 2px;
@@ -816,14 +822,15 @@
       transition: stroke 0.2s ease;
     }
     .shelf-download-btn:hover {
-      background: #ffffff;
-      border-color: var(--violet);
+      background: transparent;
+      border: none;
       color: var(--violet);
-      transform: scale(1.1);
-      box-shadow: 0 2px 6px rgba(124, 58, 237, 0.15);
+      opacity: 1;
+      transform: translateY(-1px);
+      box-shadow: none;
     }
     .shelf-download-btn:active {
-      transform: scale(0.95);
+      transform: translateY(0);
     }
 
     .spine-shelf-row {
