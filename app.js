@@ -1450,11 +1450,16 @@ function showDetail(id, direction = null) {
     </div>
   `;
 
+  document.body.classList.add('page-detail');
   document.getElementById('view-gallery').style.display = 'none';
   document.getElementById('view-stats').classList.remove('show');
   document.getElementById('view-community').classList.remove('show');
   document.getElementById('view-detail').classList.add('show');
-  document.getElementById('back-btn').classList.add('show');
+  const backBtn = document.getElementById('back-btn');
+  if (backBtn) {
+    backBtn.classList.remove('show');
+    backBtn.style.display = 'none';
+  }
   const searchGroup = document.getElementById('header-search-group');
   if (searchGroup) searchGroup.style.display = 'none';
   document.getElementById('community-nav-btn').style.display = 'none';
@@ -1510,12 +1515,17 @@ async function editScrap(bookId, scrapId) {
 }
 
 function showGallery() {
+  document.body.classList.remove('page-detail');
   closeAppMenu();
   document.getElementById('view-gallery').style.display = '';
   document.getElementById('view-detail').classList.remove('show');
   document.getElementById('view-stats').classList.remove('show');
   document.getElementById('view-community').classList.remove('show');
-  document.getElementById('back-btn').classList.remove('show');
+  const backBtn = document.getElementById('back-btn');
+  if (backBtn) {
+    backBtn.classList.remove('show');
+    backBtn.style.display = '';
+  }
   const searchGroup = document.getElementById('header-search-group');
   if (searchGroup) searchGroup.style.display = '';
   const vl = document.getElementById('view-label');
@@ -1545,6 +1555,7 @@ function clearGallerySearch() {
 }
 
 function showStats() {
+  document.body.classList.remove('page-detail');
   closeAppMenu();
   document.getElementById('view-gallery').style.display = 'none';
   document.getElementById('view-detail').classList.remove('show');
@@ -4410,12 +4421,17 @@ const MOCK_COMMUNITY_REVIEWS = {
 };
 
 function showCommunity() {
+  document.body.classList.remove('page-detail');
   closeAppMenu();
   document.getElementById('view-gallery').style.display = 'none';
   document.getElementById('view-detail').classList.remove('show');
   document.getElementById('view-stats').classList.remove('show');
   document.getElementById('view-community').classList.add('show');
-  document.getElementById('back-btn').classList.add('show');
+  const backBtn = document.getElementById('back-btn');
+  if (backBtn) {
+    backBtn.style.display = '';
+    backBtn.classList.add('show');
+  }
   const searchGroup = document.getElementById('header-search-group');
   if (searchGroup) searchGroup.style.display = 'none';
   const vl = document.getElementById('view-label');
