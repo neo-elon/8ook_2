@@ -2300,7 +2300,7 @@ let barcodeAutoScanningActive = true;
 let nativeBarcodeDetectorInstance = null;
 let sharedZXingReaderInstance = null;
 let isBarcodeTorchOn = false;
-let barcodeCurrentZoom = 1;
+let barcodeCurrentZoom = 1.5;
 let barcodeSupportedZoomRange = null;
 let barcodeHasTorch = false;
 let barcodeProcessingCanvas = null;
@@ -2371,7 +2371,7 @@ function pickBestBookBarcode(codes) {
 function openBarcodeScannerModal() {
   openModal('barcode-scanner-modal');
   isBarcodeTorchOn = false;
-  barcodeCurrentZoom = 1;
+  barcodeCurrentZoom = 1.5;
   const manualInput = document.getElementById('barcode-manual-isbn-input');
   if (manualInput) manualInput.value = '';
   _initBarcodeEngines();
@@ -2381,6 +2381,8 @@ function openBarcodeScannerModal() {
 
 function closeBarcodeScannerModal() {
   _stopBarcodeCamera();
+  const video = document.getElementById('barcode-video');
+  if (video) video.style.transform = 'none';
   const modal = document.getElementById('barcode-scanner-modal');
   if (modal) modal.classList.remove('open');
   document.body.style.overflow = '';
@@ -2519,6 +2521,8 @@ async function _startBarcodeCamera(facing) {
 
     // Check device capabilities (Torch, Zoom)
     const track = stream.getVideoTracks()[0];
+    const zoomBtn = document.getElementById('barcode-zoom-btn');
+
     if (track && track.getCapabilities) {
       const caps = track.getCapabilities();
 
@@ -2527,12 +2531,35 @@ async function _startBarcodeCamera(facing) {
       const torchBtn = document.getElementById('barcode-torch-btn');
       if (torchBtn) torchBtn.style.display = barcodeHasTorch ? 'flex' : 'none';
 
-      // Zoom
+      // Zoom (Default 1.5x)
       if (caps.zoom) {
         barcodeSupportedZoomRange = caps.zoom;
-        const zoomBtn = document.getElementById('barcode-zoom-btn');
-        if (zoomBtn) zoomBtn.style.display = 'flex';
+        const minZ = caps.zoom.min || 1;
+        const maxZ = caps.zoom.max || 1;
+        barcodeCurrentZoom = Math.max(minZ, Math.min(1.5, maxZ));
+        try {
+          await track.applyConstraints({
+            advanced: [{ zoom: barcodeCurrentZoom }]
+          });
+        } catch (_) { }
+        video.style.transform = 'none';
+      } else {
+        barcodeSupportedZoomRange = null;
+        // Hardware zoom not supported -> apply smooth digital zoom
+        barcodeCurrentZoom = 1.5;
+        video.style.transform = 'scale(1.5)';
       }
+    } else {
+      barcodeSupportedZoomRange = null;
+      barcodeCurrentZoom = 1.5;
+      video.style.transform = 'scale(1.5)';
+    }
+
+    if (zoomBtn) {
+      zoomBtn.style.display = 'flex';
+      zoomBtn.textContent = barcodeCurrentZoom + 'x';
+      zoomBtn.style.background = barcodeCurrentZoom > 1 ? '#c99365' : 'rgba(0,0,0,0.6)';
+      zoomBtn.style.color = barcodeCurrentZoom > 1 ? '#000' : '#fff';
     }
 
     _setBarcodeScannerStatus('자동 스캔 중 (AI/WASM)', '#34d399');
@@ -2565,26 +2592,37 @@ async function toggleBarcodeTorch() {
 }
 
 async function toggleBarcodeZoom() {
-  if (!barcodeStream || !barcodeSupportedZoomRange) return;
+  if (!barcodeStream) return;
   const track = barcodeStream.getVideoTracks()[0];
-  if (!track || !track.applyConstraints) return;
+  const video = document.getElementById('barcode-video');
+  const btn = document.getElementById('barcode-zoom-btn');
 
-  try {
+  // Cycle: 1.5x -> 2x -> 1x -> 1.5x
+  if (barcodeCurrentZoom === 1.5) {
+    barcodeCurrentZoom = 2;
+  } else if (barcodeCurrentZoom === 2) {
+    barcodeCurrentZoom = 1;
+  } else {
+    barcodeCurrentZoom = 1.5;
+  }
+
+  if (track && barcodeSupportedZoomRange) {
     const minZoom = barcodeSupportedZoomRange.min || 1;
-    const maxZoom = barcodeSupportedZoomRange.max || 2;
-    barcodeCurrentZoom = (barcodeCurrentZoom === 1) ? Math.min(2, maxZoom) : 1;
+    const maxZoom = barcodeSupportedZoomRange.max || 1;
+    const targetZoom = Math.max(minZoom, Math.min(barcodeCurrentZoom, maxZoom));
+    try {
+      await track.applyConstraints({
+        advanced: [{ zoom: targetZoom }]
+      });
+    } catch (_) { }
+  } else if (video) {
+    video.style.transform = (barcodeCurrentZoom === 1) ? 'none' : `scale(${barcodeCurrentZoom})`;
+  }
 
-    await track.applyConstraints({
-      advanced: [{ zoom: barcodeCurrentZoom }]
-    });
-    const btn = document.getElementById('barcode-zoom-btn');
-    if (btn) {
-      btn.textContent = barcodeCurrentZoom + 'x';
-      btn.style.background = barcodeCurrentZoom > 1 ? '#c99365' : 'rgba(0,0,0,0.6)';
-      btn.style.color = barcodeCurrentZoom > 1 ? '#000' : '#fff';
-    }
-  } catch (err) {
-    console.warn('Zoom toggle error:', err);
+  if (btn) {
+    btn.textContent = barcodeCurrentZoom + 'x';
+    btn.style.background = barcodeCurrentZoom > 1 ? '#c99365' : 'rgba(0,0,0,0.6)';
+    btn.style.color = barcodeCurrentZoom > 1 ? '#000' : '#fff';
   }
 }
 

@@ -572,9 +572,9 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
         </button>
 
-        <!-- Zoom toggle (1x / 2x) -->
-        <button id="barcode-zoom-btn" onclick="toggleBarcodeZoom()" style="width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:11px; font-weight:700; cursor:pointer; display:none; align-items:center; justify-content:center;" title="확대/축소">
-          1x
+        <!-- Zoom toggle (1.5x / 2x / 1x) -->
+        <button id="barcode-zoom-btn" onclick="toggleBarcodeZoom()" style="width:36px; height:36px; border-radius:50%; background:var(--grad-main, #c99365); border:1px solid rgba(255,255,255,0.2); color:#000; font-size:11px; font-weight:700; cursor:pointer; display:none; align-items:center; justify-content:center;" title="확대/축소">
+          1.5x
         </button>
 
         <!-- Gallery pick -->
@@ -724,6 +724,6 @@
 <!-- Next-Gen WebAssembly Barcode Engine (ZXing-C++ compiled to WASM) -->
 <script src="https://cdn.jsdelivr.net/npm/zxing-wasm@latest/dist/iife/reader/index.js"></script>
 
-  <script src="app.js?v=20260904_31" defer></script>
+  <script src="app.js?v=20260904_32" defer></script>
 </body>
 </html>
