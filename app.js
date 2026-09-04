@@ -208,7 +208,7 @@ async function loadData() {
       }
       if (!syncError) {
         books = booksToUpload;
-        toast('✅ 기존 로컬 책장 데이터를 Supabase에 동기화했습니다!');
+        toast('기존 로컬 책장 데이터를 Supabase에 동기화했습니다.');
         // Clear guest books so we don't sync them again next time
         try { localStorage.removeItem('rj_books'); } catch(e) {}
       } else {
@@ -231,9 +231,9 @@ function showDbSetupModal() {
 function copySqlCode() {
   const sql = document.getElementById('db-sql-code').value;
   navigator.clipboard.writeText(sql).then(() => {
-    toast('📋 SQL 쿼리가 클립보드에 복사되었습니다');
+    toast('SQL 쿼리가 클립보드에 복사되었습니다.');
   }).catch(err => {
-    toast('❌ 복사 실패. 직접 드래그하여 복사해주세요.');
+    toast('복사 실패. 직접 드래그하여 복사해주세요.');
   });
 }
 function uid() {
@@ -485,12 +485,12 @@ function renderGallery() {
     const starCount = books.filter(b => b.rating === 5).length;
     const starsBanner = document.createElement('div');
     starsBanner.className = 'stars-shelf-banner';
-    starsBanner.style.cssText = 'grid-column: 1 / -1; width: 100%; background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(217, 119, 6, 0.06) 100%); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: var(--radius-md); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--text-100); margin-bottom: 8px; box-sizing: border-box;';
+    starsBanner.style.cssText = 'grid-column: 1 / -1; width: 100%; background: linear-gradient(135deg, rgba(201, 122, 43, 0.12) 0%, rgba(166, 96, 30, 0.05) 100%); border: 1px solid rgba(201, 122, 43, 0.3); border-radius: var(--radius-md); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--text-100); margin-bottom: 8px; box-sizing: border-box;';
     starsBanner.innerHTML = `
-      <span style="display:flex; align-items:center; gap:6px;">
-        <span style="font-size:16px;">⭐</span>
-        <strong>별점 5점 인생작 책장</strong>
-        <span class="shelf-year-count" style="margin-left:2px; font-weight:700; color:var(--amber); background:rgba(245,158,11,0.18);">${starCount}권</span>
+      <span style="display:flex; align-items:center; gap:8px;">
+        <strong>인생작 책장</strong>
+        <span style="font-size:11px; opacity:0.8; color:var(--amber);">(★ 5.0)</span>
+        <span class="shelf-year-count" style="margin-left:2px; font-weight:700; color:var(--amber); background:rgba(201,122,43,0.15);">${starCount}권</span>
         <button class="shelf-download-btn" onclick="downloadStarsShelfImage()" title="인생작 책장 이미지 저장" aria-label="인생작 책장 이미지 저장" style="color:var(--amber); opacity:0.75;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 3v12"></path>
@@ -512,7 +512,7 @@ function renderGallery() {
     filterCard.className = 'filter-info-card';
     filterCard.style.cssText = 'grid-column: 1 / -1; width: 100%; background: var(--glass); border: 1px solid var(--violet); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--text-200); margin-bottom: 4px; box-sizing: border-box;';
     filterCard.innerHTML = `
-      <span style="display:flex; align-items:center; gap:6px;">🏷️ <strong>#${esc(currentGalleryFilter)}</strong> 키워드로 필터링됨</span>
+      <span style="display:flex; align-items:center; gap:6px;"><strong>#${esc(currentGalleryFilter)}</strong> 태그 도서</span>
       <button class="btn btn-ghost btn-sm" onclick="clearGalleryFilter()" style="padding: 2px 8px; border-radius: 4px; font-size:11px; height:22px; line-height:1; cursor:pointer;">필터 해제 ✕</button>
     `;
     grid.appendChild(filterCard);
@@ -540,21 +540,21 @@ function renderGallery() {
   if (!displayBooks.length) {
     empty.classList.add('show');
     if (searchQuery) {
-      empty.querySelector('.empty-icon').textContent = '🔍';
+      empty.querySelector('.empty-icon').textContent = 'SEARCH';
       empty.querySelector('.empty-h').textContent = '검색 결과가 없습니다';
-      empty.querySelector('.empty-p').innerHTML = `"${esc(searchQuery)}"에 매칭되는 책을 찾지 못했어요.<br>다른 검색어로 검색해 보세요!`;
+      empty.querySelector('.empty-p').innerHTML = `"${esc(searchQuery)}"에 매칭되는 책을 찾지 못했어요.<br>다른 검색어로 검색해 보세요.`;
     } else if (galleryViewMode === 'stars') {
-      empty.querySelector('.empty-icon').textContent = '⭐';
+      empty.querySelector('.empty-icon').textContent = 'FAVORITES';
       empty.querySelector('.empty-h').textContent = '아직 등록된 인생작이 없어요';
       empty.querySelector('.empty-p').innerHTML = '도서를 기록하거나 수정할 때 <strong>별점 5점(★★★★★)</strong>을 부여하면<br>이곳 인생작 전용 서재에 소중히 모아집니다.';
     } else if (currentGalleryFilter) {
-      empty.querySelector('.empty-icon').textContent = '🏷️';
+      empty.querySelector('.empty-icon').textContent = 'FILTER';
       empty.querySelector('.empty-h').textContent = '필터 결과가 없습니다';
       empty.querySelector('.empty-p').innerHTML = `#${esc(currentGalleryFilter)} 태그를 가진 책이 없습니다.`;
     } else {
-      empty.querySelector('.empty-icon').textContent = '📖';
+      empty.querySelector('.empty-icon').textContent = '8ook.';
       empty.querySelector('.empty-h').textContent = '아직 기록된 책이 없어요';
-      empty.querySelector('.empty-p').innerHTML = '오른쪽 상단의 <strong>+ 책 추가</strong> 버튼으로<br>첫 번째 책을 기록해보세요!';
+      empty.querySelector('.empty-p').innerHTML = '상단의 <strong>＋</strong> 버튼으로 첫 번째 책을 기록해보세요.';
     }
   } else {
     empty.classList.remove('show');
@@ -769,7 +769,7 @@ function enableSpineShelfWheel(rowEl) {
 
 function handleQuickAddBook() {
   if (supabaseClient && !currentUser) {
-    toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
+    toast('로그인이 필요합니다. 구글 로그인을 진행해주세요.');
     loginWithGoogle();
     return;
   }
@@ -802,7 +802,7 @@ async function downloadMonthShelfImage(ymKey, monthLabel) {
   });
 
   if (!targetBooks.length) {
-    toast('⚠️ 저장할 도서가 없습니다.');
+    toast('저장할 도서가 없습니다.');
     return;
   }
 
@@ -833,7 +833,7 @@ async function downloadYearShelfImage(yKey, yearLabel) {
   });
 
   if (!targetBooks.length) {
-    toast('⚠️ 저장할 도서가 없습니다.');
+    toast('저장할 도서가 없습니다.');
     return;
   }
 
@@ -850,7 +850,7 @@ async function downloadStarsShelfImage() {
   });
 
   if (!targetBooks.length) {
-    toast('⚠️ 저장할 인생작 도서가 없습니다.');
+    toast('저장할 인생작 도서가 없습니다.');
     return;
   }
 
@@ -859,7 +859,7 @@ async function downloadStarsShelfImage() {
 }
 
 async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
-  toast('📸 인스타그램용 책장 이미지를 생성하는 중입니다...');
+  toast('인스타그램용 책장 이미지를 생성하는 중입니다...');
 
   try {
     const dpr = 2;
@@ -1144,7 +1144,7 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
     // 7. PNG 다운로드 실행
     canvas.toBlob(blob => {
       if (!blob) {
-        toast('❌ 이미지 변환에 실패했습니다.');
+        toast('이미지 변환에 실패했습니다.');
         return;
       }
       const blobUrl = URL.createObjectURL(blob);
@@ -1155,12 +1155,12 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       downloadLink.click();
       document.body.removeChild(downloadLink);
       URL.revokeObjectURL(blobUrl);
-      toast(`🎉 ${shelfTitle} 이미지가 저장되었습니다!`);
+      toast(`${shelfTitle} 이미지가 저장되었습니다!`);
     }, 'image/png');
 
   } catch (err) {
     console.error('Failed to generate shelf image:', err);
-    toast('❌ 책장 이미지 생성 중 오류가 발생했습니다.');
+    toast('책장 이미지 생성 중 오류가 발생했습니다.');
   }
 }
 
@@ -1192,10 +1192,9 @@ function createBookCardElement(book, i, isSpineMode) {
   let imgPart = '';
   if (book.cover) {
     imgPart = `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}"
-      onerror="this.outerHTML='<div class=\\'book-card-placeholder\\'><span class=\\'placeholder-icon\\'>📚</span><span class=\\'placeholder-title\\'>${esc(book.title)}</span></div>'">`;
+      onerror="this.outerHTML='<div class=\\'book-card-placeholder\\'><span class=\\'placeholder-title\\'>${esc(book.title)}</span></div>'">`;
   } else {
     imgPart = `<div class="book-card-placeholder">
-      <span class="placeholder-icon">📚</span>
       <span class="placeholder-title">${esc(book.title)}</span>
     </div>`;
   }
@@ -1323,12 +1322,12 @@ function showDetail(id, direction = null) {
 
   const coverHtml = book.cover
     ? `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}"
-        onerror="this.outerHTML='<div class=\\'detail-thumb-placeholder\\'>📚</div>'">`
-    : `<div class="detail-thumb-placeholder">📚</div>`;
+        onerror="this.outerHTML='<div class=\\'detail-thumb-placeholder\\'>8ook</div>'">`
+    : `<div class="detail-thumb-placeholder">8ook</div>`;
 
   const chips = [];
-  if (book.pages) chips.push(`<div class="chip"><span class="chip-icon">📄</span>${Number(book.pages).toLocaleString()}p</div>`);
-  if (book.date)  chips.push(`<div class="chip"><span class="chip-icon">📅</span>${fmtDate(book.date)}</div>`);
+  if (book.pages) chips.push(`<div class="chip">${Number(book.pages).toLocaleString()}p</div>`);
+  if (book.date)  chips.push(`<div class="chip">${fmtDate(book.date)}</div>`);
   const scrapCount = (book.scraps||[]).length;
 
   const kwHtml = (book.keywords && book.keywords.length)
@@ -1351,8 +1350,8 @@ function showDetail(id, direction = null) {
       <div class="detail-rating-row" style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
         <div class="detail-stars">${starsHtml(book.rating, 22)}</div>
         <div class="detail-book-actions" style="display:flex; gap:6px; align-items:center;">
-          <button class="btn btn-ghost btn-sm" onclick="openEditModal('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:4px; height:22px; line-height:1;">✏️ 편집</button>
-          <button class="btn btn-danger btn-sm" onclick="doDeleteBook('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:22px; line-height:1;">🗑️ 삭제</button>
+          <button class="btn btn-ghost btn-sm" onclick="openEditModal('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:4px; height:22px; line-height:1;">편집</button>
+          <button class="btn btn-danger btn-sm" onclick="doDeleteBook('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:22px; line-height:1;">삭제</button>
         </div>
       </div>
       ${book.sentence ? `<div class="detail-sentence">${esc(book.sentence)}</div>` : ''}
@@ -1361,15 +1360,15 @@ function showDetail(id, direction = null) {
     <div class="scraps-sec">
       <div class="scraps-hdr" style="display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
         <div style="display:flex; align-items:center; gap:8px;">
-          <div class="scraps-htitle">📌 스크랩 문장</div>
+          <div class="scraps-htitle">스크랩 문장</div>
           <button class="btn btn-ghost btn-sm" onclick="openScrapModal('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:12px; height:22px; line-height:1;">+ 추가</button>
         </div>
         <div class="scraps-badge" id="scrap-badge">${scrapCount} / 100</div>
       </div>
       <div class="scrap-list" id="scrap-list">${scrapsHtml}</div>
       ${scrapCount === 0
-        ? `<div class="scraps-empty">아직 스크랩된 문장이 없어요 ✨<br>
-           <small style="font-size:11px;">"문장 스크랩" 버튼으로 추가해보세요</small></div>`
+        ? `<div class="scraps-empty">아직 스크랩된 문장이 없습니다.<br>
+           <small style="font-size:11px;">상단의 "+ 추가" 버튼으로 문장을 기록해보세요</small></div>`
         : ''}
     </div>
   `;
@@ -1380,7 +1379,7 @@ function showDetail(id, direction = null) {
   document.getElementById('view-detail').classList.add('show');
   document.getElementById('back-btn').classList.add('show');
   document.getElementById('community-nav-btn').style.display = 'none';
-  document.getElementById('view-label').textContent = '📖 ' + book.title;
+  document.getElementById('view-label').textContent = book.title;
 }
 
 function buildScrapsHtml(book) {
@@ -1404,7 +1403,7 @@ function buildScrapsHtml(book) {
 
 async function editScrap(bookId, scrapId) {
   if (supabaseClient && !currentUser) {
-    toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
+    toast('로그인이 필요합니다. 구글 로그인을 진행해주세요.');
     loginWithGoogle();
     return;
   }
@@ -1424,8 +1423,8 @@ async function editScrap(bookId, scrapId) {
   document.getElementById('sc-page-ocr').value = scrap.page || '';
   document.getElementById('sc-memo-ocr').value = scrap.memo || '';
 
-  document.getElementById('scrap-modal-title').textContent = '✏️ 스크랩 수정';
-  document.getElementById('scrap-save-btn').textContent = '✏️ 스크랩 수정';
+  document.getElementById('scrap-modal-title').textContent = '스크랩 수정';
+  document.getElementById('scrap-save-btn').textContent = '스크랩 저장';
 
   switchTab('manual');
   openModal('scrap-modal');
@@ -1467,7 +1466,7 @@ function showStats() {
   const vl = document.getElementById('view-label');
   if (vl) {
     vl.style.display = 'inline-block';
-    vl.textContent = '📊 독서 통계';
+    vl.textContent = '독서 통계';
   }
   showRandomQuote();
   updateSidebar();
@@ -1484,7 +1483,7 @@ function openAddModal() {
   currentRating = 0;
   modalCover = '';
   modalSpineCover = '';
-  document.getElementById('book-modal-ttl').textContent = '📖 책 추가';
+  document.getElementById('book-modal-ttl').textContent = '책 추가';
   document.getElementById('bk-title').value = '';
   document.getElementById('bk-author').value = '';
   document.getElementById('bk-pages').value = '';
@@ -1508,7 +1507,7 @@ function openAddModal() {
 
 async function openEditModal(id, focusKeywords = false) {
   if (supabaseClient && !currentUser) {
-    toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
+    toast('로그인이 필요합니다. 구글 로그인을 진행해주세요.');
     loginWithGoogle();
     return;
   }
@@ -1520,7 +1519,7 @@ async function openEditModal(id, focusKeywords = false) {
   modalCover = b.cover || '';
   modalSpineCover = b.spineCover || b.spine || getSpineImageUrl(b.cover) || '';
 
-  document.getElementById('book-modal-ttl').textContent = '✏️ 책 편집';
+  document.getElementById('book-modal-ttl').textContent = '책 정보 수정';
   document.getElementById('bk-title').value = b.title || '';
   document.getElementById('bk-author').value = b.author || '';
   document.getElementById('bk-pages').value = b.pages || '';
@@ -1608,13 +1607,13 @@ function setPrev(src) {
   const el = document.getElementById('book-prev');
   if (!el) return;
   el.innerHTML =
-    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.parentElement.innerHTML='<div class=\\'img-prev-ph\\'><span class=\\'img-prev-ph-icon\\'>❌</span><span style=\\'font-size:10px;\\'>표지 오류</span></div>'">`;
+    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.parentElement.innerHTML='<div class=\\'img-prev-ph\\'><span style=\\'font-size:10px; color:var(--text-300);\\'>표지 오류</span></div>'">`;
 }
 
 function resetPrev() {
   const el = document.getElementById('book-prev');
   if (el) el.innerHTML =
-    `<div class="img-prev-ph"><span class="img-prev-ph-icon">🖼️</span><span style="font-size:10px;">앞표지</span></div>`;
+    `<div class="img-prev-ph"><span style="font-size:11px; letter-spacing:0.5px; color:var(--text-300);">앞표지</span></div>`;
 }
 
 function setSpinePrev(src) {
@@ -1630,7 +1629,7 @@ function setSpinePrev(src) {
         this.dataset.tried1 = 'true';
         this.src = this.src.replace('/Spine/', '/spine/');
       } else {
-        this.parentElement.innerHTML='<div class=\\'img-prev-ph spine-ph\\'><span style=\\'font-size:14px;\\'>📕</span><span style=\\'font-size:9px; writing-mode:vertical-rl;\\'>기본 책등</span></div>';
+        this.parentElement.innerHTML='<div class=\\'img-prev-ph spine-ph\\'><span style=\\'font-size:10px; writing-mode:vertical-rl; letter-spacing:1px; color:var(--text-300);\\'>기본 책등</span></div>';
       }
     ">`;
 }
@@ -1638,7 +1637,7 @@ function setSpinePrev(src) {
 function resetSpinePrev() {
   const el = document.getElementById('spine-prev');
   if (el) el.innerHTML =
-    `<div class="img-prev-ph spine-ph"><span style="font-size:14px;">📕</span><span style="font-size:9px; writing-mode:vertical-rl;">책등</span></div>`;
+    `<div class="img-prev-ph spine-ph"><span style="font-size:10px; writing-mode:vertical-rl; letter-spacing:1px; color:var(--text-300);">책등</span></div>`;
 }
 
 /* ── Keyword input helpers ── */
@@ -1669,14 +1668,14 @@ function updateStarBtns(n) {
 
 async function saveBook() {
   const title = document.getElementById('bk-title').value.trim();
-  if (!title) { toast('❌ 제목을 입력해주세요'); return; }
+  if (!title) { toast('도서 제목을 입력해주세요'); return; }
 
   let user = null;
   if (supabaseClient) {
     const { data: { session } } = await supabaseClient.auth.getSession();
     user = session?.user;
     if (!user) {
-      toast('⚠️ 로그인이 필요합니다. 먼저 로그인 해주세요.');
+      toast('로그인이 필요합니다. 먼저 로그인 해주세요.');
       return;
     }
   }
@@ -1727,7 +1726,7 @@ async function saveBook() {
           if (error) throw error;
         }
         books[idx] = updatedBook;
-        toast('✅ 책 정보가 수정되었습니다');
+        toast('도서 정보가 수정되었습니다');
       }
     } else {
       data.id = uid();
@@ -1749,7 +1748,7 @@ async function saveBook() {
         if (error) throw error;
       }
       books.unshift(data);
-      toast('📚 책이 추가되었습니다');
+      toast('도서가 추가되었습니다');
     }
 
     saveData();
@@ -1765,7 +1764,7 @@ async function saveBook() {
     }
   } catch (err) {
     console.error(err);
-    toast('❌ 저장 실패: ' + err.message);
+    toast('저장 실패: ' + err.message);
   } finally {
     saveBtn.disabled = false;
     saveBtn.textContent = originalText;
@@ -1778,7 +1777,7 @@ async function doDeleteBook(id) {
     const { data: { session } } = await supabaseClient.auth.getSession();
     user = session?.user;
     if (!user) {
-      toast('⚠️ 로그인이 필요합니다. 먼저 로그인 해주세요.');
+      toast('로그인이 필요합니다. 먼저 로그인 해주세요.');
       return;
     }
   }
@@ -1796,12 +1795,12 @@ async function doDeleteBook(id) {
 
     books = books.filter(b => b.id !== id);
     saveData();
-    toast('🗑️ 책이 삭제되었습니다');
+    toast('도서가 삭제되었습니다');
     showGallery();
     updateSidebar();
   } catch (err) {
     console.error(err);
-    toast('❌ 삭제 실패: ' + err.message);
+    toast('삭제 실패: ' + err.message);
   }
 }
 
@@ -1930,7 +1929,7 @@ function fetchAladinCover(title, author) {
 
 function searchAladin() {
   const query = document.getElementById('bk-title').value.trim();
-  if (!query) { toast('❌ 제목을 입력해주세요'); return; }
+  if (!query) { toast('도서 제목을 입력해주세요'); return; }
 
   const key = getApiKey();
   const results = document.getElementById('aladin-results');
@@ -1991,13 +1990,13 @@ function runAladinLookUpJsonp(isbn, key, results) {
         if (data10 && data10.item && data10.item.length > 0) {
           handleAladinResults(data10.item);
         } else {
-          results.innerHTML = `<div class="search-empty">❌ 바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})</div>`;
+          results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})</div>`;
         }
       };
       script10.onerror = function() {
         delete window[cbName10];
         script10.remove();
-        results.innerHTML = `<div class="search-empty">❌ 바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})</div>`;
+        results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})</div>`;
       };
       document.body.appendChild(script10);
     }
@@ -2006,14 +2005,14 @@ function runAladinLookUpJsonp(isbn, key, results) {
   script.onerror = function() {
     delete window[cbName];
     script.remove();
-    results.innerHTML = `<div class="search-empty">❌ 검색 실패 — API 키 활성화 상태 또는 인터넷 연결을 확인해주세요.</div>`;
+    results.innerHTML = `<div class="search-empty">검색 실패 — 도서 검색 상태를 확인해주세요.</div>`;
   };
 
   setTimeout(() => {
     if (window[cbName]) {
       delete window[cbName];
       script.remove();
-      results.innerHTML = `<div class="search-empty">⏰ 응답 시간 초과</div>`;
+      results.innerHTML = `<div class="search-empty">응답 시간 초과</div>`;
     }
   }, 10000);
 
@@ -2088,11 +2087,11 @@ function handleCameraScan(input) {
         codeReader.decodeFromImageElement(orientedImg)
           .then(result => {
             const barcode = result.text;
-            toast(`🔍 바코드 인식 성공: ${barcode}`);
+            toast(`바코드 인식 완료: ${barcode}`);
             searchAladinByIsbn(barcode);
           })
           .catch(err => {
-            results.innerHTML = `<div class="search-empty">❌ 바코드를 인식하지 못했습니다. 책 뒷면의 바코드가 선명하게 보이도록 다시 촬영해 주세요.</div>`;
+            results.innerHTML = `<div class="search-empty">바코드를 인식하지 못했습니다. 책 뒷면의 바코드가 선명하게 보이도록 다시 촬영해 주세요.</div>`;
           });
       };
       orientedImg.src = orientedDataUrl;
@@ -2162,7 +2161,7 @@ async function _startBarcodeCamera(facing) {
   } catch (err) {
     console.warn('Barcode camera error:', err);
     _setBarcodeScannerStatus('카메라 오류', '#ef4444');
-    toast('📷 카메라를 열 수 없습니다. 파일 선택으로 대체합니다.');
+    toast('카메라를 열 수 없습니다. 파일 선택으로 대체합니다.');
     setTimeout(() => {
       closeBarcodeScannerModal();
       _fallbackBarcodeFileInput();
@@ -2287,7 +2286,7 @@ async function _tryDecode(codeReader, video, sx, sy, sw, sh) {
 
 function _onBarcodeDetected(code) {
   if (barcodeScanLoop) { clearTimeout(barcodeScanLoop); barcodeScanLoop = null; }
-  _setBarcodeScannerStatus('✅ 바코드 인식!', '#34d399');
+  _setBarcodeScannerStatus('바코드 인식 완료', '#34d399');
 
   // Haptic feedback (mobile)
   if (navigator.vibrate) navigator.vibrate(120);
@@ -2301,13 +2300,13 @@ function _onBarcodeDetected(code) {
 
   const toastEl = document.getElementById('barcode-result-toast');
   if (toastEl) {
-    toastEl.textContent = `✅ ${code}`;
+    toastEl.textContent = code;
     toastEl.style.display = 'block';
   }
 
   setTimeout(() => {
     closeBarcodeScannerModal();
-    toast(`🔍 바코드 인식 성공: ${code}`);
+    toast(`바코드 인식 완료: ${code}`);
     const results = document.getElementById('aladin-results');
     if (results) {
       results.classList.add('show');
@@ -2376,7 +2375,7 @@ async function triggerBarcodeCapture() {
     console.warn('Manual capture failed or timed out:', err);
     _setBarcodeScannerStatus('미인식 — 다시 시도', '#ef4444');
     const gt = document.getElementById('barcode-guide-text');
-    if (gt) gt.innerHTML = '❌ 인식 실패. 바코드를 <strong style="color:#c99365;">박스 안</strong>에 맞추고 다시 누르세요.';
+    if (gt) gt.innerHTML = '인식 실패. 바코드를 <strong style="color:#c99365;">박스 안</strong>에 맞추고 다시 누르세요.';
     
     setTimeout(() => {
       if (!barcodeStream) return;
@@ -2454,7 +2453,7 @@ function runAladinJsonp(query, key, results) {
       scriptTitle.onerror = function() {
         delete window[cbNameTitle];
         scriptTitle.remove();
-        results.innerHTML = `<div class="search-empty">❌ 검색 결과가 없거나 네트워크 오류가 발생했습니다.</div>`;
+        results.innerHTML = `<div class="search-empty">검색 결과가 없거나 네트워크 오류가 발생했습니다.</div>`;
       };
       document.body.appendChild(scriptTitle);
     }
@@ -2463,14 +2462,14 @@ function runAladinJsonp(query, key, results) {
   script.onerror = function() {
     delete window[cbName];
     script.remove();
-    results.innerHTML = `<div class="search-empty">❌ 검색 실패 — 네트워크 상태를 확인해주세요.</div>`;
+    results.innerHTML = `<div class="search-empty">검색 실패 — 네트워크 상태를 확인해주세요.</div>`;
   };
 
   setTimeout(() => {
     if (window[cbName]) {
       delete window[cbName];
       script.remove();
-      results.innerHTML = `<div class="search-empty">⏰ 응답 시간 초과</div>`;
+      results.innerHTML = `<div class="search-empty">응답 시간 초과</div>`;
     }
   }, 10000);
 
@@ -2588,7 +2587,7 @@ function applyAladinItem(item) {
   }
 
   hideSearchResults();
-  toast('✅ 도서 정보가 적용되었습니다');
+  toast('도서 정보가 적용되었습니다');
 
   const identifier = item.itemId || item.isbn13 || item.isbn;
   if (identifier && !cleanPages) {
@@ -2611,7 +2610,7 @@ function fetchDetailedPages(itemId) {
     if (pages) {
       const cleanPages = String(pages).replace(/[^0-9]/g, '');
       document.getElementById('bk-pages').value = cleanPages;
-      toast('✅ 페이지 수 정보를 불러왔습니다 (' + cleanPages + 'p)');
+      toast('페이지 수 정보를 불러왔습니다 (' + cleanPages + 'p)');
     }
   };
 
@@ -2651,7 +2650,7 @@ function fetchDetailedPages(itemId) {
 ============================================== */
 async function openScrapModal(id) {
   if (supabaseClient && !currentUser) {
-    toast('⚠️ 로그인이 필요합니다. 구글 로그인을 진행해주세요.');
+    toast('로그인이 필요합니다. 구글 로그인을 진행해주세요.');
     loginWithGoogle();
     return;
   }
@@ -2659,13 +2658,13 @@ async function openScrapModal(id) {
   const book = books.find(b => b.id === id);
   if (!book) return;
   if ((book.scraps||[]).length >= 100) {
-    toast('❌ 스크랩은 최대 100개까지 가능합니다'); return;
+    toast('스크랩은 최대 100개까지 가능합니다'); return;
   }
   currentScrapBookId = id;
   editingScrapId = null;
 
-  document.getElementById('scrap-modal-title').textContent = '✂️ 문장 스크랩';
-  document.getElementById('scrap-save-btn').textContent = '✂️ 스크랩 추가';
+  document.getElementById('scrap-modal-title').textContent = '문장 스크랩';
+  document.getElementById('scrap-save-btn').textContent = '스크랩 저장';
 
   document.getElementById('sc-text').value = '';
   document.getElementById('sc-page').value = '';
@@ -2697,7 +2696,7 @@ async function saveScrap() {
   if (!book) return;
 
   if (supabaseClient && !currentUser) {
-    toast('⚠️ 로그인이 필요합니다. 먼저 로그인 해주세요.');
+    toast('로그인이 필요합니다. 먼저 로그인 해주세요.');
     return;
   }
   const user = currentUser;
@@ -2713,7 +2712,7 @@ async function saveScrap() {
     memo = document.getElementById('sc-memo-ocr').value.trim();
   }
 
-  if (!text) { toast('❌ 문장을 입력해주세요'); return; }
+  if (!text) { toast('문장을 입력해주세요'); return; }
 
   if (!book.scraps) book.scraps = [];
   
@@ -2726,7 +2725,7 @@ async function saveScrap() {
     );
   } else {
     if (book.scraps.length >= 100) {
-      toast('❌ 스크랩은 최대 100개까지 가능합니다'); return;
+      toast('스크랩은 최대 100개까지 가능합니다'); return;
     }
     updatedScraps = [...book.scraps, { id: uid(), text, page, memo, at: new Date().toISOString() }];
   }
@@ -2744,17 +2743,17 @@ async function saveScrap() {
     book.scraps = updatedScraps;
     saveData();
     closeScrapModal();
-    toast(editingScrapId ? '✏️ 스크랩이 수정되었습니다' : '✂️ 문장이 스크랩되었습니다');
+    toast(editingScrapId ? '스크랩이 수정되었습니다' : '문장이 스크랩되었습니다');
     if (currentBookId === currentScrapBookId) showDetail(currentBookId);
   } catch (err) {
     console.error(err);
-    toast('❌ 스크랩 저장 실패: ' + err.message);
+    toast('스크랩 저장 실패: ' + err.message);
   }
 }
 
 async function doDeleteScrap(bookId, scrapId) {
   if (supabaseClient && !currentUser) {
-    toast('⚠️ 로그인이 필요합니다. 먼저 로그인 해주세요.');
+    toast('로그인이 필요합니다. 먼저 로그인 해주세요.');
     return;
   }
   const user = currentUser;
@@ -2775,11 +2774,11 @@ async function doDeleteScrap(bookId, scrapId) {
 
     book.scraps = updatedScraps;
     saveData();
-    toast('🗑️ 스크랩이 삭제되었습니다');
+    toast('스크랩이 삭제되었습니다');
     showDetail(bookId);
   } catch (err) {
     console.error(err);
-    toast('❌ 스크랩 삭제 실패: ' + err.message);
+    toast('스크랩 삭제 실패: ' + err.message);
   }
 }
 
@@ -2791,7 +2790,7 @@ let ocrLinesData = [];
 function resetOcrWrap() {
   document.getElementById('ocr-wrap').innerHTML = `
     <div class="ocr-ph">
-      <span class="ocr-ph-icon">📷</span>
+      <span class="ocr-ph-icon" style="font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--text-300);">PHOTO OCR</span>
       <span>사진을 업로드하면 자동으로 분석을 시작합니다</span>
       <span style="font-size:10px;">분석된 문장을 탭하여 스크랩에 추가하세요</span>
     </div>`;
@@ -2904,18 +2903,18 @@ async function runOcr(dataUrl) {
     if (scanLine) scanLine.classList.remove('scanning');
     
     if (ocrLinesData.length > 0) {
-      statusEl.innerHTML = '✅ 분석 완료! 사진에서 스크랩할 문장을 직접 선택하세요.';
+      statusEl.innerHTML = '분석 완료. 사진에서 스크랩할 문장을 직접 선택하세요.';
       document.getElementById('ocr-ctrl-btns').style.display = 'flex';
       renderOcrOverlays();
     } else {
-      statusEl.innerHTML = '⚠️ 인식된 텍스트가 없습니다. 다른 사진을 시도하거나 직접 입력해주세요.';
+      statusEl.innerHTML = '인식된 텍스트가 없습니다. 다른 사진을 시도하거나 직접 입력해주세요.';
     }
     
     setTimeout(() => { statusEl.style.display = 'none'; }, 4500);
   } catch(err) {
     console.error(err);
     if (scanLine) scanLine.classList.remove('scanning');
-    statusEl.innerHTML = '❌ 분석 실패. 다시 시도해주세요.';
+    statusEl.innerHTML = '분석 실패. 다시 시도해주세요.';
     setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
   }
 }
@@ -3160,7 +3159,7 @@ function switchChartMode(mode) {
     btnYear.style.color = 'var(--text-300)';
     btnYear.style.border = '1px solid var(--border)';
     
-    title.textContent = '📈 월별 독서량';
+    title.textContent = '월별 독서량';
   } else {
     btnYear.style.background = 'var(--violet)';
     btnYear.style.color = '#fff';
@@ -3170,7 +3169,7 @@ function switchChartMode(mode) {
     btnMonth.style.color = 'var(--text-300)';
     btnMonth.style.border = '1px solid var(--border)';
     
-    title.textContent = '📈 연도별 독서량';
+    title.textContent = '연도별 독서량';
   }
   renderChart();
 }
@@ -3317,7 +3316,7 @@ function handleDetailSwipe() {
   else if (Math.abs(diffY) > 70 && Math.abs(diffY) > Math.abs(diffX)) {
     if (detailEl.scrollTop <= 5) {
       showGallery();
-      toast('📚 내 서재로 이동');
+      toast('내 서재로 이동');
     }
   }
 }
@@ -3340,24 +3339,24 @@ function navigateToAdjacentBook(direction) {
   if (direction === 'next') {
     if (idx < sorted.length - 1) {
       showDetail(sorted[idx + 1].id, 'next');
-      toast('👉 다음 도서');
+      toast('다음 도서');
     } else {
       // Bounce right (bounce back from right edge)
       wrap.classList.remove('bounce-left', 'bounce-right', 'slide-from-left', 'slide-from-right');
       void wrap.offsetWidth; // Force reflow
       wrap.classList.add('bounce-left'); // Pulling left to bounce back from right
-      toast('🚫 마지막 도서입니다');
+      toast('마지막 도서입니다');
     }
   } else if (direction === 'prev') {
     if (idx > 0) {
       showDetail(sorted[idx - 1].id, 'prev');
-      toast('👈 이전 도서');
+      toast('이전 도서');
     } else {
       // Bounce left (bounce back from left edge)
       wrap.classList.remove('bounce-left', 'bounce-right', 'slide-from-left', 'slide-from-right');
       void wrap.offsetWidth; // Force reflow
       wrap.classList.add('bounce-right'); // Pulling right to bounce back from left
-      toast('🚫 첫 번째 도서입니다');
+      toast('첫 번째 도서입니다');
     }
   }
 }
@@ -3460,7 +3459,7 @@ function handleCommunitySwipe() {
   if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
     if (diffX > 0) {
       showGallery();
-      toast('📚 내 서재로 이동');
+      toast('내 서재로 이동');
     } else {
       // Bounce left (dragged left on the rightmost page)
       const wrap = document.querySelector('.community-wrap');
@@ -3469,7 +3468,7 @@ function handleCommunitySwipe() {
         void wrap.offsetWidth;
         wrap.classList.add('bounce-left');
       }
-      toast('🚫 마지막 페이지입니다');
+      toast('마지막 페이지입니다.');
     }
   }
 }
@@ -3505,7 +3504,7 @@ function handleStatsSwipe() {
   if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
     if (diffX < 0) {
       showGallery();
-      toast('📚 내 서재로 이동');
+      toast('내 서재로 이동');
     } else {
       // Bounce right (dragged right on the leftmost page)
       const wrap = document.querySelector('.stats-wrap');
@@ -3514,7 +3513,7 @@ function handleStatsSwipe() {
         void wrap.offsetWidth;
         wrap.classList.add('bounce-right');
       }
-      toast('🚫 첫 번째 페이지입니다');
+      toast('첫 번째 페이지입니다.');
     }
   }
   // Swipe up: Go back to Gallery, Swipe down: Refresh quote
@@ -3522,10 +3521,10 @@ function handleStatsSwipe() {
     if (statsEl.scrollTop <= 5) {
       if (diffY < 0) {
         showGallery();
-        toast('📚 내 서재로 이동');
+        toast('내 서재로 이동');
       } else {
         showRandomQuote();
-        toast('🔄 오늘의 한 문장 새로고침');
+        toast('오늘의 한 문장 새로고침');
       }
     }
   }
@@ -3628,9 +3627,9 @@ loadTheme();
     // Only display error toast if user is actually NOT logged in!
     if (!currentUser) {
       const errorDescription = urlParams.get('error_description') || hashParams.get('error_description') || '알 수 없는 로그인 오류가 발생했습니다.';
-      let userMsg = `⚠️ 로그인 오류: ${errorDescription}`;
+      let userMsg = `로그인 오류: ${errorDescription}`;
       if (errorDescription.includes('state') || authError.includes('state')) {
-        userMsg = `⚠️ 로그인 오류: 브라우저 보안 설정이나 카카오톡/네이버 등의 인앱 브라우저 제한으로 인해 로그인 세션(OAuth State)이 유실되었습니다. 크롬(Chrome)이나 사파리(Safari) 같은 일반 브라우저로 접속해 다시 로그인해주세요.`;
+        userMsg = `로그인 오류: 브라우저 보안 설정이나 카카오톡/네이버 등의 인앱 브라우저 제한으로 인해 로그인 세션(OAuth State)이 유실되었습니다. 크롬(Chrome)이나 사파리(Safari) 같은 일반 브라우저로 접속해 다시 로그인해주세요.`;
       }
       setTimeout(() => {
         toast(userMsg, 8000);
@@ -3672,37 +3671,37 @@ loadTheme();
       author: '8ook 제작팀',
       pages: 10,
       date: new Date().toISOString().slice(0, 10),
-      cover: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%238c6239"/><stop offset="100%" stop-color="%23c97a2b"/></linearGradient></defs><rect width="400" height="600" fill="url(%23g)"/><rect x="20" y="20" width="360" height="560" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" rx="10"/><circle cx="200" cy="180" r="60" fill="rgba(255,255,255,0.15)"/><text x="200" y="195" fill="white" font-size="60" font-weight="bold" text-anchor="middle" font-family="sans-serif">📚</text><text x="200" y="320" fill="white" font-size="28" font-weight="bold" text-anchor="middle" font-family="sans-serif">8ook. 이용 가이드</text><text x="200" y="370" fill="rgba(255,255,255,0.8)" font-size="16" text-anchor="middle" font-family="sans-serif">나만의 스마트한 독서 일기</text><line x1="100" y1="420" x2="300" y2="420" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><text x="200" y="470" fill="white" font-size="14" font-weight="500" text-anchor="middle" font-family="sans-serif">책 기록 • 문장 스크랩 • 독서 통계</text><text x="200" y="530" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle" font-family="sans-serif">© 8ook Team</text></svg>',
+      cover: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%238c6239"/><stop offset="100%" stop-color="%23c97a2b"/></linearGradient></defs><rect width="400" height="600" fill="url(%23g)"/><rect x="20" y="20" width="360" height="560" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" rx="10"/><circle cx="200" cy="180" r="60" fill="rgba(255,255,255,0.15)"/><text x="200" y="195" fill="white" font-size="38" font-weight="700" text-anchor="middle" font-family="serif" font-style="italic">8ook.</text><text x="200" y="320" fill="white" font-size="28" font-weight="bold" text-anchor="middle" font-family="sans-serif">8ook. 이용 가이드</text><text x="200" y="370" fill="rgba(255,255,255,0.8)" font-size="16" text-anchor="middle" font-family="sans-serif">나만의 스마트한 독서 일기</text><line x1="100" y1="420" x2="300" y2="420" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><text x="200" y="470" fill="white" font-size="14" font-weight="500" text-anchor="middle" font-family="sans-serif">책 기록 • 문장 스크랩 • 독서 통계</text><text x="200" y="530" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle" font-family="sans-serif">© 8ook Team</text></svg>',
       rating: 5,
       sentence: '독서 기록, 문장 스크랩, 완독 통계 및 독서 수다 피드까지! 8ook를 100% 활용하는 상세 가이드북입니다.',
       scraps: [
         {
           id: 'g1',
-          text: '🔑 구글 계정으로 로그인하시면 Supabase 클라우드 데이터베이스와 자동으로 연동됩니다. 로그인 시 소중한 독서 기록이 실시간으로 안전하게 동기화 및 보존됩니다.',
+          text: '구글 계정으로 로그인하시면 Supabase 클라우드 데이터베이스와 자동으로 연동됩니다. 로그인 시 소중한 독서 기록이 실시간으로 안전하게 동기화 및 보존됩니다.',
           page: 1,
           memo: '클라우드 동기화 안내'
         },
         {
           id: 'g2',
-          text: '🔍 도서 추가 모달에서 제목으로 검색하여 알라딘 도서 정보를 가져오거나, 모바일 카메라로 바코드를 촬영해보세요. 표지 이미지, 저자, 페이지 수 등 모든 정보가 자동으로 채워집니다.',
+          text: '도서 추가 모달에서 제목으로 검색하여 알라딘 도서 정보를 가져오거나, 모바일 카메라로 바코드를 촬영해보세요. 표지 이미지, 저자, 페이지 수 등 모든 정보가 자동으로 채워집니다.',
           page: 2,
           memo: '간편한 도서 등록 기능'
         },
         {
           id: 'g3',
-          text: '📸 도서 상세 화면에서 스크랩을 추가할 때 "사진 OCR" 탭을 선택하고 책 페이지를 촬영해보세요. 고성능 OCR 엔진이 이미지 속의 한글 및 영어 텍스트를 인식하여 타이핑 없이 터치 한 번으로 문장을 추출해 줍니다.',
+          text: '도서 상세 화면에서 스크랩을 추가할 때 "사진 OCR" 탭을 선택하고 책 페이지를 촬영해보세요. 고성능 OCR 엔진이 이미지 속의 한글 및 영어 텍스트를 인식하여 타이핑 없이 터치 한 번으로 문장을 추출해 줍니다.',
           page: 3,
           memo: 'OCR 문장 스크랩 사용법'
         },
         {
           id: 'g4',
-          text: '📊 상단 "통계" 메뉴를 클릭하면 완독한 도서 수, 총 페이지 수, 총 스크랩 수는 물론 월별/연도별 시각화 차트와 어떤 날에 책을 끝마쳤는지 알려주는 완독 달력을 한눈에 볼 수 있습니다.',
+          text: '상단 "통계" 메뉴를 클릭하면 완독한 도서 수, 총 페이지 수, 총 스크랩 수는 물론 월별/연도별 시각화 차트와 어떤 날에 책을 끝마쳤는지 알려주는 완독 달력을 한눈에 볼 수 있습니다.',
           page: 4,
           memo: '완독 달력 & 독서 통계 대시보드'
         },
         {
           id: 'g5',
-          text: '💬 상단 "커뮤니티" 메뉴에서는 내가 입력한 키워드들이 모여 만드는 관심 분야 워드 클라우드가 제공됩니다. 또한 다른 독자들과 감상을 나누는 실시간 독서 수다 SNS 피드를 통해 소통할 수 있습니다.',
+          text: '상단 "커뮤니티" 메뉴에서는 내가 입력한 키워드들이 모여 만드는 관심 분야 워드 클라우드가 제공됩니다. 또한 다른 독자들과 감상을 나누는 실시간 독서 수다 SNS 피드를 통해 소통할 수 있습니다.',
           page: 5,
           memo: '키워드 클라우드 & 커뮤니티 피드'
         }
@@ -3728,10 +3727,10 @@ loadTheme();
    SUPABASE AUTHENTICATION
 ============================================== */
 async function loginWithGoogle() {
-  if (!supabaseClient) { toast('❌ Supabase가 연결되지 않았습니다'); return; }
+  if (!supabaseClient) { toast('Supabase가 연결되지 않았습니다'); return; }
   
   if (window.location.protocol === 'file:') {
-    alert('⚠️ 구글 로그인은 로컬 파일(file://...) 경로에서는 동작하지 않습니다.\nVS Code의 Live Server 등을 사용해 http://localhost:... 주소로 실행하거나, GitHub Pages에 배포 완료 후 테스트해주세요.');
+    alert('구글 로그인은 로컬 파일(file://...) 경로에서는 동작하지 않습니다.\nVS Code의 Live Server 등을 사용해 http://localhost:... 주소로 실행하거나, GitHub Pages에 배포 완료 후 테스트해주세요.');
     return;
   }
 
@@ -3750,13 +3749,13 @@ async function loginWithGoogle() {
       }
     }
   });
-  if (error) { console.error(error); toast('❌ 로그인 실패'); }
+  if (error) { console.error(error); toast('로그인 실패'); }
 }
 
 async function logout() {
   if (!supabaseClient) return;
   const { error } = await supabaseClient.auth.signOut();
-  if (error) { console.error(error); toast('❌ 로그아웃 실패'); }
+  if (error) { console.error(error); toast('로그아웃 실패'); }
 }
 
 async function checkAuth() {
@@ -3868,7 +3867,7 @@ let communityFeedPosts = [
   {
     id: 'f1',
     username: '지식탐험가',
-    avatar: '🧠',
+    avatar: '지',
     bookTitle: '지적 대화를 위한 넓고 얕은 지식 1',
     bookAuthor: '채사장',
     bookCover: 'https://image.aladin.co.kr/product/22/08/cover500/k282636402_1.jpg',
@@ -3881,7 +3880,7 @@ let communityFeedPosts = [
   {
     id: 'f2',
     username: '문학소녀',
-    avatar: '🌱',
+    avatar: '문',
     bookTitle: '채식주의자',
     bookAuthor: '한강',
     bookCover: 'https://image.aladin.co.kr/product/15/12/cover500/8936434594_1.jpg',
@@ -3894,7 +3893,7 @@ let communityFeedPosts = [
   {
     id: 'f3',
     username: '감성수집가',
-    avatar: '🍂',
+    avatar: '감',
     bookTitle: '아몬드',
     bookAuthor: '손원평',
     bookCover: 'https://image.aladin.co.kr/product/16/96/cover500/8936488635_1.jpg',
@@ -3908,24 +3907,24 @@ let communityFeedPosts = [
 
 const MOCK_COMMUNITY_REVIEWS = {
   'default': [
-    { username: '책벌레99', avatar: '📚', rating: 5, comment: '최근에 읽은 책 중에 가장 흡입력이 있습니다. 강력 추천해요!' },
-    { username: '이서평', avatar: '✍️', rating: 4, comment: '문장들이 마음에 깊이 남습니다. 여운이 깊은 이야기네요.' },
-    { username: '김지혜', avatar: '💡', rating: 4, comment: '생각할 거리를 많이 던져주는 훌륭한 작가의 작품입니다.' }
+    { username: '책벌레99', avatar: '책', rating: 5, comment: '최근에 읽은 책 중에 가장 흡입력이 있습니다. 강력 추천해요!' },
+    { username: '이서평', avatar: '이', rating: 4, comment: '문장들이 마음에 깊이 남습니다. 여운이 깊은 이야기네요.' },
+    { username: '김지혜', avatar: '김', rating: 4, comment: '생각할 거리를 많이 던져주는 훌륭한 작가의 작품입니다.' }
   ],
   '지적 대화를 위한 넓고 얕은 지식 1': [
-    { username: '지식탐험가', avatar: '🧠', rating: 5, comment: '지적 대화를 위해 이보다 명쾌하게 기본 교양을 설명한 책은 없다.' },
-    { username: '채사장팬', avatar: '🎙️', rating: 5, comment: '팟캐스트 듣는 느낌! 심오한 개념들이 한눈에 정리됩니다.' },
-    { username: '교양입문자', avatar: '📖', rating: 4, comment: '역사, 경제, 정치, 사회를 하나의 흐름으로 꿰뚫어줍니다.' }
+    { username: '지식탐험가', avatar: '지', rating: 5, comment: '지적 대화를 위해 이보다 명쾌하게 기본 교양을 설명한 책은 없다.' },
+    { username: '채사장팬', avatar: '채', rating: 5, comment: '팟캐스트 듣는 느낌! 심오한 개념들이 한눈에 정리됩니다.' },
+    { username: '교양입문자', avatar: '교', rating: 4, comment: '역사, 경제, 정치, 사회를 하나의 흐름으로 꿰뚫어줍니다.' }
   ],
   '채식주의자': [
-    { username: '문학소녀', avatar: '🌱', rating: 5, comment: '폭력과 인간의 본성에 대한 서늘한 시선. 부커상이 아깝지 않은 명작.' },
-    { username: '고요한밤', avatar: '🌙', rating: 4, comment: '읽는 내내 숨이 막힐 것 같은 몰입감과 깊은 묘사가 인상적입니다.' },
-    { username: '가시나무', avatar: '🌳', rating: 5, comment: '어떤 상처는 너무 깊어 채식이라는 극단적 침묵으로 뿜어져 나온다.' }
+    { username: '문학소녀', avatar: '문', rating: 5, comment: '폭력과 인간의 본성에 대한 서늘한 시선. 부커상이 아깝지 않은 명작.' },
+    { username: '고요한밤', avatar: '고', rating: 4, comment: '읽는 내내 숨이 막힐 것 같은 몰입감과 깊은 묘사가 인상적입니다.' },
+    { username: '가시나무', avatar: '가', rating: 5, comment: '어떤 상처는 너무 깊어 채식이라는 극단적 침묵으로 뿜어져 나온다.' }
   ],
   '아몬드': [
-    { username: '감성수집가', avatar: '🍂', rating: 5, comment: '감정을 느끼지 못하는 소년의 성장기가 가슴을 찡하게 울립니다.' },
-    { username: '감동리뷰', avatar: '⭐', rating: 5, comment: '타인의 감정에 공감한다는 것이 얼마나 아름답고 중요한지 깨닫게 해줌.' },
-    { username: '도토리', avatar: '🐿️', rating: 4, comment: '청소년 소설이지만 어른들이 꼭 읽어봐야 할 힐링과 성찰의 책.' }
+    { username: '감성수집가', avatar: '감', rating: 5, comment: '감정을 느끼지 못하는 소년의 성장기가 가슴을 찡하게 울립니다.' },
+    { username: '감동리뷰', avatar: '리', rating: 5, comment: '타인의 감정에 공감한다는 것이 얼마나 아름답고 중요한지 깨닫게 해줌.' },
+    { username: '도토리', avatar: '도', rating: 4, comment: '청소년 소설이지만 어른들이 꼭 읽어봐야 할 힐링과 성찰의 책.' }
   ]
 };
 
@@ -3939,7 +3938,7 @@ function showCommunity() {
   const vl = document.getElementById('view-label');
   if (vl) {
     vl.style.display = 'inline-block';
-    vl.textContent = '💬 커뮤니티';
+    vl.textContent = '커뮤니티';
   }
   renderCommunityFeed();
   renderWordCloud();
@@ -3948,13 +3947,13 @@ function showCommunity() {
 function filterGalleryByKeyword(kw) {
   currentGalleryFilter = kw;
   showGallery();
-  toast(`🏷️ '#${kw}' 키워드 검색 결과`);
+  toast(`'#${kw}' 키워드 검색 결과`);
 }
 
 function clearGalleryFilter() {
   currentGalleryFilter = null;
   showGallery();
-  toast('📚 전체 도서 필터 해제');
+  toast('도서 필터가 해제되었습니다.');
 }
 
 function renderWordCloud() {
@@ -3973,7 +3972,7 @@ function renderWordCloud() {
   });
 
   if (allKeywords.length === 0) {
-    container.innerHTML = `<div style="font-size:12px; color:var(--text-400); padding: 20px; text-align:center;">아직 등록된 도서 키워드가 없습니다 ✨<br><small style="font-size:10px; margin-top:4px; display:inline-block;">도서 정보 편집에서 키워드를 등록해보세요!</small></div>`;
+    container.innerHTML = `<div style="font-size:12px; color:var(--text-400); padding: 20px; text-align:center;">아직 등록된 도서 키워드가 없습니다.<br><small style="font-size:10px; margin-top:4px; display:inline-block;">도서 정보 편집에서 키워드를 등록해보세요.</small></div>`;
     return;
   }
 
@@ -4077,7 +4076,7 @@ function renderCommunityFeed() {
         <div class="feed-time">${post.time}</div>
       </div>
       <div class="feed-book-info" onclick="searchAladinByQuery('${esc(post.bookTitle)}')">
-        <img class="feed-book-cover" src="${esc(getSafeImageUrl(post.bookCover))}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2245%22 height=%2265%22><rect width=%22100%%22 height=%22100%%22 fill=%22%2318182e%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2220%22>📚</text></svg>'">
+        <img class="feed-book-cover" src="${esc(getSafeImageUrl(post.bookCover))}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2245%22 height=%2265%22><rect width=%22100%%22 height=%22100%%22 fill=%22%2318182e%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2210%22 fill=%22%23999%22 font-family=%22sans-serif%22>BOOK</text></svg>'">
         <div class="feed-book-detail">
           <div class="feed-book-title">${esc(post.bookTitle)}</div>
           <div class="feed-book-author">${esc(post.bookAuthor)}</div>
@@ -4089,7 +4088,7 @@ function renderCommunityFeed() {
       <div class="feed-review-text">${esc(post.text)}</div>
       <div class="feed-actions">
         <button class="feed-action-btn${post.liked ? ' liked' : ''}" onclick="likeFeedPost('${post.id}', this)">
-          ❤️ <span>공감 (${post.likes})</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-right:2px;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span>공감 (${post.likes})</span>
         </button>
       </div>
     `;
@@ -4137,7 +4136,7 @@ function openAddFeedModal() {
   select.innerHTML = '';
   
   if (books.length === 0) {
-    toast("❌ 책장에 도서가 있어야 소감을 쓸 수 있습니다. 먼저 도서를 등록해주세요.");
+    toast("책장에 도서가 있어야 소감을 쓸 수 있습니다. 먼저 도서를 등록해주세요.");
     return;
   }
 
@@ -4170,7 +4169,7 @@ function updateFeedStarBtns(n) {
 function saveFeedPost() {
   const bkId = document.getElementById('feed-bk-id').value;
   const text = document.getElementById('feed-text').value.trim();
-  if (!text) { toast("❌ 한줄평을 적어주세요!"); return; }
+  if (!text) { toast("한줄평을 입력해주세요."); return; }
 
   const book = books.find(b => b.id === bkId);
   if (!book) return;
@@ -4178,7 +4177,7 @@ function saveFeedPost() {
   const newPost = {
     id: 'feed_' + Date.now(),
     username: document.getElementById('auth-username').textContent || '익명 독자',
-    avatar: '📖',
+    avatar: 'B',
     bookTitle: book.title,
     bookAuthor: book.author || '저자 미상',
     bookCover: book.cover || '',
@@ -4199,7 +4198,7 @@ function saveFeedPost() {
   localStorage.setItem('rj_community_posts', JSON.stringify(stored));
   
   closeModal('feed-modal');
-  toast("✨ 피드가 등록되었습니다!");
+  toast("피드가 등록되었습니다.");
   renderCommunityFeed();
 }
 
@@ -4223,7 +4222,7 @@ function openArScanner() {
     })
     .catch(err => {
       console.warn("Camera access failed:", err);
-      toast("📷 실시간 카메라를 사용할 수 없어 파일 선택 모드로 전환합니다.");
+      toast("실시간 카메라를 사용할 수 없어 파일 선택 모드로 전환합니다.");
       closeModal('ar-scanner-modal');
       
       const fallbackInput = document.createElement('input');
@@ -4428,7 +4427,7 @@ function triggerArScan() {
       await detectAndResolveBooks(dataUrl);
     } catch (e) {
       console.error(e);
-      toast("❌ 표지 테두리 인식 실패");
+      toast("표지 테두리 인식 실패");
     }
   }, 1200);
 }
@@ -4529,7 +4528,7 @@ async function detectAndResolveBooks(dataUrl) {
 
   selectedBookIndex = 0;
   renderDetectedBooks();
-  toast(`✨ 테두리 감지 완료: ${detectedBooks.length}권의 책을 찾았습니다!`);
+  toast(`테두리 감지 완료: ${detectedBooks.length}권의 책을 찾았습니다.`);
 }
 
 function renderDetectedBooks() {
@@ -4574,7 +4573,7 @@ function renderDetectedBooks() {
     labelEl.style.borderRadius = '4px';
     labelEl.style.whiteSpace = 'nowrap';
     labelEl.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-    labelEl.innerHTML = `📘 ${esc(book.title)} ${isSelected ? ' [선택됨]' : ''}`;
+    labelEl.innerHTML = `${esc(book.title)} ${isSelected ? ' [선택됨]' : ''}`;
     boxEl.appendChild(labelEl);
 
     boxEl.onclick = (e) => {
@@ -4632,7 +4631,7 @@ function renderFloatingReviewsNextToBox(item) {
       if (b.sentence) {
         actualReviews.push({
           username: b.author || '독자',
-          avatar: '📖',
+          avatar: 'B',
           rating: b.rating || 5,
           comment: b.sentence
         });
@@ -4687,7 +4686,7 @@ function addArBookToShelf() {
   }
   
   closeArScanner();
-  toast("📚 인식한 도서 정보가 책장 폼에 기입되었습니다.");
+  toast("도서 정보가 책장 폼에 기입되었습니다.");
 }
 
 /* ==============================================
@@ -4784,7 +4783,7 @@ function updateExportSummary() {
 function exportToGoogleSheetsCSV() {
   const exportBooks = getFilteredExportBooks();
   if (!exportBooks || exportBooks.length === 0) {
-    toast('⚠️ 선택한 기간 조건에 해당하는 독서 데이터가 없습니다.');
+    toast('선택한 기간 조건에 해당하는 독서 데이터가 없습니다.');
     return;
   }
 
@@ -4843,6 +4842,6 @@ function exportToGoogleSheetsCSV() {
   }
 
   closeModal('export-modal');
-  toast(`✅ 선택한 기간의 ${exportBooks.length}권 독서 기록 CSV 파일이 다운로드 되었습니다!`);
+  toast(`선택한 기간의 ${exportBooks.length}권 독서 기록이 다운로드되었습니다.`);
 }
 

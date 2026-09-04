@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260904_9">
+  <link rel="stylesheet" href="style.css?v=20260904_10">
 </head>
 <body>
 
@@ -26,7 +26,7 @@
       <button id="back-btn" onclick="showGallery()" style="margin-left: 2px;">
         <span class="btn-text">← 책장</span>
       </button>
-      <span id="view-label" style="display:none;">📚 내 서재</span>
+      <span id="view-label" style="display:none;">내 서재</span>
     </div>
 
     <div class="header-spacer"></div>
@@ -60,7 +60,7 @@
     <div class="menu-user-card">
       <div id="menu-user-logged-in" style="display:none;">
         <div class="menu-user-info">
-          <div class="menu-user-avatar">👤</div>
+          <div class="menu-user-avatar">USER</div>
           <div class="menu-user-details">
             <div id="auth-username" class="menu-user-name"></div>
             <div class="menu-user-sub">동기화 활성화됨</div>
@@ -84,7 +84,7 @@
     <div class="menu-section-title">페이지 이동</div>
     <nav class="menu-nav-list">
       <button class="menu-nav-item" onclick="showGallery(); closeAppMenu();">
-        <span class="menu-nav-icon">📚</span>
+        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">01</span>
         <div class="menu-nav-text">
           <span class="menu-nav-title">내 서재</span>
           <span class="menu-nav-desc">책장 및 서가 전체 둘러보기</span>
@@ -92,7 +92,7 @@
       </button>
 
       <button id="sidebar-toggle" class="menu-nav-item" onclick="showStats(); closeAppMenu();">
-        <span class="menu-nav-icon">📊</span>
+        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">02</span>
         <div class="menu-nav-text">
           <span class="menu-nav-title">독서 통계</span>
           <span class="menu-nav-desc">완독 권수, 페이지 수, 독서 캘린더</span>
@@ -100,7 +100,7 @@
       </button>
 
       <button id="community-nav-btn" class="menu-nav-item" onclick="showCommunity(); closeAppMenu();">
-        <span class="menu-nav-icon">💬</span>
+        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">03</span>
         <div class="menu-nav-text">
           <span class="menu-nav-title">독서 커뮤니티</span>
           <span class="menu-nav-desc">독자 피드 및 한 줄 서평</span>
@@ -112,7 +112,7 @@
     <div class="menu-section-title">도구 및 설정</div>
     <nav class="menu-nav-list">
       <button id="export-sheets-btn" class="menu-nav-item" onclick="openExportModal(); closeAppMenu();">
-        <span class="menu-nav-icon">📑</span>
+        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">04</span>
         <div class="menu-nav-text">
           <span class="menu-nav-title">스프레드시트 내보내기</span>
           <span class="menu-nav-desc">구글 시트(Google Sheets) 백업</span>
@@ -138,7 +138,7 @@
           <!-- Stats Cards -->
           <div>
             <div class="sec-title-wrap" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-              <div class="sec-title" style="margin-bottom:0;">📊 독서 통계</div>
+              <div class="sec-title" style="margin-bottom:0;">독서 통계</div>
               <div class="stats-filter-btns" style="display:flex; gap:4px;">
                 <button id="stats-btn-all" class="btn btn-xs" onclick="switchStatsPeriod('all')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--violet); color:#fff; border:none;">전체</button>
                 <button id="stats-btn-year" class="btn btn-xs" onclick="switchStatsPeriod('year')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--glass); color:var(--text-300); border:1px solid var(--border);">올해</button>
@@ -163,7 +163,7 @@
           <!-- Chart -->
           <div>
             <div class="sec-title-wrap" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-              <div class="sec-title" id="chart-title" style="margin-bottom:0;">📈 월별 독서량</div>
+              <div class="sec-title" id="chart-title" style="margin-bottom:0;">월별 독서량</div>
               <div class="chart-toggle-btns" style="display:flex; gap:4px;">
                 <button id="chart-btn-month" class="btn btn-xs" onclick="switchChartMode('month')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--violet); color:#fff; border:none;">월별</button>
                 <button id="chart-btn-year" class="btn btn-xs" onclick="switchChartMode('year')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--glass); color:var(--text-300); border:1px solid var(--border);">연도별</button>
@@ -175,7 +175,7 @@
         
         <div style="flex: 1; min-width: 280px;">
           <!-- Calendar -->
-          <div class="sec-title">📅 완독 달력</div>
+          <div class="sec-title">완독 달력</div>
           <div class="mini-cal">
             <div class="cal-header">
               <button class="cal-nav" id="cal-prev">‹</button>
@@ -199,33 +199,33 @@
             <span>＋</span>
           </button>
           <div class="search-input-wrapper" style="position: relative; flex: 1;">
-            <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-300); font-size: 13px; pointer-events: none;">🔍</span>
+            <svg style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-300); pointer-events: none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input type="text" id="gallery-search-input" class="fi" placeholder="책 제목, 저자, 키워드 검색..." oninput="handleGallerySearch()" style="padding-left: 36px; padding-right: 36px; border-radius: 20px;" autocomplete="off">
             <button id="gallery-search-clear" onclick="clearGallerySearch()" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-300); cursor: pointer; font-size: 13px; display: none; line-height: 1;">✕</button>
           </div>
         </div>
 
         <div class="view-mode-toggle" style="display: flex; gap: 3px; background: var(--glass); padding: 3px; border-radius: 20px; border: 1px solid var(--border); flex-shrink: 0;">
-          <button id="btn-view-month" class="btn btn-xs" onclick="setGalleryViewMode('spine-month')" title="월별 책장 (3D 서재)" style="padding: 4px 10px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
-            <span class="view-toggle-text-full">📅 월별 책장</span><span class="view-toggle-text-short">📅 월별</span>
+          <button id="btn-view-month" class="btn btn-xs" onclick="setGalleryViewMode('spine-month')" title="월별 책장 (3D 서재)" style="padding: 4px 11px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
+            <span class="view-toggle-text-full">월별 책장</span><span class="view-toggle-text-short">월별</span>
           </button>
-          <button id="btn-view-year" class="btn btn-xs" onclick="setGalleryViewMode('spine-year')" title="연도별 책장 (3D 서재)" style="padding: 4px 10px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
-            <span class="view-toggle-text-full">🗓️ 연도별 책장</span><span class="view-toggle-text-short">🗓️ 연도별</span>
+          <button id="btn-view-year" class="btn btn-xs" onclick="setGalleryViewMode('spine-year')" title="연도별 책장 (3D 서재)" style="padding: 4px 11px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
+            <span class="view-toggle-text-full">연도별 책장</span><span class="view-toggle-text-short">연도별</span>
           </button>
-          <button id="btn-view-stars" class="btn btn-xs" onclick="setGalleryViewMode('stars')" title="별점 5점 인생작 전용 서재" style="padding: 4px 10px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
-            <span class="view-toggle-text-full">⭐ 인생작 책장</span><span class="view-toggle-text-short">⭐ 인생작</span>
+          <button id="btn-view-stars" class="btn btn-xs" onclick="setGalleryViewMode('stars')" title="별점 5점 인생작 전용 서재" style="padding: 4px 11px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
+            <span class="view-toggle-text-full">인생작 책장</span><span class="view-toggle-text-short">인생작</span>
           </button>
-          <button id="btn-view-cover" class="btn btn-xs" onclick="setGalleryViewMode('cover')" title="앞표지 격자로 보기" style="padding: 4px 10px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
-            <span class="view-toggle-text-full">🖼️ 표지 보기</span><span class="view-toggle-text-short">🖼️ 표지</span>
+          <button id="btn-view-cover" class="btn btn-xs" onclick="setGalleryViewMode('cover')" title="앞표지 격자로 보기" style="padding: 4px 11px; font-size: 11px; border-radius: 16px; border: none; cursor: pointer; transition: all 0.2s;">
+            <span class="view-toggle-text-full">표지 보기</span><span class="view-toggle-text-short">표지</span>
           </button>
         </div>
       </div>
 
       <div id="gallery-grid"></div>
       <div id="gallery-empty">
-        <div class="empty-icon">📖</div>
+        <div class="empty-icon" style="font-size:24px; letter-spacing:2px; font-family:'Playfair Display',serif; font-style:italic; color:var(--lavender); font-weight:700; margin-bottom:8px;">8ook.</div>
         <h2 class="empty-h">아직 기록된 책이 없어요</h2>
-        <p class="empty-p">오른쪽 상단의 <strong>+ 책 추가</strong> 버튼으로<br>첫 번째 책을 기록해보세요!</p>
+        <p class="empty-p">상단의 <strong>＋</strong> 버튼으로 첫 번째 책을 기록해보세요.</p>
       </div>
     </div>
     <div id="floating-year-badge"></div>
@@ -246,7 +246,7 @@
       <div class="wordcloud-card" style="background: linear-gradient(135deg, rgba(140,98,57,0.08), rgba(166,124,82,0.08)); border: 1px solid var(--border-accent); border-radius: var(--radius-lg); padding: 24px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow-glow); transition: all 0.3s var(--ease);">
         <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
           <h3 style="font-size: 16px; font-weight: 700; color: var(--text-100); display:flex; align-items:center; gap:8px; margin:0;">
-            <span>🏷️</span> 독서 키워드 클라우드
+            독서 키워드 클라우드
           </h3>
           <span style="font-size:11px; color:var(--text-300);">리뷰에서 추출한 관심 키워드 (클릭하여 검색)</span>
         </div>
@@ -257,8 +257,8 @@
 
       <!-- Feed Header -->
       <div class="feed-hdr" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-top: 10px;">
-        <span style="font-size: 16px; font-weight: 700; color: var(--text-100);">💬 최신 독서 수다 (커뮤니티 피드)</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddFeedModal()" style="border-radius: 12px; padding: 3px 12px; font-size: 11px;">✏️ 수다 나누기</button>
+        <span style="font-size: 16px; font-weight: 700; color: var(--text-100);">독서 수다 피드</span>
+        <button class="btn btn-ghost btn-sm" onclick="openAddFeedModal()" style="border-radius: 12px; padding: 3px 12px; font-size: 11px;">수다 나누기</button>
       </div>
 
       <!-- SNS Feed List -->
@@ -271,7 +271,7 @@
 </main>
 
 <!-- Zoom HUD -->
-<div id="zoom-hud">🔍 <span id="zoom-val">100</span>%</div>
+<div id="zoom-hud"><span id="zoom-val">100</span>%</div>
 
 <!-- Toast -->
 <div id="toast" role="alert"></div>
@@ -280,20 +280,20 @@
 <div class="modal-bg" id="book-modal" role="dialog" aria-modal="true">
   <div class="modal-box">
     <div class="modal-hdr">
-      <div class="modal-ttl" id="book-modal-ttl">📖 책 추가</div>
+      <div class="modal-ttl" id="book-modal-ttl">책 추가</div>
       <button class="modal-x" onclick="closeModal('book-modal')" aria-label="닫기">×</button>
     </div>
     <div class="modal-body">
 
       <!-- Title with search -->
       <div class="fg">
-        <div class="flbl">📕 제목 * — 입력 후 검색하면 알라딘에서 정보를 가져옵니다</div>
+        <div class="flbl">제목 * <span style="font-weight:400; color:var(--text-300); font-size:11px;">— 입력 후 검색하면 도서 정보를 가져옵니다</span></div>
         <div class="search-row">
           <input type="text" class="fi" id="bk-title"
             placeholder="책 제목 입력"
             onkeydown="if(event.key==='Enter'){event.preventDefault();searchAladin();}">
-          <button class="btn btn-ghost btn-sm" onclick="searchAladin()" id="search-btn">🔍 검색</button>
-          <button class="btn btn-ghost btn-sm" onclick="openBarcodeScannerModal()" id="camera-scan-btn" title="바코드 촬영 검색" style="display:flex; align-items:center; gap:4px; padding: 5px 8px;">📷 바코드 스캔</button>
+          <button class="btn btn-ghost btn-sm" onclick="searchAladin()" id="search-btn">검색</button>
+          <button class="btn btn-ghost btn-sm" onclick="openBarcodeScannerModal()" id="camera-scan-btn" title="바코드 촬영 검색" style="display:flex; align-items:center; gap:4px; padding: 5px 10px;">바코드 스캔</button>
         </div>
       </div>
 
@@ -304,20 +304,18 @@
       <div class="modal-flex-row" style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 14px;">
         <!-- Left Column: Front Cover & Spine Image Previews (Integrated Book View) -->
         <div class="book-preview-column">
-          <div class="flbl" style="font-size: 11px; margin-bottom: 4px;">📖 책등 + 앞표지</div>
+          <div class="flbl" style="font-size: 11px; margin-bottom: 4px;">책등 / 앞표지</div>
           <div class="unified-book-prev-container" id="unified-book-prev">
             <!-- Spine Preview (Left) -->
             <div class="unified-spine-box" id="spine-prev" title="책등 미리보기">
               <div class="img-prev-ph spine-ph">
-                <span style="font-size: 14px;">📕</span>
-                <span style="font-size: 9px; writing-mode: vertical-rl;">책등</span>
+                <span style="font-size: 10px; writing-mode: vertical-rl; letter-spacing:1px; color:var(--text-300);">책등</span>
               </div>
             </div>
             <!-- Front Cover Preview (Right) -->
             <div class="unified-cover-box" id="book-prev" title="앞표지 미리보기">
               <div class="img-prev-ph">
-                <span class="img-prev-ph-icon">🖼️</span>
-                <span style="font-size: 10px;">앞표지</span>
+                <span style="font-size: 11px; letter-spacing:0.5px; color:var(--text-300);">앞표지</span>
               </div>
             </div>
           </div>
@@ -327,22 +325,22 @@
         <div style="flex: 1; display: flex; flex-direction: column; gap: 10px; align-self: stretch; justify-content: space-between; min-width: 0;">
           <!-- Author -->
           <div class="fg" style="margin-bottom: 0;">
-            <div class="flbl">✍️ 저자</div>
+            <div class="flbl">저자</div>
             <input type="text" class="fi" id="bk-author" placeholder="저자명">
           </div>
 
           <!-- Pages, Date & Rating -->
           <div class="frow" style="display: flex; gap: 8px; margin-bottom: 0; align-items: flex-end; flex-wrap: wrap;">
             <div class="fg" style="flex: 1; min-width: 70px; margin-bottom: 0;">
-              <div class="flbl">📄 페이지수</div>
+              <div class="flbl">페이지수</div>
               <input type="number" class="fi" id="bk-pages" placeholder="0" min="0">
             </div>
             <div class="fg" style="flex: 1; min-width: 110px; margin-bottom: 0;">
-              <div class="flbl">📅 완독일</div>
+              <div class="flbl">완독일</div>
               <input type="date" id="bk-date" class="fi bk-date-inp">
             </div>
             <div class="fg" style="flex: 1; min-width: 110px; margin-bottom: 0;">
-              <div class="flbl">⭐ 별점</div>
+              <div class="flbl">별점</div>
               <div class="star-row" id="star-inp" style="height: 38px; display: flex; align-items: center; justify-content: flex-start; gap: 2px;">
                 <button class="star-btn-inp" data-v="1" onclick="setRating(1)" aria-label="별점 1" type="button">☆</button>
                 <button class="star-btn-inp" data-v="2" onclick="setRating(2)" aria-label="별점 2" type="button">☆</button>
@@ -363,14 +361,14 @@
 
       <!-- Personal sentence -->
       <div class="fg">
-        <div class="flbl">💬 나만의 한 문장</div>
+        <div class="flbl">나만의 한 문장</div>
         <textarea class="fi" id="bk-sentence"
           placeholder="이 책을 한 문장으로 표현한다면..." rows="2"></textarea>
       </div>
 
       <!-- Keywords -->
       <div class="fg" style="margin-bottom:4px;">
-        <div class="flbl">🏷️ 키워드 <span style="color:var(--text-400); font-weight:400;">(최대 3개)</span></div>
+        <div class="flbl">키워드 <span style="color:var(--text-400); font-weight:400;">(최대 3개)</span></div>
         <div id="bk-keyword-wrap" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:2px;">
           <label class="kw-input-wrap">
             <span class="kw-hash">#</span>
@@ -403,30 +401,30 @@
 <div class="modal-bg" id="scrap-modal" role="dialog" aria-modal="true">
   <div class="modal-box modal-lg">
     <div class="modal-hdr">
-      <div class="modal-ttl" id="scrap-modal-title">✂️ 문장 스크랩</div>
+      <div class="modal-ttl" id="scrap-modal-title">문장 스크랩</div>
       <button class="modal-x" onclick="closeScrapModal()" aria-label="닫기">×</button>
     </div>
     <div class="modal-body">
 
       <div class="scrap-tabs">
-        <button class="stab on" id="stab-manual" onclick="switchTab('manual')">✏️ 직접 입력</button>
-        <button class="stab" id="stab-photo" onclick="switchTab('photo')">📷 사진 OCR</button>
+        <button class="stab on" id="stab-manual" onclick="switchTab('manual')">직접 입력</button>
+        <button class="stab" id="stab-photo" onclick="switchTab('photo')">사진 OCR</button>
       </div>
 
       <!-- Manual Tab -->
       <div class="stab-body on" id="sbody-manual">
         <div class="fg">
-          <div class="flbl">💬 스크랩할 문장</div>
+          <div class="flbl">스크랩할 문장</div>
           <textarea class="fi" id="sc-text"
             placeholder="기억하고 싶은 문장을 입력하세요..." rows="6"></textarea>
         </div>
         <div class="frow">
           <div class="fg">
-            <div class="flbl">📄 페이지</div>
+            <div class="flbl">페이지</div>
             <input type="number" class="fi" id="sc-page" placeholder="페이지 번호">
           </div>
           <div class="fg">
-            <div class="flbl">📝 메모</div>
+            <div class="flbl">메모</div>
             <input type="text" class="fi" id="sc-memo" placeholder="개인 메모 (선택)">
           </div>
         </div>
@@ -435,12 +433,12 @@
       <!-- Photo Tab -->
       <div class="stab-body" id="sbody-photo">
         <div class="fg">
-          <div class="flbl">📷 책 사진 업로드</div>
+          <div class="flbl">책 사진 업로드</div>
           <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap;">
             <input type="file" id="ocr-file" accept="image/*"
               style="display:none" onchange="loadOcrImg(this)">
             <button class="btn btn-ghost" onclick="document.getElementById('ocr-file').click()">
-              📂 이미지 선택
+              이미지 선택
             </button>
             <span id="ocr-fname" style="font-size:11px;color:var(--text-400);flex:1;min-width:100px;">선택된 파일 없음</span>
             
@@ -462,7 +460,7 @@
           </div>
           <div class="ocr-wrap" id="ocr-wrap">
             <div class="ocr-ph">
-              <span class="ocr-ph-icon">📷</span>
+              <span style="font-size: 13px; font-weight: 600; color: var(--lavender); letter-spacing: 0.5px;">OCR SCAN</span>
               <span>사진을 업로드하면 자동으로 분석을 시작합니다</span>
               <span style="font-size:10px;">분석된 문장을 탭하여 스크랩에 추가하세요</span>
             </div>
@@ -476,11 +474,11 @@
         </div>
         <div class="frow">
           <div class="fg">
-            <div class="flbl">📄 페이지</div>
+            <div class="flbl">페이지</div>
             <input type="number" class="fi" id="sc-page-ocr" placeholder="페이지 번호">
           </div>
           <div class="fg">
-            <div class="flbl">📝 메모</div>
+            <div class="flbl">메모</div>
             <input type="text" class="fi" id="sc-memo-ocr" placeholder="개인 메모 (선택)">
           </div>
         </div>
@@ -489,7 +487,7 @@
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeScrapModal()">취소</button>
-      <button class="btn btn-primary" id="scrap-save-btn" onclick="saveScrap()">✂️ 스크랩 추가</button>
+      <button class="btn btn-primary" id="scrap-save-btn" onclick="saveScrap()">스크랩 저장</button>
     </div>
   </div>
 </div>
@@ -498,7 +496,7 @@
 <div class="modal-bg" id="db-modal" role="dialog" aria-modal="true">
   <div class="modal-box modal-lg">
     <div class="modal-hdr">
-      <div class="modal-ttl">⚙️ Supabase 테이블 설정 안내</div>
+      <div class="modal-ttl">Supabase 테이블 설정 안내</div>
       <button class="modal-x" onclick="closeModal('db-modal')" aria-label="닫기">×</button>
     </div>
     <div class="modal-body">
@@ -512,7 +510,7 @@
       </div>
     </div>
     <div class="modal-foot">
-      <button class="btn btn-primary" onclick="copySqlCode()">📋 SQL 복사하기</button>
+      <button class="btn btn-primary" onclick="copySqlCode()">SQL 복사하기</button>
       <button class="btn btn-ghost" onclick="closeModal('db-modal')">닫기</button>
     </div>
   </div>
@@ -571,9 +569,9 @@
       <!-- Close -->
       <button onclick="closeBarcodeScannerModal()" style="width:44px; height:44px; border-radius:50%; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
       <!-- Manual capture fallback -->
-      <button id="barcode-capture-btn" onclick="triggerBarcodeCapture()" style="width:64px; height:64px; border-radius:50%; background:var(--grad-main); border:3px solid #fff; color:#fff; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(140,98,57,0.6);" title="촬영">📷</button>
+      <button id="barcode-capture-btn" onclick="triggerBarcodeCapture()" style="width:64px; height:64px; border-radius:50%; background:var(--grad-main); border:3px solid #fff; color:#fff; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(140,98,57,0.6);" title="촬영"><span style="display:inline-block; width:22px; height:22px; border-radius:50%; border:2px solid #fff;"></span></button>
       <!-- Switch camera -->
-      <button onclick="switchBarcodeCamera()" style="width:44px; height:44px; border-radius:50%; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="카메라 전환">🔄</button>
+      <button onclick="switchBarcodeCamera()" style="width:44px; height:44px; border-radius:50%; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="카메라 전환">전환</button>
     </div>
   </div>
 </div>
@@ -583,16 +581,16 @@
 <div class="modal-bg" id="feed-modal" role="dialog" aria-modal="true" style="z-index: 2000;">
   <div class="modal-box">
     <div class="modal-hdr">
-      <div class="modal-ttl">✏️ 독서 수다 남기기</div>
+      <div class="modal-ttl">독서 수다 남기기</div>
       <button class="modal-x" onclick="closeModal('feed-modal')" aria-label="닫기">×</button>
     </div>
     <div class="modal-body">
       <div class="fg">
-        <div class="flbl">📕 이야기할 도서 선택 *</div>
+        <div class="flbl">이야기할 도서 선택 *</div>
         <select class="fi" id="feed-bk-id" style="padding: 9px 12px; font-size: 13px;"></select>
       </div>
       <div class="fg">
-        <div class="flbl">⭐ 별점</div>
+        <div class="flbl">별점</div>
         <div class="star-row" id="feed-star-inp">
           <button class="star-btn-inp" data-v="1" onclick="setFeedRating(1)">☆</button>
           <button class="star-btn-inp" data-v="2" onclick="setFeedRating(2)">☆</button>
@@ -602,7 +600,7 @@
         </div>
       </div>
       <div class="fg">
-        <div class="flbl">💬 한줄평 및 생각 나누기 *</div>
+        <div class="flbl">한줄평 및 생각 나누기 *</div>
         <textarea class="fi" id="feed-text" placeholder="이 책에 대해 나누고 싶은 한줄평이나 감상을 적어주세요..." rows="4"></textarea>
       </div>
     </div>
@@ -620,7 +618,7 @@
 <div class="modal-bg" id="export-modal" role="dialog" aria-modal="true" style="z-index: 2000;">
   <div class="modal-box" style="max-width: 480px;">
     <div class="modal-hdr">
-      <div class="modal-ttl">📊 구글 스프레드시트 내보내기</div>
+      <div class="modal-ttl">스프레드시트 내보내기</div>
       <button class="modal-x" onclick="closeModal('export-modal')" aria-label="닫기">×</button>
     </div>
     <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
@@ -629,7 +627,7 @@
       </p>
 
       <div class="fg" style="margin-bottom:0;">
-        <div class="flbl">📅 내보낼 기간 설정</div>
+        <div class="flbl">내보낼 기간 설정</div>
         <select class="fi" id="export-period-select" onchange="handleExportPeriodChange()" style="padding: 9px 12px; font-size: 13px; margin-bottom: 8px;">
           <option value="all" selected>전체 기간</option>
           <option value="year">올해 (2026년)</option>
@@ -646,7 +644,7 @@
 
       <div style="background:var(--glass); border:1px solid var(--border); border-radius:var(--radius-md); padding:14px; display:flex; flex-direction:column; gap:10px;">
         <div style="font-size:12px; font-weight:700; color:var(--text-100); display:flex; align-items:center; gap:6px;">
-          <span>💡</span> Google Sheets에서 여는 방법
+          Google Sheets 안내
         </div>
         <ol style="margin:0; padding-left:18px; font-size:12px; color:var(--text-300); line-height:1.6;">
           <li>아래 <strong>CSV 다운로드</strong> 버튼을 눌러 파일 저장</li>
@@ -662,7 +660,7 @@
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('export-modal')">취소</button>
       <button class="btn btn-primary" onclick="exportToGoogleSheetsCSV()" style="background:linear-gradient(135deg, #10b981, #059669); border:none;">
-        📥 CSV 다운로드
+        CSV 다운로드
       </button>
     </div>
   </div>
@@ -675,6 +673,6 @@
 <!-- ZXing Barcode Decoder -->
 <script src="https://unpkg.com/@zxing/library@0.21.0/umd/index.min.js"></script>
 
-  <script src="app.js?v=20260904_9" defer></script>
+  <script src="app.js?v=20260904_12" defer></script>
 </body>
 </html>
