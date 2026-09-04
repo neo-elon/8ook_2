@@ -440,7 +440,10 @@ function renderGallery() {
         <strong>별점 5점 인생작 책장</strong>
         <span style="font-size:11px; color:var(--amber); background:rgba(245,158,11,0.18); padding:2px 8px; border-radius:10px; font-weight:700;">★ 5점 컬렉션</span>
       </span>
-      <button class="btn btn-ghost btn-xs" onclick="setGalleryViewMode('spine')" style="font-size:11px; color:var(--text-300); cursor:pointer; height:24px; padding:0 8px;">전체 책장 보기 ✕</button>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <button class="shelf-download-btn" onclick="downloadStarsShelfImage()" title="인생작 책장 이미지로 저장" style="background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.35); color:var(--amber); font-weight:600;">📷 이미지 저장</button>
+        <button class="btn btn-ghost btn-xs" onclick="setGalleryViewMode('spine')" style="font-size:11px; color:var(--text-300); cursor:pointer; height:24px; padding:0 8px;">전체 책장 보기 ✕</button>
+      </div>
     `;
     grid.appendChild(starsBanner);
   }
@@ -574,6 +577,9 @@ function renderGallery() {
           <span>📅 ${monthLabel}</span>
           <span class="shelf-year-count">${booksInMonth.length}권</span>
         </div>
+        <button class="shelf-download-btn" onclick="downloadMonthShelfImage('${esc(ymKey)}', '${esc(monthLabel)}')" title="${esc(monthLabel)} 책장 이미지로 저장" aria-label="책장 이미지 저장">
+          <span>📷 이미지 저장</span>
+        </button>
         <div class="shelf-year-line"></div>
       `;
       monthSection.appendChild(header);
@@ -616,6 +622,321 @@ function handleQuickAddBook() {
     return;
   }
   openAddModal();
+}
+
+async function downloadMonthShelfImage(ymKey, monthLabel) {
+  let targetBooks = [];
+  if (ymKey === '기타') {
+    targetBooks = books.filter(b => {
+      if (!b.date) return true;
+      const d = new Date(b.date);
+      return isNaN(d.getFullYear()) || isNaN(d.getMonth());
+    });
+  } else {
+    targetBooks = books.filter(b => {
+      if (!b.date) return false;
+      const d = new Date(b.date);
+      const y = d.getFullYear();
+      const m = d.getMonth() + 1;
+      if (isNaN(y) || isNaN(m)) return false;
+      return `${y}-${String(m).padStart(2, '0')}` === ymKey;
+    });
+  }
+
+  targetBooks.sort((a, b) => {
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return new Date(b.date) - new Date(a.date);
+  });
+
+  if (!targetBooks.length) {
+    toast('⚠️ 저장할 도서가 없습니다.');
+    return;
+  }
+
+  const subtitle = `총 ${targetBooks.length}권 완독 · ${targetBooks.reduce((sum, b) => sum + (parseInt(b.pages, 10) || 0), 0)}페이지`;
+  await generateShelfImage(targetBooks, `${monthLabel} 독서 서재`, subtitle, `8ook_${monthLabel.replace(/[^\w가-힣]/g, '_')}_책장`);
+}
+
+async function downloadStarsShelfImage() {
+  const targetBooks = books.filter(b => b.rating === 5);
+  targetBooks.sort((a, b) => {
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return new Date(b.date) - new Date(a.date);
+  });
+
+  if (!targetBooks.length) {
+    toast('⚠️ 저장할 인생작 도서가 없습니다.');
+    return;
+  }
+
+  const subtitle = `나만의 인생작 (★ 5점 컬렉션) · 총 ${targetBooks.length}권 완독`;
+  await generateShelfImage(targetBooks, '인생작 명예의 전당 (8ook Collection)', subtitle, '8ook_인생작_책장');
+}
+
+async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
+  toast('📸 책장 이미지를 생성하는 중입니다...');
+
+  try {
+    const bookH = 351;
+    const dpr = 2;
+
+    // 1. 책등 이미지 사전 로드 및 너비 계산
+    const loadedItems = await Promise.all(targetBooks.map(book => {
+      const spineImgUrl = book.spineCover || book.spine || getSpineImageUrl(book.cover);
+      if (!spineImgUrl) {
+        return Promise.resolve({ book, img: null, width: getSpineWidth(book.pages) });
+      }
+
+      return new Promise(resolve => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        let proxyUrl = spineImgUrl;
+        if (!spineImgUrl.startsWith('data:') && !spineImgUrl.startsWith('blob:')) {
+          proxyUrl = 'https://wsrv.nl/?url=' + encodeURIComponent(spineImgUrl);
+        }
+
+        const onDone = (loadedImg) => {
+          if (loadedImg && loadedImg.naturalWidth && loadedImg.naturalHeight) {
+            const aspect = loadedImg.naturalWidth / loadedImg.naturalHeight;
+            let w = Math.round(aspect * bookH);
+            w = Math.max(26, Math.min(95, w));
+            resolve({ book, img: loadedImg, width: w });
+          } else {
+            resolve({ book, img: null, width: getSpineWidth(book.pages) });
+          }
+        };
+
+        img.onload = () => onDone(img);
+        img.onerror = () => {
+          const fallbackImg = new Image();
+          fallbackImg.crossOrigin = 'anonymous';
+          fallbackImg.onload = () => onDone(fallbackImg);
+          fallbackImg.onerror = () => onDone(null);
+          fallbackImg.src = spineImgUrl;
+        };
+        img.src = proxyUrl;
+      });
+    }));
+
+    // 2. 캔버스 규격 계산
+    const gap = 3;
+    const totalBooksW = loadedItems.reduce((acc, item) => acc + item.width, 0) + (loadedItems.length - 1) * gap;
+    const paddingX = 40;
+    const headerH = 95;
+    const footerH = 55;
+    const canvasW = Math.max(680, totalBooksW + paddingX * 2);
+    const canvasH = headerH + bookH + footerH;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = canvasW * dpr;
+    canvas.height = canvasH * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    // 3. 배경 그리기
+    const bgGrad = ctx.createLinearGradient(0, 0, canvasW, canvasH);
+    bgGrad.addColorStop(0, '#11111a');
+    bgGrad.addColorStop(0.5, '#181827');
+    bgGrad.addColorStop(1, '#0e0e16');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, canvasW, canvasH);
+
+    const glow = ctx.createRadialGradient(canvasW / 2, 0, 10, canvasW / 2, 0, canvasW * 0.7);
+    glow.addColorStop(0, 'rgba(124, 58, 237, 0.12)');
+    glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, canvasW, canvasH);
+
+    // 4. 상단 헤더
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 20px "Noto Sans KR", -apple-system, sans-serif';
+    ctx.fillText(shelfTitle, paddingX, 42);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '500 12px "Noto Sans KR", -apple-system, sans-serif';
+    ctx.fillText(subtitle, paddingX, 66);
+
+    ctx.font = '800 22px "Noto Sans KR", -apple-system, sans-serif';
+    const logoGrad = ctx.createLinearGradient(canvasW - paddingX - 65, 0, canvasW - paddingX, 0);
+    logoGrad.addColorStop(0, '#a855f7');
+    logoGrad.addColorStop(1, '#6366f1');
+    ctx.fillStyle = logoGrad;
+    ctx.textAlign = 'right';
+    ctx.fillText('8ook.', canvasW - paddingX, 48);
+    ctx.textAlign = 'left';
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.09)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(paddingX, headerH - 8);
+    ctx.lineTo(canvasW - paddingX, headerH - 8);
+    ctx.stroke();
+
+    // 5. 책등 렌더링
+    let curX = paddingX + (canvasW - paddingX * 2 - totalBooksW) / 2;
+    const startY = headerH + 6;
+
+    loadedItems.forEach(item => {
+      const { book, img, width: w } = item;
+
+      const drawCardPath = () => {
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(curX, startY, w, bookH, [2, 2, 0, 0]);
+        } else {
+          ctx.rect(curX, startY, w, bookH);
+        }
+      };
+
+      if (img) {
+        ctx.save();
+        drawCardPath();
+        ctx.clip();
+        ctx.drawImage(img, curX, startY, w, bookH);
+
+        const shadeGrad = ctx.createLinearGradient(curX, 0, curX + w, 0);
+        shadeGrad.addColorStop(0, 'rgba(0, 0, 0, 0.18)');
+        shadeGrad.addColorStop(0.2, 'rgba(255, 255, 255, 0.08)');
+        shadeGrad.addColorStop(0.8, 'rgba(0, 0, 0, 0.02)');
+        shadeGrad.addColorStop(1, 'rgba(0, 0, 0, 0.32)');
+        ctx.fillStyle = shadeGrad;
+        ctx.fillRect(curX, startY, w, bookH);
+        ctx.restore();
+      } else {
+        const theme = getSpineTheme(book);
+        ctx.save();
+        drawCardPath();
+        ctx.clip();
+
+        ctx.fillStyle = theme.bg || '#1e1e2d';
+        ctx.fillRect(curX, startY, w, bookH);
+
+        ctx.fillStyle = theme.tagBg || '#8b5cf6';
+        ctx.fillRect(curX + (w - 24) / 2, startY + 2, 24, 15);
+        ctx.fillStyle = theme.tagText || '#ffffff';
+        ctx.font = 'bold 8px "Noto Sans KR", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('8ook', curX + w / 2, startY + 13);
+
+        const title = book.title || '';
+        let titleFontSize = 13;
+        let lineSpacing = 16;
+        if (title.length > 15) {
+          titleFontSize = 10.5;
+          lineSpacing = 13;
+        } else if (title.length > 10) {
+          titleFontSize = 11.5;
+          lineSpacing = 14.5;
+        }
+
+        ctx.fillStyle = theme.text || '#ffffff';
+        ctx.font = `bold ${titleFontSize}px "Noto Serif KR", Batang, serif`;
+        ctx.textAlign = 'center';
+
+        let textY = startY + 28;
+        const maxTextY = startY + 250;
+        for (let c = 0; c < title.length; c++) {
+          if (textY > maxTextY) {
+            ctx.fillText('…', curX + w / 2, textY);
+            break;
+          }
+          ctx.fillText(title[c], curX + w / 2, textY);
+          textY += lineSpacing;
+        }
+
+        const author = book.author || '';
+        if (author) {
+          ctx.fillStyle = theme.authorColor || 'rgba(255,255,255,0.6)';
+          ctx.font = '10px "Noto Serif KR", Batang, serif';
+          let authorY = startY + 270;
+          ctx.fillText('✻', curX + w / 2, authorY);
+          authorY += 12;
+          for (let c = 0; c < Math.min(author.length, 5); c++) {
+            ctx.fillText(author[c], curX + w / 2, authorY);
+            authorY += 12;
+          }
+        }
+
+        ctx.strokeStyle = theme.text || '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(curX + w / 2, startY + bookH - 24, 6, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = theme.text || '#ffffff';
+        ctx.font = 'bold 8px "Noto Serif KR", serif';
+        ctx.fillText('8ook', curX + w / 2, startY + bookH - 8);
+
+        const spineShade = ctx.createLinearGradient(curX, 0, curX + w, 0);
+        spineShade.addColorStop(0, 'rgba(255,255,255,0.12)');
+        spineShade.addColorStop(0.5, 'rgba(0,0,0,0)');
+        spineShade.addColorStop(1, 'rgba(0,0,0,0.3)');
+        ctx.fillStyle = spineShade;
+        ctx.fillRect(curX, startY, w, bookH);
+
+        ctx.restore();
+      }
+
+      if (book.rating === 5) {
+        ctx.save();
+        const starX = curX + w / 2;
+        const starY = startY + 15;
+        const starR = 9;
+
+        const starGrad = ctx.createRadialGradient(starX - 2, starY - 2, 1, starX, starY, starR);
+        starGrad.addColorStop(0, '#fbbf24');
+        starGrad.addColorStop(1, '#b45309');
+        ctx.fillStyle = starGrad;
+        ctx.beginPath();
+        ctx.arc(starX, starY, starR, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#fef08a';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('★', starX, starY + 0.5);
+        ctx.textBaseline = 'alphabetic';
+        ctx.restore();
+      }
+
+      curX += w + gap;
+    });
+
+    // 6. 하단 푸터 워터마크
+    ctx.fillStyle = '#64748b';
+    ctx.font = '500 11px "Noto Sans KR", -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('나만의 작은 온라인 서재 · 8ook', canvasW / 2, canvasH - 22);
+    ctx.textAlign = 'left';
+
+    // 7. PNG 다운로드 실행
+    canvas.toBlob(blob => {
+      if (!blob) {
+        toast('❌ 이미지 변환에 실패했습니다.');
+        return;
+      }
+      const blobUrl = URL.createObjectURL(blob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = blobUrl;
+      downloadLink.download = `${filename}.png`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(blobUrl);
+      toast(`🎉 ${shelfTitle} 이미지가 저장되었습니다!`);
+    }, 'image/png');
+
+  } catch (err) {
+    console.error('Failed to generate shelf image:', err);
+    toast('❌ 책장 이미지 생성 중 오류가 발생했습니다.');
+  }
 }
 
 function createMonthDivider(month) {
