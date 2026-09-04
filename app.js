@@ -58,6 +58,26 @@ try {
   console.error("Supabase initialization failed:", e);
 }
 
+// Database schema detection flag
+let dbSupportsSpineCover = false;
+
+function sanitizeBookForSupabase(bookObj) {
+  const allowed = [
+    'id', 'user_id', 'title', 'author', 'pages', 'date',
+    'sentence', 'cover', 'rating', 'scraps', 'keywords', 'created_at'
+  ];
+  if (dbSupportsSpineCover) {
+    allowed.push('spineCover');
+  }
+  const clean = {};
+  for (const k of allowed) {
+    if (bookObj && bookObj[k] !== undefined) {
+      clean[k] = bookObj[k];
+    }
+  }
+  return clean;
+}
+
 const DB_SQL_SCRIPT = `create table if not exists books (
   id text primary key,
   title text not null,
@@ -179,6 +199,9 @@ async function loadData() {
     }
 
     const remoteBooks = data || [];
+    if (remoteBooks.length > 0 && 'spineCover' in remoteBooks[0]) {
+      dbSupportsSpineCover = true;
+    }
 
     // Migration: If Supabase is empty but we have local guest books, upload them to Supabase
     const guestBooksStr = localStorage.getItem('rj_books');
@@ -200,16 +223,10 @@ async function loadData() {
       });
       console.log('DEBUG: currentUser.id =', currentUser?.id);
       console.log('DEBUG: booksToUpload =', JSON.stringify(booksToUpload.map(b => ({ id: b.id, title: b.title, user_id: b.user_id })), null, 2));
+      const payloadToUpload = booksToUpload.map(b => sanitizeBookForSupabase(b));
       let { error: syncError } = await supabaseClient
         .from('books')
-        .upsert(booksToUpload, { onConflict: 'id' });
-      if (syncError && (syncError.code === 'PGRST204' || String(syncError.message).includes('spineCover'))) {
-        const safeBooksToUpload = booksToUpload.map(({ spineCover, ...rest }) => rest);
-        const res = await supabaseClient
-          .from('books')
-          .upsert(safeBooksToUpload, { onConflict: 'id' });
-        syncError = res.error;
-      }
+        .upsert(payloadToUpload, { onConflict: 'id' });
       if (!syncError) {
         books = booksToUpload;
         toast('기존 로컬 책장 데이터를 Supabase에 동기화했습니다.');
@@ -993,30 +1010,8 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
     ctx.fillText(countText, countX, titleY);
     const countMetrics = ctx.measureText(countText);
 
-    // 다운로드 화살표 아이콘 (스크린샷 형태 재현)
-    const iconX = countX + countMetrics.width + 14;
-    const iconY = titleY;
-    ctx.strokeStyle = '#a8a29e';
-    ctx.lineWidth = 1.6;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    ctx.beginPath();
-    // 화살표
-    ctx.moveTo(iconX, iconY - 5);
-    ctx.lineTo(iconX, iconY + 2);
-    ctx.moveTo(iconX - 3, iconY - 1);
-    ctx.lineTo(iconX, iconY + 2);
-    ctx.lineTo(iconX + 3, iconY - 1);
-    // 트레이 받침
-    ctx.moveTo(iconX - 5, iconY + 3);
-    ctx.lineTo(iconX - 5, iconY + 6);
-    ctx.lineTo(iconX + 5, iconY + 6);
-    ctx.lineTo(iconX + 5, iconY + 3);
-    ctx.stroke();
-
-    // 우측 페이드아웃 구분선
-    const lineStartX = iconX + 14;
+    // 우측 페이드아웃 구분선 (아이콘 제외)
+    const lineStartX = countX + countMetrics.width + 16;
     const lineEndX = S - paddingX;
     if (lineEndX > lineStartX) {
       const lineGrad = ctx.createLinearGradient(lineStartX, 0, lineEndX, 0);
@@ -1803,14 +1798,16 @@ async function saveBook() {
         const updatedBook = { ...books[idx], ...data };
         if (supabaseClient && user) {
           updatedBook.user_id = user.id;
+          const payload = sanitizeBookForSupabase(updatedBook);
           let { error } = await supabaseClient
             .from('books')
-            .update(updatedBook)
+            .update(payload)
             .eq('id', editingBookId)
             .eq('user_id', user.id);
 
           if (error && (error.code === 'PGRST204' || String(error.message).includes('spineCover'))) {
-            const { spineCover, ...safeBook } = updatedBook;
+            dbSupportsSpineCover = false;
+            const safeBook = sanitizeBookForSupabase(updatedBook);
             const res = await supabaseClient
               .from('books')
               .update(safeBook)
@@ -1829,12 +1826,14 @@ async function saveBook() {
       data.created_at = new Date().toISOString();
       if (supabaseClient && user) {
         data.user_id = user.id;
+        const payload = sanitizeBookForSupabase(data);
         let { error } = await supabaseClient
           .from('books')
-          .insert([data]);
+          .insert([payload]);
 
         if (error && (error.code === 'PGRST204' || String(error.message).includes('spineCover'))) {
-          const { spineCover, ...safeData } = data;
+          dbSupportsSpineCover = false;
+          const safeData = sanitizeBookForSupabase(data);
           const res = await supabaseClient
             .from('books')
             .insert([safeData]);
