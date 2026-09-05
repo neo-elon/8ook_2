@@ -1256,9 +1256,17 @@ function createBookCardElement(book, i, isSpineMode) {
   const sentence = book.sentence
     ? `<div class="ov-sentence">${esc(book.sentence)}</div>` : '';
   const kingStarBadge = book.rating === 5
-    ? `<div class="king-star-badge" title="인생작 (별점 5점)">★</div>` : '';
-  const spineGoldStar = book.rating === 5
-    ? `<div class="spine-gold-star" title="인생작 (별점 5점)">★</div>` : '';
+    ? `<div class="king-star-badge wax-seal-badge" title="인생작 (별점 5점)">
+        <div class="wax-seal-core">
+          <span class="wax-seal-num">5</span><span class="wax-seal-star">★</span>
+        </div>
+      </div>` : '';
+  const spineWaxSeal = book.rating === 5
+    ? `<div class="spine-wax-seal" title="인생작 (별점 5점)">
+        <div class="wax-seal-core">
+          <span class="wax-seal-num">5</span><span class="wax-seal-star">★</span>
+        </div>
+      </div>` : '';
 
   if (isSpineMode) {
     const spineW = getSpineWidth(book.pages);
@@ -1308,7 +1316,7 @@ function createBookCardElement(book, i, isSpineMode) {
               <span class="publisher-name" style="color: ${theme.text} !important;">8ook</span>
             </div>
           </div>
-          ${spineGoldStar}
+          ${spineWaxSeal}
         </div>
         <div class="cover-face">
           ${imgPart}
