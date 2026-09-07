@@ -1241,7 +1241,13 @@ function createMonthDivider(month) {
 function createBookCardElement(book, i, isSpineMode) {
   const card = document.createElement('div');
   card.className = `book-card${isSpineMode ? ' spine-mode' : ''}${book.rating === 5 ? ' five-stars' : ''}`;
-  card.style.animationDelay = ((i + 1) * 0.03) + 's';
+  if (isSpineMode) {
+    card.style.animation = 'none';
+    card.style.animationDelay = '0s';
+  } else {
+    // 일반 갤러리 모드에서도 최대 0.2초까지만 가볍게 순차 적용
+    card.style.animationDelay = (Math.min(i, 8) * 0.025) + 's';
+  }
   card.setAttribute('data-id', book.id);
   const hasPages = Boolean(book.pages && parseInt(book.pages, 10) > 0);
   card.setAttribute('data-has-pages', hasPages ? 'true' : 'false');
