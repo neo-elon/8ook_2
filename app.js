@@ -6223,9 +6223,12 @@ async function loadNeoBooks131(mode = 'merge') {
 
   try {
     showStatus('131권의 도서 데이터를 불러오는 중...');
-    const res = await fetch('./neo_books_131.json');
-    if (!res.ok) throw new Error('neo_books_131.json 파일을 찾을 수 없습니다.');
-    const neoBooks = await res.json();
+    let neoBooks = window.NEO_BOOKS_131;
+    if (!neoBooks || !Array.isArray(neoBooks) || neoBooks.length === 0) {
+      const res = await fetch('./neo_books_131.json');
+      if (!res.ok) throw new Error('neo_books_131.json 파일을 찾을 수 없습니다.');
+      neoBooks = await res.json();
+    }
 
     if (!Array.isArray(neoBooks) || neoBooks.length === 0) {
       throw new Error('도서 데이터가 비어 있습니다.');
