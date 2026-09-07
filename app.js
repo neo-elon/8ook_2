@@ -239,10 +239,13 @@ async function loadData() {
     } else {
       books = remoteBooks;
     }
+    books.forEach(b => cleanBookScraps(b));
     saveData();
   } catch (e) {
     console.error('Supabase load error, using local storage backup:', e);
     books = localBooks;
+    books.forEach(b => cleanBookScraps(b));
+    saveData();
   }
 }
 function showDbSetupModal() {
@@ -1400,6 +1403,33 @@ function createBookCardElement(book, i, isSpineMode) {
   return card;
 }
 
+function cleanBookScraps(book) {
+  if (!book || !book.scraps || !Array.isArray(book.scraps) || book.scraps.length === 0) return;
+  const initialLen = book.scraps.length;
+  const targetSentence = (book.sentence || '').trim().toLowerCase();
+
+  book.scraps = book.scraps.filter(s => {
+    const sText = (s.text || '').trim().toLowerCase();
+    // 1. 나만의 한 문장(sentence)과 동일한 문장은 스크랩에서 제거
+    if (targetSentence && (sText === targetSentence || sText.replace(/\s+/g, '') === targetSentence.replace(/\s+/g, ''))) {
+      return false;
+    }
+    // 2. One Message / One Action / 원메시지 / 원액션 / 후기링크 관련 메모 및 태그인 경우 제거
+    const memo = (s.memo || '').toLowerCase();
+    const tags = (s.tags || []).map(t => String(t).toLowerCase());
+    if (memo.includes('one message') || memo.includes('원메시지') ||
+        memo.includes('one action') || memo.includes('원액션') || memo.includes('독서후기 원문') || memo.includes('후기 원문')) {
+      return false;
+    }
+    if (tags.some(t => t.includes('onemessage') || t.includes('oneaction') || t.includes('후기링크') || t.includes('원메시지') || t.includes('원액션'))) {
+      return false;
+    }
+    return true;
+  });
+
+  return book.scraps.length !== initialLen;
+}
+
 /* ==============================================
    DETAIL VIEW
 ============================================== */
@@ -1407,6 +1437,7 @@ function showDetail(id, direction = null) {
   const book = books.find(b => b.id === id);
   if (!book) return;
   currentBookId = id;
+  cleanBookScraps(book);
 
   const wrap = document.getElementById('detail-wrap');
   wrap.classList.remove('slide-from-left', 'slide-from-right', 'bounce-left', 'bounce-right');
@@ -1489,6 +1520,7 @@ function showDetail(id, direction = null) {
 }
 
 function buildScrapsHtml(book) {
+  cleanBookScraps(book);
   if (!book.scraps || !book.scraps.length) return '';
   const sortedScraps = [...book.scraps].sort((a, b) => (a.page || 0) - (b.page || 0));
 
@@ -2309,7 +2341,7 @@ async function handleCameraScan(input) {
             input.value = '';
             return;
           }
-        } catch (_) {}
+        } catch (_) { }
       }
 
       if (results) {
@@ -3549,7 +3581,7 @@ function getRecommendedHashtags(text, book) {
       .split(/\s+/)
       .map(w => w.trim())
       .filter(w => w.length >= 2 && w.length <= 5);
-    
+
     const wordFreq = {};
     words.forEach(w => {
       if (/^(그리고|하지만|그러나|또한|때문에|그래서|그것은|우리는|나는|너는|그는|그녀는|어떤|모든|매우|가장|너무|다시|그렇게|이것|저것)$/.test(w)) return;
