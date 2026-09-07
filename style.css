@@ -2699,38 +2699,8 @@
 }
 
 /* ==============================================
-   HEADER SCRAPS BUTTON
+   HEADER ACTION BUTTONS
 ============================================== */
-.header-scraps-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--glass);
-  border: 1px solid var(--border);
-  color: var(--text-200);
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s var(--ease);
-  white-space: nowrap;
-}
-.header-scraps-btn:hover {
-  background: rgba(140, 98, 57, 0.14);
-  border-color: var(--violet);
-  color: var(--violet);
-  transform: translateY(-1px);
-}
-@media (max-width: 640px) {
-  .header-scraps-text {
-    display: none;
-  }
-  .header-scraps-btn {
-    padding: 6px 9px;
-  }
-}
-
 /* Header Google Login G Button */
 .header-google-login-btn {
   width: 36px;
