@@ -6291,8 +6291,8 @@ async function loadNeoBooks131(mode = 'merge') {
     renderGallery();
 
     const modeText = mode === 'replace' ? '새로 교체' : '추가';
-    showStatus(`🎉 네오일론 131권 서재가 성공적으로 ${modeText}되었습니다!`, false);
-    toast(`네오일론 131권 서재가 성공적으로 ${modeText}되었습니다!`, 3500);
+    showStatus(`🎉 ${targetBooks.length}권의 서재가 성공적으로 ${modeText}되었습니다!`, false);
+    toast(`네오일론 서재 ${targetBooks.length}권이 성공적으로 ${modeText}되었습니다!`, 3500);
 
     setTimeout(() => {
       closeModal('import-modal');
