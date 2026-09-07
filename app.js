@@ -3902,14 +3902,12 @@ function renderScrapsArchive() {
     filtered = filtered.filter(item => {
       const textMatch = item.scrap.text && item.scrap.text.toLowerCase().includes(q);
       const memoMatch = item.scrap.memo && item.scrap.memo.toLowerCase().includes(q);
-      const bookMatch = item.book.title && item.book.title.toLowerCase().includes(q);
-      const authorMatch = item.book.author && item.book.author.toLowerCase().includes(q);
       const tags = item.scrap.tags || item.scrap.keywords || [];
       const tagMatch = tags.some(t => {
         const lowerT = t.toLowerCase();
         return lowerT.includes(cleanQ) || ('#' + lowerT).includes(q);
       });
-      return textMatch || memoMatch || bookMatch || authorMatch || tagMatch;
+      return textMatch || memoMatch || tagMatch;
     });
   }
 
@@ -3974,9 +3972,9 @@ function renderScrapsArchive() {
         <div class="scrap-card-header">
           ${coverHtml}
           <div class="scrap-card-meta">
-            <div class="scrap-card-title" onclick="showDetail('${book.id}')" title="도서 상세 보기">${highlight(book.title)}</div>
+            <div class="scrap-card-title" onclick="showDetail('${book.id}')" title="도서 상세 보기">${esc(book.title)}</div>
             <div class="scrap-card-sub">
-              <span>${highlight(book.author || '저자 미상')}</span>
+              <span>${esc(book.author || '저자 미상')}</span>
               ${scrap.page ? `<span>• p.${scrap.page}</span>` : ''}
               ${scrap.at ? `<span>• ${fmtDate(scrap.at.slice(0, 10))}</span>` : ''}
             </div>
