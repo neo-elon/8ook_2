@@ -3439,6 +3439,19 @@ function fetchDetailedPages(itemId) {
 let currentScrapTags = [];
 let currentScrapFilterTag = null;
 let currentScrapSearchQuery = '';
+let scrapsShuffleOrder = {};
+
+function getScrapRandomOrder(scrapId) {
+  if (scrapsShuffleOrder[scrapId] === undefined) {
+    scrapsShuffleOrder[scrapId] = Math.random();
+  }
+  return scrapsShuffleOrder[scrapId];
+}
+
+function reshuffleScraps() {
+  scrapsShuffleOrder = {};
+  renderScrapsArchive();
+}
 
 const SCRAP_THEME_RULES = [
   { tag: '위로', words: ['위로', '지친', '힘든', '상처', '토닥', '괜찮아', '눈물', '아픔', '치유', '견디', '쓰러', '안식', '평온'] },
@@ -3787,6 +3800,7 @@ function showScraps(filterTag = null, searchQuery = '') {
 
   currentScrapFilterTag = filterTag ? filterTag.replace(/^#/, '').trim() : null;
   currentScrapSearchQuery = searchQuery ? searchQuery.trim() : '';
+  scrapsShuffleOrder = {}; // Always randomize order when entering scraps archive view
 
   const searchInput = document.getElementById('scraps-archive-search-input');
   if (searchInput) {
@@ -3911,12 +3925,8 @@ function renderScrapsArchive() {
     });
   }
 
-  // Sort newest first
-  filtered.sort((a, b) => {
-    const dateA = a.scrap.at ? new Date(a.scrap.at).getTime() : 0;
-    const dateB = b.scrap.at ? new Date(b.scrap.at).getTime() : 0;
-    return dateB - dateA;
-  });
+  // Sort entirely in random order
+  filtered.sort((a, b) => getScrapRandomOrder(a.scrap.id) - getScrapRandomOrder(b.scrap.id));
 
   if (filtered.length === 0) {
     listEl.innerHTML = '';

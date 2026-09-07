@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260907_05">
+  <link rel="stylesheet" href="style.css?v=20260907_06">
 </head>
 <body>
 
@@ -301,9 +301,15 @@
           <h2 class="scraps-archive-title">문장 스크랩 &amp; 해시태그 검색</h2>
           <p class="scraps-archive-desc">책에서 발견한 소중한 문장들을 문장 본문과 해시태그로 손쉽게 검색하고 모아보세요.</p>
         </div>
-        <div class="scraps-stats-counter" id="scraps-total-count-badge">
-          <span class="scraps-counter-num" id="scraps-total-count">0</span>
-          <span class="scraps-counter-label">개의 문장</span>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="reshuffleScraps()" title="문장 순서 랜덤 섞기" style="border-radius:var(--radius-sm); font-size:11px; padding:6px 11px; height:42px; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+            <span>랜덤 섞기</span>
+          </button>
+          <div class="scraps-stats-counter" id="scraps-total-count-badge">
+            <span class="scraps-counter-num" id="scraps-total-count">0</span>
+            <span class="scraps-counter-label">개의 문장</span>
+          </div>
         </div>
       </div>
 
