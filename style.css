@@ -2731,6 +2731,39 @@
   }
 }
 
+/* Header Google Login G Button */
+.header-google-login-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--glass);
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  padding: 0;
+  box-sizing: border-box;
+}
+.header-google-login-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(66, 133, 244, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.25);
+}
+.header-google-login-btn:active {
+  transform: translateY(0);
+}
+@media (max-width: 768px) {
+  .header-google-login-btn {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+  }
+}
+
 /* ==============================================
    SCRAP MODAL HASHTAGS & RECOMMENDATIONS
 ============================================== */

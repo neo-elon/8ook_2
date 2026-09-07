@@ -5117,6 +5117,7 @@ function updateAuthUI(session) {
   const usernameSpan = document.getElementById('auth-username');
   const shortUsernameSpan = document.getElementById('auth-username-short');
   const headerChip = document.getElementById('header-user-chip');
+  const googleLoginBtn = document.getElementById('header-google-login-btn');
 
   if (session && session.user) {
     currentUser = session.user;
@@ -5127,12 +5128,14 @@ function updateAuthUI(session) {
     if (usernameSpan) usernameSpan.textContent = fullName;
     if (shortUsernameSpan) shortUsernameSpan.textContent = fullName.split(' ')[0] || fullName;
     if (headerChip) headerChip.style.display = 'inline-flex';
+    if (googleLoginBtn) googleLoginBtn.style.display = 'none';
   } else {
     currentUser = null;
     if (loggedInDiv) loggedInDiv.style.display = 'none';
     if (loggedOutDiv) loggedOutDiv.style.display = 'block';
     if (usernameSpan) usernameSpan.textContent = '';
     if (headerChip) headerChip.style.display = 'none';
+    if (googleLoginBtn) googleLoginBtn.style.display = 'inline-flex';
   }
 }
 
