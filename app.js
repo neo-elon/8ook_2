@@ -554,7 +554,13 @@ function renderGallery() {
       const authorMatch = b.author && b.author.toLowerCase().includes(searchQuery);
       const keywordMatch = b.keywords && b.keywords.some(k => k.toLowerCase().includes(searchQuery));
       const sentenceMatch = b.sentence && b.sentence.toLowerCase().includes(searchQuery);
-      return titleMatch || authorMatch || keywordMatch || sentenceMatch;
+      const scrapMatch = b.scraps && b.scraps.some(s => {
+        const textMatch = s.text && s.text.toLowerCase().includes(searchQuery);
+        const memoMatch = s.memo && s.memo.toLowerCase().includes(searchQuery);
+        const tagMatch = (s.tags || s.keywords || []).some(t => t.toLowerCase().includes(searchQuery) || ('#' + t.toLowerCase()).includes(searchQuery));
+        return textMatch || memoMatch || tagMatch;
+      });
+      return titleMatch || authorMatch || keywordMatch || sentenceMatch || scrapMatch;
     });
   }
 
@@ -1462,6 +1468,8 @@ function showDetail(id, direction = null) {
   document.getElementById('view-gallery').style.display = 'none';
   document.getElementById('view-stats').classList.remove('show');
   document.getElementById('view-community').classList.remove('show');
+  const scrapsView = document.getElementById('view-scraps');
+  if (scrapsView) scrapsView.classList.remove('show');
   document.getElementById('view-detail').classList.add('show');
   const backBtn = document.getElementById('back-btn');
   if (backBtn) {
@@ -1478,19 +1486,28 @@ function buildScrapsHtml(book) {
   if (!book.scraps || !book.scraps.length) return '';
   const sortedScraps = [...book.scraps].sort((a, b) => (a.page || 0) - (b.page || 0));
 
-  return sortedScraps.map(s => `
+  return sortedScraps.map(s => {
+    const tags = s.tags || s.keywords || [];
+    const tagsHtml = tags.length
+      ? `<div class="scrap-tags-row" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">
+           ${tags.map(t => `<span class="scrap-tag-chip" onclick="showScraps('${esc(t)}')" title="#${esc(t)} 해시태그 문장 모아보기">#${esc(t)}</span>`).join('')}
+         </div>`
+      : '';
+    return `
     <div class="scrap-item" id="sc-${s.id}">
       <div class="scrap-quote">${esc(s.text)}</div>
-      <div class="scrap-foot" style="display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; width:100%;">
+      ${tagsHtml}
+      <div class="scrap-foot" style="display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; width:100%; margin-top:4px;">
         ${s.page ? `<span class="scrap-page">p.${s.page}</span>` : ''}
         ${s.memo ? `<span class="scrap-memo">— ${esc(s.memo)}</span>` : ''}
         <div class="scrap-actions" style="margin-left:auto; display:flex; gap:6px;">
+          <button class="btn btn-ghost btn-sm" onclick="copyScrapQuoteText('${esc(s.text.replace(/'/g, "\\'"))}', '${esc(book.title.replace(/'/g, "\\'"))}', '${esc((book.author || '').replace(/'/g, "\\'"))}')" style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;" title="문장 복사">복사</button>
           <button class="btn btn-ghost btn-sm" onclick="editScrap('${book.id}','${s.id}')" style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;">수정</button>
           <button class="btn btn-danger btn-sm" onclick="doDeleteScrap('${book.id}','${s.id}')" style="padding:2px 6px; font-size:10px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:22px; line-height:1;">삭제</button>
         </div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 async function editScrap(bookId, scrapId) {
@@ -1515,6 +1532,9 @@ async function editScrap(bookId, scrapId) {
   document.getElementById('sc-page-ocr').value = scrap.page || '';
   document.getElementById('sc-memo-ocr').value = scrap.memo || '';
 
+  currentScrapTags = (scrap.tags || scrap.keywords || []).slice();
+  renderScrapModalTags();
+
   document.getElementById('scrap-modal-title').textContent = '스크랩 수정';
   document.getElementById('scrap-save-btn').textContent = '스크랩 저장';
 
@@ -1529,6 +1549,8 @@ function showGallery() {
   document.getElementById('view-detail').classList.remove('show');
   document.getElementById('view-stats').classList.remove('show');
   document.getElementById('view-community').classList.remove('show');
+  const scrapsView = document.getElementById('view-scraps');
+  if (scrapsView) scrapsView.classList.remove('show');
   const backBtn = document.getElementById('back-btn');
   if (backBtn) {
     backBtn.classList.remove('show');
@@ -1569,6 +1591,8 @@ function showStats() {
   document.getElementById('view-detail').classList.remove('show');
   document.getElementById('view-stats').classList.add('show');
   document.getElementById('view-community').classList.remove('show');
+  const scrapsView = document.getElementById('view-scraps');
+  if (scrapsView) scrapsView.classList.remove('show');
   document.getElementById('back-btn').classList.add('show');
   const searchGroup = document.getElementById('header-search-group');
   if (searchGroup) searchGroup.style.display = 'none';
@@ -3410,8 +3434,175 @@ function fetchDetailedPages(itemId) {
 
 
 /* ==============================================
-   SCRAP MODAL
+   SCRAP MODAL & HASHTAGS ARCHIVE
 ============================================== */
+let currentScrapTags = [];
+let currentScrapFilterTag = null;
+let currentScrapSearchQuery = '';
+
+const SCRAP_THEME_RULES = [
+  { tag: '위로', words: ['위로', '지친', '힘든', '상처', '토닥', '괜찮아', '눈물', '아픔', '치유', '견디', '쓰러', '안식', '평온'] },
+  { tag: '인생', words: ['인생', '삶', '살아', '생애', '존재', '세상', '운명', '세월', '어른', '여정'] },
+  { tag: '사랑', words: ['사랑', '연인', '그리움', '설렘', '좋아하', '애정', '가슴', '다정', '연애', '품', '온기'] },
+  { tag: '이별', words: ['이별', '헤어', '떠나', '상실', '빈자리', '그리워', '슬픔', '추억', '안녕', '마지막'] },
+  { tag: '성장', words: ['성장', '배움', '노력', '도전', '변화', '발전', '스스로', '성숙', '나아가', '실패', '극복'] },
+  { tag: '마음', words: ['마음', '심장', '감정', '진심', '내면', '마음속', '기분', '의식', '시선'] },
+  { tag: '시간', words: ['시간', '순간', '영원', '과거', '미래', '현재', '오늘', '어제', '찰나', '기억', '시절'] },
+  { tag: '행복', words: ['행복', '기쁨', '미소', '웃음', '따뜻', '환희', '소소한', '감사', '평화', '만족'] },
+  { tag: '용기', words: ['용기', '두려움', '결심', '당당', '망설', '포기', '시작', '한걸음', '자신감', '의지'] },
+  { tag: '자유', words: ['자유', '얽매', '해방', '날개', '구속', '선택', '독립', '홀로', '벗어나'] },
+  { tag: '관계', words: ['관계', '사람', '친구', '타인', '인간', '인연', '이해', '배려', '공감', '대화'] },
+  { tag: '고독', words: ['고독', '외로움', '혼자', '침묵', '고요', '쓸쓸', '혼자만'] },
+  { tag: '불안', words: ['불안', '걱정', '고민', '방황', '흔들', '불확실', '혼란', '초조', '두려운'] },
+  { tag: '희망', words: ['희망', '빛', '꿈', '내일', '바람', '기대', '피어나', '별', '새벽'] },
+  { tag: '습관', words: ['습관', '루틴', '매일', '반복', '기록', '태도', '실천', '몰입', '집중'] },
+  { tag: '독서', words: ['독서', '책', '문장', '글', '단어', '사유', '생각', '언어', '작가', '페이지'] },
+  { tag: '지혜', words: ['지혜', '철학', '깨달음', '진리', '통찰', '본질', '깊이', '배움', '가치'] },
+  { tag: '성공', words: ['성공', '목표', '성취', '열정', '동기', '결과', '실행', '승리', '도약'] },
+  { tag: '죽음', words: ['죽음', '유한', '소멸', '끝', '생명', '유한함', '필멸'] },
+  { tag: '명언', words: ['명언', '격언', '교훈', '잠언', '좌우명', '한줄'] }
+];
+
+function renderScrapModalTags() {
+  const container = document.getElementById('scrap-tag-pills-list');
+  const countLabel = document.getElementById('scrap-tags-count-label');
+  if (countLabel) {
+    countLabel.textContent = `${currentScrapTags.length}개 등록됨`;
+  }
+  if (!container) return;
+
+  container.innerHTML = currentScrapTags.map(tag => `
+    <span class="scrap-tag-pill">
+      #${esc(tag)}
+      <button type="button" class="scrap-tag-pill-del" onclick="removeScrapTag('${esc(tag)}')" aria-label="삭제">×</button>
+    </span>
+  `).join('');
+
+  updateRecommendedHashtags();
+}
+
+function addScrapTag(tag) {
+  if (!tag) return;
+  const cleanTag = tag.trim().replace(/^#+/, '').replace(/\s+/g, '').replace(/[,\'\"`]/g, '');
+  if (!cleanTag) return;
+  if (currentScrapTags.length >= 10) {
+    toast('해시태그는 최대 10개까지 추가할 수 있습니다');
+    return;
+  }
+  if (!currentScrapTags.includes(cleanTag)) {
+    currentScrapTags.push(cleanTag);
+    renderScrapModalTags();
+  }
+  const input = document.getElementById('sc-tag-input');
+  if (input) input.value = '';
+}
+
+function removeScrapTag(tag) {
+  currentScrapTags = currentScrapTags.filter(t => t !== tag);
+  renderScrapModalTags();
+}
+
+function handleScrapTagKeydown(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = e.target.value;
+    if (val) addScrapTag(val);
+  } else if (e.key === 'Backspace' && !e.target.value && currentScrapTags.length > 0) {
+    currentScrapTags.pop();
+    renderScrapModalTags();
+  }
+}
+
+function getRecommendedHashtags(text, book) {
+  const recommendations = new Set();
+  const currentText = (text || '').trim();
+
+  // 1. Theme dictionary matching
+  if (currentText) {
+    SCRAP_THEME_RULES.forEach(rule => {
+      if (rule.words.some(w => currentText.includes(w))) {
+        recommendations.add(rule.tag);
+      }
+    });
+
+    // 2. Extract salient words (2~5 characters)
+    const words = currentText.replace(/[^\w가-힣\s]/g, ' ')
+      .split(/\s+/)
+      .map(w => w.trim())
+      .filter(w => w.length >= 2 && w.length <= 5);
+    
+    const wordFreq = {};
+    words.forEach(w => {
+      if (/^(그리고|하지만|그러나|또한|때문에|그래서|그것은|우리는|나는|너는|그는|그녀는|어떤|모든|매우|가장|너무|다시|그렇게|이것|저것)$/.test(w)) return;
+      wordFreq[w] = (wordFreq[w] || 0) + 1;
+    });
+
+    Object.entries(wordFreq)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .forEach(([w]) => recommendations.add(w));
+  }
+
+  // 3. Current book keywords
+  if (book && book.keywords && Array.isArray(book.keywords)) {
+    book.keywords.forEach(k => {
+      if (k && k.trim()) recommendations.add(k.trim());
+    });
+  }
+
+  // 4. User's top scrap tags from library
+  const userTagFreq = {};
+  books.forEach(b => {
+    (b.scraps || []).forEach(s => {
+      const tags = s.tags || s.keywords || [];
+      tags.forEach(t => {
+        if (t) userTagFreq[t] = (userTagFreq[t] || 0) + 1;
+      });
+    });
+  });
+
+  Object.entries(userTagFreq)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .forEach(([t]) => recommendations.add(t));
+
+  // Fallbacks
+  ['위로', '인생', '성장', '사랑', '명언', '사유'].forEach(defTag => {
+    recommendations.add(defTag);
+  });
+
+  return Array.from(recommendations)
+    .filter(tag => !currentScrapTags.includes(tag))
+    .slice(0, 7);
+}
+
+let recDebounceTimer = null;
+function updateRecommendedHashtags() {
+  clearTimeout(recDebounceTimer);
+  recDebounceTimer = setTimeout(() => {
+    const textEl = currentScrapTab === 'manual'
+      ? document.getElementById('sc-text')
+      : document.getElementById('ocr-result');
+    const text = textEl ? textEl.value : '';
+    const book = books.find(b => b.id === currentScrapBookId);
+    const recs = getRecommendedHashtags(text, book);
+
+    const chipsContainer = document.getElementById('scrap-rec-chips-list');
+    if (!chipsContainer) return;
+
+    if (recs.length === 0) {
+      chipsContainer.innerHTML = `<span style="font-size:11px; color:var(--text-400);">추천할 새로운 해시태그가 없습니다.</span>`;
+      return;
+    }
+
+    chipsContainer.innerHTML = recs.map(tag => `
+      <button type="button" class="scrap-rec-chip" onclick="addScrapTag('${esc(tag)}')" title="#${esc(tag)} 추가">
+        <span class="rec-plus">+</span> #${esc(tag)}
+      </button>
+    `).join('');
+  }, 100);
+}
+
 async function openScrapModal(id) {
   if (supabaseClient && !currentUser) {
     toast('로그인이 필요합니다. 구글 로그인을 진행해주세요.');
@@ -3438,6 +3629,10 @@ async function openScrapModal(id) {
   document.getElementById('sc-memo-ocr').value = '';
   document.getElementById('ocr-status').style.display = 'none';
   document.getElementById('ocr-fname').textContent = '선택된 파일 없음';
+
+  currentScrapTags = [];
+  renderScrapModalTags();
+
   resetOcrWrap();
   switchTab('manual');
   openModal('scrap-modal');
@@ -3453,6 +3648,7 @@ function switchTab(tab) {
     document.getElementById('stab-' + t).classList.toggle('on', t === tab);
     document.getElementById('sbody-' + t).classList.toggle('on', t === tab);
   });
+  updateRecommendedHashtags();
 }
 
 async function saveScrap() {
@@ -3480,18 +3676,20 @@ async function saveScrap() {
 
   if (!book.scraps) book.scraps = [];
 
+  const tags = currentScrapTags.slice();
+
   let updatedScraps;
   if (editingScrapId) {
     updatedScraps = book.scraps.map(s =>
       s.id === editingScrapId
-        ? { ...s, text, page, memo, at: new Date().toISOString() }
+        ? { ...s, text, page, memo, tags, at: new Date().toISOString() }
         : s
     );
   } else {
     if (book.scraps.length >= 100) {
       toast('스크랩은 최대 100개까지 가능합니다'); return;
     }
-    updatedScraps = [...book.scraps, { id: uid(), text, page, memo, at: new Date().toISOString() }];
+    updatedScraps = [...book.scraps, { id: uid(), text, page, memo, tags, at: new Date().toISOString() }];
   }
 
   try {
@@ -3508,7 +3706,13 @@ async function saveScrap() {
     saveData();
     closeScrapModal();
     toast(editingScrapId ? '스크랩이 수정되었습니다' : '문장이 스크랩되었습니다');
-    if (currentBookId === currentScrapBookId) showDetail(currentBookId);
+    if (currentBookId === currentScrapBookId && document.getElementById('view-detail').classList.contains('show')) {
+      showDetail(currentBookId);
+    }
+    const scrapsView = document.getElementById('view-scraps');
+    if (scrapsView && scrapsView.classList.contains('show')) {
+      renderScrapsArchive();
+    }
   } catch (err) {
     console.error(err);
     toast('스크랩 저장 실패: ' + err.message);
@@ -3539,11 +3743,308 @@ async function doDeleteScrap(bookId, scrapId) {
     book.scraps = updatedScraps;
     saveData();
     toast('스크랩이 삭제되었습니다');
-    showDetail(bookId);
+    if (currentBookId === bookId && document.getElementById('view-detail').classList.contains('show')) {
+      showDetail(bookId);
+    }
+    const scrapsView = document.getElementById('view-scraps');
+    if (scrapsView && scrapsView.classList.contains('show')) {
+      renderScrapsArchive();
+    }
   } catch (err) {
     console.error(err);
     toast('스크랩 삭제 실패: ' + err.message);
   }
+}
+
+/* ==============================================
+   SCRAPS ARCHIVE & SEARCH VIEW
+============================================== */
+function showScraps(filterTag = null, searchQuery = '') {
+  document.body.classList.remove('page-detail');
+  closeAppMenu();
+  document.getElementById('view-gallery').style.display = 'none';
+  document.getElementById('view-detail').classList.remove('show');
+  document.getElementById('view-stats').classList.remove('show');
+  document.getElementById('view-community').classList.remove('show');
+
+  const scrapsView = document.getElementById('view-scraps');
+  if (scrapsView) scrapsView.classList.add('show');
+
+  const backBtn = document.getElementById('back-btn');
+  if (backBtn) {
+    backBtn.style.display = 'inline-flex';
+    backBtn.classList.add('show');
+  }
+
+  const searchGroup = document.getElementById('header-search-group');
+  if (searchGroup) searchGroup.style.display = 'none';
+
+  const vl = document.getElementById('view-label');
+  if (vl) {
+    vl.style.display = 'inline-block';
+    vl.textContent = '문장 보관함';
+  }
+
+  currentScrapFilterTag = filterTag ? filterTag.replace(/^#/, '').trim() : null;
+  currentScrapSearchQuery = searchQuery ? searchQuery.trim() : '';
+
+  const searchInput = document.getElementById('scraps-archive-search-input');
+  if (searchInput) {
+    searchInput.value = currentScrapSearchQuery;
+  }
+  const clearBtn = document.getElementById('scraps-archive-search-clear');
+  if (clearBtn) {
+    clearBtn.style.display = currentScrapSearchQuery ? 'flex' : 'none';
+  }
+
+  renderScrapsArchive();
+}
+
+function handleScrapArchiveSearch() {
+  const input = document.getElementById('scraps-archive-search-input');
+  currentScrapSearchQuery = (input ? input.value : '').trim();
+  const clearBtn = document.getElementById('scraps-archive-search-clear');
+  if (clearBtn) {
+    clearBtn.style.display = currentScrapSearchQuery ? 'flex' : 'none';
+  }
+  renderScrapsArchive();
+}
+
+function clearScrapArchiveSearch() {
+  const input = document.getElementById('scraps-archive-search-input');
+  if (input) {
+    input.value = '';
+    input.focus();
+  }
+  currentScrapSearchQuery = '';
+  const clearBtn = document.getElementById('scraps-archive-search-clear');
+  if (clearBtn) clearBtn.style.display = 'none';
+  renderScrapsArchive();
+}
+
+function filterScrapsByTag(tag) {
+  const cleanTag = tag ? tag.replace(/^#/, '').trim() : null;
+  if (currentScrapFilterTag === cleanTag) {
+    currentScrapFilterTag = null;
+  } else {
+    currentScrapFilterTag = cleanTag;
+  }
+  renderScrapsArchive();
+}
+
+function renderScrapsArchive() {
+  const listEl = document.getElementById('scraps-archive-list');
+  const emptyEl = document.getElementById('scraps-empty-state');
+  const totalCountEl = document.getElementById('scraps-total-count');
+  const tagsContainer = document.getElementById('scraps-hashtags-chips');
+  const activeIndicator = document.getElementById('scraps-tag-active-indicator');
+  if (!listEl) return;
+
+  const allItems = [];
+  const tagCounts = {};
+  let totalScrapsCount = 0;
+
+  books.forEach(book => {
+    (book.scraps || []).forEach(scrap => {
+      totalScrapsCount++;
+      const tags = scrap.tags || scrap.keywords || [];
+      tags.forEach(t => {
+        const cleanT = (t || '').trim().replace(/^#/, '');
+        if (cleanT) {
+          tagCounts[cleanT] = (tagCounts[cleanT] || 0) + 1;
+        }
+      });
+      allItems.push({ book, scrap });
+    });
+  });
+
+  if (totalCountEl) {
+    totalCountEl.textContent = totalScrapsCount;
+  }
+
+  // Render Hashtags filter pills
+  if (tagsContainer) {
+    const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+    const allPill = `
+      <button type="button" class="scrap-filter-pill ${!currentScrapFilterTag ? 'active' : ''}" onclick="filterScrapsByTag(null)">
+        전체 <span class="scrap-filter-count">${totalScrapsCount}</span>
+      </button>
+    `;
+    const tagPills = sortedTags.map(([tag, count]) => `
+      <button type="button" class="scrap-filter-pill ${currentScrapFilterTag === tag ? 'active' : ''}" onclick="filterScrapsByTag('${esc(tag)}')">
+        #${esc(tag)} <span class="scrap-filter-count">${count}</span>
+      </button>
+    `).join('');
+
+    tagsContainer.innerHTML = allPill + tagPills;
+  }
+
+  if (activeIndicator) {
+    activeIndicator.textContent = currentScrapFilterTag
+      ? `#${currentScrapFilterTag} 해시태그 필터링 중`
+      : (currentScrapSearchQuery ? `"${currentScrapSearchQuery}" 검색 결과` : '전체 문장 보기');
+  }
+
+  // Filter items
+  let filtered = allItems;
+
+  if (currentScrapFilterTag) {
+    const targetTag = currentScrapFilterTag.toLowerCase();
+    filtered = filtered.filter(item => {
+      const tags = item.scrap.tags || item.scrap.keywords || [];
+      return tags.some(t => t.replace(/^#/, '').toLowerCase() === targetTag);
+    });
+  }
+
+  if (currentScrapSearchQuery) {
+    const q = currentScrapSearchQuery.toLowerCase();
+    const cleanQ = q.replace(/^#/, '');
+    filtered = filtered.filter(item => {
+      const textMatch = item.scrap.text && item.scrap.text.toLowerCase().includes(q);
+      const memoMatch = item.scrap.memo && item.scrap.memo.toLowerCase().includes(q);
+      const bookMatch = item.book.title && item.book.title.toLowerCase().includes(q);
+      const authorMatch = item.book.author && item.book.author.toLowerCase().includes(q);
+      const tags = item.scrap.tags || item.scrap.keywords || [];
+      const tagMatch = tags.some(t => {
+        const lowerT = t.toLowerCase();
+        return lowerT.includes(cleanQ) || ('#' + lowerT).includes(q);
+      });
+      return textMatch || memoMatch || bookMatch || authorMatch || tagMatch;
+    });
+  }
+
+  // Sort newest first
+  filtered.sort((a, b) => {
+    const dateA = a.scrap.at ? new Date(a.scrap.at).getTime() : 0;
+    const dateB = b.scrap.at ? new Date(b.scrap.at).getTime() : 0;
+    return dateB - dateA;
+  });
+
+  if (filtered.length === 0) {
+    listEl.innerHTML = '';
+    if (emptyEl) {
+      emptyEl.style.display = 'block';
+      const emptyTitle = document.getElementById('scraps-empty-title');
+      const emptyDesc = document.getElementById('scraps-empty-desc');
+      if (currentScrapSearchQuery || currentScrapFilterTag) {
+        if (emptyTitle) emptyTitle.textContent = '검색 조건에 맞는 문장이 없습니다';
+        if (emptyDesc) emptyDesc.innerHTML = '다른 검색어나 해시태그를 선택해보세요.<br><button class="btn btn-ghost btn-sm" onclick="clearScrapArchiveSearch(); filterScrapsByTag(null);" style="margin-top:10px;">전체 문장 보기</button>';
+      } else {
+        if (emptyTitle) emptyTitle.textContent = '스크랩된 문장이 없습니다';
+        if (emptyDesc) emptyDesc.textContent = '도서 상세 화면에서 "+ 추가"를 눌러 인상 깊은 문장을 기록하고 해시태그를 달아보세요.';
+      }
+    }
+    return;
+  }
+
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  const highlight = (str) => {
+    if (!str) return '';
+    if (!currentScrapSearchQuery) return esc(str);
+    const escaped = esc(str);
+    const cleanQ = esc(currentScrapSearchQuery.replace(/^#/, ''));
+    if (!cleanQ) return escaped;
+    const regex = new RegExp(`(${cleanQ.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return escaped.replace(regex, '<mark class="search-highlight">$1</mark>');
+  };
+
+  listEl.innerHTML = filtered.map(item => {
+    const { book, scrap } = item;
+    const tags = scrap.tags || scrap.keywords || [];
+    const coverHtml = book.cover
+      ? `<img src="${esc(getSafeImageUrl(book.cover))}" class="scrap-card-cover" alt="${esc(book.title)}" onclick="showDetail('${book.id}')" onerror="this.outerHTML='<div class=\\'scrap-card-cover-placeholder\\' onclick=\\'showDetail(\\\\'${book.id}\\\\')\\'>8ook</div>'">`
+      : `<div class="scrap-card-cover-placeholder" onclick="showDetail('${book.id}')">8ook</div>`;
+
+    const tagsHtml = tags.map(t => {
+      const cleanT = t.replace(/^#/, '');
+      const isSelected = currentScrapFilterTag && currentScrapFilterTag.toLowerCase() === cleanT.toLowerCase();
+      return `<span class="scrap-tag-chip" style="${isSelected ? 'background:var(--violet); color:#fff; border-color:var(--violet);' : ''}" onclick="filterScrapsByTag('${esc(cleanT)}')" title="#${esc(cleanT)} 필터">#${highlight(cleanT)}</span>`;
+    }).join('');
+
+    const memoHtml = scrap.memo
+      ? `<div class="scrap-card-memo">
+           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+           <span>${highlight(scrap.memo)}</span>
+         </div>`
+      : '';
+
+    return `
+      <div class="scrap-card-full" id="archive-sc-${scrap.id}">
+        <div class="scrap-card-header">
+          ${coverHtml}
+          <div class="scrap-card-meta">
+            <div class="scrap-card-title" onclick="showDetail('${book.id}')" title="도서 상세 보기">${highlight(book.title)}</div>
+            <div class="scrap-card-sub">
+              <span>${highlight(book.author || '저자 미상')}</span>
+              ${scrap.page ? `<span>• p.${scrap.page}</span>` : ''}
+              ${scrap.at ? `<span>• ${fmtDate(scrap.at.slice(0, 10))}</span>` : ''}
+            </div>
+          </div>
+        </div>
+
+        <div class="scrap-card-body">
+          ${highlight(scrap.text)}
+        </div>
+
+        ${memoHtml}
+
+        <div class="scrap-card-footer">
+          <div class="scrap-card-tags">
+            ${tagsHtml}
+          </div>
+          <div class="scrap-card-actions">
+            <button class="btn btn-ghost btn-sm" onclick="copyScrapQuoteText('${esc(scrap.text.replace(/'/g, "\\'"))}', '${esc(book.title.replace(/'/g, "\\'"))}', '${esc((book.author || '').replace(/'/g, "\\'"))}')" title="문장 복사" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">
+              복사
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="showDetail('${book.id}')" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">
+              책 보기 →
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="editScrap('${book.id}','${scrap.id}')" style="padding:2px 6px; font-size:10px; height:24px; border-radius:4px;">
+              수정
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="doDeleteScrap('${book.id}','${scrap.id}')" style="padding:2px 6px; font-size:10px; height:24px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171;">
+              삭제
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function copyScrapQuoteText(text, bookTitle, author) {
+  let formatted = `“${text}”`;
+  if (bookTitle) {
+    formatted += `\n— 《${bookTitle}》`;
+    if (author) formatted += `, ${author}`;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(formatted).then(() => {
+      toast('문장이 클립보드에 복사되었습니다.');
+    }).catch(() => {
+      fallbackCopyText(formatted);
+    });
+  } else {
+    fallbackCopyText(formatted);
+  }
+}
+
+function fallbackCopyText(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    toast('문장이 클립보드에 복사되었습니다.');
+  } catch (err) {
+    toast('복사에 실패했습니다.');
+  }
+  document.body.removeChild(ta);
 }
 
 /* ==============================================
@@ -4764,6 +5265,8 @@ function showCommunity() {
   document.getElementById('view-detail').classList.remove('show');
   document.getElementById('view-stats').classList.remove('show');
   document.getElementById('view-community').classList.add('show');
+  const scrapsView = document.getElementById('view-scraps');
+  if (scrapsView) scrapsView.classList.remove('show');
   const backBtn = document.getElementById('back-btn');
   if (backBtn) {
     backBtn.style.display = '';

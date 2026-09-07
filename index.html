@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260904_29">
+  <link rel="stylesheet" href="style.css?v=20260907_01">
 </head>
 <body>
 
@@ -33,12 +33,23 @@
     <div id="header-search-group" class="search-and-add-group">
       <div class="search-input-wrapper">
         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input type="text" id="gallery-search-input" class="fi" placeholder="책 제목, 저자, 키워드 검색..." oninput="handleGallerySearch()" autocomplete="off">
+        <input type="text" id="gallery-search-input" class="fi" placeholder="책 제목, 저자, 해시태그 검색..." oninput="handleGallerySearch()" autocomplete="off">
         <button id="gallery-search-clear" onclick="clearGallerySearch()">✕</button>
       </div>
     </div>
 
     <div class="header-right" style="display:flex; align-items:center; gap:8px;">
+      <!-- Scraps Archive Quick Button -->
+      <button id="header-scraps-btn" class="header-scraps-btn" onclick="showScraps()" title="문장 스크랩 보관함 (해시태그 &amp; 문장 검색)" aria-label="문장 스크랩 보관함">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          <line x1="8" y1="7" x2="16" y2="7"></line>
+          <line x1="8" y1="11" x2="13" y2="11"></line>
+        </svg>
+        <span class="header-scraps-text">문장 보관함</span>
+      </button>
+
       <!-- Compact User Chip -->
       <div id="header-user-chip" class="header-user-chip" onclick="toggleAppMenu()" style="display:none;" title="내 계정">
         <span class="user-avatar-dot"></span>
@@ -111,13 +122,21 @@
           <span class="menu-nav-desc">독자 피드 및 한 줄 서평</span>
         </div>
       </button>
+
+      <button id="scraps-nav-btn" class="menu-nav-item" onclick="showScraps(); closeAppMenu();">
+        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">04</span>
+        <div class="menu-nav-text">
+          <span class="menu-nav-title">문장 스크랩 보관함</span>
+          <span class="menu-nav-desc">스크랩한 문장 &amp; 해시태그 검색</span>
+        </div>
+      </button>
     </nav>
 
     <!-- Tools Section -->
     <div class="menu-section-title">도구 및 설정</div>
     <nav class="menu-nav-list">
       <button id="export-sheets-btn" class="menu-nav-item" onclick="openExportModal(); closeAppMenu();">
-        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">04</span>
+        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">05</span>
         <div class="menu-nav-text">
           <span class="menu-nav-title">스프레드시트 내보내기</span>
           <span class="menu-nav-desc">구글 시트(Google Sheets) 백업</span>
@@ -265,6 +284,64 @@
       <div class="feed-list" id="community-feed-list" style="display: flex; flex-direction: column; gap: 16px;">
         <!-- Dynamic Feed Items -->
       </div>
+    </div>
+  </div>
+
+  <!-- ==================== SCRAPS ARCHIVE & SEARCH VIEW ==================== -->
+  <div id="view-scraps">
+    <div class="scraps-archive-wrap">
+
+      <!-- Hero Header & Stats Summary -->
+      <div class="scraps-archive-header">
+        <div class="scraps-archive-title-area">
+          <div class="scraps-archive-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            <span>문장 보관함</span>
+          </div>
+          <h2 class="scraps-archive-title">문장 스크랩 &amp; 해시태그 검색</h2>
+          <p class="scraps-archive-desc">책에서 발견한 소중한 문장들을 문장 본문과 해시태그로 손쉽게 검색하고 모아보세요.</p>
+        </div>
+        <div class="scraps-stats-counter" id="scraps-total-count-badge">
+          <span class="scraps-counter-num" id="scraps-total-count">0</span>
+          <span class="scraps-counter-label">개의 문장</span>
+        </div>
+      </div>
+
+      <!-- Scraps Search Bar -->
+      <div class="scraps-search-bar-wrap">
+        <div class="scraps-search-box">
+          <svg class="scraps-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="scraps-archive-search-input" class="scraps-archive-input" placeholder="문장 본문, 해시태그(#), 도서명, 저자, 메모 검색..." oninput="handleScrapArchiveSearch()" autocomplete="off">
+          <button id="scraps-archive-search-clear" class="scraps-clear-btn" onclick="clearScrapArchiveSearch()" style="display:none;" title="검색어 지우기">✕</button>
+        </div>
+      </div>
+
+      <!-- Hashtags Cloud / Filter Bar -->
+      <div class="scraps-hashtags-section" id="scraps-hashtags-section">
+        <div class="scraps-hashtags-header">
+          <span class="scraps-hashtags-title">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>
+            해시태그 모아보기
+          </span>
+          <span class="scraps-hashtags-sub" id="scraps-tag-active-indicator">전체 문장 보기</span>
+        </div>
+        <div class="scraps-hashtags-chips" id="scraps-hashtags-chips">
+          <!-- Dynamic hashtag chips will render here -->
+        </div>
+      </div>
+
+      <!-- Scraps Results List -->
+      <div class="scraps-archive-list" id="scraps-archive-list">
+        <!-- Dynamic scrap cards will render here -->
+      </div>
+
+      <!-- Scraps Empty State -->
+      <div class="scraps-empty-state" id="scraps-empty-state" style="display:none;">
+        <div class="scraps-empty-icon">QUOTES</div>
+        <h3 class="scraps-empty-title" id="scraps-empty-title">스크랩된 문장이 없습니다</h3>
+        <p class="scraps-empty-desc" id="scraps-empty-desc">도서 상세 화면에서 <strong>"+ 추가"</strong>를 눌러 인상 깊은 문장을 기록하고 해시태그를 달아보세요.</p>
+      </div>
+
     </div>
   </div>
 
@@ -421,7 +498,7 @@
         <div class="fg">
           <div class="flbl">스크랩할 문장</div>
           <textarea class="fi" id="sc-text"
-            placeholder="기억하고 싶은 문장을 입력하세요..." rows="6"></textarea>
+            placeholder="기억하고 싶은 문장을 입력하세요..." rows="6" oninput="updateRecommendedHashtags()"></textarea>
         </div>
         <div class="frow">
           <div class="fg">
@@ -475,7 +552,7 @@
         <div class="fg">
           <div class="flbl">추출된 텍스트 (편집 가능)</div>
           <textarea class="fi" id="ocr-result" rows="4"
-            placeholder="드래그 선택 후 OCR 결과가 여기에 표시됩니다..."></textarea>
+            placeholder="드래그 선택 후 OCR 결과가 여기에 표시됩니다..." oninput="updateRecommendedHashtags()"></textarea>
         </div>
         <div class="frow">
           <div class="fg">
@@ -485,6 +562,38 @@
           <div class="fg">
             <div class="flbl">메모</div>
             <input type="text" class="fi" id="sc-memo-ocr" placeholder="개인 메모 (선택)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Shared Hashtags & Smart Recommendations Section -->
+      <div class="scrap-tags-section" style="margin-top:14px; padding-top:14px; border-top:1px dashed var(--border);">
+        <div class="flbl" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span style="display:flex; align-items:center; gap:6px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>
+            <strong>해시태그</strong>
+            <span style="font-weight:400; color:var(--text-300); font-size:11px;">(쉼표나 Enter로 등록)</span>
+          </span>
+          <span id="scrap-tags-count-label" style="font-size:11px; color:var(--text-400);">0개 등록됨</span>
+        </div>
+
+        <!-- Tag input container with pills -->
+        <div class="scrap-tags-input-container" id="scrap-tags-input-container" onclick="document.getElementById('sc-tag-input').focus()">
+          <div class="scrap-tag-pills-list" id="scrap-tag-pills-list"></div>
+          <input type="text" class="scrap-tag-input-field" id="sc-tag-input" placeholder="#해시태그 입력..." autocomplete="off" onkeydown="handleScrapTagKeydown(event)">
+        </div>
+
+        <!-- Recommended Hashtags Bar -->
+        <div class="scrap-rec-tags-area" id="scrap-rec-tags-area">
+          <div class="scrap-rec-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+            <span style="display:flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:var(--lavender);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              추천 해시태그
+            </span>
+            <span style="font-size:10px; color:var(--text-400);">클릭하여 바로 추가</span>
+          </div>
+          <div class="scrap-rec-chips-list" id="scrap-rec-chips-list">
+            <!-- Dynamic recommendation chips -->
           </div>
         </div>
       </div>
