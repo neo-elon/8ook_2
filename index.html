@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260907_04">
+  <link rel="stylesheet" href="style.css?v=20260907_05">
 </head>
 <body>
 
@@ -114,7 +114,8 @@
         </div>
       </button>
 
-      <button id="community-nav-btn" class="menu-nav-item" onclick="showCommunity(); closeAppMenu();">
+      <!-- Community nav button (hidden for now) -->
+      <button id="community-nav-btn" class="menu-nav-item" onclick="showCommunity(); closeAppMenu();" style="display:none;">
         <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">03</span>
         <div class="menu-nav-text">
           <span class="menu-nav-title">독서 커뮤니티</span>
@@ -123,7 +124,7 @@
       </button>
 
       <button id="scraps-nav-btn" class="menu-nav-item" onclick="showScraps(); closeAppMenu();">
-        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">04</span>
+        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">03</span>
         <div class="menu-nav-text">
           <span class="menu-nav-title">문장 스크랩 보관함</span>
           <span class="menu-nav-desc">스크랩한 문장 &amp; 해시태그 검색</span>
@@ -135,7 +136,7 @@
     <div class="menu-section-title">도구 및 설정</div>
     <nav class="menu-nav-list">
       <button id="export-sheets-btn" class="menu-nav-item" onclick="openExportModal(); closeAppMenu();">
-        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">05</span>
+        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">04</span>
         <div class="menu-nav-text">
           <span class="menu-nav-title">스프레드시트 내보내기</span>
           <span class="menu-nav-desc">구글 시트(Google Sheets) 백업</span>
@@ -256,8 +257,8 @@
     <div class="detail-wrap" id="detail-wrap"></div>
   </div>
 
-  <!-- Community View -->
-  <div id="view-community">
+  <!-- Community View (Hidden for now) -->
+  <div id="view-community" style="display:none !important;">
     <div class="community-wrap" style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px;">
       
       <!-- Keyword Word Cloud Card -->
