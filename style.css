@@ -1636,9 +1636,13 @@
       padding:16px 14px 14px;
       gap:4px;
       white-space: normal;
+      pointer-events: none;
     }
     .book-card:hover .book-hover-overlay,
     .book-card.is-hovered .book-hover-overlay { opacity:1; }
+    .book-card.is-hovered {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
     .ov-title {
       font-size: 13.5px;
       font-weight: 700;
@@ -1675,6 +1679,20 @@
       -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
     }
     .ov-stars { font-size:12px; margin-top:4px; letter-spacing:1px; }
+    .ov-tap-guide {
+      display: none;
+      font-size: 10px;
+      color: var(--amber);
+      letter-spacing: -0.2px;
+      margin-top: 6px;
+      font-weight: 600;
+      opacity: 0.95;
+    }
+    @media (hover: none), (max-width: 768px) {
+      .book-card.is-hovered .ov-tap-guide {
+        display: block;
+      }
+    }
 
 
 

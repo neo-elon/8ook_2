@@ -505,9 +505,10 @@ function updateViewModeButtons() {
 }
 
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('.book-card.spine-mode')) {
-    document.querySelectorAll('.book-card.spine-mode.is-hovered').forEach(card => {
-      card.classList.remove('is-hovered');
+  const card = e.target.closest('.book-card');
+  if (!card) {
+    document.querySelectorAll('.book-card.is-hovered').forEach(c => {
+      c.classList.remove('is-hovered');
     });
   }
 });
@@ -1471,10 +1472,27 @@ function createBookCardElement(book, i, isSpineMode) {
         <div class="ov-author">${esc(book.author || '')}</div>
         ${sentence}
         ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
+        <div class="ov-tap-guide">한 번 더 탭하면 서평으로 이동 →</div>
       </div>
     `;
 
-    card.addEventListener('click', () => {
+    card.addEventListener('click', (e) => {
+      const isMobile = window.matchMedia('(hover: none), (pointer: coarse), (max-width: 768px)').matches || e.pointerType === 'touch';
+
+      if (isMobile) {
+        // 모바일/터치 환경: 첫 번째 탭이면 요약(오버레이) 표시, 이미 열린 상태(두 번째 탭)면 서평 상세로 이동
+        if (!card.classList.contains('is-hovered')) {
+          e.stopPropagation();
+          document.querySelectorAll('.book-card.is-hovered').forEach(c => {
+            if (c !== card) c.classList.remove('is-hovered');
+          });
+          card.classList.add('is-hovered');
+          return;
+        }
+      }
+
+      // 데스크톱 클릭이거나 모바일 두 번째 클릭 시 서평 페이지로 이동
+      card.classList.remove('is-hovered');
       showDetail(book.id);
     });
   }
