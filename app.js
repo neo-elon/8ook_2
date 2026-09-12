@@ -267,9 +267,21 @@ function uid() {
 /* ==============================================
    HELPERS
 ============================================== */
+function decodeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'");
+}
+
 function esc(s) {
   if (!s) return '';
-  return String(s)
+  const decoded = decodeHtml(s);
+  return String(decoded)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -428,6 +440,9 @@ function splitBookTitle(bookOrTitle) {
     titleStr = String(bookOrTitle).trim();
   }
 
+  titleStr = decodeHtml(titleStr);
+  subStr = decodeHtml(subStr);
+
   if (subStr) {
     return { main: titleStr, sub: subStr };
   }
@@ -438,6 +453,15 @@ function splitBookTitle(bookOrTitle) {
     return {
       main: delimiterMatch[1].trim(),
       sub: delimiterMatch[2].trim()
+    };
+  }
+
+  // Bracketed subtitle at the end: e.g. "제목 <부제>", "제목 〈부제〉", "제목 《부제》"
+  const bracketMatch = titleStr.match(/^(.*?)\s+([<〈《][^>〉》]+[>〉》])$/);
+  if (bracketMatch && bracketMatch[1].trim() && bracketMatch[2].trim()) {
+    return {
+      main: bracketMatch[1].trim(),
+      sub: bracketMatch[2].trim()
     };
   }
 
@@ -3414,10 +3438,10 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
       let cleanAuthor = author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '');
       let cover = (item.cover || '').replace('/coversum/', '/cover500/').replace('/cover200/', '/cover500/');
       return {
-        title: item.title || '',
-        author: cleanAuthor,
+        title: decodeHtml(item.title || ''),
+        author: decodeHtml(cleanAuthor),
         cover: cover,
-        publisher: item.publisher || '',
+        publisher: decodeHtml(item.publisher || ''),
         pubDate: item.pubDate || '',
         pages: pages,
         itemId: item.itemId || item.itemid || '',
