@@ -1277,7 +1277,7 @@
       display: none !important;
     }
 
-    /* Spine Custom View (Fallback or Default UI) */
+    /* Spine Custom View (Cover-based Mapping UI) */
     .spine-custom-view {
       position: absolute;
       inset: 0;
@@ -1294,6 +1294,31 @@
     }
     .spine-custom-view.show-fallback {
       display: flex !important;
+    }
+
+    /* 앞표지 기반 책등 배경 이미지 매핑 (왼쪽 가장자리 슬라이스) */
+    .spine-cover-bg-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: left center;
+      z-index: 0;
+      filter: brightness(0.9) contrast(1.05);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* 3D 책등 원통형 볼륨 음영 및 텍스트 시인성 확보용 입체 스크림 */
+    .spine-cover-scrim {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.1) 28%, rgba(0, 0, 0, 0.1) 72%, rgba(0, 0, 0, 0.42) 100%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.52) 0%, rgba(0, 0, 0, 0.22) 18%, rgba(0, 0, 0, 0.25) 80%, rgba(0, 0, 0, 0.68) 100%);
+      z-index: 1;
+      pointer-events: none;
     }
 
     /* ==============================================
@@ -1359,15 +1384,21 @@
 
     /* Slim Top Series Mark */
     .spine-series-tag {
+      position: relative;
+      z-index: 2;
       width: 100%;
       padding: 6px 2px 4px;
       text-align: center;
       font-size: 9px;
       font-weight: 700;
-      letter-spacing: 1px;
+      letter-spacing: 1.2px;
       font-family: 'Noto Serif KR', 'Batang', serif;
       margin-bottom: 4px;
-      opacity: 0.85;
+      color: #ffffff !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.32);
+      backdrop-filter: blur(2px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .spine-title-wrap {
@@ -1393,8 +1424,8 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       font-family: 'Noto Serif KR', 'Batang', 'Gungsuh', serif;
-      color: inherit;
-      text-shadow: none;
+      color: #ffffff !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 6px rgba(0, 0, 0, 0.85);
       margin-top: 4px;
     }
 
@@ -1408,19 +1439,21 @@
       writing-mode: vertical-rl;
       text-orientation: mixed;
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 600;
       letter-spacing: 1px;
       max-height: 75px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       font-family: 'Noto Serif KR', 'Batang', serif;
-      color: inherit;
-      opacity: 0.95;
+      color: rgba(255, 255, 255, 0.94) !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     }
 
-    /* Publisher Emblem & Logo at Bottom ("열림원" style) */
+    /* Publisher Emblem & Logo at Bottom */
     .spine-publisher-emblem {
+      position: relative;
+      z-index: 2;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1428,16 +1461,13 @@
       margin-top: 4px;
     }
     .spine-publisher-emblem .emblem-fig {
-      width: 14px;
-      height: 14px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
-      border: 1.5px solid currentColor;
-      opacity: 0.75;
+      border: 1.5px solid rgba(255, 255, 255, 0.88) !important;
+      opacity: 0.9;
     }
     .spine-publisher-emblem .publisher-name {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 1px;
       font-family: 'Noto Serif KR', 'Batang', serif;
       opacity: 0.85;
     }

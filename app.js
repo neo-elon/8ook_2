@@ -1390,19 +1390,21 @@ function createBookCardElement(book, i, isSpineMode) {
       <div class="spine-3d-wrapper">
         <div class="spine-face">
           ${realSpineTag}
-          <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}" style="background: ${theme.bg}; color: ${theme.text} !important; border-color: ${theme.border};">
-            <div class="spine-series-tag" style="background: ${theme.tagBg}; color: ${theme.tagText} !important;">
+          <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}" style="background: ${theme.bg};">
+            ${book.cover ? `<img class="spine-cover-bg-img" src="${esc(getSafeImageUrl(book.cover))}" alt="" onerror="this.style.display='none'">` : ''}
+            <div class="spine-cover-scrim"></div>
+            <div class="spine-series-tag">
               <span>8ook</span>
             </div>
             <div class="spine-title-wrap">
-              <span class="spine-title-serif" style="color: ${theme.text} !important; ${theme.isLight ? 'text-shadow: none;' : ''} ${titleStyleExtra}">${esc(book.title)}</span>
+              <span class="spine-title-serif" style="${titleStyleExtra}">${esc(book.title)}</span>
             </div>
             <div class="spine-author-wrap">
-              <span class="spine-author-serif" style="color: ${theme.authorColor} !important;">✻ ${esc(book.author || '작자 미상')}</span>
+              <span class="spine-author-serif">✻ ${esc(book.author || '작자 미상')}</span>
             </div>
-            <div class="spine-publisher-emblem" style="color: ${theme.text} !important;">
-              <div class="emblem-fig" style="border-color: ${theme.text} !important;"></div>
-              <span class="publisher-name" style="color: ${theme.text} !important;">8ook</span>
+            <div class="spine-publisher-emblem">
+              <div class="emblem-fig"></div>
+              <span class="publisher-name">8ook</span>
             </div>
           </div>
           ${spineWaxSeal}
