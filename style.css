@@ -1277,7 +1277,9 @@
       display: none !important;
     }
 
-    /* Spine Custom View (Cover-based Mapping UI) */
+    /* ==============================================
+       Premium Virtual Hardcover Spine (가상 양장본 고도화)
+    ============================================== */
     .spine-custom-view {
       position: absolute;
       inset: 0;
@@ -1285,40 +1287,104 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding: 0 4px 14px;
+      padding: 0 2px 8px;
       z-index: 0;
       border-radius: 2px 2px 0 0;
       overflow: hidden;
-      box-shadow: none;
-      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: inset 1px 0 2px rgba(255,255,255,0.08), inset -1px 0 3px rgba(0,0,0,0.4);
+      border: 1px solid rgba(0, 0, 0, 0.22);
     }
     .spine-custom-view.show-fallback {
       display: flex !important;
     }
 
-    /* 앞표지 기반 책등 배경 이미지 매핑 (왼쪽 가장자리 슬라이스) */
-    .spine-cover-bg-img {
+    /* 1. Fine Bookcloth / Leather Grain Texture (미세 가죽 결) */
+    .spine-leather-grain {
       position: absolute;
       inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: left center;
-      z-index: 0;
-      filter: brightness(0.9) contrast(1.05);
       pointer-events: none;
-      user-select: none;
+      z-index: 1;
+      opacity: 0.22;
+      background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.18) 1px, transparent 1px),
+                        radial-gradient(circle at 0% 0%, rgba(0,0,0,0.25) 1px, transparent 1px);
+      background-size: 3px 3px, 4px 4px;
+      mix-blend-mode: overlay;
     }
 
-    /* 3D 책등 원통형 볼륨 음영 및 텍스트 시인성 확보용 입체 스크림 */
-    .spine-cover-scrim {
+    /* 2. Realistic Cylindrical 3D Spine Curvature (원통형 양장본 입체 볼륨감) */
+    .spine-volume-shading {
       position: absolute;
       inset: 0;
-      background:
-        linear-gradient(90deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.1) 28%, rgba(0, 0, 0, 0.1) 72%, rgba(0, 0, 0, 0.42) 100%),
-        linear-gradient(180deg, rgba(0, 0, 0, 0.52) 0%, rgba(0, 0, 0, 0.22) 18%, rgba(0, 0, 0, 0.25) 80%, rgba(0, 0, 0, 0.68) 100%);
-      z-index: 1;
       pointer-events: none;
+      z-index: 2;
+      background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.38) 0%,
+        rgba(0, 0, 0, 0.12) 10%,
+        rgba(255, 255, 255, 0.08) 30%,
+        rgba(255, 255, 255, 0.14) 52%,
+        rgba(255, 255, 255, 0.05) 75%,
+        rgba(0, 0, 0, 0.15) 92%,
+        rgba(0, 0, 0, 0.45) 100%
+      );
+    }
+
+    /* 3. Book Headband / Tailband Cloth Rim (상하단 패브릭 꽃천 바인딩 림) */
+    .spine-headband {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      height: 4px;
+      flex-shrink: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        #d4af37 0px,
+        #d4af37 3px,
+        #8a1c24 3px,
+        #8a1c24 6px,
+        #f4ebd0 6px,
+        #f4ebd0 8px
+      );
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    }
+    .spine-headband.top {
+      border-radius: 2px 2px 0 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+    }
+    .spine-headband.bottom {
+      border-top: 1px solid rgba(0, 0, 0, 0.3);
+      margin-top: 2px;
+    }
+
+    /* 4. Raised Rib Bands / Gilt Cords (돌출 배 / 양장본 띠) */
+    .spine-raised-rib {
+      position: relative;
+      z-index: 3;
+      width: 88%;
+      height: 3px;
+      flex-shrink: 0;
+      margin: 2px auto;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.32) 0%, rgba(0, 0, 0, 0.42) 100%);
+      border-radius: 1px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.22);
+    }
+
+    /* 5. Gilt Fillet Rules (금박 괘선) */
+    .spine-top-fillet {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 3px 4px 1px;
+    }
+    .spine-gilt-rule {
+      width: 76%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(218, 185, 110, 0.8) 50%, transparent 100%);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
     }
 
     /* ==============================================
@@ -1382,34 +1448,30 @@
       visibility: hidden;
     }
 
-    /* Slim Top Series Mark */
+    /* 6. Series Mark in Header */
     .spine-series-tag {
       position: relative;
-      z-index: 2;
+      z-index: 3;
       width: 100%;
-      padding: 6px 2px 4px;
       text-align: center;
       font-size: 9px;
       font-weight: 700;
-      letter-spacing: 1.2px;
-      font-family: 'Noto Serif KR', 'Batang', serif;
-      margin-bottom: 4px;
-      color: #ffffff !important;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-      background: rgba(0, 0, 0, 0.32);
-      backdrop-filter: blur(2px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      letter-spacing: 1.5px;
+      font-family: 'Cinzel', 'Playfair Display', 'Noto Serif KR', serif;
+      padding: 1px 0;
+      color: #f6ecdc !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 4px rgba(212, 175, 55, 0.3);
     }
 
     .spine-title-wrap {
       position: relative;
-      z-index: 2;
+      z-index: 3;
       flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;
-      padding: 4px 0;
+      padding: 6px 0;
       overflow: hidden;
       width: 100%;
     }
@@ -1418,58 +1480,94 @@
       text-orientation: mixed;
       font-size: 14.5px;
       font-weight: 700;
-      letter-spacing: 1.5px;
-      max-height: 245px;
+      letter-spacing: 1.8px;
+      max-height: 235px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       font-family: 'Noto Serif KR', 'Batang', 'Gungsuh', serif;
-      color: #ffffff !important;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 6px rgba(0, 0, 0, 0.85);
-      margin-top: 4px;
+      color: #f6ecdc !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 6px rgba(212, 175, 55, 0.35);
+      margin-top: 2px;
     }
 
     .spine-author-wrap {
       position: relative;
-      z-index: 2;
-      padding: 6px 0;
+      z-index: 3;
+      padding: 4px 0;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .spine-author-serif {
       writing-mode: vertical-rl;
       text-orientation: mixed;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 600;
-      letter-spacing: 1px;
-      max-height: 75px;
+      letter-spacing: 1.2px;
+      max-height: 70px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       font-family: 'Noto Serif KR', 'Batang', serif;
-      color: rgba(255, 255, 255, 0.94) !important;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+      color: rgba(245, 235, 215, 0.9) !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
     }
 
     /* Publisher Emblem & Logo at Bottom */
     .spine-publisher-emblem {
       position: relative;
-      z-index: 2;
+      z-index: 3;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
-      margin-top: 4px;
+      gap: 2px;
+      margin-bottom: 2px;
     }
     .spine-publisher-emblem .emblem-fig {
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      border: 1.5px solid rgba(255, 255, 255, 0.88) !important;
-      opacity: 0.9;
+      border: 1.5px solid rgba(218, 185, 110, 0.85) !important;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      position: relative;
     }
     .spine-publisher-emblem .publisher-name {
-      font-family: 'Noto Serif KR', 'Batang', serif;
-      opacity: 0.85;
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      font-family: 'Cinzel', 'Playfair Display', serif;
+      color: rgba(218, 185, 110, 0.9) !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+    }
+
+    /* Antique Light Vellum Theme Overrides (아이보리 양장본 잉크 각인) */
+    .spine-custom-view.spine-light-vellum {
+      border: 1px solid rgba(140, 98, 57, 0.3);
+      box-shadow: inset 1px 0 2px rgba(255,255,255,0.3), inset -1px 0 3px rgba(100,70,40,0.25);
+    }
+    .spine-custom-view.spine-light-vellum .spine-title-serif {
+      color: #1a1815 !important;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+    }
+    .spine-custom-view.spine-light-vellum .spine-author-serif {
+      color: #4a433a !important;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+    }
+    .spine-custom-view.spine-light-vellum .spine-series-tag {
+      color: #1a1815 !important;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+    }
+    .spine-custom-view.spine-light-vellum .spine-publisher-emblem .emblem-fig {
+      border-color: #8c6239 !important;
+    }
+    .spine-custom-view.spine-light-vellum .spine-publisher-emblem .publisher-name {
+      color: #8c6239 !important;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+    }
+    .spine-custom-view.spine-light-vellum .spine-gilt-rule {
+      background: linear-gradient(90deg, transparent 0%, rgba(140, 98, 57, 0.6) 50%, transparent 100%);
     }
 
     /* Front Cover Face (Revealed on Hover/Touch) */

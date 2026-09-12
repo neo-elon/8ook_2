@@ -470,12 +470,48 @@ function splitBookTitle(bookOrTitle) {
 
 function getSpineTheme(book) {
   const spineThemes = [
-    { bg: '#f8f6f0', text: '#111827', authorColor: '#374151', border: '#d1cdc3', tagBg: '#111827', tagText: '#f9fafb', isLight: true },
-    { bg: '#1c2838', text: '#e2edee', authorColor: '#a0b2c6', border: '#2d3e54', tagBg: '#d4af37', tagText: '#1c2838', isLight: false },
-    { bg: '#233830', text: '#e6f4ed', authorColor: '#9ec4b3', border: '#345247', tagBg: '#e6f4ed', tagText: '#233830', isLight: false },
-    { bg: '#ede6d4', text: '#1c1917', authorColor: '#44403c', border: '#d6cbaf', tagBg: '#7f1d1d', tagText: '#fef2f2', isLight: true },
-    { bg: '#4a151b', text: '#fce8ea', authorColor: '#e0a3aa', border: '#6e222a', tagBg: '#fce8ea', tagText: '#4a151b', isLight: false },
-    { bg: '#1e1e24', text: '#f0f0f5', authorColor: '#9e9ea6', border: '#33333d', tagBg: '#8c6239', tagText: '#ffffff', isLight: false }
+    {
+      // 1. Royal Midnight Navy Leather
+      bg: 'linear-gradient(180deg, #1b2838 0%, #141f2d 50%, #0d151f 100%)',
+      text: '#f6ecdc',
+      authorColor: '#decab0',
+      isLight: false
+    },
+    {
+      // 2. British Library Forest Green Leather
+      bg: 'linear-gradient(180deg, #1d3527 0%, #15261c 50%, #0d1812 100%)',
+      text: '#f5edd8',
+      authorColor: '#c8dbcd',
+      isLight: false
+    },
+    {
+      // 3. Antique Burgundy Wine Leather
+      bg: 'linear-gradient(180deg, #44171d 0%, #310f13 50%, #20070a 100%)',
+      text: '#fcefd8',
+      authorColor: '#e5b8bf',
+      isLight: false
+    },
+    {
+      // 4. Saddle Cognac Moroccan Leather
+      bg: 'linear-gradient(180deg, #58341e 0%, #412312 50%, #2c160a 100%)',
+      text: '#faebd0',
+      authorColor: '#dec1a0',
+      isLight: false
+    },
+    {
+      // 5. Archival Antique Vellum / Heavy Cloth
+      bg: 'linear-gradient(180deg, #ede6d6 0%, #ded5be 50%, #cbbe9f 100%)',
+      text: '#1a1815',
+      authorColor: '#4d463d',
+      isLight: true
+    },
+    {
+      // 6. Obsidian Charcoal Bookcloth
+      bg: 'linear-gradient(180deg, #222429 0%, #18191d 50%, #101114 100%)',
+      text: '#f4ebd8',
+      authorColor: '#a8abb3',
+      isLight: false
+    }
   ];
   let hash = 0;
   const str = (book.title || '') + (book.id || '');
@@ -1390,22 +1426,37 @@ function createBookCardElement(book, i, isSpineMode) {
       <div class="spine-3d-wrapper">
         <div class="spine-face">
           ${realSpineTag}
-          <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}" style="background: ${theme.bg};">
-            ${book.cover ? `<img class="spine-cover-bg-img" src="${esc(getSafeImageUrl(book.cover))}" alt="" onerror="this.style.display='none'">` : ''}
-            <div class="spine-cover-scrim"></div>
-            <div class="spine-series-tag">
-              <span>8ook</span>
+          <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}${theme.isLight ? ' spine-light-vellum' : ''}" style="background: ${theme.bg};">
+            <div class="spine-headband top"></div>
+            <div class="spine-leather-grain"></div>
+            <div class="spine-volume-shading"></div>
+
+            <div class="spine-top-fillet">
+              <div class="spine-gilt-rule"></div>
+              <div class="spine-series-tag"><span>8ook</span></div>
+              <div class="spine-gilt-rule"></div>
             </div>
+
+            <div class="spine-raised-rib"></div>
+
             <div class="spine-title-wrap">
               <span class="spine-title-serif" style="${titleStyleExtra}">${esc(book.title)}</span>
             </div>
+
+            <div class="spine-raised-rib"></div>
+
             <div class="spine-author-wrap">
               <span class="spine-author-serif">✻ ${esc(book.author || '작자 미상')}</span>
             </div>
+
+            <div class="spine-raised-rib"></div>
+
             <div class="spine-publisher-emblem">
               <div class="emblem-fig"></div>
               <span class="publisher-name">8ook</span>
             </div>
+
+            <div class="spine-headband bottom"></div>
           </div>
           ${spineWaxSeal}
         </div>
