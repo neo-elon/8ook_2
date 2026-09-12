@@ -1039,23 +1039,13 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
     // 5. 책등 및 바닥 선반 렌더링
     let curX = booksStartX;
 
-    // 책장 바닥 접점 짙은 그림자 & 앰비언트 섀도우
+    // 책장 바닥 접점 그림자 (최소화)
     const shelfBaseY = startY + bookH;
-
-    // 1) 책 바로 밑바닥 접점(Contact) 그림자
-    const contactGrad = ctx.createLinearGradient(0, shelfBaseY, 0, shelfBaseY + 5 * scale);
-    contactGrad.addColorStop(0, 'rgba(0, 0, 0, 0.28)');
-    contactGrad.addColorStop(1, 'rgba(0, 0, 0, 0.06)');
+    const contactGrad = ctx.createLinearGradient(0, shelfBaseY, 0, shelfBaseY + 2 * scale);
+    contactGrad.addColorStop(0, 'rgba(0, 0, 0, 0.05)');
+    contactGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = contactGrad;
-    ctx.fillRect(booksStartX - 6, shelfBaseY, totalBooksW + 12, 5 * scale);
-
-    // 2) 바닥으로 부드럽게 퍼지는 선반 그림자
-    const shadowGrad = ctx.createLinearGradient(0, shelfBaseY + 2, 0, shelfBaseY + 22 * scale);
-    shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.12)');
-    shadowGrad.addColorStop(0.45, 'rgba(0, 0, 0, 0.04)');
-    shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = shadowGrad;
-    ctx.fillRect(booksStartX - 16, shelfBaseY + 2, totalBooksW + 32, 22 * scale);
+    ctx.fillRect(booksStartX - 4, shelfBaseY, totalBooksW + 8, 2 * scale);
 
     itemsWithWidth.forEach(item => {
       const { book, img, width: w } = item;
@@ -1063,7 +1053,7 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       const drawCardPath = () => {
         ctx.beginPath();
         if (ctx.roundRect) {
-          ctx.roundRect(curX, startY, w, bookH, [3 * scale, 3 * scale, 0, 0]);
+          ctx.roundRect(curX, startY, w, bookH, [2 * scale, 2 * scale, 0, 0]);
         } else {
           ctx.rect(curX, startY, w, bookH);
         }
@@ -1074,17 +1064,6 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
         drawCardPath();
         ctx.clip();
         ctx.drawImage(img, curX, startY, w, bookH);
-
-        // 실물 책등 입체 볼륨감 그라데이션 (CSS .spine-face::after 와 100% 동일)
-        const shadeGrad = ctx.createLinearGradient(curX, 0, curX + w, 0);
-        shadeGrad.addColorStop(0, 'rgba(0, 0, 0, 0.22)');
-        shadeGrad.addColorStop(0.07, 'rgba(255, 255, 255, 0.16)');
-        shadeGrad.addColorStop(0.24, 'rgba(255, 255, 255, 0)');
-        shadeGrad.addColorStop(0.76, 'rgba(0, 0, 0, 0)');
-        shadeGrad.addColorStop(0.93, 'rgba(0, 0, 0, 0.15)');
-        shadeGrad.addColorStop(1, 'rgba(0, 0, 0, 0.38)');
-        ctx.fillStyle = shadeGrad;
-        ctx.fillRect(curX, startY, w, bookH);
         ctx.restore();
       } else {
         // 대체 표지 책등 (알라딘 이미지 없을 때)
@@ -1154,17 +1133,6 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
         ctx.font = `bold ${Math.round(8 * scale)}px "Noto Serif KR", serif`;
         ctx.fillText('8ook', curX + w / 2, startY + bookH - 8 * scale);
 
-        // 입체 음영
-        const spineShade = ctx.createLinearGradient(curX, 0, curX + w, 0);
-        spineShade.addColorStop(0, 'rgba(0, 0, 0, 0.22)');
-        spineShade.addColorStop(0.07, 'rgba(255, 255, 255, 0.16)');
-        spineShade.addColorStop(0.24, 'rgba(255, 255, 255, 0)');
-        spineShade.addColorStop(0.76, 'rgba(0, 0, 0, 0)');
-        spineShade.addColorStop(0.93, 'rgba(0, 0, 0, 0.15)');
-        spineShade.addColorStop(1, 'rgba(0, 0, 0, 0.38)');
-        ctx.fillStyle = spineShade;
-        ctx.fillRect(curX, startY, w, bookH);
-
         ctx.restore();
       }
 
@@ -1175,9 +1143,9 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
         const starY = startY + 20 * scale;
         const starR = 11 * scale;
 
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.32)';
-        ctx.shadowBlur = 4 * scale;
-        ctx.shadowOffsetY = 2 * scale;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
+        ctx.shadowBlur = 2 * scale;
+        ctx.shadowOffsetY = 1 * scale;
 
         const starGrad = ctx.createRadialGradient(starX - 2.5 * scale, starY - 2.5 * scale, 1, starX, starY, starR);
         starGrad.addColorStop(0, '#ffd700');
