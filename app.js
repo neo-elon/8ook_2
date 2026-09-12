@@ -468,11 +468,183 @@ function splitBookTitle(bookOrTitle) {
   return { main: titleStr, sub: '' };
 }
 
+// ==============================================
+// Cover Color Extraction & Hardcover Spine Theme
+// ==============================================
+const SPINE_COVER_CACHE_KEY = 'rj_spine_cover_theme_cache_v1';
+let spineCoverThemeCache = {};
+try {
+  const saved = localStorage.getItem(SPINE_COVER_CACHE_KEY);
+  if (saved) spineCoverThemeCache = JSON.parse(saved);
+} catch (e) {
+  spineCoverThemeCache = {};
+}
+
+let _saveSpineCacheTimer = null;
+function scheduleSaveSpineCache() {
+  if (_saveSpineCacheTimer) clearTimeout(_saveSpineCacheTimer);
+  _saveSpineCacheTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(SPINE_COVER_CACHE_KEY, JSON.stringify(spineCoverThemeCache));
+    } catch (e) { }
+  }, 800);
+}
+
+function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h, s, l = (max + min) / 2;
+  if (max === min) {
+    h = s = 0;
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+}
+
+function generateHardcoverThemeFromRgb(r, g, b) {
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const avgLum = (max + min) / 2;
+  const chroma = max - min;
+
+  // 1. Archival Antique Vellum / Cream Paper (밝은 미색 또는 백색 표지)
+  if (avgLum >= 195 && chroma < 42) {
+    const [h, s] = rgbToHsl(r, g, b);
+    const sat = Math.max(8, Math.min(s, 24));
+    return {
+      bg: `linear-gradient(180deg, hsl(${h || 40}, ${sat}%, 91%) 0%, hsl(${h || 40}, ${sat}%, 84%) 50%, hsl(${h || 40}, ${sat + 4}%, 75%) 100%)`,
+      solidBg: `hsl(${h || 40}, ${sat}%, 84%)`,
+      isLight: true,
+      text: '#1a1815',
+      authorColor: '#4d463d'
+    };
+  }
+
+  // 2. Luxury Hardcover Leather (앞표지의 고유 색채를 머금은 고급 양장본 가죽 그라데이션)
+  const [h, s, l] = rgbToHsl(r, g, b);
+  const sat = Math.max(26, Math.min(s, 56));
+  const lBase = Math.round(14 + (l / 100) * 10); // 14% ~ 24% 깊이 있는 가죽 톤
+  const lTop = Math.min(lBase + 7, 32);
+  const lBottom = Math.max(lBase - 6, 7);
+
+  return {
+    bg: `linear-gradient(180deg, hsl(${h}, ${sat}%, ${lTop}%) 0%, hsl(${h}, ${sat}%, ${lBase}%) 50%, hsl(${h}, ${Math.min(sat + 6, 62)}%, ${lBottom}%) 100%)`,
+    solidBg: `hsl(${h}, ${sat}%, ${lBase}%)`,
+    isLight: false,
+    text: '#f7ecd8',
+    authorColor: '#dbc7a8'
+  };
+}
+
+function getSpineCoverTheme(book) {
+  if (!book) return null;
+  const key = book.id || book.cover;
+  if (key && spineCoverThemeCache[key]) {
+    return spineCoverThemeCache[key];
+  }
+  return null;
+}
+
+function extractCoverTheme(book, callback) {
+  if (!book || !book.cover) return;
+  const key = book.id || book.cover;
+  if (spineCoverThemeCache[key]) {
+    if (callback) callback(spineCoverThemeCache[key]);
+    return;
+  }
+
+  const coverUrl = getSafeImageUrl(book.cover);
+  if (!coverUrl) return;
+
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    try {
+      const canvas = document.createElement('canvas');
+      const w = 24;
+      const h = 36;
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return;
+
+      const natW = img.naturalWidth || img.width || 100;
+      const natH = img.naturalHeight || img.height || 150;
+      // 앞표지의 좌측 35% 영역 (책등과 맞닿는 힌지 부분)에서 대표 컬러 샘플링
+      const sampleW = Math.max(1, Math.floor(natW * 0.35));
+      ctx.drawImage(img, 0, 0, sampleW, natH, 0, 0, w, h);
+
+      const imgData = ctx.getImageData(0, 0, w, h).data;
+      let totalWeight = 0;
+      let rSum = 0;
+      let gSum = 0;
+      let bSum = 0;
+
+      for (let i = 0; i < imgData.length; i += 4) {
+        if (imgData[i + 3] < 128) continue;
+        const r = imgData[i];
+        const g = imgData[i + 1];
+        const b = imgData[i + 2];
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const lum = (max + min) / 2;
+        const chroma = max - min;
+
+        let weight = 1;
+        if (lum < 15 || lum > 250) {
+          weight = 0.1;
+        } else if (chroma > 20) {
+          weight = 2 + (chroma / 255) * 3;
+        }
+
+        rSum += r * weight;
+        gSum += g * weight;
+        bSum += b * weight;
+        totalWeight += weight;
+      }
+
+      if (totalWeight > 0) {
+        const r = Math.round(rSum / totalWeight);
+        const g = Math.round(gSum / totalWeight);
+        const b = Math.round(bSum / totalWeight);
+        const theme = generateHardcoverThemeFromRgb(r, g, b);
+        spineCoverThemeCache[key] = theme;
+        scheduleSaveSpineCache();
+        if (callback) callback(theme);
+      }
+    } catch (e) {
+      // CORS or canvas error; fallback remains
+    }
+  };
+  img.onerror = () => {
+    // image load error
+  };
+  img.src = coverUrl;
+}
+
+window.clearSpineCoverCache = function() {
+  try { localStorage.removeItem(SPINE_COVER_CACHE_KEY); } catch (e) { }
+  spineCoverThemeCache = {};
+  if (typeof renderGallery === 'function') renderGallery();
+};
+
 function getSpineTheme(book) {
+  if (book) {
+    const customTheme = getSpineCoverTheme(book);
+    if (customTheme) return customTheme;
+  }
   const spineThemes = [
     {
       // 1. Royal Midnight Navy Leather
       bg: 'linear-gradient(180deg, #1b2838 0%, #141f2d 50%, #0d151f 100%)',
+      solidBg: '#141f2d',
       text: '#f6ecdc',
       authorColor: '#decab0',
       isLight: false
@@ -480,6 +652,7 @@ function getSpineTheme(book) {
     {
       // 2. British Library Forest Green Leather
       bg: 'linear-gradient(180deg, #1d3527 0%, #15261c 50%, #0d1812 100%)',
+      solidBg: '#15261c',
       text: '#f5edd8',
       authorColor: '#c8dbcd',
       isLight: false
@@ -487,6 +660,7 @@ function getSpineTheme(book) {
     {
       // 3. Antique Burgundy Wine Leather
       bg: 'linear-gradient(180deg, #44171d 0%, #310f13 50%, #20070a 100%)',
+      solidBg: '#310f13',
       text: '#fcefd8',
       authorColor: '#e5b8bf',
       isLight: false
@@ -494,6 +668,7 @@ function getSpineTheme(book) {
     {
       // 4. Saddle Cognac Moroccan Leather
       bg: 'linear-gradient(180deg, #58341e 0%, #412312 50%, #2c160a 100%)',
+      solidBg: '#412312',
       text: '#faebd0',
       authorColor: '#dec1a0',
       isLight: false
@@ -501,6 +676,7 @@ function getSpineTheme(book) {
     {
       // 5. Archival Antique Vellum / Heavy Cloth
       bg: 'linear-gradient(180deg, #ede6d6 0%, #ded5be 50%, #cbbe9f 100%)',
+      solidBg: '#ded5be',
       text: '#1a1815',
       authorColor: '#4d463d',
       isLight: true
@@ -508,13 +684,14 @@ function getSpineTheme(book) {
     {
       // 6. Obsidian Charcoal Bookcloth
       bg: 'linear-gradient(180deg, #222429 0%, #18191d 50%, #101114 100%)',
+      solidBg: '#18191d',
       text: '#f4ebd8',
       authorColor: '#a8abb3',
       isLight: false
     }
   ];
   let hash = 0;
-  const str = (book.title || '') + (book.id || '');
+  const str = (book ? (book.title || '') + (book.id || '') : '');
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
@@ -1212,7 +1389,7 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
         drawCardPath();
         ctx.clip();
 
-        ctx.fillStyle = theme.bg || '#1e1e2d';
+        ctx.fillStyle = theme.solidBg || '#1e1e2d';
         ctx.fillRect(curX, startY, w, bookH);
 
         const tagW = Math.round(24 * scale);
@@ -1370,7 +1547,7 @@ function createBookCardElement(book, i, isSpineMode) {
 
   let imgPart = '';
   if (book.cover) {
-    imgPart = `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}"
+    imgPart = `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}" crossorigin="anonymous"
       onerror="this.outerHTML='<div class=\\'book-card-placeholder\\'><span class=\\'placeholder-title\\'>${esc(book.title)}</span></div>'">`;
   } else {
     imgPart = `<div class="book-card-placeholder">
@@ -1475,6 +1652,21 @@ function createBookCardElement(book, i, isSpineMode) {
         </div>
       </div>
     `;
+
+    // 앞표지 기반 양장본 테마 비동기 추출 및 동적 반영
+    if (!getSpineCoverTheme(book) && book.cover) {
+      extractCoverTheme(book, (newTheme) => {
+        const customView = card.querySelector('.spine-custom-view');
+        if (customView) {
+          customView.style.background = newTheme.bg;
+          if (newTheme.isLight) {
+            customView.classList.add('spine-light-vellum');
+          } else {
+            customView.classList.remove('spine-light-vellum');
+          }
+        }
+      });
+    }
 
     card.addEventListener('mousemove', (e) => {
       const isHovered = card.matches(':hover');
