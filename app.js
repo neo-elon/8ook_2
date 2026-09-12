@@ -4581,21 +4581,13 @@ detailEl.addEventListener('mouseup', e => {
 function handleDetailSwipe() {
   const diffX = touchEndX - touchStartX;
   const diffY = touchEndY - touchStartY;
-  const detailEl = document.getElementById('view-detail');
 
-  // Horizontal swipe
+  // Horizontal swipe: 좌우 스와이프로 이전/다음 책 이동만 유지
   if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
     if (diffX < 0) {
       navigateToAdjacentBook('next');
     } else {
       navigateToAdjacentBook('prev');
-    }
-  }
-  // Vertical swipe: Swipe up or down to go back to gallery
-  else if (Math.abs(diffY) > 70 && Math.abs(diffY) > Math.abs(diffX)) {
-    if (detailEl.scrollTop <= 5) {
-      showGallery();
-      toast('내 서재로 이동');
     }
   }
 }
