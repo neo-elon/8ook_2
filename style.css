@@ -847,19 +847,8 @@
       padding: 10px 4px 20px;
       perspective: 1200px;
       position: relative;
-      overflow-x: auto;
-      overflow-y: hidden;
-      white-space: nowrap;
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none !important;
-      -ms-overflow-style: none !important;
-    }
-
-    #gallery-grid.spine-view::-webkit-scrollbar {
-      display: none !important;
-      width: 0 !important;
-      height: 0 !important;
+      overflow: visible;
+      white-space: normal;
     }
 
     .yearly-shelves-container,
@@ -972,12 +961,17 @@
       border-bottom: none;
       box-shadow: none;
       overflow-x: auto;
-      overflow-y: hidden !important;
-      overscroll-behavior-y: contain;
+      overflow-y: visible;
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: auto;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none !important;
       -ms-overflow-style: none !important;
       box-sizing: border-box;
+      cursor: grab;
+    }
+    .spine-shelf-row:active {
+      cursor: grabbing;
     }
     .spine-shelf-row::-webkit-scrollbar {
       display: none !important;

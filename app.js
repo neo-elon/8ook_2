@@ -778,22 +778,64 @@ function renderGallery() {
 
 function enableSpineShelfWheel(rowEl) {
   if (!rowEl) return;
-  rowEl.addEventListener('wheel', (e) => {
-    // 가로 스크롤할 내용이 없으면 세로 스크롤 이벤트 그대로 상위로 통과
-    if (rowEl.scrollWidth <= rowEl.clientWidth + 2) {
-      return;
+
+  // 1. 마우스 드래그 가로 스크롤 (책장 안에서 가로 이동을 자유롭게 조작)
+  let isDown = false;
+  let startX = 0;
+  let scrollLeft = 0;
+  let hasMoved = false;
+
+  rowEl.addEventListener('mousedown', (e) => {
+    // 버튼, 링크 등 클릭 시 드래그 제외
+    if (e.target.closest('button') || e.target.closest('input') || e.target.closest('a')) return;
+    isDown = true;
+    hasMoved = false;
+    startX = e.pageX - rowEl.offsetLeft;
+    scrollLeft = rowEl.scrollLeft;
+  });
+
+  const onMouseUpOrLeave = () => {
+    if (isDown) {
+      isDown = false;
+      rowEl.style.cursor = 'grab';
     }
-    // 세로 휠 이동량이 더 클 때
-    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-      const atLeft = rowEl.scrollLeft <= 0;
-      const atRight = rowEl.scrollLeft + rowEl.clientWidth >= rowEl.scrollWidth - 2;
-      // 끝에 닿았으면 상하 페이지 스크롤 허용
-      if ((e.deltaY < 0 && atLeft) || (e.deltaY > 0 && atRight)) {
-        return;
-      }
+  };
+
+  window.addEventListener('mouseup', onMouseUpOrLeave);
+  rowEl.addEventListener('mouseleave', onMouseUpOrLeave);
+
+  rowEl.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    const x = e.pageX - rowEl.offsetLeft;
+    const walk = (x - startX) * 1.3;
+    if (Math.abs(walk) > 4) {
+      hasMoved = true;
+      rowEl.style.cursor = 'grabbing';
+      rowEl.scrollLeft = scrollLeft - walk;
+    }
+  });
+
+  // 드래그 중 책 카드가 잘못 열리지 않도록 클릭 이벤트 캡처 방지
+  rowEl.addEventListener('click', (e) => {
+    if (hasMoved) {
+      e.stopPropagation();
       e.preventDefault();
-      rowEl.scrollLeft += e.deltaY;
+      hasMoved = false;
     }
+  }, true);
+
+  // 2. 휠 이벤트:
+  // - Shift 키를 누르고 있거나 가로 휠/터치패드(deltaX)인 경우: 책장 가로 스크롤
+  // - 일반 세로 휠(deltaY): 상위 전체 화면(#gallery-scroll)의 자연스러운 세로 스크롤로 통과
+  rowEl.addEventListener('wheel', (e) => {
+    if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      if (rowEl.scrollWidth > rowEl.clientWidth) {
+        const delta = e.shiftKey ? e.deltaY : e.deltaX;
+        rowEl.scrollLeft += delta;
+        e.preventDefault();
+      }
+    }
+    // 일반 세로 휠(deltaY)은 브라우저 기본 세로 스크롤(#gallery-scroll)에 맡김
   }, { passive: false });
 }
 
