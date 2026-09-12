@@ -1531,14 +1531,14 @@ function showDetail(id, direction = null) {
     <div class="scraps-sec">
       <div class="scraps-hdr" style="display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
         <div style="display:flex; align-items:center; gap:8px;">
-          <div class="scraps-htitle">스크랩 문장</div>
+          <div class="scraps-htitle">수집한 문장</div>
           <button class="btn btn-ghost btn-sm" onclick="openScrapModal('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:12px; height:22px; line-height:1;">+ 추가</button>
         </div>
         <div class="scraps-badge" id="scrap-badge">${scrapCount} / 100</div>
       </div>
       <div class="scrap-list" id="scrap-list">${scrapsHtml}</div>
       ${scrapCount === 0
-      ? `<div class="scraps-empty">아직 스크랩된 문장이 없습니다.<br>
+      ? `<div class="scraps-empty">아직 수집한 문장이 없습니다.<br>
            <small style="font-size:11px;">상단의 "+ 추가" 버튼으로 문장을 기록해보세요</small></div>`
       : ''}
     </div>
@@ -4019,7 +4019,7 @@ function renderScrapsArchive() {
         if (emptyTitle) emptyTitle.textContent = '검색 조건에 맞는 문장이 없습니다';
         if (emptyDesc) emptyDesc.innerHTML = '다른 검색어나 해시태그를 선택해보세요.<br><button class="btn btn-ghost btn-sm" onclick="clearScrapArchiveSearch(); filterScrapsByTag(null);" style="margin-top:10px;">전체 문장 보기</button>';
       } else {
-        if (emptyTitle) emptyTitle.textContent = '스크랩된 문장이 없습니다';
+        if (emptyTitle) emptyTitle.textContent = '수집한 문장이 없습니다';
         if (emptyDesc) emptyDesc.textContent = '도서 상세 화면에서 "+ 추가"를 눌러 인상 깊은 문장을 기록하고 해시태그를 달아보세요.';
       }
     }
