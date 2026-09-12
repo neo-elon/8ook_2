@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260912_wheel">
+  <link rel="stylesheet" href="style.css?v=20260912_point">
 </head>
 <body>
 
@@ -246,8 +246,21 @@
         <h2 class="empty-h">아직 기록된 책이 없어요</h2>
         <p class="empty-p">상단의 <strong>＋</strong> 버튼으로 첫 번째 책을 기록해보세요.</p>
       </div>
-    </div>
     <div id="floating-year-badge"></div>
+    <!-- Month Shelf Fast Scroll Scrubber (우측 터치 스크롤포인트) -->
+    <div id="shelf-scroll-tracker" class="shelf-scroll-tracker" aria-label="월별 책장 빠른 스크롤 바">
+      <div class="shelf-scroll-track-line"></div>
+      <div id="shelf-scroll-point" class="shelf-scroll-point" title="터치/드래그하여 월별 책장 빠른 이동" role="slider" aria-label="월별 책장 스크롤 위치 조절">
+        <div id="shelf-scroll-bubble" class="shelf-scroll-bubble">2026년 3월</div>
+        <div class="shelf-scroll-knob">
+          <div class="knob-grip">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Detail View -->
@@ -841,6 +854,6 @@
 <!-- Next-Gen WebAssembly Barcode Engine (ZXing-C++ compiled to WASM) -->
 <script src="https://cdn.jsdelivr.net/npm/zxing-wasm@latest/dist/iife/reader/index.js"></script>
 
-  <script src="app.js?v=20260912_cover_split" defer></script>
+  <script src="app.js?v=20260912_point" defer></script>
 </body>
 </html>

@@ -654,6 +654,8 @@ function renderGallery() {
 
         const booksInYear = yearGroups[yKey];
         const yearLabel = yKey !== '기타' ? `${yKey}년` : '완독일 미정';
+        yearSection.setAttribute('data-label', yearLabel);
+        yearSection.setAttribute('data-ym', yKey);
 
         const header = document.createElement('div');
         header.className = 'shelf-year-header';
@@ -687,6 +689,7 @@ function renderGallery() {
             adjustSpineCardWidth(img);
           }
         });
+        updateShelfScrollTrackerVisibility();
       });
       return;
     }
@@ -725,6 +728,8 @@ function renderGallery() {
         const parts = ymKey.split('-');
         monthLabel = `${parts[0]}년 ${parseInt(parts[1], 10)}월`;
       }
+      monthSection.setAttribute('data-label', monthLabel);
+      monthSection.setAttribute('data-ym', ymKey);
 
       const header = document.createElement('div');
       header.className = 'shelf-year-header';
@@ -766,6 +771,7 @@ function renderGallery() {
           adjustSpineCardWidth(img);
         }
       });
+      updateShelfScrollTrackerVisibility();
     });
     return;
   }
@@ -773,6 +779,9 @@ function renderGallery() {
   sortedBooks.forEach((book, i) => {
     const card = createBookCardElement(book, i, false);
     grid.appendChild(card);
+  });
+  requestAnimationFrame(() => {
+    updateShelfScrollTrackerVisibility();
   });
 }
 
@@ -4728,6 +4737,20 @@ galleryScroll.addEventListener('scroll', () => {
     }
   }
 
+  // Floating Year Indicator on scroll
+  // 월별/연도별 책장에서는 우측 스크롤포인트 버블이 정확한 월을 표시하므로 스크롤포인트 동기화 처리
+  if (galleryViewMode === 'spine-month' || galleryViewMode === 'spine-year') {
+    if (badge) badge.classList.remove('show');
+    if (!isDraggingShelfTracker) {
+      const maxScroll = galleryScroll.scrollHeight - galleryScroll.clientHeight;
+      if (maxScroll > 10) {
+        const pct = galleryScroll.scrollTop / maxScroll;
+        updateShelfScrollTrackerPosition(pct, true);
+      }
+    }
+    return;
+  }
+
   if (currentYear) {
     badge.textContent = currentYear;
     badge.classList.add('show');
@@ -4738,6 +4761,159 @@ galleryScroll.addEventListener('scroll', () => {
   } else {
     badge.classList.remove('show');
   }
+});
+
+/* ==============================================
+   MONTH SHELF FAST SCROLL TRACKER (우측 터치 스크롤포인트)
+============================================== */
+let isDraggingShelfTracker = false;
+let shelfBubbleTimer = null;
+
+function getActiveMonthSectionLabel(scrollRatio) {
+  const sections = document.querySelectorAll('#gallery-grid .shelf-year-section');
+  if (!sections.length) return '';
+
+  const containerRect = galleryScroll.getBoundingClientRect();
+  const targetTop = containerRect.top + 120;
+  let activeLabel = '';
+
+  for (let sec of sections) {
+    const rect = sec.getBoundingClientRect();
+    if (rect.top <= targetTop && rect.bottom >= containerRect.top) {
+      activeLabel = sec.getAttribute('data-label') || '';
+    }
+  }
+
+  if (!activeLabel && sections.length > 0) {
+    if (galleryScroll.scrollTop <= 15) {
+      activeLabel = sections[0].getAttribute('data-label') || '';
+    } else {
+      const idx = Math.min(sections.length - 1, Math.floor(scrollRatio * sections.length));
+      activeLabel = sections[idx].getAttribute('data-label') || '';
+    }
+  }
+
+  return activeLabel;
+}
+
+function updateShelfScrollTrackerPosition(pct, showBubble = false) {
+  const tracker = document.getElementById('shelf-scroll-tracker');
+  const point = document.getElementById('shelf-scroll-point');
+  const bubble = document.getElementById('shelf-scroll-bubble');
+  if (!tracker || !point || !galleryScroll) return;
+
+  const pointH = 48;
+  const trackH = tracker.clientHeight;
+  const maxTravel = Math.max(0, trackH - pointH);
+  const clampedPct = Math.max(0, Math.min(1, pct));
+  const y = clampedPct * maxTravel;
+
+  point.style.transform = `translate3d(0, ${y}px, 0)`;
+
+  if (bubble) {
+    const label = getActiveMonthSectionLabel(clampedPct);
+    if (label) {
+      bubble.textContent = label;
+      if (showBubble) {
+        bubble.classList.add('show');
+        clearTimeout(shelfBubbleTimer);
+        if (!isDraggingShelfTracker) {
+          shelfBubbleTimer = setTimeout(() => {
+            bubble.classList.remove('show');
+          }, 1200);
+        }
+      }
+    }
+  }
+}
+
+function updateShelfScrollTrackerVisibility() {
+  const tracker = document.getElementById('shelf-scroll-tracker');
+  if (!tracker || !galleryScroll) return;
+
+  const isMonthShelf = galleryViewMode === 'spine-month' || galleryViewMode === 'spine-year';
+  const hasScroll = (galleryScroll.scrollHeight - galleryScroll.clientHeight) > 30;
+
+  if (isMonthShelf && hasScroll) {
+    tracker.classList.add('active');
+    const maxScroll = galleryScroll.scrollHeight - galleryScroll.clientHeight;
+    const pct = maxScroll > 0 ? galleryScroll.scrollTop / maxScroll : 0;
+    updateShelfScrollTrackerPosition(pct, false);
+  } else {
+    tracker.classList.remove('active');
+  }
+}
+
+function initShelfScrollTracker() {
+  const tracker = document.getElementById('shelf-scroll-tracker');
+  const point = document.getElementById('shelf-scroll-point');
+  const bubble = document.getElementById('shelf-scroll-bubble');
+  if (!tracker || !point || !galleryScroll) return;
+
+  const pointH = 48;
+
+  function scrollToPoint(clientY) {
+    const trackRect = tracker.getBoundingClientRect();
+    const trackH = trackRect.height;
+    const maxTravel = Math.max(1, trackH - pointH);
+    const relativeY = clientY - trackRect.top - (pointH / 2);
+    const clampedY = Math.max(0, Math.min(maxTravel, relativeY));
+    const pct = clampedY / maxTravel;
+
+    const maxScroll = galleryScroll.scrollHeight - galleryScroll.clientHeight;
+    galleryScroll.scrollTop = pct * maxScroll;
+    updateShelfScrollTrackerPosition(pct, true);
+  }
+
+  function onPointerMove(e) {
+    if (!isDraggingShelfTracker) return;
+    e.preventDefault();
+    scrollToPoint(e.clientY);
+  }
+
+  function onPointerUp(e) {
+    if (!isDraggingShelfTracker) return;
+    isDraggingShelfTracker = false;
+    point.classList.remove('dragging');
+    try {
+      if (e.pointerId !== undefined && point.hasPointerCapture && point.hasPointerCapture(e.pointerId)) {
+        point.releasePointerCapture(e.pointerId);
+      }
+    } catch (err) { }
+    clearTimeout(shelfBubbleTimer);
+    shelfBubbleTimer = setTimeout(() => {
+      if (bubble) bubble.classList.remove('show');
+    }, 1000);
+  }
+
+  // Pointer Down on tracker or knob (touch or left mouse)
+  tracker.addEventListener('pointerdown', (e) => {
+    if (e.button !== undefined && e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    isDraggingShelfTracker = true;
+    point.classList.add('dragging');
+    if (bubble) bubble.classList.add('show');
+    try {
+      if (e.pointerId !== undefined && point.setPointerCapture) {
+        point.setPointerCapture(e.pointerId);
+      }
+    } catch (err) { }
+
+    scrollToPoint(e.clientY);
+  });
+
+  point.addEventListener('pointermove', onPointerMove);
+  point.addEventListener('pointerup', onPointerUp);
+  point.addEventListener('pointercancel', onPointerUp);
+  window.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerup', onPointerUp);
+}
+
+// 스크롤포인트 트래커 초기화 및 윈도우 리사이즈 연동
+initShelfScrollTracker();
+window.addEventListener('resize', () => {
+  updateShelfScrollTrackerVisibility();
 });
 
 let pinchDist0 = null;

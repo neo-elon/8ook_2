@@ -741,10 +741,136 @@
       opacity: 1;
       transform: translateY(0) scale(1);
     }
+
+    /* ======================================
+       MONTH SHELF FAST SCROLL TRACKER (우측 터치 스크롤포인트)
+    ====================================== */
+    .shelf-scroll-tracker {
+      position: absolute;
+      right: 4px;
+      top: 76px;
+      bottom: 24px;
+      width: 36px;
+      z-index: 55;
+      display: none;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .shelf-scroll-tracker.active {
+      display: block;
+    }
+
+    .shelf-scroll-track-line {
+      position: absolute;
+      top: 16px;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 3px;
+      background: linear-gradient(180deg, rgba(140, 98, 57, 0.06) 0%, rgba(140, 98, 57, 0.22) 15%, rgba(140, 98, 57, 0.22) 85%, rgba(140, 98, 57, 0.06) 100%);
+      border-radius: 3px;
+      pointer-events: none;
+    }
+
+    .shelf-scroll-point {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      margin-left: -15px;
+      width: 30px;
+      height: 48px;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+      will-change: transform;
+      z-index: 2;
+    }
+    .shelf-scroll-point.dragging {
+      cursor: grabbing;
+    }
+
+    .shelf-scroll-knob {
+      width: 22px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #a67c52, #704826);
+      border: 1.5px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 3px 10px rgba(100, 60, 25, 0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.16s var(--ease), box-shadow 0.16s var(--ease);
+    }
+    .shelf-scroll-point:hover .shelf-scroll-knob,
+    .shelf-scroll-point.dragging .shelf-scroll-knob {
+      transform: scale(1.15);
+      background: linear-gradient(145deg, #c97a2b, #8c6239);
+      box-shadow: 0 4px 16px rgba(140, 98, 57, 0.42);
+      border-color: #ffffff;
+    }
+
+    .knob-grip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2.5px;
+      pointer-events: none;
+    }
+    .knob-grip span {
+      display: block;
+      width: 8px;
+      height: 1.5px;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 1px;
+    }
+
+    .shelf-scroll-bubble {
+      position: absolute;
+      right: 36px;
+      top: 50%;
+      transform: translateY(-50%) scale(0.9);
+      transform-origin: right center;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border-accent);
+      border-radius: 14px;
+      padding: 5px 12px;
+      color: var(--violet);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 4px 18px rgba(70, 50, 30, 0.18);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      letter-spacing: -0.2px;
+      font-family: var(--font-sans);
+    }
+    .shelf-scroll-bubble::after {
+      content: '';
+      position: absolute;
+      right: -5px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 6px solid var(--border-accent);
+    }
+    .shelf-scroll-bubble.show {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+    }
+
     #gallery-scroll {
       flex: 1;
       overflow-y: auto;
-      padding: 24px;
+      padding: 24px 34px 24px 24px;
       scrollbar-width: none !important;
       -ms-overflow-style: none !important;
     }
@@ -958,6 +1084,7 @@
       max-height: 362px;
       padding-top: 6px;
       padding-bottom: 5px;
+      padding-right: 38px;
       border-bottom: none;
       box-shadow: none;
       overflow-x: auto;
