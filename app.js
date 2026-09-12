@@ -416,6 +416,34 @@ function getSpineImageUrl(url) {
   return '';
 }
 
+function splitBookTitle(bookOrTitle) {
+  if (!bookOrTitle) return { main: '', sub: '' };
+  let titleStr = '';
+  let subStr = '';
+
+  if (typeof bookOrTitle === 'object') {
+    titleStr = (bookOrTitle.title || '').trim();
+    subStr = (bookOrTitle.subtitle || '').trim();
+  } else {
+    titleStr = String(bookOrTitle).trim();
+  }
+
+  if (subStr) {
+    return { main: titleStr, sub: subStr };
+  }
+
+  // Common title - subtitle delimiters: " - ", " – ", " — ", " : ", ": "
+  const delimiterMatch = titleStr.match(/^(.*?)(?:\s+[-–—]\s+|\s*[:：]\s+)(.+)$/);
+  if (delimiterMatch && delimiterMatch[1].trim() && delimiterMatch[2].trim()) {
+    return {
+      main: delimiterMatch[1].trim(),
+      sub: delimiterMatch[2].trim()
+    };
+  }
+
+  return { main: titleStr, sub: '' };
+}
+
 function getSpineTheme(book) {
   const spineThemes = [
     { bg: '#f8f6f0', text: '#111827', authorColor: '#374151', border: '#d1cdc3', tagBg: '#111827', tagText: '#f9fafb', isLight: true },
@@ -1277,6 +1305,8 @@ function createBookCardElement(book, i, isSpineMode) {
     card.setAttribute('data-pages', String(book.pages));
   }
 
+  const titleParts = splitBookTitle(book);
+
   let imgPart = '';
   if (book.cover) {
     imgPart = `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}"
@@ -1356,7 +1386,10 @@ function createBookCardElement(book, i, isSpineMode) {
           ${imgPart}
           ${kingStarBadge}
           <div class="book-hover-overlay">
-            <div class="ov-title">${esc(book.title)}</div>
+            <div class="ov-title">
+              <div class="ov-main-title">${esc(titleParts.main)}</div>
+              ${titleParts.sub ? `<div class="ov-sub-title">${esc(titleParts.sub)}</div>` : ''}
+            </div>
             <div class="ov-author">${esc(book.author || '')}</div>
             ${sentence}
             ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
@@ -1431,7 +1464,10 @@ function createBookCardElement(book, i, isSpineMode) {
       ${imgPart}
       ${kingStarBadge}
       <div class="book-hover-overlay">
-        <div class="ov-title">${esc(book.title)}</div>
+        <div class="ov-title">
+          <div class="ov-main-title">${esc(titleParts.main)}</div>
+          ${titleParts.sub ? `<div class="ov-sub-title">${esc(titleParts.sub)}</div>` : ''}
+        </div>
         <div class="ov-author">${esc(book.author || '')}</div>
         ${sentence}
         ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
@@ -1507,11 +1543,16 @@ function showDetail(id, direction = null) {
 
   const scrapsHtml = buildScrapsHtml(book);
 
+  const titleParts = splitBookTitle(book);
+
   wrap.innerHTML = `
     <div class="detail-top">
       <div class="detail-thumb">${coverHtml}</div>
       <div class="detail-info">
-        <div class="detail-title">${esc(book.title)}</div>
+        <div class="detail-title-group">
+          <div class="detail-title">${esc(titleParts.main)}</div>
+          ${titleParts.sub ? `<div class="detail-subtitle">${esc(titleParts.sub)}</div>` : ''}
+        </div>
         <div class="detail-author">${esc(book.author || '저자 미상')}</div>
         <div class="meta-chips">${chips.join('')}</div>
         ${kwHtml}
@@ -1539,8 +1580,14 @@ function showDetail(id, direction = null) {
       <div class="scrap-list" id="scrap-list">${scrapsHtml}</div>
       ${scrapCount === 0
       ? `<div class="scraps-empty">아직 수집한 문장이 없습니다.<br>
-           <small style="font-size:11px;">상단의 "+ 추가" 버튼으로 문장을 기록해보세요</small></div>`
+           <small style="font-size:11px;">상단이나 아래의 "+ 문장 추가" 버튼으로 문장을 기록해보세요</small></div>`
       : ''}
+      <div class="scraps-bottom-action">
+        <button type="button" class="scrap-add-bottom-btn" onclick="openScrapModal('${book.id}')">
+          <span style="font-size:15px; font-weight:700; color:var(--lavender); line-height:1;">＋</span>
+          <span>문장 추가</span>
+        </button>
+      </div>
     </div>
   `;
 
@@ -1699,6 +1746,8 @@ function openAddModal() {
   modalSpineCover = '';
   document.getElementById('book-modal-ttl').textContent = '책 추가';
   document.getElementById('bk-title').value = '';
+  const subEl = document.getElementById('bk-subtitle');
+  if (subEl) subEl.value = '';
   document.getElementById('bk-author').value = '';
   document.getElementById('bk-pages').value = '';
   document.getElementById('bk-date').value = new Date().toISOString().slice(0, 10);
@@ -1734,7 +1783,10 @@ async function openEditModal(id, focusKeywords = false) {
   modalSpineCover = b.spineCover || b.spine || getSpineImageUrl(b.cover) || '';
 
   document.getElementById('book-modal-ttl').textContent = '책 정보 수정';
-  document.getElementById('bk-title').value = b.title || '';
+  const titleParts = splitBookTitle(b);
+  document.getElementById('bk-title').value = titleParts.main;
+  const editSubEl = document.getElementById('bk-subtitle');
+  if (editSubEl) editSubEl.value = titleParts.sub;
   document.getElementById('bk-author').value = b.author || '';
   document.getElementById('bk-pages').value = b.pages || '';
   document.getElementById('bk-date').value = b.date || '';
@@ -1881,8 +1933,11 @@ function updateStarBtns(n) {
 }
 
 async function saveBook() {
-  const title = document.getElementById('bk-title').value.trim();
-  if (!title) { toast('도서 제목을 입력해주세요'); return; }
+  const rawTitle = document.getElementById('bk-title').value.trim();
+  if (!rawTitle) { toast('도서 제목을 입력해주세요'); return; }
+  const subInputEl = document.getElementById('bk-subtitle');
+  const rawSubtitle = subInputEl ? subInputEl.value.trim() : '';
+  const title = rawSubtitle ? `${rawTitle} - ${rawSubtitle}` : rawTitle;
 
   let user = null;
   if (supabaseClient) {
@@ -3414,7 +3469,12 @@ function applyAladinItemByIndex(index) {
 }
 
 function applyAladinItem(item) {
-  if (item.title) document.getElementById('bk-title').value = item.title;
+  if (item.title) {
+    const titleParts = splitBookTitle(item.title);
+    document.getElementById('bk-title').value = titleParts.main;
+    const subEl = document.getElementById('bk-subtitle');
+    if (subEl) subEl.value = titleParts.sub;
+  }
 
   if (item.author) {
     let cleanAuthor = item.author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '');

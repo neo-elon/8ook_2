@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260912_point">
+  <link rel="stylesheet" href="style.css?v=20260912_subtitle">
 </head>
 <body>
 
@@ -393,6 +393,12 @@
           <button class="btn btn-ghost btn-sm" onclick="searchAladin()" id="search-btn">검색</button>
           <button class="btn btn-ghost btn-sm" onclick="openBarcodeScannerModal()" id="camera-scan-btn" title="바코드 촬영 검색" style="display:flex; align-items:center; gap:4px; padding: 5px 10px;">바코드 스캔</button>
         </div>
+      </div>
+
+      <!-- Subtitle -->
+      <div class="fg" style="margin-top:-4px; margin-bottom:12px;">
+        <div class="flbl" style="font-size:11px;">부제 <span style="font-weight:400; color:var(--text-300); font-size:11px;">(선택 — 제목 아래 작게 표시)</span></div>
+        <input type="text" class="fi" id="bk-subtitle" placeholder="부제목 입력 (예: 실전편, 애자일 소프트웨어 장인 정신)">
       </div>
 
       <!-- Search results -->
@@ -856,6 +862,6 @@
 <!-- Next-Gen WebAssembly Barcode Engine (ZXing-C++ compiled to WASM) -->
 <script src="https://cdn.jsdelivr.net/npm/zxing-wasm@latest/dist/iife/reader/index.js"></script>
 
-  <script src="app.js?v=20260912_point2" defer></script>
+  <script src="app.js?v=20260912_subtitle" defer></script>
 </body>
 </html>
