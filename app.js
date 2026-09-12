@@ -1357,9 +1357,19 @@ function createBookCardElement(book, i, isSpineMode) {
     `;
 
     card.addEventListener('click', (e) => {
+      const isTouch = window.matchMedia('(pointer: coarse)').matches;
+      const isHovered = card.matches(':hover');
+
+      // 데스크톱 마우스 환경이거나 마우스오버로 이미 카드가 펼쳐져 있는 경우: 1회 클릭 시 즉시 상세 페이지로 이동
+      if (!isTouch || isHovered) {
+        showDetail(book.id);
+        return;
+      }
+
+      // 모바일/터치 환경:
       const isExpanded = card.classList.contains('is-hovered');
 
-      // 1. 아직 앞표지가 펼쳐지지 않은 상태: 어디를 누르든 먼저 앞표지 펼침
+      // 1. 아직 앞표지가 펼쳐지지 않은 상태: 탭 시 앞표지 펼침
       if (!isExpanded) {
         e.stopPropagation();
         document.querySelectorAll('.book-card.spine-mode.is-hovered').forEach(c => {
@@ -1373,25 +1383,26 @@ function createBookCardElement(book, i, isSpineMode) {
         return;
       }
 
-      // 2. 이미 앞표지가 펼쳐진 상태:
+      // 2. 터치 환경에서 이미 앞표지가 펼쳐진 상태:
       const rect = card.getBoundingClientRect();
       const clientY = (e.clientY !== undefined) ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
       const relativeY = clientY - rect.top;
-      const isTopHalf = relativeY < (rect.height / 2);
+      const isTopArea = relativeY < (rect.height / 3);
 
-      if (isTopHalf) {
-        // 위쪽 절반 클릭: 앞표지 접기
+      if (isTopArea) {
+        // 상단 1/3 탭: 앞표지 다시 접기
         e.stopPropagation();
         card.classList.remove('is-hovered');
         card.classList.add('is-closed');
       } else {
-        // 아래쪽 절반 클릭: 책 상세 페이지로 이동
+        // 표지 본문 탭: 책 상세 페이지로 이동
         showDetail(book.id);
       }
     });
 
     card.addEventListener('mouseleave', () => {
       card.classList.remove('is-closed');
+      card.classList.remove('is-hovered');
     });
   } else {
     card.innerHTML = `
