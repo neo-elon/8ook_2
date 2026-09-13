@@ -689,9 +689,7 @@
       margin-left: auto;
     }
 
-    body.page-detail #back-btn,
     body.page-detail #header-search-group,
-    body:has(#view-detail.show) #back-btn,
     body:has(#view-detail.show) #header-search-group {
       display: none !important;
     }

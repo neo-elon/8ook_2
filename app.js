@@ -1860,7 +1860,7 @@ function cleanBookScraps(book) {
 /* ==============================================
    DETAIL VIEW
 ============================================== */
-function showDetail(id, direction = null) {
+function showDetail(id, direction = null, pushHistory = true) {
   let book = books.find(b => b.id === id);
   if (!book && typeof window !== 'undefined' && window.NEO_BOOKS_131) {
     book = window.NEO_BOOKS_131.find(b => b.id === id);
@@ -1975,12 +1975,21 @@ function showDetail(id, direction = null) {
   document.getElementById('view-detail').classList.add('show');
   const backBtn = document.getElementById('back-btn');
   if (backBtn) {
-    backBtn.classList.remove('show');
-    backBtn.style.display = 'none';
+    backBtn.classList.add('show');
+    backBtn.style.display = 'inline-flex';
   }
   const searchGroup = document.getElementById('header-search-group');
   if (searchGroup) searchGroup.style.display = 'none';
-  document.getElementById('view-label').textContent = book.title;
+  const vl = document.getElementById('view-label');
+  if (vl) {
+    vl.style.display = 'inline-block';
+    vl.textContent = book.title;
+  }
+  if (pushHistory && window.history && window.history.pushState) {
+    if (!window.history.state || window.history.state.bookId !== id) {
+      window.history.pushState({ view: 'detail', bookId: id }, '', '#book=' + id);
+    }
+  }
 }
 
 function buildScrapsHtml(book) {
@@ -2047,7 +2056,15 @@ async function editScrap(bookId, scrapId) {
   openModal('scrap-modal');
 }
 
-function showGallery() {
+function handleBackNavigation() {
+  if (window.history && window.history.length > 1 && window.history.state && window.history.state.view && window.history.state.view !== 'gallery') {
+    window.history.back();
+  } else {
+    showGallery(true);
+  }
+}
+
+function showGallery(pushHistory = true) {
   document.body.classList.remove('page-detail');
   closeAppMenu();
   document.getElementById('view-gallery').style.display = '';
@@ -2059,13 +2076,20 @@ function showGallery() {
   const backBtn = document.getElementById('back-btn');
   if (backBtn) {
     backBtn.classList.remove('show');
-    backBtn.style.display = '';
+    backBtn.style.display = 'none';
   }
   const searchGroup = document.getElementById('header-search-group');
   if (searchGroup) searchGroup.style.display = '';
   const vl = document.getElementById('view-label');
   if (vl) vl.style.display = 'none';
   currentBookId = null;
+
+  if (pushHistory && window.history && window.history.pushState) {
+    if (window.history.state && window.history.state.view && window.history.state.view !== 'gallery') {
+      window.history.pushState({ view: 'gallery' }, '', '#');
+    }
+  }
+
   renderGallery();
 }
 
@@ -2089,7 +2113,7 @@ function clearGallerySearch() {
   renderGallery();
 }
 
-function showStats() {
+function showStats(pushHistory = true) {
   document.body.classList.remove('page-detail');
   closeAppMenu();
   document.getElementById('view-gallery').style.display = 'none';
@@ -2098,7 +2122,11 @@ function showStats() {
   document.getElementById('view-community').classList.remove('show');
   const scrapsView = document.getElementById('view-scraps');
   if (scrapsView) scrapsView.classList.remove('show');
-  document.getElementById('back-btn').classList.add('show');
+  const backBtn = document.getElementById('back-btn');
+  if (backBtn) {
+    backBtn.classList.add('show');
+    backBtn.style.display = 'inline-flex';
+  }
   const searchGroup = document.getElementById('header-search-group');
   if (searchGroup) searchGroup.style.display = 'none';
   const vl = document.getElementById('view-label');
@@ -2106,6 +2134,13 @@ function showStats() {
     vl.style.display = 'inline-block';
     vl.textContent = '독서 통계';
   }
+
+  if (pushHistory && window.history && window.history.pushState) {
+    if (!window.history.state || window.history.state.view !== 'stats') {
+      window.history.pushState({ view: 'stats' }, '', '#stats');
+    }
+  }
+
   showRandomQuote();
   updateSidebar();
 }
@@ -4294,7 +4329,7 @@ async function doDeleteScrap(bookId, scrapId) {
 /* ==============================================
    SCRAPS ARCHIVE & SEARCH VIEW
 ============================================== */
-function showScraps(filterTag = null, searchQuery = '') {
+function showScraps(filterTag = null, searchQuery = '', pushHistory = true) {
   document.body.classList.remove('page-detail');
   closeAppMenu();
   document.getElementById('view-gallery').style.display = 'none';
@@ -4318,6 +4353,12 @@ function showScraps(filterTag = null, searchQuery = '') {
   if (vl) {
     vl.style.display = 'inline-block';
     vl.textContent = '문장 보관함';
+  }
+
+  if (pushHistory && window.history && window.history.pushState) {
+    if (!window.history.state || window.history.state.view !== 'scraps') {
+      window.history.pushState({ view: 'scraps', tag: filterTag || '' }, '', '#scraps');
+    }
   }
 
   currentScrapFilterTag = filterTag ? filterTag.replace(/^#/, '').trim() : null;
@@ -5800,7 +5841,44 @@ loadTheme();
 
   renderGallery();
   updateSidebar();
+
+  // Initialize browser history state for seamless Back/Forward button navigation
+  if (typeof window !== 'undefined' && window.history && window.history.replaceState && !window.history.state) {
+    window.history.replaceState({ view: 'gallery' }, '', window.location.hash || '#');
+  }
+
+  // Handle URL hash navigation on direct link load (e.g. #book=id)
+  if (typeof window !== 'undefined' && window.location.hash) {
+    if (window.location.hash.startsWith('#book=')) {
+      const initBookId = window.location.hash.slice(6);
+      if (initBookId) showDetail(initBookId, null, false);
+    } else if (window.location.hash === '#community') {
+      showCommunity(false);
+    } else if (window.location.hash === '#stats') {
+      showStats(false);
+    } else if (window.location.hash.startsWith('#scraps')) {
+      showScraps(null, '', false);
+    }
+  }
 })();
+
+// Browser popstate listener for back/forward navigation
+if (typeof window !== 'undefined') {
+  window.addEventListener('popstate', (e) => {
+    const state = e.state;
+    if (state && state.view === 'detail' && state.bookId) {
+      showDetail(state.bookId, null, false);
+    } else if (state && state.view === 'community') {
+      showCommunity(false);
+    } else if (state && state.view === 'stats') {
+      showStats(false);
+    } else if (state && state.view === 'scraps') {
+      showScraps(state.tag || null, '', false);
+    } else {
+      showGallery(false);
+    }
+  });
+}
 
 /* ==============================================
    OFFICIAL 8OOK USER GUIDE (펼쳐진 가이드북 & 상세 설명)
@@ -6620,7 +6698,7 @@ function getAllCommunityBooks() {
   return Array.from(map.values());
 }
 
-function showCommunity() {
+function showCommunity(pushHistory = true) {
   document.body.classList.remove('page-detail');
   closeAppMenu();
   document.getElementById('view-gallery').style.display = 'none';
@@ -6632,7 +6710,7 @@ function showCommunity() {
 
   const backBtn = document.getElementById('back-btn');
   if (backBtn) {
-    backBtn.style.display = '';
+    backBtn.style.display = 'inline-flex';
     backBtn.classList.add('show');
   }
   const searchGroup = document.getElementById('header-search-group');
@@ -6641,6 +6719,12 @@ function showCommunity() {
   if (vl) {
     vl.style.display = 'inline-block';
     vl.textContent = '독서 커뮤니티';
+  }
+
+  if (pushHistory && window.history && window.history.pushState) {
+    if (!window.history.state || window.history.state.view !== 'community') {
+      window.history.pushState({ view: 'community' }, '', '#community');
+    }
   }
 
   fetchRemoteCommunityBooks();
