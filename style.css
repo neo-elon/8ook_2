@@ -3146,28 +3146,34 @@
       margin-left: 3px;
       font-style: normal;
     }
-    .comm-scrap-memo {
+    .comm-scrap-memo-wrap {
       clear: both;
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+      margin-top: 10px;
+      margin-bottom: 8px;
+    }
+    .comm-scrap-memo {
       position: relative;
       display: inline-block;
-      max-width: 95%;
+      max-width: 86%;
       font-size: 13px;
       color: var(--text-200);
       background: #f4efe9;
       padding: 9px 15px;
-      border-radius: 14px;
-      margin-top: 10px;
-      margin-bottom: 8px;
+      border-radius: 14px 14px 3px 14px;
       line-height: 1.55;
       word-break: break-word;
       border: 1px solid rgba(140, 98, 57, 0.12);
       box-shadow: 0 1px 4px rgba(70, 50, 30, 0.04);
+      text-align: left;
     }
     .comm-scrap-memo::before {
       content: '';
       position: absolute;
       top: -6px;
-      left: 16px;
+      right: 14px;
       width: 0;
       height: 0;
       border-left: 6px solid transparent;
@@ -3178,7 +3184,7 @@
       content: '';
       position: absolute;
       top: -7.5px;
-      left: 15px;
+      right: 13px;
       width: 0;
       height: 0;
       border-left: 7px solid transparent;

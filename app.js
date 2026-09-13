@@ -2123,10 +2123,10 @@ function buildScrapsHtml(book) {
     return `
     <div class="scrap-item" id="sc-${s.id}">
       <div class="scrap-quote">${esc(s.text)}</div>
+      ${s.memo ? `<div class="comm-scrap-memo-wrap"><div class="comm-scrap-memo">${esc(s.memo)}</div></div>` : ''}
       ${tagsHtml}
       <div class="scrap-foot" style="display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; width:100%; margin-top:4px;">
         ${s.page ? `<span class="scrap-page">p.${s.page}</span>` : ''}
-        ${s.memo ? `<span class="scrap-memo">— ${esc(s.memo)}</span>` : ''}
         <div class="scrap-actions" style="margin-left:auto; display:flex; gap:6px;">
           <button class="btn btn-ghost btn-sm" onclick="copyScrapQuoteText('${esc(s.text.replace(/'/g, "\\'"))}', '${esc(book.title.replace(/'/g, "\\'"))}', '${esc((book.author || '').replace(/'/g, "\\'"))}')" style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;" title="문장 복사">복사</button>
           ${isGuide ? '' : `
@@ -4613,10 +4613,7 @@ function renderScrapsArchive() {
     }).join('');
 
     const memoHtml = scrap.memo
-      ? `<div class="scrap-card-memo">
-           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-           <span>${highlight(scrap.memo)}</span>
-         </div>`
+      ? `<div class="comm-scrap-memo-wrap"><div class="comm-scrap-memo">${highlight(scrap.memo)}</div></div>`
       : '';
 
     const bookTitleParts = splitBookTitle(book);
@@ -7054,7 +7051,7 @@ function renderCommunityScraps() {
         <div class="comm-scrap-body">
           ${coverHtml}
           <div class="comm-scrap-text">${esc(s.text)}</div>
-          ${s.memo ? `<div class="comm-scrap-memo">${esc(s.memo)}</div>` : ''}
+          ${s.memo ? `<div class="comm-scrap-memo-wrap"><div class="comm-scrap-memo">${esc(s.memo)}</div></div>` : ''}
         </div>
         <div class="comm-scrap-footer">
           <div class="comm-scrap-title-row">
