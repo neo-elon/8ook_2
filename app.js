@@ -1904,7 +1904,10 @@ function showDetail(id, direction = null) {
       <div class="scraps-hdr" style="display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
         <div style="display:flex; align-items:center; gap:8px;">
           <div class="scraps-htitle">${isGuideBook ? '상세 가이드 챕터' : '수집한 문장'}</div>
-          ${isGuideBook ? '' : `<button class="btn btn-ghost btn-sm" onclick="openScrapModal('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:12px; height:22px; line-height:1;">+ 추가</button>`}
+          ${isGuideBook ? '' : `
+            <button class="btn btn-ghost btn-sm" onclick="openScrapModal('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:12px; height:22px; line-height:1;">+ 추가</button>
+            <button class="btn btn-ghost btn-sm" onclick="copyBookForBlog('${book.id}')" title="블로그 포스팅용으로 도서 정보와 수집한 문장 전체를 복사합니다" style="padding:2px 8px; font-size:11px; border-radius:12px; height:22px; line-height:1;">📋 내용 복사</button>
+          `}
         </div>
         <div class="scraps-badge" id="scrap-badge">${scrapCount} ${isGuideBook ? '챕터' : '/ 100'}</div>
       </div>
@@ -1918,6 +1921,10 @@ function showDetail(id, direction = null) {
         <button type="button" class="scrap-add-bottom-btn" onclick="openScrapModal('${book.id}')">
           <span style="font-size:15px; font-weight:700; color:var(--lavender); line-height:1;">＋</span>
           <span>문장 추가</span>
+        </button>
+        <button type="button" class="scrap-copy-bottom-btn" onclick="copyBookForBlog('${book.id}')" title="블로그 포스팅용으로 도서 정보와 수집한 문장 전체를 복사합니다">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--lavender); flex-shrink:0;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <span>내용 복사하기</span>
         </button>
       </div>` : ''}
     </div>
@@ -4514,7 +4521,7 @@ function copyScrapQuoteText(text, bookTitle, author) {
   }
 }
 
-function fallbackCopyText(text) {
+function fallbackCopyText(text, successMsg = '클립보드에 복사되었습니다.') {
   const ta = document.createElement('textarea');
   ta.value = text;
   ta.style.position = 'fixed';
@@ -4524,11 +4531,133 @@ function fallbackCopyText(text) {
   ta.select();
   try {
     document.execCommand('copy');
-    toast('문장이 클립보드에 복사되었습니다.');
+    toast(successMsg);
   } catch (err) {
     toast('복사에 실패했습니다.');
   }
   document.body.removeChild(ta);
+}
+
+function copyBookForBlog(bookId) {
+  let book = books.find(b => b.id === bookId);
+  if (!book && bookId === '8ook_user_guide') {
+    book = getUserGuideBook();
+  }
+  if (!book) return;
+
+  const titleParts = splitBookTitle(book);
+  const title = titleParts.main || book.title || '제목 없음';
+  const subtitle = titleParts.sub || book.subtitle || '';
+  const author = book.author || '';
+  const date = book.date ? fmtDate(book.date) : '';
+  const pages = book.pages ? `${Number(book.pages).toLocaleString()}쪽` : '';
+  const ratingVal = Number(book.rating) || 0;
+  const ratingStr = ratingVal > 0 ? `${'★'.repeat(Math.round(ratingVal))}${'☆'.repeat(5 - Math.round(ratingVal))} (${ratingVal}점)` : '';
+  const keywords = (book.keywords && book.keywords.length) ? book.keywords.map(k => `#${k}`).join(' ') : '';
+  const sentence = book.sentence ? book.sentence.trim() : '';
+
+  const scraps = [...(book.scraps || [])].sort((a, b) => (Number(a.page) || 0) - (Number(b.page) || 0));
+
+  // 1. Plain Text Format (for standard markdown/notepad)
+  let plain = `[도서 정보]\n`;
+  plain += `📖 도서명: 《${title}》\n`;
+  if (subtitle) plain += `💬 부제: ${subtitle}\n`;
+  if (author) plain += `✍️ 저자: ${author}\n`;
+  if (date) plain += `📅 완독일: ${date}\n`;
+  if (pages) plain += `📑 분량: ${pages}\n`;
+  if (ratingStr) plain += `⭐ 평점: ${ratingStr}\n`;
+  if (keywords) plain += `🏷️ 키워드: ${keywords}\n`;
+
+  if (sentence) {
+    plain += `\n[한 줄 평]\n“${sentence}”\n`;
+  }
+
+  plain += `\n────────────────────────────\n`;
+  plain += `\n[수집한 문장 & 독서 기록]\n`;
+
+  if (scraps.length === 0) {
+    plain += `(기록된 문장이 없습니다.)\n`;
+  } else {
+    scraps.forEach((s, idx) => {
+      const pageInfo = s.page ? ` (p.${s.page})` : '';
+      plain += `\n${idx + 1}.${pageInfo}\n“${s.text}”\n`;
+      if (s.memo) {
+        plain += `💡 생각: ${s.memo}\n`;
+      }
+      const sTags = (s.tags || s.keywords || []).filter(Boolean);
+      if (sTags.length) {
+        plain += `🏷️ ${sTags.map(t => `#${t}`).join(' ')}\n`;
+      }
+    });
+  }
+
+  plain += `\n────────────────────────────\n출처: 8ook (나만의 독서기록)\n`;
+
+  // 2. Rich HTML Format (for Naver Blog, Tistory, Brunch, Velog, Notion, Google Docs)
+  let html = `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; line-height: 1.7; color: #222; max-width: 680px; padding: 8px 0;">`;
+  html += `<h2 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: #111;">📚 《${esc(title)}》</h2>`;
+  if (subtitle) {
+    html += `<div style="font-size: 14px; color: #666; margin-bottom: 14px;">${esc(subtitle)}</div>`;
+  }
+
+  html += `<table style="width: 100%; max-width: 480px; border-collapse: collapse; margin: 12px 0 16px 0; font-size: 13.5px; line-height: 1.6;">`;
+  html += `<tbody>`;
+  if (author) html += `<tr><td style="padding: 3px 0; color: #777; width: 65px;">저자</td><td style="padding: 3px 0; font-weight: 500; color: #222;">${esc(author)}</td></tr>`;
+  if (date) html += `<tr><td style="padding: 3px 0; color: #777;">완독일</td><td style="padding: 3px 0; color: #222;">${esc(date)}</td></tr>`;
+  if (pages) html += `<tr><td style="padding: 3px 0; color: #777;">분량</td><td style="padding: 3px 0; color: #222;">${esc(pages)}</td></tr>`;
+  if (ratingStr) html += `<tr><td style="padding: 3px 0; color: #777;">평점</td><td style="padding: 3px 0; color: #e59819; font-weight: 600;">${esc(ratingStr)}</td></tr>`;
+  if (keywords) html += `<tr><td style="padding: 3px 0; color: #777;">키워드</td><td style="padding: 3px 0; color: #8c6239;">${esc(keywords)}</td></tr>`;
+  html += `</tbody></table>`;
+
+  if (sentence) {
+    html += `<blockquote style="margin: 16px 0 20px 0; padding: 12px 18px; border-left: 4px solid #8c6239; background: #faf7f2; border-radius: 4px; font-size: 14.5px; color: #222; font-style: normal; line-height: 1.65;">`;
+    html += `“${esc(sentence)}”`;
+    html += `</blockquote>`;
+  }
+
+  html += `<hr style="border: none; border-top: 1px dashed #d8cfc4; margin: 24px 0;" />`;
+  html += `<h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 700; color: #222;">🔖 수집한 문장 &amp; 독서 기록</h3>`;
+
+  if (scraps.length === 0) {
+    html += `<p style="color: #888; font-size: 13.5px;">(기록된 문장이 없습니다.)</p>`;
+  } else {
+    scraps.forEach((s, idx) => {
+      const pageInfo = s.page ? ` (p.${s.page})` : '';
+      html += `<div style="margin-bottom: 22px;">`;
+      html += `<div style="font-size: 12.5px; font-weight: 700; color: #8c6239; margin-bottom: 5px;">${idx + 1}.${pageInfo}</div>`;
+      html += `<blockquote style="margin: 0 0 8px 0; padding: 11px 16px; background: #fbf9f5; border-left: 3px solid #c97a2b; border-radius: 4px; font-size: 14px; line-height: 1.7; color: #111; font-style: normal;">“${esc(s.text)}”</blockquote>`;
+      if (s.memo) {
+        html += `<div style="margin: 6px 0 0 10px; font-size: 13px; color: #444; line-height: 1.6;">💡 <strong>생각:</strong> ${esc(s.memo)}</div>`;
+      }
+      const sTags = (s.tags || s.keywords || []).filter(Boolean);
+      if (sTags.length) {
+        html += `<div style="margin: 4px 0 0 10px; font-size: 12px; color: #8c6239;">${sTags.map(t => `#${esc(t)}`).join(' ')}</div>`;
+      }
+      html += `</div>`;
+    });
+  }
+
+  html += `<hr style="border: none; border-top: 1px dashed #d8cfc4; margin: 24px 0 14px 0;" />`;
+  html += `<div style="font-size: 12px; color: #999; text-align: right;">출처: 8ook (나만의 독서기록)</div>`;
+  html += `</div>`;
+
+  const successMsg = '블로그용 독서노트가 복사되었습니다! (네이버블로그, 노션 등에서 Ctrl+V)';
+  if (navigator.clipboard && window.ClipboardItem) {
+    const blobHtml = new Blob([html], { type: 'text/html' });
+    const blobText = new Blob([plain], { type: 'text/plain' });
+    navigator.clipboard.write([
+      new ClipboardItem({
+        'text/html': blobHtml,
+        'text/plain': blobText
+      })
+    ]).then(() => {
+      toast(successMsg);
+    }).catch(() => {
+      fallbackCopyText(plain, successMsg);
+    });
+  } else {
+    fallbackCopyText(plain, successMsg);
+  }
 }
 
 /* ==============================================
