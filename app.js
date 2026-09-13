@@ -4634,10 +4634,10 @@ function copyBookForBlog(bookId) {
   plain += `\n────────────────────────────\n출처: 8ook (나만의 독서기록)\n`;
 
   // 2. Rich HTML Format (No icons, no table structure)
-  let html = `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; line-height: 1.8; color: #222; max-width: 680px; padding: 8px 0;">`;
-  html += `<h2 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: #111;">《${esc(title)}》</h2>`;
+  let html = `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; line-height: 1.8; color: #222; max-width: 680px; padding: 8px 0; font-size: 15px;">`;
+  html += `<h2 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 700; color: #111;">《${esc(title)}》</h2>`;
   if (subtitle) {
-    html += `<div style="font-size: 14px; color: #666; margin-bottom: 14px;">${esc(subtitle)}</div>`;
+    html += `<div style="font-size: 15px; color: #666; margin-bottom: 14px;">${esc(subtitle)}</div>`;
   }
 
   if (coverUrl) {
@@ -4646,7 +4646,7 @@ function copyBookForBlog(bookId) {
     html += `</div>`;
   }
 
-  html += `<div style="margin: 14px 0 18px 0; font-size: 14px; line-height: 1.8;">`;
+  html += `<div style="margin: 14px 0 18px 0; font-size: 15px; line-height: 1.8;">`;
   if (author) html += `<div><strong>저자:</strong> ${esc(author)}</div>`;
   if (date) html += `<div><strong>완독일:</strong> ${esc(date)}</div>`;
   if (pages) html += `<div><strong>분량:</strong> ${esc(pages)}</div>`;
@@ -4660,10 +4660,10 @@ function copyBookForBlog(bookId) {
   }
 
   html += `<hr style="border: none; border-top: 1px dashed #d8cfc4; margin: 24px 0;" />`;
-  html += `<h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 700; color: #222;">수집한 문장 &amp; 독서 기록</h3>`;
+  html += `<h3 style="margin: 0 0 16px 0; font-size: 19px; font-weight: 700; color: #222;">수집한 문장 &amp; 독서 기록</h3>`;
 
   if (scraps.length === 0) {
-    html += `<p style="color: #888; font-size: 13.5px;">(기록된 문장이 없습니다.)</p>`;
+    html += `<p style="color: #888; font-size: 14px;">(기록된 문장이 없습니다.)</p>`;
   } else {
     scraps.forEach((s) => {
       const pageNum = s.page ? (String(s.page).replace(/^[^\d]*/, '').trim() || String(s.page).trim()) : '';
@@ -4678,14 +4678,14 @@ function copyBookForBlog(bookId) {
       html += `</blockquote>`;
 
       if (s.memo) {
-        html += `<div style="margin: 6px 0 0 8px; font-size: 13.5px; color: #444; line-height: 1.6;">${esc(s.memo)}</div>`;
+        html += `<div style="margin: 6px 0 0 4px; font-size: 15px; color: #333; line-height: 1.7;">${esc(s.memo)}</div>`;
       }
       html += `</div>`;
     });
   }
 
   html += `<hr style="border: none; border-top: 1px dashed #d8cfc4; margin: 24px 0 14px 0;" />`;
-  html += `<div style="font-size: 12px; color: #999; text-align: right;">출처: 8ook (나만의 독서기록)</div>`;
+  html += `<div style="font-size: 13px; color: #999; text-align: right;">출처: 8ook (나만의 독서기록)</div>`;
   html += `</div>`;
 
   const successMsg = '블로그용 독서노트가 복사되었습니다! (네이버블로그, 노션 등에서 Ctrl+V)';
