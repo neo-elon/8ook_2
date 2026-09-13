@@ -6710,10 +6710,7 @@ function renderCommunityBooks() {
       : '';
 
     const isLiked = !!storedBookLikes['bk_' + b.id];
-    const baseLikes = (b.likes !== undefined)
-      ? b.likes
-      : ((b.rating ? Number(b.rating) * 3 : 6) + (Math.abs((b.id || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)) % 16));
-    const currentLikes = baseLikes + (isLiked ? 1 : 0);
+    const currentLikes = isLiked ? 1 : 0;
 
     return `
       <div class="comm-book-card">
@@ -6752,16 +6749,15 @@ function toggleCommunityBookLike(id, btnEl, event) {
   const key = 'bk_' + id;
   const wasLiked = !!storedLikes[key];
   const countSpan = btnEl.querySelector('.like-count');
-  let currentCount = parseInt(countSpan.textContent, 10) || 0;
 
   if (wasLiked) {
     delete storedLikes[key];
     btnEl.classList.remove('liked');
-    countSpan.textContent = Math.max(0, currentCount - 1);
+    countSpan.textContent = '0';
   } else {
     storedLikes[key] = true;
     btnEl.classList.add('liked');
-    countSpan.textContent = currentCount + 1;
+    countSpan.textContent = '1';
     toast('도서에 좋아요를 남겼습니다 ♥');
   }
 
