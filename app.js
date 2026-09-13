@@ -388,14 +388,6 @@ function adjustSpineCardWidth(img) {
   if (w < 16) w = 16;
   card.style.width = w + 'px';
   card.style.setProperty('--spine-w', w + 'px');
-
-  const row = card.closest('.spine-shelf-row');
-  if (row && row._rulerTrack) {
-    if (row._rulerTimer) clearTimeout(row._rulerTimer);
-    row._rulerTimer = setTimeout(() => {
-      row._rulerTrack.innerHTML = buildShelfRulerSvg(row);
-    }, 60);
-  }
 }
 
 function getGalleryViewMode() {
@@ -767,6 +759,16 @@ document.addEventListener('click', (e) => {
 /* ==============================================
    GALLERY
 ============================================== */
+function getShelfTotalPages(booksList) {
+  if (!booksList || !booksList.length) return 0;
+  return booksList.reduce((sum, b) => {
+    const p = parseInt(b.pages, 10);
+    if (!isNaN(p) && p > 0) return sum + p;
+    const w = getSpineWidth(b.pages);
+    return sum + Math.max(100, Math.round((w - 18) / 0.055 / 10) * 10);
+  }, 0);
+}
+
 function renderGallery() {
   const grid = document.getElementById('gallery-grid');
   const empty = document.getElementById('gallery-empty');
@@ -786,7 +788,9 @@ function renderGallery() {
 
   // If stars view is active, prepend 5-star banner
   if (galleryViewMode === 'stars') {
-    const starCount = books.filter(b => b.rating === 5).length;
+    const starBooks = books.filter(b => b.rating === 5);
+    const starCount = starBooks.length;
+    const starPages = getShelfTotalPages(starBooks);
     const starsBanner = document.createElement('div');
     starsBanner.className = 'stars-shelf-banner';
     starsBanner.style.cssText = 'grid-column: 1 / -1; width: 100%; background: linear-gradient(135deg, rgba(201, 122, 43, 0.12) 0%, rgba(166, 96, 30, 0.05) 100%); border: 1px solid rgba(201, 122, 43, 0.3); border-radius: var(--radius-md); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--text-100); margin-bottom: 8px; box-sizing: border-box;';
@@ -794,7 +798,7 @@ function renderGallery() {
       <span style="display:flex; align-items:center; gap:8px;">
         <strong>인생작 책장</strong>
         <span style="font-size:11px; opacity:0.8; color:var(--amber);">(★ 5.0)</span>
-        <span class="shelf-year-count" style="margin-left:2px; font-weight:700; color:var(--amber); background:rgba(201,122,43,0.15);">${starCount}권</span>
+        <span class="shelf-year-count" style="margin-left:2px; font-weight:700; color:var(--amber); background:rgba(201,122,43,0.15);">${starCount}권 · ${starPages.toLocaleString()}p</span>
         <button class="shelf-download-btn" onclick="downloadStarsShelfImage()" title="인생작 책장 이미지 저장" aria-label="인생작 책장 이미지 저장" style="color:var(--amber); opacity:0.75;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 3v12"></path>
@@ -897,7 +901,6 @@ function renderGallery() {
       });
 
       shelfContainer.appendChild(shelfRow);
-      attachShelfRuler(shelfContainer, shelfRow);
       grid.appendChild(shelfContainer);
 
       requestAnimationFrame(() => {
@@ -906,7 +909,6 @@ function renderGallery() {
             adjustSpineCardWidth(img);
           }
         });
-        updateAllShelfRulers();
       });
       return;
     }
@@ -941,6 +943,7 @@ function renderGallery() {
 
         const booksInYear = yearGroups[yKey];
         const yearLabel = yKey !== '기타' ? `${yKey}년` : '완독일 미정';
+        const yearPages = getShelfTotalPages(booksInYear);
         yearSection.setAttribute('data-label', yearLabel);
         yearSection.setAttribute('data-ym', yKey);
 
@@ -949,7 +952,7 @@ function renderGallery() {
         header.innerHTML = `
           <div class="shelf-year-badge">
             <span class="shelf-year-title">${yearLabel}</span>
-            <span class="shelf-year-count">${booksInYear.length}권</span>
+            <span class="shelf-year-count">${booksInYear.length}권 · ${yearPages.toLocaleString()}p</span>
           </div>
           <div class="shelf-year-line"></div>
         `;
@@ -965,7 +968,6 @@ function renderGallery() {
         });
 
         yearSection.appendChild(shelfRow);
-        attachShelfRuler(yearSection, shelfRow);
         shelfContainer.appendChild(yearSection);
       });
 
@@ -978,7 +980,6 @@ function renderGallery() {
           }
         });
         updateShelfScrollTrackerVisibility();
-        updateAllShelfRulers();
       });
       return;
     }
@@ -1017,6 +1018,7 @@ function renderGallery() {
         const parts = ymKey.split('-');
         monthLabel = `${parts[0]}년 ${parseInt(parts[1], 10)}월`;
       }
+      const monthPages = getShelfTotalPages(booksInMonth);
       monthSection.setAttribute('data-label', monthLabel);
       monthSection.setAttribute('data-ym', ymKey);
 
@@ -1025,7 +1027,7 @@ function renderGallery() {
       header.innerHTML = `
         <div class="shelf-year-badge">
           <span class="shelf-year-title">${monthLabel}</span>
-          <span class="shelf-year-count">${booksInMonth.length}권</span>
+          <span class="shelf-year-count">${booksInMonth.length}권 · ${monthPages.toLocaleString()}p</span>
           <button class="shelf-download-btn" onclick="downloadMonthShelfImage('${esc(ymKey)}', '${esc(monthLabel)}')" title="${esc(monthLabel)} 책장 이미지 저장" aria-label="책장 이미지 저장">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 3v12"></path>
@@ -1048,7 +1050,6 @@ function renderGallery() {
       });
 
       monthSection.appendChild(shelfRow);
-      attachShelfRuler(monthSection, shelfRow);
       shelfContainer.appendChild(monthSection);
     });
 
@@ -1062,7 +1063,6 @@ function renderGallery() {
         }
       });
       updateShelfScrollTrackerVisibility();
-      updateAllShelfRulers();
     });
     return;
   }
@@ -1075,131 +1075,6 @@ function renderGallery() {
     updateShelfScrollTrackerVisibility();
   });
 }
-
-// ======================================
-// MINIMAL 100-PAGE SHELF RULER (책장 100페이지 눈금 자)
-// ======================================
-function attachShelfRuler(parentEl, shelfRow) {
-  const rulerTrack = document.createElement('div');
-  rulerTrack.className = 'shelf-ruler-track';
-  parentEl.appendChild(rulerTrack);
-
-  let isSyncingRow = false;
-  let isSyncingRuler = false;
-
-  shelfRow.addEventListener('scroll', () => {
-    if (isSyncingRuler) return;
-    isSyncingRow = true;
-    rulerTrack.scrollLeft = shelfRow.scrollLeft;
-    isSyncingRow = false;
-  }, { passive: true });
-
-  rulerTrack.addEventListener('scroll', () => {
-    if (isSyncingRow) return;
-    isSyncingRuler = true;
-    shelfRow.scrollLeft = rulerTrack.scrollLeft;
-    isSyncingRuler = false;
-  }, { passive: true });
-
-  enableSpineShelfWheel(rulerTrack);
-  shelfRow._rulerTrack = rulerTrack;
-}
-
-function buildShelfRulerSvg(shelfRow) {
-  const cards = shelfRow.querySelectorAll('.book-card.spine-mode');
-  if (!cards.length) return '';
-
-  const totalScrollW = Math.max(shelfRow.scrollWidth, shelfRow.offsetWidth || 0);
-  const svgW = Math.max(totalScrollW, 600);
-  const svgH = 20;
-
-  let elements = [];
-
-  // Baseline across the entire shelf
-  elements.push(`<line x1="0" y1="1" x2="${svgW}" y2="1" stroke="rgba(140, 98, 57, 0.22)" stroke-width="1"/>`);
-
-  const firstCardLeft = cards[0].offsetLeft;
-  const lastCard = cards[cards.length - 1];
-  const lastCardRight = lastCard.offsetLeft + lastCard.offsetWidth;
-  const totalBooksW = Math.max(1, lastCardRight - firstCardLeft);
-
-  // Sum total shelf pages
-  let totalShelfPages = 0;
-  cards.forEach(card => {
-    let p = parseInt(card.getAttribute('data-pages'), 10);
-    if (isNaN(p) || p <= 0) {
-      const cw = card.offsetWidth || 35;
-      p = Math.max(100, Math.round((cw - 18) / 0.055 / 10) * 10);
-    }
-    totalShelfPages += p;
-  });
-
-  if (totalShelfPages <= 0) return '';
-
-  // Calculate completely uniform, equidistant step for every 100 pages
-  const pxPerPage = totalBooksW / totalShelfPages;
-
-  // Start tick at 0
-  const startX = firstCardLeft;
-  elements.push(`<line x1="${startX}" y1="1" x2="${startX}" y2="7" stroke="rgba(140, 98, 57, 0.55)" stroke-width="1.2"/>`);
-  elements.push(`<text x="${startX}" y="16" font-size="8.5" font-family="'Playfair Display', serif" font-weight="600" fill="var(--text-300)" text-anchor="middle">0</text>`);
-
-  let lastLabelX = startX;
-
-  // Render strictly uniform, equidistant 100-page ticks across the entire shelf
-  for (let pageVal = 100; pageVal <= totalShelfPages; pageVal += 100) {
-    const x = Math.round(startX + (pageVal * pxPerPage));
-
-    const is1000 = (pageVal % 1000 === 0);
-    const is500 = (pageVal % 500 === 0);
-
-    let tickH = 4;
-    let strokeColor = 'rgba(140, 98, 57, 0.38)';
-    let strokeW = 1;
-
-    if (is1000) {
-      tickH = 9;
-      strokeColor = 'var(--violet)';
-      strokeW = 1.5;
-    } else if (is500) {
-      tickH = 7;
-      strokeColor = 'var(--violet)';
-      strokeW = 1.2;
-    }
-
-    elements.push(`<line x1="${x}" y1="1" x2="${x}" y2="${1 + tickH}" stroke="${strokeColor}" stroke-width="${strokeW}"><title>${pageVal.toLocaleString()}p</title></line>`);
-
-    // Determine whether to display number label (500, 1000, 1500... or smaller milestones without collision)
-    const shouldShowLabel = is500 || (totalShelfPages <= 600 && (x - lastLabelX >= 28));
-    if (shouldShowLabel && (x - lastLabelX >= 24) && (lastCardRight - x >= 24)) {
-      const labelText = pageVal >= 1000 ? pageVal.toLocaleString() : String(pageVal);
-      elements.push(`<text x="${x}" y="16" font-size="8.5" font-family="'Playfair Display', serif" font-weight="600" fill="var(--text-300)" text-anchor="middle">${labelText}</text>`);
-      lastLabelX = x;
-    }
-  }
-
-  // End total badge at the end of the books
-  const endX = lastCardRight;
-  elements.push(`<line x1="${endX}" y1="1" x2="${endX}" y2="8" stroke="var(--violet)" stroke-width="1.5"/>`);
-  elements.push(`<text x="${endX + 6}" y="13" font-size="9" font-family="'Noto Sans KR', sans-serif" font-weight="700" fill="var(--violet)">총 ${totalShelfPages.toLocaleString()}p</text>`);
-
-  return `<svg class="shelf-page-ruler-svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="display:block; overflow:visible;">
-    ${elements.join('')}
-  </svg>`;
-}
-
-function updateAllShelfRulers() {
-  document.querySelectorAll('.spine-shelf-row').forEach(shelfRow => {
-    if (shelfRow._rulerTrack) {
-      shelfRow._rulerTrack.innerHTML = buildShelfRulerSvg(shelfRow);
-    }
-  });
-}
-
-window.addEventListener('resize', () => {
-  if (window._shelfRulerResizeTimer) clearTimeout(window._shelfRulerResizeTimer);
-  window._shelfRulerResizeTimer = setTimeout(updateAllShelfRulers, 100);
-});
 
 function enableSpineShelfWheel(rowEl) {
   if (!rowEl) return;

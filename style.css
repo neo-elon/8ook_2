@@ -1106,36 +1106,6 @@
       height: 0 !important;
     }
 
-    /* ======================================
-       MINIMAL 100-PAGE SHELF RULER (책장 100페이지 눈금 자)
-    ====================================== */
-    .shelf-ruler-track {
-      width: 100%;
-      overflow-x: auto;
-      overflow-y: hidden;
-      scrollbar-width: none !important;
-      -ms-overflow-style: none !important;
-      margin-top: -3px;
-      padding-bottom: 4px;
-      padding-right: 38px;
-      box-sizing: border-box;
-      user-select: none;
-      cursor: grab;
-    }
-    .shelf-ruler-track:active {
-      cursor: grabbing;
-    }
-    .shelf-ruler-track::-webkit-scrollbar {
-      display: none !important;
-      width: 0 !important;
-      height: 0 !important;
-    }
-    .shelf-page-ruler-svg {
-      display: block;
-      overflow: visible;
-      pointer-events: auto;
-    }
-
     /* Spine Month Divider (Book Separator Tab) */
     .spine-month-divider {
       display: flex;
