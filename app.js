@@ -4558,15 +4558,15 @@ function copyBookForBlog(bookId) {
 
   const scraps = [...(book.scraps || [])].sort((a, b) => (Number(a.page) || 0) - (Number(b.page) || 0));
 
-  // 1. Plain Text Format (for standard markdown/notepad)
+  // 1. Plain Text Format (No icons, no table)
   let plain = `[도서 정보]\n`;
-  plain += `📖 도서명: 《${title}》\n`;
-  if (subtitle) plain += `💬 부제: ${subtitle}\n`;
-  if (author) plain += `✍️ 저자: ${author}\n`;
-  if (date) plain += `📅 완독일: ${date}\n`;
-  if (pages) plain += `📑 분량: ${pages}\n`;
-  if (ratingStr) plain += `⭐ 평점: ${ratingStr}\n`;
-  if (keywords) plain += `🏷️ 키워드: ${keywords}\n`;
+  plain += `도서명: 《${title}》\n`;
+  if (subtitle) plain += `부제: ${subtitle}\n`;
+  if (author) plain += `저자: ${author}\n`;
+  if (date) plain += `완독일: ${date}\n`;
+  if (pages) plain += `분량: ${pages}\n`;
+  if (ratingStr) plain += `평점: ${ratingStr}\n`;
+  if (keywords) plain += `키워드: ${keywords}\n`;
 
   if (sentence) {
     plain += `\n[한 줄 평]\n“${sentence}”\n`;
@@ -4582,32 +4582,31 @@ function copyBookForBlog(bookId) {
       const pageInfo = s.page ? ` (p.${s.page})` : '';
       plain += `\n${idx + 1}.${pageInfo}\n“${s.text}”\n`;
       if (s.memo) {
-        plain += `💡 생각: ${s.memo}\n`;
+        plain += `생각: ${s.memo}\n`;
       }
       const sTags = (s.tags || s.keywords || []).filter(Boolean);
       if (sTags.length) {
-        plain += `🏷️ ${sTags.map(t => `#${t}`).join(' ')}\n`;
+        plain += `${sTags.map(t => `#${t}`).join(' ')}\n`;
       }
     });
   }
 
   plain += `\n────────────────────────────\n출처: 8ook (나만의 독서기록)\n`;
 
-  // 2. Rich HTML Format (for Naver Blog, Tistory, Brunch, Velog, Notion, Google Docs)
-  let html = `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; line-height: 1.7; color: #222; max-width: 680px; padding: 8px 0;">`;
-  html += `<h2 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: #111;">📚 《${esc(title)}》</h2>`;
+  // 2. Rich HTML Format (No icons, no table structure)
+  let html = `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; line-height: 1.8; color: #222; max-width: 680px; padding: 8px 0;">`;
+  html += `<h2 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: #111;">《${esc(title)}》</h2>`;
   if (subtitle) {
     html += `<div style="font-size: 14px; color: #666; margin-bottom: 14px;">${esc(subtitle)}</div>`;
   }
 
-  html += `<table style="width: 100%; max-width: 480px; border-collapse: collapse; margin: 12px 0 16px 0; font-size: 13.5px; line-height: 1.6;">`;
-  html += `<tbody>`;
-  if (author) html += `<tr><td style="padding: 3px 0; color: #777; width: 65px;">저자</td><td style="padding: 3px 0; font-weight: 500; color: #222;">${esc(author)}</td></tr>`;
-  if (date) html += `<tr><td style="padding: 3px 0; color: #777;">완독일</td><td style="padding: 3px 0; color: #222;">${esc(date)}</td></tr>`;
-  if (pages) html += `<tr><td style="padding: 3px 0; color: #777;">분량</td><td style="padding: 3px 0; color: #222;">${esc(pages)}</td></tr>`;
-  if (ratingStr) html += `<tr><td style="padding: 3px 0; color: #777;">평점</td><td style="padding: 3px 0; color: #e59819; font-weight: 600;">${esc(ratingStr)}</td></tr>`;
-  if (keywords) html += `<tr><td style="padding: 3px 0; color: #777;">키워드</td><td style="padding: 3px 0; color: #8c6239;">${esc(keywords)}</td></tr>`;
-  html += `</tbody></table>`;
+  html += `<div style="margin: 14px 0 18px 0; font-size: 14px; line-height: 1.8;">`;
+  if (author) html += `<div><strong>저자:</strong> ${esc(author)}</div>`;
+  if (date) html += `<div><strong>완독일:</strong> ${esc(date)}</div>`;
+  if (pages) html += `<div><strong>분량:</strong> ${esc(pages)}</div>`;
+  if (ratingStr) html += `<div><strong>평점:</strong> ${esc(ratingStr)}</div>`;
+  if (keywords) html += `<div><strong>키워드:</strong> ${esc(keywords)}</div>`;
+  html += `</div>`;
 
   if (sentence) {
     html += `<blockquote style="margin: 16px 0 20px 0; padding: 12px 18px; border-left: 4px solid #8c6239; background: #faf7f2; border-radius: 4px; font-size: 14.5px; color: #222; font-style: normal; line-height: 1.65;">`;
@@ -4616,7 +4615,7 @@ function copyBookForBlog(bookId) {
   }
 
   html += `<hr style="border: none; border-top: 1px dashed #d8cfc4; margin: 24px 0;" />`;
-  html += `<h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 700; color: #222;">🔖 수집한 문장 &amp; 독서 기록</h3>`;
+  html += `<h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 700; color: #222;">수집한 문장 &amp; 독서 기록</h3>`;
 
   if (scraps.length === 0) {
     html += `<p style="color: #888; font-size: 13.5px;">(기록된 문장이 없습니다.)</p>`;
@@ -4624,14 +4623,14 @@ function copyBookForBlog(bookId) {
     scraps.forEach((s, idx) => {
       const pageInfo = s.page ? ` (p.${s.page})` : '';
       html += `<div style="margin-bottom: 22px;">`;
-      html += `<div style="font-size: 12.5px; font-weight: 700; color: #8c6239; margin-bottom: 5px;">${idx + 1}.${pageInfo}</div>`;
+      html += `<div style="font-size: 13px; font-weight: 700; color: #8c6239; margin-bottom: 5px;">${idx + 1}.${pageInfo}</div>`;
       html += `<blockquote style="margin: 0 0 8px 0; padding: 11px 16px; background: #fbf9f5; border-left: 3px solid #c97a2b; border-radius: 4px; font-size: 14px; line-height: 1.7; color: #111; font-style: normal;">“${esc(s.text)}”</blockquote>`;
       if (s.memo) {
-        html += `<div style="margin: 6px 0 0 10px; font-size: 13px; color: #444; line-height: 1.6;">💡 <strong>생각:</strong> ${esc(s.memo)}</div>`;
+        html += `<div style="margin: 6px 0 0 8px; font-size: 13.5px; color: #444; line-height: 1.6;"><strong>생각:</strong> ${esc(s.memo)}</div>`;
       }
       const sTags = (s.tags || s.keywords || []).filter(Boolean);
       if (sTags.length) {
-        html += `<div style="margin: 4px 0 0 10px; font-size: 12px; color: #8c6239;">${sTags.map(t => `#${esc(t)}`).join(' ')}</div>`;
+        html += `<div style="margin: 4px 0 0 8px; font-size: 12.5px; color: #8c6239;">${sTags.map(t => `#${esc(t)}`).join(' ')}</div>`;
       }
       html += `</div>`;
     });
