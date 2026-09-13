@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260913_scrap_btn_sync">
+  <link rel="stylesheet" href="style.css?v=20260913_community_v2">
 </head>
 <body>
 
@@ -114,20 +114,20 @@
         </div>
       </button>
 
-      <!-- Community nav button (hidden for now) -->
-      <button id="community-nav-btn" class="menu-nav-item" onclick="showCommunity(); closeAppMenu();" style="display:none;">
-        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">03</span>
-        <div class="menu-nav-text">
-          <span class="menu-nav-title">독서 커뮤니티</span>
-          <span class="menu-nav-desc">독자 피드 및 한 줄 서평</span>
-        </div>
-      </button>
-
       <button id="scraps-nav-btn" class="menu-nav-item" onclick="showScraps(); closeAppMenu();">
         <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">03</span>
         <div class="menu-nav-text">
           <span class="menu-nav-title">문장 보관함</span>
           <span class="menu-nav-desc">수집한 문장 &amp; 해시태그 검색</span>
+        </div>
+      </button>
+
+      <!-- Community nav button -->
+      <button id="community-nav-btn" class="menu-nav-item" onclick="showCommunity(); closeAppMenu();">
+        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">04</span>
+        <div class="menu-nav-text">
+          <span class="menu-nav-title">독서 커뮤니티</span>
+          <span class="menu-nav-desc">새로 추가된 책 &amp; 문장 아카이브</span>
         </div>
       </button>
     </nav>
@@ -136,7 +136,7 @@
     <div class="menu-section-title">도구 및 설정</div>
     <nav class="menu-nav-list">
       <button id="export-sheets-btn" class="menu-nav-item" onclick="openExportModal(); closeAppMenu();">
-        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">04</span>
+        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">05</span>
         <div class="menu-nav-text">
           <span class="menu-nav-title">스프레드시트 내보내기</span>
           <span class="menu-nav-desc">구글 시트(Google Sheets) 백업</span>
@@ -144,7 +144,7 @@
       </button>
 
       <button class="menu-nav-item" onclick="openUserGuide(); closeAppMenu();">
-        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">05</span>
+        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">06</span>
         <div class="menu-nav-text">
           <span class="menu-nav-title">이용 가이드</span>
           <span class="menu-nav-desc">펼쳐진 가이드북 &amp; 최신 기능 완벽 안내</span>
@@ -279,33 +279,53 @@
     <div class="detail-wrap" id="detail-wrap"></div>
   </div>
 
-  <!-- Community View (Hidden for now) -->
-  <div id="view-community" style="display:none !important;">
-    <div class="community-wrap" style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px;">
+  <!-- ==================== COMMUNITY VIEW ==================== -->
+  <div id="view-community">
+    <div class="community-wrap">
       
-      <!-- Keyword Word Cloud Card -->
-      <div class="wordcloud-card" style="background: linear-gradient(135deg, rgba(140,98,57,0.08), rgba(166,124,82,0.08)); border: 1px solid var(--border-accent); border-radius: var(--radius-lg); padding: 24px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow-glow); transition: all 0.3s var(--ease);">
-        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-          <h3 style="font-size: 16px; font-weight: 700; color: var(--text-100); display:flex; align-items:center; gap:8px; margin:0;">
-            독서 키워드 클라우드
-          </h3>
-          <span style="font-size:11px; color:var(--text-300);">리뷰에서 추출한 관심 키워드 (클릭하여 검색)</span>
-        </div>
-        <div id="wordcloud-container" style="min-height: 120px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; align-content: center; gap: 6px 12px; padding: 16px 24px; background: rgba(0, 0, 0, 0.12); border-radius: var(--radius-md); border: 1px solid var(--border-muted); overflow: hidden; position: relative; line-height: 1.2;">
-          <!-- Word cloud items will render here dynamically -->
+      <!-- Community Hero Header -->
+      <div class="community-hero">
+        <div class="community-hero-badge">COMMUNITY ARCHIVE</div>
+        <h2 class="community-hero-title">독서 커뮤니티</h2>
+        <p class="community-hero-subtitle">익명의 독서가들이 나누는 새로 추가된 도서와 마음에 남은 문장들</p>
+
+        <!-- Segmented Tab Switcher -->
+        <div class="comm-tab-bar">
+          <button type="button" class="comm-tab-btn active" id="comm-tab-books-btn" onclick="switchCommunityTab('books')">
+            <span class="comm-tab-icon">📚</span>
+            <span class="comm-tab-label">새로 추가된 책</span>
+            <span class="comm-tab-count" id="comm-books-count">10</span>
+          </button>
+          <button type="button" class="comm-tab-btn" id="comm-tab-scraps-btn" onclick="switchCommunityTab('scraps')">
+            <span class="comm-tab-icon">🔖</span>
+            <span class="comm-tab-label">새로 추가된 문장</span>
+            <span class="comm-tab-count" id="comm-scraps-count">30</span>
+          </button>
         </div>
       </div>
 
-      <!-- Feed Header -->
-      <div class="feed-hdr" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-top: 10px;">
-        <span style="font-size: 16px; font-weight: 700; color: var(--text-100);">독서 수다 피드</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddFeedModal()" style="border-radius: 12px; padding: 3px 12px; font-size: 11px;">수다 나누기</button>
+      <!-- Books Panel (10 Books) -->
+      <div id="comm-books-panel" class="comm-panel active">
+        <div class="comm-panel-header">
+          <div class="comm-panel-title">새로 추가된 책 10권</div>
+          <div class="comm-panel-caption">어느 독서가의 서재에 최근 담긴 추천 도서들</div>
+        </div>
+        <div class="comm-books-grid" id="comm-books-grid">
+          <!-- Rendered dynamically -->
+        </div>
       </div>
 
-      <!-- SNS Feed List -->
-      <div class="feed-list" id="community-feed-list" style="display: flex; flex-direction: column; gap: 16px;">
-        <!-- Dynamic Feed Items -->
+      <!-- Scraps Panel (30 Quotes) -->
+      <div id="comm-scraps-panel" class="comm-panel">
+        <div class="comm-panel-header">
+          <div class="comm-panel-title">새로 추가된 문장 30문장</div>
+          <div class="comm-panel-caption">책을 읽으며 마음을 울린 익명의 기록들</div>
+        </div>
+        <div class="comm-scraps-stream" id="comm-scraps-stream">
+          <!-- Rendered dynamically -->
+        </div>
       </div>
+
     </div>
   </div>
 
@@ -769,39 +789,7 @@
 </div>
 
 
-<!-- ==================== WRITE FEED MODAL ==================== -->
-<div class="modal-bg" id="feed-modal" role="dialog" aria-modal="true" style="z-index: 2000;">
-  <div class="modal-box">
-    <div class="modal-hdr">
-      <div class="modal-ttl">독서 수다 남기기</div>
-      <button class="modal-x" onclick="closeModal('feed-modal')" aria-label="닫기">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="fg">
-        <div class="flbl">이야기할 도서 선택 *</div>
-        <select class="fi" id="feed-bk-id" style="padding: 9px 12px; font-size: 13px;"></select>
-      </div>
-      <div class="fg">
-        <div class="flbl">별점</div>
-        <div class="star-row" id="feed-star-inp">
-          <button class="star-btn-inp" data-v="1" onclick="setFeedRating(1)">☆</button>
-          <button class="star-btn-inp" data-v="2" onclick="setFeedRating(2)">☆</button>
-          <button class="star-btn-inp" data-v="3" onclick="setFeedRating(3)">☆</button>
-          <button class="star-btn-inp" data-v="4" onclick="setFeedRating(4)">☆</button>
-          <button class="star-btn-inp" data-v="5" onclick="setFeedRating(5)">☆</button>
-        </div>
-      </div>
-      <div class="fg">
-        <div class="flbl">한줄평 및 생각 나누기 *</div>
-        <textarea class="fi" id="feed-text" placeholder="이 책에 대해 나누고 싶은 한줄평이나 감상을 적어주세요..." rows="4"></textarea>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-ghost" onclick="closeModal('feed-modal')">취소</button>
-      <button class="btn btn-primary" onclick="saveFeedPost()">등록</button>
-    </div>
-  </div>
-</div>
+
 
 
 
@@ -869,6 +857,6 @@
 <!-- Next-Gen WebAssembly Barcode Engine (ZXing-C++ compiled to WASM) -->
 <script src="https://cdn.jsdelivr.net/npm/zxing-wasm@latest/dist/iife/reader/index.js"></script>
 
-  <script src="app.js?v=20260913_blog_copy_v4" defer></script>
+  <script src="app.js?v=20260913_community_v2" defer></script>
 </body>
 </html>

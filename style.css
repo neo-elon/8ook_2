@@ -2751,121 +2751,371 @@
       display: none;
       flex: 1;
       overflow-y: auto;
-      padding: 24px 24px 40px;
+      padding: 24px 20px 60px;
       animation: slideDown .4s var(--ease) both;
     }
     #view-community.show {
       display: block !important;
     }
-    .feed-card {
-      background: var(--glass);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 18px;
+    .community-wrap {
+      max-width: 940px;
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      transition: all .2s var(--ease);
+      gap: 24px;
     }
-    .feed-card:hover {
-      border-color: var(--border-accent);
-      background: var(--glass-hover);
-    }
-    .feed-user {
+
+    /* ── Community Hero ── */
+    .community-hero {
+      background: linear-gradient(135deg, rgba(140,98,57,0.07), rgba(166,124,82,0.04));
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px 22px;
+      text-align: center;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 10px;
+      box-shadow: var(--shadow-card);
     }
-    .feed-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: var(--grad-main);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
+    .community-hero-badge {
+      font-family: 'Playfair Display', serif;
+      font-size: 10.5px;
+      letter-spacing: 2px;
       font-weight: 700;
+      color: var(--lavender);
+      margin-bottom: 6px;
     }
-    .feed-username {
+    .community-hero-title {
+      font-family: 'Playfair Display', 'Noto Serif KR', serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-100);
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+    .community-hero-subtitle {
+      font-size: 13.5px;
+      color: var(--text-300);
+      margin-bottom: 20px;
+      word-break: keep-all;
+    }
+
+    /* ── Segmented Tab Switcher ── */
+    .comm-tab-bar {
+      display: inline-flex;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 4px;
+      gap: 6px;
+      max-width: 100%;
+    }
+    .comm-tab-btn {
+      border: 1px solid transparent;
+      background: transparent;
+      padding: 8px 18px;
+      border-radius: 24px;
       font-size: 13px;
       font-weight: 600;
+      color: var(--text-300);
+      cursor: pointer;
+      transition: all 0.25s var(--ease);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .comm-tab-btn:hover {
+      color: var(--text-100);
+      background: var(--glass-hover);
+    }
+    .comm-tab-btn.active {
+      background: var(--bg-surface);
+      color: var(--text-100);
+      box-shadow: 0 2px 8px rgba(70,50,30,0.1);
+      border-color: var(--border-accent);
+    }
+    .comm-tab-icon { font-size: 14px; }
+    .comm-tab-count {
+      font-size: 11px;
+      padding: 1px 7px;
+      border-radius: 12px;
+      background: rgba(140,98,57,0.1);
+      color: var(--violet);
+      font-weight: 700;
+    }
+
+    /* ── Panels ── */
+    .comm-panel {
+      display: none;
+    }
+    .comm-panel.active {
+      display: block;
+      animation: fadeIn .3s var(--ease) both;
+    }
+    .comm-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .comm-panel-title {
+      font-family: 'Playfair Display', 'Noto Serif KR', serif;
+      font-size: 17px;
+      font-weight: 700;
       color: var(--text-100);
     }
-    .feed-time {
-      font-size: 11px;
+    .comm-panel-caption {
+      font-size: 12px;
       color: var(--text-400);
-      margin-left: auto;
     }
-    .feed-book-info {
+
+    /* ── Books Grid (10 Books) ── */
+    .comm-books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .comm-book-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 15px;
       display: flex;
-      gap: 12px;
-      background: rgba(0,0,0,0.15);
-      padding: 10px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border-muted);
-      cursor: pointer;
+      gap: 14px;
+      transition: all 0.25s var(--ease);
+      box-shadow: var(--shadow-card);
+      position: relative;
     }
-    .feed-book-cover {
-      width: 45px;
-      height: 65px;
+    .comm-book-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-accent);
+      box-shadow: 0 10px 24px rgba(70,50,30,0.1);
+    }
+    .comm-book-cover {
+      width: 74px;
+      height: 106px;
       object-fit: cover;
       border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
       flex-shrink: 0;
+      background: var(--bg-primary);
+      cursor: pointer;
+      transition: transform 0.2s;
     }
-    .feed-book-detail {
+    .comm-book-cover:hover {
+      transform: scale(1.03);
+    }
+    .comm-book-info {
       flex: 1;
       min-width: 0;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      gap: 3px;
+      gap: 4px;
     }
-    .feed-book-title {
-      font-size: 12px;
+    .comm-book-title {
+      font-family: 'Playfair Display', 'Noto Serif KR', serif;
+      font-size: 14.5px;
       font-weight: 700;
       color: var(--text-100);
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .comm-book-title:hover {
+      color: var(--violet);
+    }
+    .comm-book-author {
+      font-size: 11.5px;
+      color: var(--text-300);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .feed-book-author {
-      font-size: 10px;
-      color: var(--text-300);
-    }
-    .feed-review-text {
-      font-size: 13px;
-      line-height: 1.6;
-      color: var(--text-200);
-      white-space: pre-wrap;
-    }
-    .feed-actions {
+    .comm-book-rating {
+      font-size: 11px;
+      color: var(--amber);
+      letter-spacing: 1px;
       display: flex;
       align-items: center;
-      gap: 16px;
-      border-top: 1px solid var(--border-muted);
-      padding-top: 10px;
-      font-size: 12px;
-      color: var(--text-300);
+      gap: 4px;
     }
-    .feed-action-btn {
+    .comm-book-review {
+      font-size: 11.5px;
+      line-height: 1.5;
+      color: var(--text-200);
+      background: rgba(140,98,57,0.04);
+      border-left: 2px solid var(--border-accent);
+      padding: 5px 8px;
+      border-radius: 0 4px 4px 0;
+      margin-top: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .comm-book-meta {
+      margin-top: auto;
+      padding-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10.5px;
+      color: var(--text-400);
+    }
+    .comm-book-anon {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .comm-book-search-btn {
       background: none;
-      border: none;
-      color: inherit;
-      font-size: inherit;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 10px;
+      color: var(--text-300);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .comm-book-search-btn:hover {
+      border-color: var(--violet);
+      color: var(--violet);
+    }
+
+    /* ── Scraps Stream (30 Quotes) ── */
+    .comm-scraps-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .comm-scrap-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--lavender);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      transition: all 0.25s var(--ease);
+      box-shadow: var(--shadow-card);
+      position: relative;
+    }
+    .comm-scrap-card:hover {
+      border-color: var(--border-accent);
+      border-left-color: var(--violet);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(70,50,30,0.08);
+    }
+    .comm-scrap-text {
+      font-size: 15.5px;
+      line-height: 1.75;
+      color: var(--text-100);
+      font-style: italic;
+      margin-bottom: 10px;
+      word-break: keep-all;
+    }
+    .comm-scrap-text::before {
+      content: '“';
+      font-size: 20px;
+      color: var(--lavender);
+      line-height: 0;
+      vertical-align: -4px;
+      margin-right: 3px;
+      font-style: normal;
+    }
+    .comm-scrap-text::after {
+      content: '”';
+      font-size: 20px;
+      color: var(--lavender);
+      line-height: 0;
+      vertical-align: -4px;
+      margin-left: 3px;
+      font-style: normal;
+    }
+    .comm-scrap-memo {
+      font-size: 12.5px;
+      color: var(--text-300);
+      background: rgba(140,98,57,0.04);
+      padding: 6px 12px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .comm-scrap-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-top: 1px dashed var(--border-muted);
+      padding-top: 10px;
+    }
+    .comm-scrap-source {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-200);
+    }
+    .comm-scrap-source strong {
+      color: var(--text-100);
+      font-weight: 600;
+    }
+    .comm-scrap-source span {
+      color: var(--text-400);
+      font-size: 11px;
+    }
+    .comm-scrap-tags {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-left: 6px;
+    }
+    .comm-scrap-tag {
+      font-size: 10.5px;
+      color: var(--violet);
+      background: rgba(140,98,57,0.06);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+    .comm-scrap-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .comm-scrap-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 11px;
+      color: var(--text-300);
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 4px;
-      transition: color .2s;
-      padding: 4px;
+      transition: all 0.2s;
     }
-    .feed-action-btn:hover {
-      color: var(--violet);
+    .comm-scrap-btn:hover {
+      background: var(--glass-hover);
+      border-color: var(--border-accent);
+      color: var(--text-100);
     }
-    .feed-action-btn.liked {
-      color: #ef4444 !important;
+    .comm-scrap-btn.liked {
+      color: #e11d48 !important;
+      border-color: rgba(225,29,72,0.3) !important;
+      background: rgba(225,29,72,0.06) !important;
+    }
+    .comm-scrap-anon-badge {
+      font-size: 10.5px;
+      color: var(--text-400);
+      margin-right: 4px;
     }
     .ar-floating-card {
       flex: 0 0 260px;

@@ -1944,7 +1944,6 @@ function showDetail(id, direction = null) {
   }
   const searchGroup = document.getElementById('header-search-group');
   if (searchGroup) searchGroup.style.display = 'none';
-  document.getElementById('community-nav-btn').style.display = 'none';
   document.getElementById('view-label').textContent = book.title;
 }
 
@@ -6155,70 +6154,436 @@ let arCanvasAnimId = null;
 let arMatchedBook = null;
 let currentFeedRating = 5;
 
-let communityFeedPosts = [
+/* ==============================================
+   COMMUNITY LOGIC (Anonymous Books & Scraps)
+   ============================================== */
+let currentCommunityTab = 'books';
+
+const SEED_COMMUNITY_BOOKS = [
   {
-    id: 'f1',
-    username: '지식탐험가',
-    avatar: '지',
-    bookTitle: '지적 대화를 위한 넓고 얕은 지식 1',
-    bookAuthor: '채사장',
-    bookCover: 'https://image.aladin.co.kr/product/22/08/cover500/k282636402_1.jpg',
+    id: 'cb_1',
+    title: '도구는 어떻게 권력이 되는가',
+    author: '신무연 지음, 정기문 감수',
+    cover: 'https://image.aladin.co.kr/product/34591/89/cover500/k062932906_1.jpg',
     rating: 5,
-    text: '이 책 한 권으로 세상의 흐름을 꿰뚫어 볼 수 있는 안목을 얻을 수 있습니다. 역사부터 사회까지 꿰뚫어 주네요.',
-    likes: 12,
-    liked: false,
+    review: '기술의 독점이 계급의 분화를 낳았다는 역사적 통찰이 번뜩이는 역작.',
+    time: '방금 전'
+  },
+  {
+    id: 'cb_2',
+    title: '작별하지 않는다',
+    author: '한강',
+    cover: 'https://image.aladin.co.kr/product/27877/5/cover500/8954682154_1.jpg',
+    rating: 5,
+    review: '눈송이처럼 날리는 기억과 상흔, 슬픔을 건너는 고결한 문장들.',
+    time: '25분 전'
+  },
+  {
+    id: 'cb_3',
+    title: '코스모스',
+    author: '칼 세이건',
+    cover: 'https://image.aladin.co.kr/product/58/25/cover500/8937415585_1.jpg',
+    rating: 5,
+    review: '우리는 모두 별에서 온 물질이라는 아름다운 진실을 일깨워 준다.',
+    time: '1시간 전'
+  },
+  {
+    id: 'cb_4',
+    title: '데미안',
+    author: '헤르만 헤세',
+    cover: 'https://image.aladin.co.kr/product/26/0/cover500/8937460440_1.jpg',
+    rating: 5,
+    review: '내 속에서 솟아 나오려는 것, 바로 그것을 나는 살아보려 했다.',
     time: '2시간 전'
   },
   {
-    id: 'f2',
-    username: '문학소녀',
-    avatar: '문',
-    bookTitle: '채식주의자',
-    bookAuthor: '한강',
-    bookCover: 'https://image.aladin.co.kr/product/15/12/cover500/8936434594_1.jpg',
+    id: 'cb_5',
+    title: '우리가 빛의 속도로 갈 수 없다면',
+    author: '김초엽',
+    cover: 'https://image.aladin.co.kr/product/19545/63/cover500/8966262473_1.jpg',
     rating: 5,
-    text: '단어 하나하나에 실린 힘과 시린 묘사들이 오래도록 여운을 남깁니다. 폭력에 저항하는 가냘픈 인간의 초상.',
-    likes: 8,
-    liked: false,
+    review: '다정함과 과학적 상상력이 조화롭게 직조된 경이로운 세계.',
+    time: '3시간 전'
+  },
+  {
+    id: 'cb_6',
+    title: '모순',
+    author: '양귀자',
+    cover: 'https://image.aladin.co.kr/product/2345/14/cover500/8975276766_1.jpg',
+    rating: 5,
+    review: '인생은 탐구하는 것이 아니라 그저 온몸으로 살아내는 것.',
+    time: '4시간 전'
+  },
+  {
+    id: 'cb_7',
+    title: '사피엔스',
+    author: '유발 하라리',
+    cover: 'https://image.aladin.co.kr/product/7036/83/cover500/8934972467_1.jpg',
+    rating: 5,
+    review: '인류를 지구의 지배자로 만든 힘, 상상과 스토리텔링의 본질.',
     time: '5시간 전'
   },
   {
-    id: 'f3',
-    username: '감성수집가',
-    avatar: '감',
-    bookTitle: '아몬드',
-    bookAuthor: '손원평',
-    bookCover: 'https://image.aladin.co.kr/product/16/96/cover500/8936488635_1.jpg',
+    id: 'cb_8',
+    title: '여행의 이유',
+    author: '김영하',
+    cover: 'https://image.aladin.co.kr/product/18844/89/cover500/8954655971_1.jpg',
+    rating: 4,
+    review: '우리가 집을 떠나 낯선 곳으로 향하는 진짜 이유에 관한 매혹적인 산문.',
+    time: '6시간 전'
+  },
+  {
+    id: 'cb_9',
+    title: '참을 수 없는 존재의 가벼움',
+    author: '밀란 쿤데라',
+    cover: 'https://image.aladin.co.kr/product/330/50/cover500/8937462346_1.jpg',
     rating: 5,
-    text: '감정이 없는 소년 윤재가 마주하는 세상과 공감의 아름다움. 따뜻하게 감싸 안는 위로의 문장들이 참 좋습니다.',
-    likes: 15,
-    liked: false,
+    review: '무거움과 가벼움의 갈림길에서 인간이란 존재의 의미를 묻다.',
+    time: '어제'
+  },
+  {
+    id: 'cb_10',
+    title: '종의 기원',
+    author: '정유정',
+    cover: 'https://image.aladin.co.kr/product/8276/75/cover500/8925558933_1.jpg',
+    rating: 5,
+    review: '인간 내면의 심연과 악의 기원을 집요하게 추적하는 압도적 서스펜스.',
     time: '어제'
   }
 ];
 
-const MOCK_COMMUNITY_REVIEWS = {
-  'default': [
-    { username: '책벌레99', avatar: '책', rating: 5, comment: '최근에 읽은 책 중에 가장 흡입력이 있습니다. 강력 추천해요!' },
-    { username: '이서평', avatar: '이', rating: 4, comment: '문장들이 마음에 깊이 남습니다. 여운이 깊은 이야기네요.' },
-    { username: '김지혜', avatar: '김', rating: 4, comment: '생각할 거리를 많이 던져주는 훌륭한 작가의 작품입니다.' }
-  ],
-  '지적 대화를 위한 넓고 얕은 지식 1': [
-    { username: '지식탐험가', avatar: '지', rating: 5, comment: '지적 대화를 위해 이보다 명쾌하게 기본 교양을 설명한 책은 없다.' },
-    { username: '채사장팬', avatar: '채', rating: 5, comment: '팟캐스트 듣는 느낌! 심오한 개념들이 한눈에 정리됩니다.' },
-    { username: '교양입문자', avatar: '교', rating: 4, comment: '역사, 경제, 정치, 사회를 하나의 흐름으로 꿰뚫어줍니다.' }
-  ],
-  '채식주의자': [
-    { username: '문학소녀', avatar: '문', rating: 5, comment: '폭력과 인간의 본성에 대한 서늘한 시선. 부커상이 아깝지 않은 명작.' },
-    { username: '고요한밤', avatar: '고', rating: 4, comment: '읽는 내내 숨이 막힐 것 같은 몰입감과 깊은 묘사가 인상적입니다.' },
-    { username: '가시나무', avatar: '가', rating: 5, comment: '어떤 상처는 너무 깊어 채식이라는 극단적 침묵으로 뿜어져 나온다.' }
-  ],
-  '아몬드': [
-    { username: '감성수집가', avatar: '감', rating: 5, comment: '감정을 느끼지 못하는 소년의 성장기가 가슴을 찡하게 울립니다.' },
-    { username: '감동리뷰', avatar: '리', rating: 5, comment: '타인의 감정에 공감한다는 것이 얼마나 아름답고 중요한지 깨닫게 해줌.' },
-    { username: '도토리', avatar: '도', rating: 4, comment: '청소년 소설이지만 어른들이 꼭 읽어봐야 할 힐링과 성찰의 책.' }
-  ]
-};
+const SEED_COMMUNITY_SCRAPS = [
+  {
+    id: 'cs_1',
+    text: '새는 알을 깨고 나온다. 알은 세계이다. 태어나려는 자는 하나의 세계를 파괴하지 않으면 안 된다.',
+    bookTitle: '데미안',
+    author: '헤르만 헤세',
+    page: 124,
+    memo: '변화와 성장의 고통을 마주할 때마다 나를 지탱해 주는 문장.',
+    tags: ['성장', '자아', '고전'],
+    likes: 38,
+    time: '15분 전'
+  },
+  {
+    id: 'cs_2',
+    text: '우리는 모두 별의 부스러기(stardust)다. 밤하늘을 바라볼 때, 우리는 우리의 고향을 보고 있는 것이다.',
+    bookTitle: '코스모스',
+    author: '칼 세이건',
+    page: 382,
+    memo: '광대한 우주 속에서 인간이라는 존재가 얼마나 소중하고 경이로운지.',
+    tags: ['우주', '과학', '사유'],
+    likes: 45,
+    time: '32분 전'
+  },
+  {
+    id: 'cs_3',
+    text: '지나간 슬픔을 말하는 것이 아니라, 지금도 흐르고 있는 피를 닦아내는 마음으로 썼다.',
+    bookTitle: '작별하지 않는다',
+    author: '한강',
+    page: 88,
+    memo: '역사의 아픔을 가만히 보듬는 작가의 깊은 시선.',
+    tags: ['문학', '위로', '기억'],
+    likes: 29,
+    time: '1시간 전'
+  },
+  {
+    id: 'cs_4',
+    text: '인생이란 때때로 우리로 하여금 전혀 예기치 않은 모순을 끌어안게 만든다.',
+    bookTitle: '모순',
+    author: '양귀자',
+    page: 67,
+    memo: '옳고 그름만으로 나눌 수 없는 삶의 입체적인 진실들.',
+    tags: ['소설', '인생', '성찰'],
+    likes: 31,
+    time: '2시간 전'
+  },
+  {
+    id: 'cs_5',
+    text: '우리가 빛의 속도로 갈 수 없다면, 같은 우주에 존재한다 하더라도 영원히 닿지 못할지도 몰라.',
+    bookTitle: '우리가 빛의 속도로 갈 수 없다면',
+    author: '김초엽',
+    page: 198,
+    memo: '닿을 수 없는 거리를 넘어 전해지는 그리움의 온기.',
+    tags: ['SF', '그리움', '다정함'],
+    likes: 52,
+    time: '2시간 전'
+  },
+  {
+    id: 'cs_6',
+    text: '인간은 패배하도록 창조된 것이 아니다. 인간은 파괴될 수는 있어도 패배할 수는 없다.',
+    bookTitle: '노인과 바다',
+    author: '어니스트 헤밍웨이',
+    page: 115,
+    memo: '삶의 거친 파도 앞에서도 굽히지 않는 인간의 존엄.',
+    tags: ['고전', '의지', '용기'],
+    likes: 22,
+    time: '3시간 전'
+  },
+  {
+    id: 'cs_7',
+    text: '잠깐 머무는 여행자로서 우리는 세상에 아무것도 보태지 않고, 그저 바라볼 뿐이다.',
+    bookTitle: '여행의 이유',
+    author: '김영하',
+    page: 54,
+    memo: '일상의 짐을 벗어던지고 순수한 관찰자로 돌아가는 해방감.',
+    tags: ['여행', '산문', '휴식'],
+    likes: 19,
+    time: '4시간 전'
+  },
+  {
+    id: 'cs_8',
+    text: '가장 무거운 짐은 동시에 가장 자유로운 삶의 완성에 대한 형상이기도 하다.',
+    bookTitle: '참을 수 없는 존재의 가벼움',
+    author: '밀란 쿤데라',
+    page: 18,
+    memo: '가벼움의 허무와 무거움의 숭고함 사이에서의 방황.',
+    tags: ['철학', '문학', '존재'],
+    likes: 27,
+    time: '4시간 전'
+  },
+  {
+    id: 'cs_9',
+    text: '모든 발명에는 권력을 향한 내밀한 욕망이 깃들어 있었다.',
+    bookTitle: '도구는 어떻게 권력이 되는가',
+    author: '신무연',
+    page: 45,
+    memo: '도구는 중립적이지 않다. 권력 구조를 이해하는 새로운 렌즈.',
+    tags: ['역사', '권력', '인문'],
+    likes: 24,
+    time: '5시간 전'
+  },
+  {
+    id: 'cs_10',
+    text: '눈에 보이지 않는 것이 가장 소중한 법이야. 마음으로 보아야만 분명하게 볼 수 있어.',
+    bookTitle: '어린 왕자',
+    author: '앙투안 드 생텍쥐페리',
+    page: 92,
+    memo: '언제 읽어도 마음 깊은 곳을 정화해 주는 영원한 문장.',
+    tags: ['동화', '마음', '순수'],
+    likes: 64,
+    time: '6시간 전'
+  },
+  {
+    id: 'cs_11',
+    text: '인간은 고통을 통해서만 진정으로 성숙해지는 괴상한 존재이다.',
+    bookTitle: '죄와 벌',
+    author: '표도르 도스토옙스키',
+    page: 320,
+    memo: '심연을 들여다본 자만이 비로소 빛의 소중함을 깨닫는다.',
+    tags: ['고전', '인간', '구원'],
+    likes: 18,
+    time: '7시간 전'
+  },
+  {
+    id: 'cs_12',
+    text: '겨울의 한가운데서 나는 내 안에 꺾이지 않는 여름이 있음을 깨달았다.',
+    bookTitle: '여름',
+    author: '알베르 카뮈',
+    page: 72,
+    memo: '어떤 절망과 시련 속에서도 결코 꺼지지 않는 생의 불꽃.',
+    tags: ['산문', '희망', '철학'],
+    likes: 41,
+    time: '8시간 전'
+  },
+  {
+    id: 'cs_13',
+    text: '자유란 둘 더하기 둘이 넷이라고 말할 수 있는 자유이다. 그것이 허용된다면 다른 모든 것도 뒤따른다.',
+    bookTitle: '1984',
+    author: '조지 오웰',
+    page: 135,
+    memo: '진실을 말할 권리와 생각의 독립성이 얼마나 소중한지 일깨운다.',
+    tags: ['사회', '자유', '명작'],
+    likes: 33,
+    time: '9시간 전'
+  },
+  {
+    id: 'cs_14',
+    text: '누군가를 사랑한다는 것은, 그 사람의 가장 깊은 외로움까지 끌어안겠다는 다짐이다.',
+    bookTitle: '바깥은 여름',
+    author: '김애란',
+    page: 154,
+    memo: '사랑의 이면에 자리 잡은 연민과 연대의 깊이.',
+    tags: ['소설', '사랑', '여운'],
+    likes: 29,
+    time: '10시간 전'
+  },
+  {
+    id: 'cs_15',
+    text: '상상할 수 있는 능력이 없었다면 우리는 아직도 아프리카의 초원에서 영양을 쫓고 있었을 것이다.',
+    bookTitle: '사피엔스',
+    author: '유발 하라리',
+    page: 48,
+    memo: '허구를 믿는 능력이야말로 인간 문명의 위대한 출발점.',
+    tags: ['역사', '인류', '지성'],
+    likes: 26,
+    time: '12시간 전'
+  },
+  {
+    id: 'cs_16',
+    text: '어둠이 깊을수록 별은 더욱 찬란하게 빛난다.',
+    bookTitle: '별 헤는 밤',
+    author: '윤동주',
+    page: 34,
+    memo: '순결한 시인의 고뇌 속에서 피어난 영원한 서정.',
+    tags: ['시', '별', '순수'],
+    likes: 58,
+    time: '14시간 전'
+  },
+  {
+    id: 'cs_17',
+    text: '나를 죽이지 못하는 고통은 나를 더욱 강하게 만든다.',
+    bookTitle: '우상의 황혼',
+    author: '프리드리히 니체',
+    page: 88,
+    memo: '시련 앞에서 물러서지 않고 나아가는 강인한 의지.',
+    tags: ['철학', '극복', '힘'],
+    likes: 35,
+    time: '16시간 전'
+  },
+  {
+    id: 'cs_18',
+    text: '시간은 흐르는 것이 아니라 우리가 시간을 뚫고 걸어가는 것이다.',
+    bookTitle: '시간의 향기',
+    author: '한병철',
+    page: 62,
+    memo: '속도에 쫓기는 현대 사회에서 사유의 시간성을 되찾는 법.',
+    tags: ['철학', '시간', '사색'],
+    likes: 28,
+    time: '18시간 전'
+  },
+  {
+    id: 'cs_19',
+    text: '그리하여 우리는 조류를 거스르는 배처럼, 끊임없이 과거로 밀려가면서도 앞으로 나아가는 것이다.',
+    bookTitle: '위대한 개츠비',
+    author: 'F. 스콧 피츠제럴드',
+    page: 252,
+    memo: '손에 닿지 않는 초록 불빛을 향해 끊임없이 노를 젓는 인간의 숙명.',
+    tags: ['고전', '꿈', '여운'],
+    likes: 37,
+    time: '20시간 전'
+  },
+  {
+    id: 'cs_20',
+    text: '살아온 기적이 살아갈 기적이 된다. 사소한 하루가 모여 하나의 온전한 삶이 된다.',
+    bookTitle: '그 많던 싱아는 누가 다 먹었을까',
+    author: '박완서',
+    page: 210,
+    memo: '질곡의 세월을 담담하게 통과해 낸 거목의 따스한 품.',
+    tags: ['수필', '생애', '따뜻함'],
+    likes: 49,
+    time: '22시간 전'
+  },
+  {
+    id: 'cs_21',
+    text: '너의 내면으로 침잠하라. 그곳에서 네가 쓰지 않고는 살 수 없는지 물어보라.',
+    bookTitle: '젊은 시인에게 주는 충고',
+    author: '라이너 마리아 릴케',
+    page: 25,
+    memo: '타인의 시선이 아닌 오직 자기 자신과의 깊은 대면.',
+    tags: ['문학', '창작', '예술'],
+    likes: 21,
+    time: '어제'
+  },
+  {
+    id: 'cs_22',
+    text: '한 권의 책은 우리 안의 얼어붙은 바다를 깨부수는 도끼여야 한다.',
+    bookTitle: '변신',
+    author: '프란츠 카프카',
+    page: 12,
+    memo: '안온함에 취해 무뎌진 감각을 날카롭게 깨우는 독서의 본령.',
+    tags: ['독서', '카프카', '사유'],
+    likes: 67,
+    time: '어제'
+  },
+  {
+    id: 'cs_23',
+    text: '내가 어둠을 바라볼 때, 어둠 또한 나를 바라본다.',
+    bookTitle: '종의 기원',
+    author: '정유정',
+    page: 180,
+    memo: '금기를 넘어서는 인간의 어두운 본능에 대한 섬뜩한 질문.',
+    tags: ['스릴러', '심리', '인간'],
+    likes: 19,
+    time: '어제'
+  },
+  {
+    id: 'cs_24',
+    text: '진정한 발견의 여정은 새로운 풍경을 찾는 것이 아니라, 새로운 눈을 갖는 것이다.',
+    bookTitle: '잃어버린 시간을 찾아서',
+    author: '마르셀 프루스트',
+    page: 440,
+    memo: '세상을 새롭게 감각하는 눈이야말로 독서가 우리에게 주는 가장 큰 선물.',
+    tags: ['고전', '통찰', '발견'],
+    likes: 31,
+    time: '어제'
+  },
+  {
+    id: 'cs_25',
+    text: '기억은 기록되지 않으면 안개처럼 흩어져 버린다. 쓰는 행위만이 기억에 형태를 부여한다.',
+    bookTitle: '눈먼 자들의 도시',
+    author: '주제 사라마구',
+    page: 290,
+    memo: '망각의 강에서 우리가 건져 올려야 할 기록의 가치.',
+    tags: ['소설', '기록', '인간'],
+    likes: 42,
+    time: '2일 전'
+  },
+  {
+    id: 'cs_26',
+    text: '우리가 진정으로 두려워해야 할 유일한 것은 두려움 그 자체이다.',
+    bookTitle: '페스트',
+    author: '알베르 카뮈',
+    page: 175,
+    memo: '재난과 혼돈 속에서도 묵묵히 자신의 자리를 지키는 이들의 연대.',
+    tags: ['문학', '용기', '연대'],
+    likes: 27,
+    time: '2일 전'
+  },
+  {
+    id: 'cs_27',
+    text: '책 속에는 우리가 아직 가보지 못한 수만 개의 삶이 숨 쉬고 있다.',
+    bookTitle: '책 읽는 뇌',
+    author: '매리언 울프',
+    page: 112,
+    memo: '타인의 삶에 공감하는 기적을 일으키는 뇌의 마법.',
+    tags: ['뇌과학', '독서', '공감'],
+    likes: 34,
+    time: '2일 전'
+  },
+  {
+    id: 'cs_28',
+    text: '침묵은 때로 어떤 화려한 웅변보다도 강렬한 울림을 지닌다.',
+    bookTitle: '채식주의자',
+    author: '한강',
+    page: 145,
+    memo: '말을 잃어버린 침묵 속에서 터져 나오는 존재의 절규.',
+    tags: ['문학', '침묵', '한강'],
+    likes: 39,
+    time: '3일 전'
+  },
+  {
+    id: 'cs_29',
+    text: '행복한 가정은 모두 엇비슷하지만, 불행한 가정은 각기 다른 이유로 불행하다.',
+    bookTitle: '안나 카레니나',
+    author: '레프 톨스토이',
+    page: 9,
+    memo: '세계 문학사상 가장 완벽하고 강렬한 첫 문장.',
+    tags: ['고전', '인생', '첫문장'],
+    likes: 51,
+    time: '3일 전'
+  },
+  {
+    id: 'cs_30',
+    text: '독서는 타인의 생각을 빌려 나의 생각을 직조해 내는 가장 고결한 대화이다.',
+    bookTitle: '문장의 온도',
+    author: '이기주',
+    page: 78,
+    memo: '책장을 넘기며 나와 마주하는 고요하고 깊은 시간.',
+    tags: ['에세이', '독서', '마음'],
+    likes: 46,
+    time: '3일 전'
+  }
+];
 
 function showCommunity() {
   document.body.classList.remove('page-detail');
@@ -6226,9 +6591,10 @@ function showCommunity() {
   document.getElementById('view-gallery').style.display = 'none';
   document.getElementById('view-detail').classList.remove('show');
   document.getElementById('view-stats').classList.remove('show');
-  document.getElementById('view-community').classList.add('show');
   const scrapsView = document.getElementById('view-scraps');
   if (scrapsView) scrapsView.classList.remove('show');
+  document.getElementById('view-community').classList.add('show');
+
   const backBtn = document.getElementById('back-btn');
   if (backBtn) {
     backBtn.style.display = '';
@@ -6239,268 +6605,216 @@ function showCommunity() {
   const vl = document.getElementById('view-label');
   if (vl) {
     vl.style.display = 'inline-block';
-    vl.textContent = '커뮤니티';
+    vl.textContent = '독서 커뮤니티';
   }
-  renderCommunityFeed();
-  renderWordCloud();
+
+  renderCommunityBooks();
+  renderCommunityScraps();
+  switchCommunityTab(currentCommunityTab);
 }
 
-function filterGalleryByKeyword(kw) {
-  currentGalleryFilter = kw;
-  showGallery();
-  toast(`'#${kw}' 키워드 검색 결과`);
+function switchCommunityTab(tab) {
+  currentCommunityTab = tab;
+  const booksBtn = document.getElementById('comm-tab-books-btn');
+  const scrapsBtn = document.getElementById('comm-tab-scraps-btn');
+  const booksPanel = document.getElementById('comm-books-panel');
+  const scrapsPanel = document.getElementById('comm-scraps-panel');
+
+  if (tab === 'books') {
+    if (booksBtn) booksBtn.classList.add('active');
+    if (scrapsBtn) scrapsBtn.classList.remove('active');
+    if (booksPanel) booksPanel.classList.add('active');
+    if (scrapsPanel) scrapsPanel.classList.remove('active');
+  } else {
+    if (booksBtn) booksBtn.classList.remove('active');
+    if (scrapsBtn) scrapsBtn.classList.add('active');
+    if (booksPanel) booksPanel.classList.remove('active');
+    if (scrapsPanel) scrapsPanel.classList.add('active');
+  }
 }
 
-function clearGalleryFilter() {
-  currentGalleryFilter = null;
-  showGallery();
-  toast('도서 필터가 해제되었습니다.');
+function getCommunityBooksList() {
+  // Merge user's recently added books (anonymously) at top, followed by seed books, total 10
+  const userRecentBooks = books
+    .filter(b => b.id !== '8ook_user_guide')
+    .slice(0, 3)
+    .map((b, idx) => ({
+      id: 'ub_' + b.id,
+      title: b.title,
+      author: b.author || '저자 미상',
+      cover: b.cover || '',
+      rating: b.rating || 5,
+      review: b.sentence || '어느 독서가의 서재에 최근 담긴 책입니다.',
+      time: idx === 0 ? '방금 전' : `${idx * 15}분 전`
+    }));
+
+  const combined = [...userRecentBooks];
+  SEED_COMMUNITY_BOOKS.forEach(sb => {
+    if (combined.length < 10 && !combined.some(b => b.title === sb.title)) {
+      combined.push(sb);
+    }
+  });
+  return combined.slice(0, 10);
 }
 
-function renderWordCloud() {
-  const container = document.getElementById('wordcloud-container');
+function renderCommunityBooks() {
+  const container = document.getElementById('comm-books-grid');
   if (!container) return;
-  container.innerHTML = '';
 
-  const allKeywords = [];
+  const list = getCommunityBooksList();
+  const countEl = document.getElementById('comm-books-count');
+  if (countEl) countEl.textContent = list.length;
+
+  container.innerHTML = list.map(b => {
+    const coverUrl = b.cover ? getSafeImageUrl(b.cover) : '';
+    const coverHtml = coverUrl
+      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(b.title)}" onclick="searchAladinByQuery('${esc(b.title)}')" onerror="this.outerHTML='<div class=\\'comm-book-cover\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-300);font-weight:700;\\'>8ook</div>'">`
+      : `<div class="comm-book-cover" style="display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-300);font-weight:700;">8ook</div>`;
+
+    const ratingStars = '★'.repeat(Math.round(b.rating || 5)) + '☆'.repeat(5 - Math.round(b.rating || 5));
+
+    return `
+      <div class="comm-book-card">
+        ${coverHtml}
+        <div class="comm-book-info">
+          <div class="comm-book-title" onclick="searchAladinByQuery('${esc(b.title)}')" title="${esc(b.title)}">${esc(b.title)}</div>
+          <div class="comm-book-author">${esc(b.author)}</div>
+          <div class="comm-book-rating">${ratingStars} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${b.rating || 5}.0</span></div>
+          ${b.review ? `<div class="comm-book-review">“${esc(b.review)}”</div>` : ''}
+          <div class="comm-book-meta">
+            <span class="comm-book-anon">익명의 독서가 · ${b.time}</span>
+            <button class="comm-book-search-btn" onclick="searchAladinByQuery('${esc(b.title)}')">책 검색</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function getCommunityScrapsList() {
+  // Collect user's recent scraps (anonymously) up to 5, then append seed scraps up to 30
+  const userScraps = [];
   books.forEach(b => {
-    if (b.keywords && b.keywords.length) {
-      b.keywords.forEach(k => {
-        const cleaned = k.trim();
-        if (cleaned) allKeywords.push(cleaned);
+    if (b.id !== '8ook_user_guide' && b.scraps && b.scraps.length) {
+      b.scraps.forEach(s => {
+        userScraps.push({
+          id: 'us_' + s.id,
+          text: s.text,
+          bookTitle: b.title,
+          author: b.author || '',
+          page: s.page || null,
+          memo: s.memo || '',
+          tags: s.tags || s.keywords || [],
+          likes: 5,
+          time: '방금 전'
+        });
       });
     }
   });
 
-  if (allKeywords.length === 0) {
-    container.innerHTML = `<div style="font-size:12px; color:var(--text-400); padding: 20px; text-align:center;">아직 등록된 도서 키워드가 없습니다.<br><small style="font-size:10px; margin-top:4px; display:inline-block;">도서 정보 편집에서 키워드를 등록해보세요.</small></div>`;
-    return;
-  }
-
-  const freq = {};
-  allKeywords.forEach(k => {
-    freq[k] = (freq[k] || 0) + 1;
-  });
-
-  let uniqueKws = Object.keys(freq);
-  const isMobile = window.innerWidth <= 640;
-  if (isMobile && uniqueKws.length > 30) {
-    uniqueKws = uniqueKws.sort(() => 0.5 - Math.random()).slice(0, 30);
-  }
-
-  const counts = uniqueKws.map(kw => freq[kw]);
-  const minCount = counts.length ? Math.min(...counts) : 1;
-  const maxCount = counts.length ? Math.max(...counts) : 1;
-
-  const colors = [
-    'var(--lavender)',
-    'var(--mint)',
-    'var(--amber)',
-    'var(--indigo)',
-    'var(--violet)',
-    '#f472b6',
-    '#38bdf8',
-    '#a3e635'
-  ];
-
-  uniqueKws.forEach(kw => {
-    const count = freq[kw];
-    let fontSize = 11;
-    if (maxCount !== minCount) {
-      fontSize = 11 + ((count - minCount) / (maxCount - minCount)) * 13;
-    } else {
-      fontSize = 13 + (count > 1 ? 3 : 0);
+  const combined = [...userScraps.slice(0, 5)];
+  SEED_COMMUNITY_SCRAPS.forEach(ss => {
+    if (combined.length < 30 && !combined.some(s => s.text === ss.text)) {
+      combined.push(ss);
     }
-
-    let charSum = 0;
-    for (let i = 0; i < kw.length; i++) charSum += kw.charCodeAt(i);
-    const color = colors[charSum % colors.length];
-
-    const span = document.createElement('span');
-    span.className = 'wc-item';
-    span.textContent = kw; // No '#' symbol
-    span.style.fontSize = `${fontSize}px`;
-    span.style.color = color;
-    span.style.fontWeight = count > 1 ? '800' : '600';
-    span.style.cursor = 'pointer';
-    span.style.transition = 'transform 0.2s ease, text-shadow 0.2s ease';
-    span.style.padding = '2px 6px';
-
-    // Organic layout: random rotation (-6, 0, 6deg) and clean margins to prevent overlapping collisions
-    const rotateVal = (Math.floor(Math.random() * 3) - 1) * 6;
-    span.style.transform = `rotate(${rotateVal}deg)`;
-    span.style.margin = '2px 4px';
-    span.style.lineHeight = '1.2';
-    span.style.display = 'inline-block';
-    span.style.position = 'relative';
-    span.style.userSelect = 'none';
-
-    span.onmouseover = () => {
-      span.style.transform = `scale(1.25) rotate(${rotateVal}deg)`;
-      span.style.textShadow = `0 0 12px ${color}`;
-      span.style.zIndex = '10';
-    };
-    span.onmouseout = () => {
-      span.style.transform = `scale(1) rotate(${rotateVal}deg)`;
-      span.style.textShadow = 'none';
-      span.style.zIndex = '1';
-    };
-
-    span.onclick = () => {
-      showGallery();
-      filterGalleryByKeyword(kw);
-    };
-
-    container.appendChild(span);
   });
+  return combined.slice(0, 30);
 }
 
-function renderCommunityFeed() {
-  const feedList = document.getElementById('community-feed-list');
-  feedList.innerHTML = '';
+function renderCommunityScraps() {
+  const container = document.getElementById('comm-scraps-stream');
+  if (!container) return;
 
-  let stored = [];
+  const list = getCommunityScrapsList();
+  const countEl = document.getElementById('comm-scraps-count');
+  if (countEl) countEl.textContent = list.length;
+
+  let storedLikes = {};
   try {
-    const data = localStorage.getItem('rj_community_posts');
-    if (data) stored = JSON.parse(data);
-  } catch (e) { }
+    const raw = localStorage.getItem('rj_community_likes');
+    if (raw) storedLikes = JSON.parse(raw);
+  } catch (e) {}
 
-  const allPosts = [...stored, ...communityFeedPosts];
+  container.innerHTML = list.map((s, idx) => {
+    const isLiked = !!storedLikes[s.id];
+    const currentLikes = (s.likes || 0) + (isLiked ? 1 : 0);
+    const tagsHtml = (s.tags && s.tags.length)
+      ? `<div class="comm-scrap-tags">${s.tags.map(t => `<span class="comm-scrap-tag">#${esc(t)}</span>`).join('')}</div>`
+      : '';
 
-  allPosts.forEach(post => {
-    const card = document.createElement('div');
-    card.className = 'feed-card';
-    card.innerHTML = `
-      <div class="feed-user">
-        <div class="feed-avatar">${post.avatar}</div>
-        <div class="feed-username">${esc(post.username)}</div>
-        <div class="feed-time">${post.time}</div>
-      </div>
-      <div class="feed-book-info" onclick="searchAladinByQuery('${esc(post.bookTitle)}')">
-        <img class="feed-book-cover" src="${esc(getSafeImageUrl(post.bookCover))}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2245%22 height=%2265%22><rect width=%22100%%22 height=%22100%%22 fill=%22%2318182e%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2210%22 fill=%22%23999%22 font-family=%22sans-serif%22>BOOK</text></svg>'">
-        <div class="feed-book-detail">
-          <div class="feed-book-title">${esc(post.bookTitle)}</div>
-          <div class="feed-book-author">${esc(post.bookAuthor)}</div>
+    return `
+      <div class="comm-scrap-card" id="csc-${s.id}">
+        <div class="comm-scrap-text">${esc(s.text)}</div>
+        ${s.memo ? `<div class="comm-scrap-memo"><strong>생각:</strong> ${esc(s.memo)}</div>` : ''}
+        <div class="comm-scrap-footer">
+          <div class="comm-scrap-source">
+            <strong>《${esc(s.bookTitle)}》</strong>
+            ${s.author ? `<span>${esc(s.author)}</span>` : ''}
+            ${s.page ? `<span>p.${s.page}</span>` : ''}
+            ${tagsHtml}
+          </div>
+          <div class="comm-scrap-actions">
+            <span class="comm-scrap-anon-badge">익명의 기록 · ${s.time}</span>
+            <button class="comm-scrap-btn" onclick="copyCommunityQuote('${esc(s.text.replace(/'/g, "\\'"))}', '${esc(s.bookTitle.replace(/'/g, "\\'"))}', '${esc((s.author || '').replace(/'/g, "\\'"))}', '${s.page || ''}')" title="문장 복사">
+              복사
+            </button>
+            <button class="comm-scrap-btn${isLiked ? ' liked' : ''}" onclick="toggleCommunityLike('${s.id}', this)" title="공감">
+              <span>♥</span> <span class="like-count">${currentLikes}</span>
+            </button>
+          </div>
         </div>
-        <div style="font-size: 11px; color: var(--amber); align-self: center;">
-          ${'★'.repeat(post.rating)}${'☆'.repeat(5 - post.rating)}
-        </div>
-      </div>
-      <div class="feed-review-text">${esc(post.text)}</div>
-      <div class="feed-actions">
-        <button class="feed-action-btn${post.liked ? ' liked' : ''}" onclick="likeFeedPost('${post.id}', this)">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-right:2px;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span>공감 (${post.likes})</span>
-        </button>
       </div>
     `;
-    feedList.appendChild(card);
-  });
+  }).join('');
+}
+
+function copyCommunityQuote(text, bookTitle, author, page) {
+  let formatted = `“${text}”\n— 《${bookTitle}》`;
+  if (author) formatted += `, ${author}`;
+  if (page) formatted += ` (p.${page})`;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(formatted).then(() => {
+      toast('문장이 클립보드에 복사되었습니다.');
+    }).catch(() => {
+      fallbackCopyText(formatted, '문장이 클립보드에 복사되었습니다.');
+    });
+  } else {
+    fallbackCopyText(formatted, '문장이 클립보드에 복사되었습니다.');
+  }
+}
+
+function toggleCommunityLike(id, btnEl) {
+  let storedLikes = {};
+  try {
+    const raw = localStorage.getItem('rj_community_likes');
+    if (raw) storedLikes = JSON.parse(raw);
+  } catch (e) {}
+
+  const wasLiked = !!storedLikes[id];
+  const countSpan = btnEl.querySelector('.like-count');
+  let currentCount = parseInt(countSpan.textContent, 10) || 0;
+
+  if (wasLiked) {
+    delete storedLikes[id];
+    btnEl.classList.remove('liked');
+    countSpan.textContent = Math.max(0, currentCount - 1);
+  } else {
+    storedLikes[id] = true;
+    btnEl.classList.add('liked');
+    countSpan.textContent = currentCount + 1;
+    toast('익명으로 공감을 남겼습니다 ♥');
+  }
+
+  try {
+    localStorage.setItem('rj_community_likes', JSON.stringify(storedLikes));
+  } catch (e) {}
 }
 
 function searchAladinByQuery(query) {
   openAddModal();
   document.getElementById('bk-title').value = query;
   searchAladin();
-}
-
-function likeFeedPost(id, btnEl) {
-  let stored = [];
-  try {
-    const data = localStorage.getItem('rj_community_posts');
-    if (data) stored = JSON.parse(data);
-  } catch (e) { }
-
-  let target = stored.find(p => p.id === id);
-  if (!target) {
-    target = communityFeedPosts.find(p => p.id === id);
-  }
-
-  if (target) {
-    target.liked = !target.liked;
-    if (target.liked) {
-      target.likes += 1;
-      btnEl.classList.add('liked');
-    } else {
-      target.likes -= 1;
-      btnEl.classList.remove('liked');
-    }
-    btnEl.querySelector('span').textContent = `공감 (${target.likes})`;
-
-    if (stored.some(p => p.id === id)) {
-      localStorage.setItem('rj_community_posts', JSON.stringify(stored));
-    }
-  }
-}
-
-function openAddFeedModal() {
-  const select = document.getElementById('feed-bk-id');
-  select.innerHTML = '';
-
-  if (books.length === 0) {
-    toast("책장에 도서가 있어야 소감을 쓸 수 있습니다. 먼저 도서를 등록해주세요.");
-    return;
-  }
-
-  books.forEach(b => {
-    const opt = document.createElement('option');
-    opt.value = b.id;
-    opt.textContent = b.title;
-    select.appendChild(opt);
-  });
-
-  document.getElementById('feed-text').value = '';
-  currentFeedRating = 5;
-  updateFeedStarBtns(5);
-  openModal('feed-modal');
-}
-
-function setFeedRating(n) {
-  currentFeedRating = n;
-  updateFeedStarBtns(n);
-}
-
-function updateFeedStarBtns(n) {
-  document.querySelectorAll('#feed-star-inp .star-btn-inp').forEach((btn, i) => {
-    const on = i < n;
-    btn.textContent = on ? '★' : '☆';
-    btn.style.color = on ? 'var(--amber)' : 'var(--star-off)';
-  });
-}
-
-function saveFeedPost() {
-  const bkId = document.getElementById('feed-bk-id').value;
-  const text = document.getElementById('feed-text').value.trim();
-  if (!text) { toast("한줄평을 입력해주세요."); return; }
-
-  const book = books.find(b => b.id === bkId);
-  if (!book) return;
-
-  const newPost = {
-    id: 'feed_' + Date.now(),
-    username: document.getElementById('auth-username').textContent || '익명 독자',
-    avatar: 'B',
-    bookTitle: book.title,
-    bookAuthor: book.author || '저자 미상',
-    bookCover: book.cover || '',
-    rating: currentFeedRating,
-    text: text,
-    likes: 0,
-    liked: false,
-    time: '방금 전'
-  };
-
-  let stored = [];
-  try {
-    const data = localStorage.getItem('rj_community_posts');
-    if (data) stored = JSON.parse(data);
-  } catch (e) { }
-
-  stored.unshift(newPost);
-  localStorage.setItem('rj_community_posts', JSON.stringify(stored));
-
-  closeModal('feed-modal');
-  toast("피드가 등록되었습니다.");
-  renderCommunityFeed();
 }
 
 let arIsScanning = false;
