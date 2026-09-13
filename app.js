@@ -430,6 +430,10 @@ function getSpineImageUrl(url) {
   return '';
 }
 
+function parseTitleParts(bookOrTitle) {
+  return splitBookTitle(bookOrTitle);
+}
+
 function splitBookTitle(bookOrTitle) {
   if (!bookOrTitle) return { main: '', sub: '' };
   let titleStr = '';
