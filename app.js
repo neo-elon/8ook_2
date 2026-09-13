@@ -6177,10 +6177,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '새는 알을 깨고 나온다. 알은 세계이다. 태어나려는 자는 하나의 세계를 파괴하지 않으면 안 된다.',
     bookTitle: '데미안',
     author: '헤르만 헤세',
+    cover: 'https://image.aladin.co.kr/product/26/0/cover500/s452139198_1.jpg',
     page: 124,
     memo: '변화와 성장의 고통을 마주할 때마다 나를 지탱해 주는 문장.',
     tags: ['성장', '자아', '고전'],
-    likes: 38,
+    likes: 0,
     time: '15분 전'
   },
   {
@@ -6188,10 +6189,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '우리는 모두 별의 부스러기(stardust)다. 밤하늘을 바라볼 때, 우리는 우리의 고향을 보고 있는 것이다.',
     bookTitle: '코스모스',
     author: '칼 세이건',
+    cover: 'https://image.aladin.co.kr/product/523/84/cover500/8983711892_1.jpg',
     page: 382,
     memo: '광대한 우주 속에서 인간이라는 존재가 얼마나 소중하고 경이로운지.',
     tags: ['우주', '과학', '사유'],
-    likes: 45,
+    likes: 0,
     time: '32분 전'
   },
   {
@@ -6199,10 +6201,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '지나간 슬픔을 말하는 것이 아니라, 지금도 흐르고 있는 피를 닦아내는 마음으로 썼다.',
     bookTitle: '작별하지 않는다',
     author: '한강',
+    cover: 'https://image.aladin.co.kr/product/27877/5/cover500/k852734968_1.jpg',
     page: 88,
     memo: '역사의 아픔을 가만히 보듬는 작가의 깊은 시선.',
     tags: ['문학', '위로', '기억'],
-    likes: 29,
+    likes: 0,
     time: '1시간 전'
   },
   {
@@ -6210,10 +6213,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '인생이란 때때로 우리로 하여금 전혀 예기치 않은 모순을 끌어안게 만든다.',
     bookTitle: '모순',
     author: '양귀자',
+    cover: 'https://image.aladin.co.kr/product/2584/37/cover500/8970637604_1.jpg',
     page: 67,
     memo: '옳고 그름만으로 나눌 수 없는 삶의 입체적인 진실들.',
     tags: ['소설', '인생', '성찰'],
-    likes: 31,
+    likes: 0,
     time: '2시간 전'
   },
   {
@@ -6221,10 +6225,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '우리가 빛의 속도로 갈 수 없다면, 같은 우주에 존재한다 하더라도 영원히 닿지 못할지도 몰라.',
     bookTitle: '우리가 빛의 속도로 갈 수 없다면',
     author: '김초엽',
+    cover: 'https://image.aladin.co.kr/product/19359/16/cover500/s822535745_1.jpg',
     page: 198,
     memo: '닿을 수 없는 거리를 넘어 전해지는 그리움의 온기.',
     tags: ['SF', '그리움', '다정함'],
-    likes: 52,
+    likes: 0,
     time: '2시간 전'
   },
   {
@@ -6232,10 +6237,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '인간은 패배하도록 창조된 것이 아니다. 인간은 파괴될 수는 있어도 패배할 수는 없다.',
     bookTitle: '노인과 바다',
     author: '어니스트 헤밍웨이',
+    cover: 'https://image.aladin.co.kr/product/1325/3/cover500/8937462787_1.jpg',
     page: 115,
     memo: '삶의 거친 파도 앞에서도 굽히지 않는 인간의 존엄.',
     tags: ['고전', '의지', '용기'],
-    likes: 22,
+    likes: 0,
     time: '3시간 전'
   },
   {
@@ -6243,10 +6249,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '잠깐 머무는 여행자로서 우리는 세상에 아무것도 보태지 않고, 그저 바라볼 뿐이다.',
     bookTitle: '여행의 이유',
     author: '김영하',
+    cover: 'https://image.aladin.co.kr/product/18835/60/cover500/k022635748_1.jpg',
     page: 54,
     memo: '일상의 짐을 벗어던지고 순수한 관찰자로 돌아가는 해방감.',
     tags: ['여행', '산문', '휴식'],
-    likes: 19,
+    likes: 0,
     time: '4시간 전'
   },
   {
@@ -6254,10 +6261,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '가장 무거운 짐은 동시에 가장 자유로운 삶의 완성에 대한 형상이기도 하다.',
     bookTitle: '참을 수 없는 존재의 가벼움',
     author: '밀란 쿤데라',
+    cover: 'https://image.aladin.co.kr/product/4096/34/cover500/8937462345_1.jpg',
     page: 18,
     memo: '가벼움의 허무와 무거움의 숭고함 사이에서의 방황.',
     tags: ['철학', '문학', '존재'],
-    likes: 27,
+    likes: 0,
     time: '4시간 전'
   },
   {
@@ -6265,10 +6273,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '모든 발명에는 권력을 향한 내밀한 욕망이 깃들어 있었다.',
     bookTitle: '도구는 어떻게 권력이 되는가',
     author: '신무연',
+    cover: 'https://image.aladin.co.kr/product/28842/78/cover500/k022836261_1.jpg',
     page: 45,
     memo: '도구는 중립적이지 않다. 권력 구조를 이해하는 새로운 렌즈.',
     tags: ['역사', '권력', '인문'],
-    likes: 24,
+    likes: 0,
     time: '5시간 전'
   },
   {
@@ -6276,10 +6285,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '눈에 보이지 않는 것이 가장 소중한 법이야. 마음으로 보아야만 분명하게 볼 수 있어.',
     bookTitle: '어린 왕자',
     author: '앙투안 드 생텍쥐페리',
+    cover: 'https://image.aladin.co.kr/product/6853/49/cover500/8965961623_1.jpg',
     page: 92,
     memo: '언제 읽어도 마음 깊은 곳을 정화해 주는 영원한 문장.',
     tags: ['동화', '마음', '순수'],
-    likes: 64,
+    likes: 0,
     time: '6시간 전'
   },
   {
@@ -6287,10 +6297,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '인간은 고통을 통해서만 진정으로 성숙해지는 괴상한 존재이다.',
     bookTitle: '죄와 벌',
     author: '표도르 도스토옙스키',
+    cover: 'https://image.aladin.co.kr/product/1325/4/cover500/8937460113_1.jpg',
     page: 320,
     memo: '심연을 들여다본 자만이 비로소 빛의 소중함을 깨닫는다.',
     tags: ['고전', '인간', '구원'],
-    likes: 18,
+    likes: 0,
     time: '7시간 전'
   },
   {
@@ -6298,10 +6309,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '겨울의 한가운데서 나는 내 안에 꺾이지 않는 여름이 있음을 깨달았다.',
     bookTitle: '여름',
     author: '알베르 카뮈',
+    cover: 'https://image.aladin.co.kr/product/4123/24/cover500/8937462434_1.jpg',
     page: 72,
     memo: '어떤 절망과 시련 속에서도 결코 꺼지지 않는 생의 불꽃.',
     tags: ['산문', '희망', '철학'],
-    likes: 41,
+    likes: 0,
     time: '8시간 전'
   },
   {
@@ -6309,10 +6321,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '자유란 둘 더하기 둘이 넷이라고 말할 수 있는 자유이다. 그것이 허용된다면 다른 모든 것도 뒤따른다.',
     bookTitle: '1984',
     author: '조지 오웰',
+    cover: 'https://image.aladin.co.kr/product/26/87/cover500/8937460776_1.jpg',
     page: 135,
     memo: '진실을 말할 권리와 생각의 독립성이 얼마나 소중한지 일깨운다.',
     tags: ['사회', '자유', '명작'],
-    likes: 33,
+    likes: 0,
     time: '9시간 전'
   },
   {
@@ -6320,10 +6333,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '누군가를 사랑한다는 것은, 그 사람의 가장 깊은 외로움까지 끌어안겠다는 다짐이다.',
     bookTitle: '바깥은 여름',
     author: '김애란',
+    cover: 'https://image.aladin.co.kr/product/11142/97/cover500/8954646045_1.jpg',
     page: 154,
     memo: '사랑의 이면에 자리 잡은 연민과 연대의 깊이.',
     tags: ['소설', '사랑', '여운'],
-    likes: 29,
+    likes: 0,
     time: '10시간 전'
   },
   {
@@ -6331,10 +6345,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '상상할 수 있는 능력이 없었다면 우리는 아직도 아프리카의 초원에서 영양을 쫓고 있었을 것이다.',
     bookTitle: '사피엔스',
     author: '유발 하라리',
+    cover: 'https://image.aladin.co.kr/product/6853/49/cover500/8934972466_1.jpg',
     page: 48,
     memo: '허구를 믿는 능력이야말로 인간 문명의 위대한 출발점.',
     tags: ['역사', '인류', '지성'],
-    likes: 26,
+    likes: 0,
     time: '12시간 전'
   },
   {
@@ -6342,10 +6357,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '어둠이 깊을수록 별은 더욱 찬란하게 빛난다.',
     bookTitle: '별 헤는 밤',
     author: '윤동주',
+    cover: 'https://image.aladin.co.kr/product/7504/45/cover500/k352535496_1.jpg',
     page: 34,
     memo: '순결한 시인의 고뇌 속에서 피어난 영원한 서정.',
     tags: ['시', '별', '순수'],
-    likes: 58,
+    likes: 0,
     time: '14시간 전'
   },
   {
@@ -6353,10 +6369,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '나를 죽이지 못하는 고통은 나를 더욱 강하게 만든다.',
     bookTitle: '우상의 황혼',
     author: '프리드리히 니체',
+    cover: 'https://image.aladin.co.kr/product/1325/4/cover500/8937461454_1.jpg',
     page: 88,
     memo: '시련 앞에서 물러서지 않고 나아가는 강인한 의지.',
     tags: ['철학', '극복', '힘'],
-    likes: 35,
+    likes: 0,
     time: '16시간 전'
   },
   {
@@ -6364,10 +6381,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '시간은 흐르는 것이 아니라 우리가 시간을 뚫고 걸어가는 것이다.',
     bookTitle: '시간의 향기',
     author: '한병철',
+    cover: 'https://image.aladin.co.kr/product/2619/84/cover500/8930086786_1.jpg',
     page: 62,
     memo: '속도에 쫓기는 현대 사회에서 사유의 시간성을 되찾는 법.',
     tags: ['철학', '시간', '사색'],
-    likes: 28,
+    likes: 0,
     time: '18시간 전'
   },
   {
@@ -6375,10 +6393,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '그리하여 우리는 조류를 거스르는 배처럼, 끊임없이 과거로 밀려가면서도 앞으로 나아가는 것이다.',
     bookTitle: '위대한 개츠비',
     author: 'F. 스콧 피츠제럴드',
+    cover: 'https://image.aladin.co.kr/product/26/86/cover500/893746075x_1.jpg',
     page: 252,
     memo: '손에 닿지 않는 초록 불빛을 향해 끊임없이 노를 젓는 인간의 숙명.',
     tags: ['고전', '꿈', '여운'],
-    likes: 37,
+    likes: 0,
     time: '20시간 전'
   },
   {
@@ -6386,10 +6405,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '살아온 기적이 살아갈 기적이 된다. 사소한 하루가 모여 하나의 온전한 삶이 된다.',
     bookTitle: '그 많던 싱아는 누가 다 먹었을까',
     author: '박완서',
+    cover: 'https://image.aladin.co.kr/product/388/82/cover500/8902041238_1.jpg',
     page: 210,
     memo: '질곡의 세월을 담담하게 통과해 낸 거목의 따스한 품.',
     tags: ['수필', '생애', '따뜻함'],
-    likes: 49,
+    likes: 0,
     time: '22시간 전'
   },
   {
@@ -6397,10 +6417,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '너의 내면으로 침잠하라. 그곳에서 네가 쓰지 않고는 살 수 없는지 물어보라.',
     bookTitle: '젊은 시인에게 주는 충고',
     author: '라이너 마리아 릴케',
+    cover: 'https://image.aladin.co.kr/product/26/88/cover500/8937460830_1.jpg',
     page: 25,
     memo: '타인의 시선이 아닌 오직 자기 자신과의 깊은 대면.',
     tags: ['문학', '창작', '예술'],
-    likes: 21,
+    likes: 0,
     time: '어제'
   },
   {
@@ -6408,10 +6429,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '한 권의 책은 우리 안의 얼어붙은 바다를 깨부수는 도끼여야 한다.',
     bookTitle: '변신',
     author: '프란츠 카프카',
+    cover: 'https://image.aladin.co.kr/product/26/0/cover500/8937460067_1.jpg',
     page: 12,
     memo: '안온함에 취해 무뎌진 감각을 날카롭게 깨우는 독서의 본령.',
     tags: ['독서', '카프카', '사유'],
-    likes: 67,
+    likes: 0,
     time: '어제'
   },
   {
@@ -6419,10 +6441,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '내가 어둠을 바라볼 때, 어둠 또한 나를 바라본다.',
     bookTitle: '종의 기원',
     author: '정유정',
+    cover: 'https://image.aladin.co.kr/product/8354/12/cover500/8956609990_1.jpg',
     page: 180,
     memo: '금기를 넘어서는 인간의 어두운 본능에 대한 섬뜩한 질문.',
     tags: ['스릴러', '심리', '인간'],
-    likes: 19,
+    likes: 0,
     time: '어제'
   },
   {
@@ -6430,10 +6453,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '진정한 발견의 여정은 새로운 풍경을 찾는 것이 아니라, 새로운 눈을 갖는 것이다.',
     bookTitle: '잃어버린 시간을 찾아서',
     author: '마르셀 프루스트',
+    cover: 'https://image.aladin.co.kr/product/26/88/cover500/8937460849_1.jpg',
     page: 440,
     memo: '세상을 새롭게 감각하는 눈이야말로 독서가 우리에게 주는 가장 큰 선물.',
     tags: ['고전', '통찰', '발견'],
-    likes: 31,
+    likes: 0,
     time: '어제'
   },
   {
@@ -6441,10 +6465,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '기억은 기록되지 않으면 안개처럼 흩어져 버린다. 쓰는 행위만이 기억에 형태를 부여한다.',
     bookTitle: '눈먼 자들의 도시',
     author: '주제 사라마구',
+    cover: 'https://image.aladin.co.kr/product/26/87/cover500/8937460784_1.jpg',
     page: 290,
     memo: '망각의 강에서 우리가 건져 올려야 할 기록의 가치.',
     tags: ['소설', '기록', '인간'],
-    likes: 42,
+    likes: 0,
     time: '2일 전'
   },
   {
@@ -6452,10 +6477,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '우리가 진정으로 두려워해야 할 유일한 것은 두려움 그 자체이다.',
     bookTitle: '페스트',
     author: '알베르 카뮈',
+    cover: 'https://image.aladin.co.kr/product/1325/4/cover500/8937460148_1.jpg',
     page: 175,
     memo: '재난과 혼돈 속에서도 묵묵히 자신의 자리를 지키는 이들의 연대.',
     tags: ['문학', '용기', '연대'],
-    likes: 27,
+    likes: 0,
     time: '2일 전'
   },
   {
@@ -6463,10 +6489,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '책 속에는 우리가 아직 가보지 못한 수만 개의 삶이 숨 쉬고 있다.',
     bookTitle: '책 읽는 뇌',
     author: '매리언 울프',
+    cover: 'https://image.aladin.co.kr/product/437/74/cover500/8991204481_1.jpg',
     page: 112,
     memo: '타인의 삶에 공감하는 기적을 일으키는 뇌의 마법.',
     tags: ['뇌과학', '독서', '공감'],
-    likes: 34,
+    likes: 0,
     time: '2일 전'
   },
   {
@@ -6474,10 +6501,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '침묵은 때로 어떤 화려한 웅변보다도 강렬한 울림을 지닌다.',
     bookTitle: '채식주의자',
     author: '한강',
+    cover: 'https://image.aladin.co.kr/product/981/47/cover500/8936433597_1.jpg',
     page: 145,
     memo: '말을 잃어버린 침묵 속에서 터져 나오는 존재의 절규.',
     tags: ['문학', '침묵', '한강'],
-    likes: 39,
+    likes: 0,
     time: '3일 전'
   },
   {
@@ -6485,10 +6513,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '행복한 가정은 모두 엇비슷하지만, 불행한 가정은 각기 다른 이유로 불행하다.',
     bookTitle: '안나 카레니나',
     author: '레프 톨스토이',
+    cover: 'https://image.aladin.co.kr/product/1325/3/cover500/8937462000_1.jpg',
     page: 9,
     memo: '세계 문학사상 가장 완벽하고 강렬한 첫 문장.',
     tags: ['고전', '인생', '첫문장'],
-    likes: 51,
+    likes: 0,
     time: '3일 전'
   },
   {
@@ -6496,10 +6525,11 @@ const SEED_COMMUNITY_SCRAPS = [
     text: '독서는 타인의 생각을 빌려 나의 생각을 직조해 내는 가장 고결한 대화이다.',
     bookTitle: '문장의 온도',
     author: '이기주',
+    cover: 'https://image.aladin.co.kr/product/8916/81/cover500/8954641956_1.jpg',
     page: 78,
     memo: '책장을 넘기며 나와 마주하는 고요하고 깊은 시간.',
     tags: ['에세이', '독서', '마음'],
-    likes: 46,
+    likes: 0,
     time: '3일 전'
   }
 ];
@@ -6776,32 +6806,30 @@ function getCommunityScrapsList() {
 
   const sortedBooks = sortByTime(allBooks);
 
-  sortedBooks.forEach(b => {
-    if (b.sentence && b.sentence.trim()) {
-      userScraps.push({
-        id: 'us_sent_' + b.id,
-        text: b.sentence.trim(),
-        bookTitle: b.title,
-        author: b.author || '',
-        page: null,
-        memo: '',
-        tags: b.keywords || [],
-        likes: b.rating ? Number(b.rating) * 5 : 12,
-        time: '최근'
-      });
+  // Map for fast lookup of covers and book ids by book title
+  const bookByTitle = new Map();
+  allBooks.forEach(b => {
+    if (b.title) {
+      bookByTitle.set(b.title.trim().toLowerCase(), b);
     }
+  });
+
+  // ONLY collect from "수집한 문장" (b.scraps), NOT "나만의 한 문장" (b.sentence)!
+  sortedBooks.forEach(b => {
     if (b.scraps && b.scraps.length) {
       b.scraps.forEach(s => {
         userScraps.push({
           id: 'us_' + s.id,
+          bookId: b.id,
           text: s.text,
           bookTitle: b.title,
           author: b.author || '',
+          cover: b.cover || '',
           page: s.page || null,
           memo: s.memo || '',
           tags: s.tags || s.keywords || [],
-          likes: 7,
-          time: '최근'
+          likes: 0,
+          time: s.created_at ? formatTimeAgo(s.created_at) : '최근'
         });
       });
     }
@@ -6814,7 +6842,13 @@ function getCommunityScrapsList() {
   const combined = [...userScraps];
   SEED_COMMUNITY_SCRAPS.forEach(ss => {
     if (combined.length < 30 && !combined.some(s => s.text === ss.text)) {
-      combined.push(ss);
+      const matched = bookByTitle.get((ss.bookTitle || '').trim().toLowerCase());
+      combined.push({
+        ...ss,
+        bookId: matched ? matched.id : (ss.bookId || ''),
+        cover: (matched && matched.cover) ? matched.cover : (ss.cover || ''),
+        likes: 0
+      });
     }
   });
   return combined.slice(0, 30);
@@ -6841,25 +6875,35 @@ function renderCommunityScraps() {
       ? `<div class="comm-scrap-tags">${s.tags.map(t => `<span class="comm-scrap-tag">#${esc(t)}</span>`).join('')}</div>`
       : '';
 
+    const coverUrl = s.cover ? getSafeImageUrl(s.cover) : '';
+    const clickDetail = s.bookId ? `onclick="showDetail('${s.bookId}')"` : '';
+    const coverHtml = coverUrl
+      ? `<img class="comm-scrap-cover" src="${esc(coverUrl)}" alt="${esc(s.bookTitle)}" referrerpolicy="no-referrer" loading="lazy" ${clickDetail} onerror="this.outerHTML='<div class=\\'comm-scrap-cover-placeholder\\' ${clickDetail}>8ook</div>'">`
+      : `<div class="comm-scrap-cover-placeholder" ${clickDetail}>8ook</div>`;
+
     return `
       <div class="comm-scrap-card" id="csc-${s.id}">
-        <div class="comm-scrap-text">${esc(s.text)}</div>
-        ${s.memo ? `<div class="comm-scrap-memo"><strong>생각:</strong> ${esc(s.memo)}</div>` : ''}
-        <div class="comm-scrap-footer">
-          <div class="comm-scrap-source">
-            <strong>《${esc(s.bookTitle)}》</strong>
-            ${s.author ? `<span>${esc(s.author)}</span>` : ''}
-            ${s.page ? `<span>p.${s.page}</span>` : ''}
-            ${tagsHtml}
-          </div>
-          <div class="comm-scrap-actions">
-            <span class="comm-scrap-anon-badge">익명의 기록 · ${s.time}</span>
-            <button class="comm-scrap-btn" onclick="copyCommunityQuote('${esc(s.text.replace(/'/g, "\\'"))}', '${esc(s.bookTitle.replace(/'/g, "\\'"))}', '${esc((s.author || '').replace(/'/g, "\\'"))}', '${s.page || ''}')" title="문장 복사">
-              복사
-            </button>
-            <button class="comm-scrap-btn${isLiked ? ' liked' : ''}" onclick="toggleCommunityLike('${s.id}', this)" title="공감">
-              <span style="color:#e11d48; font-size:11px;">♥</span> <span>공감</span> <span class="like-count">${currentLikes}</span>
-            </button>
+        <div class="comm-scrap-inner">
+          ${coverHtml}
+          <div class="comm-scrap-content">
+            <div class="comm-scrap-text">${esc(s.text)}</div>
+            ${s.memo ? `<div class="comm-scrap-memo"><strong>생각:</strong> ${esc(s.memo)}</div>` : ''}
+            <div class="comm-scrap-footer">
+              <div class="comm-scrap-source">
+                <strong ${clickDetail} style="${s.bookId ? 'cursor:pointer;' : ''}">《${esc(s.bookTitle)}》</strong>
+                ${s.author ? `<span>${esc(s.author)}</span>` : ''}
+                ${s.page ? `<span>p.${s.page}</span>` : ''}
+                ${tagsHtml}
+              </div>
+              <div class="comm-scrap-actions">
+                <button class="comm-scrap-btn" onclick="copyCommunityQuote('${esc(s.text.replace(/'/g, "\\'"))}', '${esc(s.bookTitle.replace(/'/g, "\\'"))}', '${esc((s.author || '').replace(/'/g, "\\'"))}', '${s.page || ''}')" title="문장 복사">
+                  복사
+                </button>
+                <button type="button" class="comm-scrap-like-btn${isLiked ? ' liked' : ''}" onclick="toggleCommunityLike('${s.id}', this, event)" title="좋아요">
+                  <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -6883,7 +6927,11 @@ function copyCommunityQuote(text, bookTitle, author, page) {
   }
 }
 
-function toggleCommunityLike(id, btnEl) {
+function toggleCommunityLike(id, btnEl, event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
   let storedLikes = {};
   try {
     const raw = localStorage.getItem('rj_community_likes');
@@ -6896,18 +6944,19 @@ function toggleCommunityLike(id, btnEl) {
   if (wasLiked) {
     delete storedLikes[id];
     btnEl.classList.remove('liked');
-    countSpan.textContent = '0';
+    if (countSpan) countSpan.textContent = '0';
   } else {
     storedLikes[id] = true;
     btnEl.classList.add('liked');
-    countSpan.textContent = '1';
-    toast('익명으로 공감을 남겼습니다 ♥');
+    if (countSpan) countSpan.textContent = '1';
+    toast('문장에 좋아요를 남겼습니다 ♥');
   }
 
   try {
     localStorage.setItem('rj_community_likes', JSON.stringify(storedLikes));
   } catch (e) {}
 }
+
 
 function searchAladinByQuery(query) {
   openAddModal();

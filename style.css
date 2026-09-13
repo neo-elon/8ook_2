@@ -3034,7 +3034,7 @@
       border: 1px solid var(--border);
       border-left: 4px solid var(--lavender);
       border-radius: var(--radius-md);
-      padding: 18px 20px;
+      padding: 16px 18px;
       transition: all 0.25s var(--ease);
       box-shadow: var(--shadow-card);
       position: relative;
@@ -3044,6 +3044,47 @@
       border-left-color: var(--violet);
       transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(70,50,30,0.08);
+    }
+    .comm-scrap-inner {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .comm-scrap-cover {
+      width: 58px;
+      height: 84px;
+      object-fit: cover;
+      border-radius: 4px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+      flex-shrink: 0;
+      background: var(--bg-primary);
+      cursor: pointer;
+      transition: transform 0.2s var(--ease);
+    }
+    .comm-scrap-cover:hover {
+      transform: scale(1.05);
+    }
+    .comm-scrap-cover-placeholder {
+      width: 58px;
+      height: 84px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      color: var(--text-300);
+      font-size: 11px;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .comm-scrap-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
     }
     .comm-scrap-text {
       font-size: 15.5px;
@@ -3099,6 +3140,10 @@
     .comm-scrap-source strong {
       color: var(--text-100);
       font-weight: 600;
+      transition: color 0.15s;
+    }
+    .comm-scrap-source strong:hover {
+      color: var(--violet);
     }
     .comm-scrap-source span {
       color: var(--text-400);
@@ -3127,29 +3172,53 @@
       background: transparent;
       border: 1px solid var(--border);
       border-radius: 4px;
-      padding: 3px 8px;
+      padding: 2px 8px;
       font-size: 11px;
       color: var(--text-300);
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 4px;
-      transition: all 0.2s;
+      transition: all 0.2s var(--ease);
+      line-height: 1.4;
     }
     .comm-scrap-btn:hover {
       background: var(--glass-hover);
       border-color: var(--border-accent);
       color: var(--text-100);
     }
-    .comm-scrap-btn.liked {
-      color: #e11d48 !important;
-      border-color: rgba(225,29,72,0.3) !important;
-      background: rgba(225,29,72,0.06) !important;
+    .comm-scrap-like-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 11px;
+      color: var(--text-300);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s var(--ease);
+      line-height: 1.4;
     }
-    .comm-scrap-anon-badge {
-      font-size: 10.5px;
-      color: var(--text-400);
-      margin-right: 4px;
+    .comm-scrap-like-btn:hover {
+      background: var(--glass-hover);
+      border-color: var(--border-accent);
+      color: var(--text-100);
+    }
+    .comm-scrap-like-btn .comm-heart-icon {
+      font-size: 11.5px;
+      color: #e11d48;
+      transition: transform 0.2s;
+    }
+    .comm-scrap-like-btn:hover .comm-heart-icon {
+      transform: scale(1.18);
+    }
+    .comm-scrap-like-btn.liked {
+      color: #e11d48 !important;
+      border-color: rgba(225,29,72,0.35) !important;
+      background: rgba(225,29,72,0.08) !important;
+      font-weight: 600;
     }
     .ar-floating-card {
       flex: 0 0 260px;
