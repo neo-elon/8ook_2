@@ -6904,7 +6904,7 @@ function renderCommunityScraps() {
         <div class="comm-scrap-body">
           ${coverHtml}
           <div class="comm-scrap-text">${esc(s.text)}</div>
-          ${s.memo ? `<div class="comm-scrap-memo"><strong>생각:</strong> ${esc(s.memo)}</div>` : ''}
+          ${s.memo ? `<div class="comm-scrap-memo">${esc(s.memo)}</div>` : ''}
         </div>
         <div class="comm-scrap-footer">
           <div class="comm-scrap-title-row">

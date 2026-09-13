@@ -3118,15 +3118,43 @@
     }
     .comm-scrap-memo {
       clear: both;
-      font-size: 12px;
-      color: var(--text-300);
-      background: rgba(140,98,57,0.04);
-      padding: 6px 12px;
-      border-radius: 4px;
-      margin-top: 8px;
+      position: relative;
+      display: inline-block;
+      max-width: 95%;
+      font-size: 13px;
+      color: var(--text-200);
+      background: #f4efe9;
+      padding: 9px 15px;
+      border-radius: 14px;
+      margin-top: 10px;
       margin-bottom: 8px;
-      line-height: 1.5;
+      line-height: 1.55;
       word-break: break-word;
+      border: 1px solid rgba(140, 98, 57, 0.12);
+      box-shadow: 0 1px 4px rgba(70, 50, 30, 0.04);
+    }
+    .comm-scrap-memo::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      left: 16px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 6px solid #f4efe9;
+    }
+    .comm-scrap-memo::after {
+      content: '';
+      position: absolute;
+      top: -7.5px;
+      left: 15px;
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-bottom: 7.5px solid rgba(140, 98, 57, 0.12);
+      z-index: -1;
     }
     .comm-scrap-footer {
       clear: both;
