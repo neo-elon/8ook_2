@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260913_community_v15">
+  <link rel="stylesheet" href="style.css?v=20260913_community_v16">
 </head>
 <body>
 
@@ -293,11 +293,9 @@
         <div class="comm-tab-bar">
           <button type="button" class="comm-tab-btn active" id="comm-tab-books-btn" onclick="switchCommunityTab('books')">
             <span class="comm-tab-label">새로 추가된 책</span>
-            <span class="comm-tab-count" id="comm-books-count">0</span>
           </button>
           <button type="button" class="comm-tab-btn" id="comm-tab-scraps-btn" onclick="switchCommunityTab('scraps')">
             <span class="comm-tab-label">새로 추가된 문장</span>
-            <span class="comm-tab-count" id="comm-scraps-count">30</span>
           </button>
         </div>
       </div>
@@ -313,11 +311,11 @@
         </div>
       </div>
 
-      <!-- Scraps Panel (30 Quotes) -->
+      <!-- Scraps Panel -->
       <div id="comm-scraps-panel" class="comm-panel">
         <div class="comm-panel-header">
-          <div class="comm-panel-title">새로 추가된 문장 30문장</div>
-          <div class="comm-panel-caption">책을 읽으며 마음을 울린 익명의 기록들</div>
+          <div class="comm-panel-title">새로 추가된 문장</div>
+          <div class="comm-panel-caption">책을 읽으며 마음을 울린 기록들</div>
         </div>
         <div class="comm-scraps-stream" id="comm-scraps-stream">
           <!-- Rendered dynamically -->
@@ -857,6 +855,6 @@
 <!-- All Users Community Dataset -->
 <script src="neo_books_131.js" defer></script>
 
-  <script src="app.js?v=20260913_community_v15" defer></script>
+  <script src="app.js?v=20260913_community_v16" defer></script>
 </body>
 </html>

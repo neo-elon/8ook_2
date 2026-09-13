@@ -6698,11 +6698,11 @@ function renderCommunityBooks() {
 
   const list = getCommunityBooksList();
   const countEl = document.getElementById('comm-books-count');
-  if (countEl) countEl.textContent = list.length;
+  if (countEl) countEl.remove();
 
   const titleEl = document.getElementById('comm-books-panel-title');
   if (titleEl) {
-    titleEl.textContent = list.length > 0 ? `새로 추가된 책 ${list.length}권` : '새로 추가된 책';
+    titleEl.textContent = '새로 추가된 책';
   }
 
   if (list.length === 0) {
@@ -6860,7 +6860,7 @@ function renderCommunityScraps() {
 
   const list = getCommunityScrapsList();
   const countEl = document.getElementById('comm-scraps-count');
-  if (countEl) countEl.textContent = list.length;
+  if (countEl) countEl.remove();
 
   let storedLikes = {};
   try {
