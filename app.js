@@ -2392,6 +2392,8 @@ async function saveBook() {
     saveData();
     closeModal('book-modal');
     updateSidebar();
+    if (typeof renderCommunityBooks === 'function') renderCommunityBooks();
+    if (typeof renderCommunityScraps === 'function') renderCommunityScraps();
 
     if (currentBookId === editingBookId && editingBookId) {
       showDetail(currentBookId);
@@ -2436,6 +2438,8 @@ async function doDeleteBook(id) {
     toast('도서가 삭제되었습니다');
     showGallery();
     updateSidebar();
+    if (typeof renderCommunityBooks === 'function') renderCommunityBooks();
+    if (typeof renderCommunityScraps === 'function') renderCommunityScraps();
   } catch (err) {
     console.error(err);
     toast('삭제 실패: ' + err.message);
@@ -6575,6 +6579,9 @@ function getAllCommunityBooks() {
   if (Array.isArray(books)) {
     books.forEach(b => {
       if (b && b.id !== '8ook_user_guide' && b.title) {
+        if (!b.created_at) {
+          b.created_at = b.date ? new Date(b.date).toISOString() : new Date().toISOString();
+        }
         map.set(b.id, b);
       }
     });
@@ -6651,23 +6658,19 @@ function switchCommunityTab(tab) {
 }
 
 function getCommunityBooksList() {
-  // Return books across ALL users, up to 12
+  // Return books across ALL users, sorted strictly by newest added time first!
   const allBooks = getAllCommunityBooks();
 
-  // Prioritize books with actually entered 한줄평 (sentence / review)
-  const withReview = allBooks.filter(b => (b.sentence || b.review || b.oneLineReview || '').trim());
-  const withoutReview = allBooks.filter(b => !(b.sentence || b.review || b.oneLineReview || '').trim());
-
-  const sortByTime = (arr) => [...arr].sort((a, b) => {
-    const timeA = new Date(a.created_at || a.date || 0).getTime();
-    const timeB = new Date(b.created_at || b.date || 0).getTime();
+  const sorted = [...allBooks].sort((a, b) => {
+    const timeA = a.created_at ? new Date(a.created_at).getTime() : (a.date ? new Date(a.date).getTime() : 0);
+    const timeB = b.created_at ? new Date(b.created_at).getTime() : (b.date ? new Date(b.date).getTime() : 0);
     if (timeA && timeB && timeA !== timeB) return timeB - timeA;
-    return 0;
+    if (timeA && !timeB) return -1;
+    if (!timeA && timeB) return 1;
+    return (b.seq || 0) - (a.seq || 0);
   });
 
-  const sorted = [...sortByTime(withReview), ...sortByTime(withoutReview)];
-
-  return sorted.slice(0, 12).map((b) => {
+  return sorted.slice(0, 18).map((b) => {
     const titleParts = splitBookTitle(b);
     const userRating = (b.rating && Number(b.rating) > 0) ? Number(b.rating) : null;
     const userReview = (b.sentence || b.review || b.oneLineReview || '').trim();
