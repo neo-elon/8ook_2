@@ -6943,7 +6943,7 @@ function renderCommunityBooks() {
 
     const coverUrl = b.cover ? getSafeImageUrl(b.cover) : '';
     const coverHtml = coverUrl
-      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" loading="lazy" onclick="showDetail('${b.id}')" onerror="handleCommCoverError(this)">`
+      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" decoding="async" onclick="showDetail('${b.id}')" onerror="handleCommCoverError(this)">`
       : `<div class="comm-book-cover-placeholder" onclick="showDetail('${b.id}')">8ook</div>`;
 
     const ratingHtml = (b.rating && Number(b.rating) > 0)
@@ -7097,7 +7097,7 @@ function renderCommunityScraps() {
     const coverUrl = s.cover ? getSafeImageUrl(s.cover) : '';
     const clickDetail = s.bookId ? `onclick="showDetail('${s.bookId}')"` : '';
     const coverHtml = coverUrl
-      ? `<img class="comm-scrap-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" loading="lazy" ${clickDetail} onerror="handleCommCoverError(this)">`
+      ? `<img class="comm-scrap-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" decoding="async" ${clickDetail} onerror="handleCommCoverError(this)">`
       : `<div class="comm-scrap-cover-placeholder" ${clickDetail}>8ook</div>`;
 
     return `
