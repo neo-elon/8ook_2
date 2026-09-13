@@ -1280,51 +1280,66 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       });
     }));
 
-    // 2. 총 페이지수 계산 및 여백 최소화 레이아웃 계산
+    // 2. 1:1 정사각형 비율 유지 및 여백 최소화 레이아웃 계산
     const totalPages = getShelfTotalPages(targetBooks);
     const count = loadedItems.length;
     const gap = 2; // 책 사이 실물처럼 밀착
 
-    // 책등 높이를 920px로 시원하게 설정하여 세로 공간을 꽉 채움
-    const bookH = 920;
+    // 1:1 정사각형 규격 (기본 1080x1080)
+    let S = 1080;
+    const paddingX = 32;
+    const headerH = 56; // 상단 헤더 공간
+    const bottomMargin = 24; // 하단 선반 바닥 그림자 공간
+
+    const availW = S - paddingX * 2;
+    const availH = S - headerH - bottomMargin;
+
+    const sumAspect = loadedItems.reduce((acc, item) => acc + item.aspect, 0);
+
+    // 책 높이: 1:1 정사각형 안에서 세로를 최대한 꽉 채우도록 계산
+    let bookH = Math.floor((availW - (count - 1) * gap) / (sumAspect || 1));
+    if (bookH > availH) {
+      bookH = availH;
+    }
+    if (bookH < 350) bookH = 350;
+
     const scale = bookH / 351;
 
     // 각 책의 너비 계산 (실제 종횡비 반영, 최소 두께 보장)
     const itemsWithWidth = loadedItems.map(item => {
       let w = Math.round(item.aspect * bookH);
-      if (w < Math.round(26 * scale)) w = Math.round(26 * scale);
+      if (w < Math.round(28 * scale)) w = Math.round(28 * scale);
       return { ...item, width: w };
     });
 
     const totalBooksW = itemsWithWidth.reduce((acc, item) => acc + item.width, 0) + (count - 1) * gap;
 
-    // 상단 헤더, 하단 선반, 좌우 여백을 최소화 (여백 낭비 제거)
-    const paddingX = 24;
-    const headerH = 52; // 상단 헤더 공간 (타이틀 + 권수/페이지수 + 라인)
-    const bottomMargin = 20; // 하단 바닥 그림자 및 베이스 공간
+    // 만약 책 권수가 매우 많아 총 너비가 1080을 초과하면, 1:1 정사각형 비율을 엄격히 유지하며 S를 확장
+    if (totalBooksW + paddingX * 2 > S) {
+      S = totalBooksW + paddingX * 2;
+    }
 
-    // 캔버스 가로/세로: 책들이 꽉 차도록 타이트하게 맞춤 (최소 가로 440px)
-    const canvasW = Math.max(440, totalBooksW + paddingX * 2);
-    const canvasH = headerH + bookH + bottomMargin;
+    // 1:1 정사각형 중앙 정렬 (가로)
+    const booksStartX = Math.max(paddingX, Math.round((S - totalBooksW) / 2));
 
-    // 책 배치 시작점
-    const booksStartX = Math.max(paddingX, Math.round((canvasW - totalBooksW) / 2));
-    const startY = headerH;
+    // 바닥 선반에 책 접지 (세로: 상단 여백 최소화하고 선반 바닥에 자연스럽게 밀착)
+    const shelfBaseY = S - bottomMargin;
+    const startY = shelfBaseY - bookH;
 
-    // 고해상도 캔버스 생성 (2x Retina)
+    // 1:1 정사각형 고해상도 캔버스 생성 (가로 = 세로 = S, 완벽한 1:1 비율)
     const canvas = document.createElement('canvas');
-    canvas.width = canvasW * dpr;
-    canvas.height = canvasH * dpr;
+    canvas.width = S * dpr;
+    canvas.height = S * dpr;
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
 
     // 3. 배경 그리기 (서재 배경과 일치하는 내추럴 웜 베이지 그라데이션)
-    const bgGrad = ctx.createLinearGradient(0, 0, 0, canvasH);
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, S);
     bgGrad.addColorStop(0, '#f9f6f1');
     bgGrad.addColorStop(0.45, '#f4eee5');
     bgGrad.addColorStop(1, '#ece4d8');
     ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, canvasW, canvasH);
+    ctx.fillRect(0, 0, S, S);
 
     // 4. 상단 타이틀 헤더 렌더링 ([2026년 9월 7권 · 2,450p ────────])
     let titleText = shelfTitle;
@@ -1343,7 +1358,7 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
     const countText = totalPages > 0 ? `${count}권 · ${totalPages.toLocaleString()}p` : `${count}권`;
 
     ctx.save();
-    const titleY = Math.round(headerH * 0.52);
+    const titleY = Math.max(28, Math.min(36, Math.round(startY * 0.52)));
 
     // 제목 텍스트 (볼드 차콜 블랙)
     ctx.font = '700 20px -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Noto Sans KR", sans-serif';
@@ -1361,7 +1376,7 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
 
     // 우측 페이드아웃 구분선
     const lineStartX = countX + countMetrics.width + 14;
-    const lineEndX = canvasW - paddingX;
+    const lineEndX = S - paddingX;
     if (lineEndX > lineStartX) {
       const lineGrad = ctx.createLinearGradient(lineStartX, 0, lineEndX, 0);
       lineGrad.addColorStop(0, 'rgba(0, 0, 0, 0.10)');
@@ -1380,12 +1395,11 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
     let curX = booksStartX;
 
     // 책장 바닥 접점 그림자
-    const shelfBaseY = startY + bookH;
-    const contactGrad = ctx.createLinearGradient(0, shelfBaseY, 0, shelfBaseY + 2.5 * scale);
+    const contactGrad = ctx.createLinearGradient(0, shelfBaseY, 0, shelfBaseY + 3 * scale);
     contactGrad.addColorStop(0, 'rgba(0, 0, 0, 0.08)');
     contactGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = contactGrad;
-    ctx.fillRect(booksStartX - 4, shelfBaseY, totalBooksW + 8, 2.5 * scale);
+    ctx.fillRect(booksStartX - 4, shelfBaseY, totalBooksW + 8, 3 * scale);
 
     itemsWithWidth.forEach(item => {
       const { book, img, width: w } = item;
