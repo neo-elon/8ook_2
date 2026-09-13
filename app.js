@@ -6685,6 +6685,12 @@ function renderCommunityBooks() {
     return;
   }
 
+  let storedBookLikes = {};
+  try {
+    const raw = localStorage.getItem('rj_community_book_likes');
+    if (raw) storedBookLikes = JSON.parse(raw);
+  } catch (e) {}
+
   container.innerHTML = list.map(b => {
     const titleParts = splitBookTitle(b);
     const mainTitle = b.title && b.subtitle !== undefined ? b.title : (titleParts.main || b.title);
@@ -6703,6 +6709,12 @@ function renderCommunityBooks() {
       ? `<div class="comm-book-review" title="${esc(b.review.trim())}">“${esc(b.review.trim())}”</div>`
       : '';
 
+    const isLiked = !!storedBookLikes['bk_' + b.id];
+    const baseLikes = (b.likes !== undefined)
+      ? b.likes
+      : ((b.rating ? Number(b.rating) * 3 : 6) + (Math.abs((b.id || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)) % 16));
+    const currentLikes = baseLikes + (isLiked ? 1 : 0);
+
     return `
       <div class="comm-book-card">
         ${coverHtml}
@@ -6716,11 +6728,46 @@ function renderCommunityBooks() {
           ${reviewHtml}
           <div class="comm-book-meta">
             <span class="comm-book-time">${esc(b.time || '')}</span>
+            <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" onclick="toggleCommunityBookLike('${b.id}', this, event)" title="좋아요">
+              <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
+            </button>
           </div>
         </div>
       </div>
     `;
   }).join('');
+}
+
+function toggleCommunityBookLike(id, btnEl, event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  let storedLikes = {};
+  try {
+    const raw = localStorage.getItem('rj_community_book_likes');
+    if (raw) storedLikes = JSON.parse(raw);
+  } catch (e) {}
+
+  const key = 'bk_' + id;
+  const wasLiked = !!storedLikes[key];
+  const countSpan = btnEl.querySelector('.like-count');
+  let currentCount = parseInt(countSpan.textContent, 10) || 0;
+
+  if (wasLiked) {
+    delete storedLikes[key];
+    btnEl.classList.remove('liked');
+    countSpan.textContent = Math.max(0, currentCount - 1);
+  } else {
+    storedLikes[key] = true;
+    btnEl.classList.add('liked');
+    countSpan.textContent = currentCount + 1;
+    toast('도서에 좋아요를 남겼습니다 ♥');
+  }
+
+  try {
+    localStorage.setItem('rj_community_book_likes', JSON.stringify(storedLikes));
+  } catch (e) {}
 }
 
 function getCommunityScrapsList() {
