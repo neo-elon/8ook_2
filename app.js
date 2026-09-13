@@ -6692,6 +6692,16 @@ function getCommunityBooksList() {
   });
 }
 
+function handleCommCoverError(img) {
+  img.onerror = null;
+  const ph = document.createElement('div');
+  const isScrap = img.classList.contains('comm-scrap-cover');
+  ph.className = isScrap ? 'comm-scrap-cover-placeholder' : 'comm-book-cover-placeholder';
+  ph.textContent = '8ook';
+  if (img.onclick) ph.onclick = img.onclick;
+  img.replaceWith(ph);
+}
+
 function renderCommunityBooks() {
   const container = document.getElementById('comm-books-grid');
   if (!container) return;
@@ -6728,8 +6738,8 @@ function renderCommunityBooks() {
 
     const coverUrl = b.cover ? getSafeImageUrl(b.cover) : '';
     const coverHtml = coverUrl
-      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" loading="lazy" onclick="showDetail('${b.id}')" onerror="this.outerHTML='<div class=\\'comm-book-cover\\' onclick=\\'showDetail(\\\'${b.id}\\\')\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-300);font-weight:700;\\'>8ook</div>'">`
-      : `<div class="comm-book-cover" onclick="showDetail('${b.id}')" style="display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-300);font-weight:700;">8ook</div>`;
+      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" loading="lazy" onclick="showDetail('${b.id}')" onerror="handleCommCoverError(this)">`
+      : `<div class="comm-book-cover-placeholder" onclick="showDetail('${b.id}')">8ook</div>`;
 
     const ratingHtml = (b.rating && Number(b.rating) > 0)
       ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${Number(b.rating).toFixed(1)}</span></div>`
@@ -6878,7 +6888,7 @@ function renderCommunityScraps() {
     const coverUrl = s.cover ? getSafeImageUrl(s.cover) : '';
     const clickDetail = s.bookId ? `onclick="showDetail('${s.bookId}')"` : '';
     const coverHtml = coverUrl
-      ? `<img class="comm-scrap-cover" src="${esc(coverUrl)}" alt="${esc(s.bookTitle)}" referrerpolicy="no-referrer" loading="lazy" ${clickDetail} onerror="this.outerHTML='<div class=\\'comm-scrap-cover-placeholder\\' ${clickDetail}>8ook</div>'">`
+      ? `<img class="comm-scrap-cover" src="${esc(coverUrl)}" alt="${esc(s.bookTitle)}" referrerpolicy="no-referrer" loading="lazy" ${clickDetail} onerror="handleCommCoverError(this)">`
       : `<div class="comm-scrap-cover-placeholder" ${clickDetail}>8ook</div>`;
 
     return `
@@ -6889,19 +6899,23 @@ function renderCommunityScraps() {
             <div class="comm-scrap-text">${esc(s.text)}</div>
             ${s.memo ? `<div class="comm-scrap-memo"><strong>생각:</strong> ${esc(s.memo)}</div>` : ''}
             <div class="comm-scrap-footer">
-              <div class="comm-scrap-source">
-                <strong ${clickDetail} style="${s.bookId ? 'cursor:pointer;' : ''}">《${esc(s.bookTitle)}》</strong>
-                ${s.author ? `<span>${esc(s.author)}</span>` : ''}
-                ${s.page ? `<span>p.${s.page}</span>` : ''}
-                ${tagsHtml}
+              <div class="comm-scrap-title-row">
+                <strong class="comm-scrap-book-title" ${clickDetail} style="${s.bookId ? 'cursor:pointer;' : ''}">《${esc(s.bookTitle)}》</strong>
               </div>
-              <div class="comm-scrap-actions">
-                <button class="comm-scrap-btn" onclick="copyCommunityQuote('${esc(s.text.replace(/'/g, "\\'"))}', '${esc(s.bookTitle.replace(/'/g, "\\'"))}', '${esc((s.author || '').replace(/'/g, "\\'"))}', '${s.page || ''}')" title="문장 복사">
-                  복사
-                </button>
-                <button type="button" class="comm-scrap-like-btn${isLiked ? ' liked' : ''}" onclick="toggleCommunityLike('${s.id}', this, event)" title="좋아요">
-                  <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
-                </button>
+              <div class="comm-scrap-meta-row">
+                <div class="comm-scrap-meta-left">
+                  ${s.author ? `<span class="comm-scrap-author">${esc(s.author)}</span>` : ''}
+                  ${s.page ? `<span class="comm-scrap-page">p.${s.page}</span>` : ''}
+                  ${tagsHtml}
+                </div>
+                <div class="comm-scrap-actions">
+                  <button class="comm-scrap-btn" onclick="copyCommunityQuote('${esc(s.text.replace(/'/g, "\\'"))}', '${esc(s.bookTitle.replace(/'/g, "\\'"))}', '${esc((s.author || '').replace(/'/g, "\\'"))}', '${s.page || ''}')" title="문장 복사">
+                    복사
+                  </button>
+                  <button type="button" class="comm-scrap-like-btn${isLiked ? ' liked' : ''}" onclick="toggleCommunityLike('${s.id}', this, event)" title="좋아요">
+                    <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
