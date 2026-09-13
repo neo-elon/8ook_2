@@ -812,6 +812,9 @@ function renderGallery() {
 
   // Filter books
   let displayBooks = books;
+  if (currentUser) {
+    displayBooks = displayBooks.filter(b => b.id !== '8ook_user_guide');
+  }
   if (galleryViewMode === 'stars') {
     displayBooks = displayBooks.filter(b => b.rating === 5);
   }
@@ -1828,7 +1831,10 @@ function cleanBookScraps(book) {
    DETAIL VIEW
 ============================================== */
 function showDetail(id, direction = null) {
-  const book = books.find(b => b.id === id);
+  let book = books.find(b => b.id === id);
+  if (!book && id === '8ook_user_guide') {
+    book = getUserGuideBook();
+  }
   if (!book) return;
   currentBookId = id;
   cleanBookScraps(book);
@@ -5812,6 +5818,20 @@ function getUserGuideBook() {
 }
 
 function ensureUserGuideBook() {
+  if (currentUser) {
+    // 로그인 시에는 내 서재(책장)에서 완전히 제외하고 데이터베이스에서도 정리
+    const hadGuide = books.some(b => b.id === '8ook_user_guide');
+    if (hadGuide) {
+      books = books.filter(b => b.id !== '8ook_user_guide');
+      saveData();
+      if (supabaseClient && currentUser.id) {
+        supabaseClient.from('books').delete().eq('id', '8ook_user_guide').eq('user_id', currentUser.id).catch(() => {});
+      }
+    }
+    return;
+  }
+
+  // 비로그인 게스트 환경: 책장이 완전히 비어있을 때만 첫 안내용으로 책장에 노출
   const guideBook = getUserGuideBook();
   const existingIdx = books.findIndex(b => b.id === '8ook_user_guide');
   if (existingIdx !== -1) {
@@ -5826,14 +5846,15 @@ function ensureUserGuideBook() {
       scraps: guideBook.scraps,
       keywords: guideBook.keywords
     };
-  } else {
-    books.unshift(guideBook);
+    saveData();
+  } else if (books.length === 0) {
+    books = [guideBook];
+    saveData();
   }
-  saveData();
 }
 
 function openUserGuide() {
-  ensureUserGuideBook();
+  // 책장에 추가하지 않고 메뉴에서 바로 상세 가이드북을 펼쳐서 감상
   showDetail('8ook_user_guide');
 }
 
