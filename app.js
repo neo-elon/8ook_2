@@ -953,6 +953,13 @@ function renderGallery() {
           <div class="shelf-year-badge">
             <span class="shelf-year-title">${yearLabel}</span>
             <span class="shelf-year-count">${booksInYear.length}권 · ${yearPages.toLocaleString()}p</span>
+            <button class="shelf-download-btn" onclick="downloadYearShelfImage('${esc(yKey)}', '${esc(yearLabel)}')" title="${esc(yearLabel)} 책장 이미지 저장" aria-label="책장 이미지 저장" style="color:var(--text-300); opacity:0.8;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3v12"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path>
+              </svg>
+            </button>
           </div>
           <div class="shelf-year-line"></div>
         `;
@@ -1273,33 +1280,16 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       });
     }));
 
-    // 2. 1:1 정사각형 비율 유지 및 여백 최소화 레이아웃 계산
-    const S = 1080; // 1:1 고해상도 정사각형 규격
+    // 2. 총 페이지수 계산 및 여백 최소화 레이아웃 계산
+    const totalPages = getShelfTotalPages(targetBooks);
     const count = loadedItems.length;
     const gap = 2; // 책 사이 실물처럼 밀착
 
-    // 최소 여백 설정 (1:1 정사각형 안에서 책들을 최대한 크게 채움)
-    const paddingX = 36;
-    const topMargin = 72; // 상단 헤더 공간
-    const bottomMargin = 40; // 하단 바닥 그림자 공간
-
-    const availW = S - paddingX * 2;
-    const availH = S - topMargin - bottomMargin;
-
-    const sumAspect = loadedItems.reduce((acc, item) => acc + item.aspect, 0);
-
-    // 책 크기를 1:1 정사각형 공간에 맞춰 최대한 크게(Maximize) 계산하여 여백 최소화
-    let bookH = (availW - (count - 1) * gap) / (sumAspect || 1);
-    if (bookH > availH) {
-      bookH = availH;
-    }
-    // 권수가 적을 때 너무 과도하게 커지는 것 방지
-    if (bookH > 880) bookH = 880;
-    if (bookH < 280) bookH = 280;
-
+    // 책등 높이를 920px로 시원하게 설정하여 세로 공간을 꽉 채움
+    const bookH = 920;
     const scale = bookH / 351;
 
-    // 각 책의 너비 계산 (최소 두께 보장)
+    // 각 책의 너비 계산 (실제 종횡비 반영, 최소 두께 보장)
     const itemsWithWidth = loadedItems.map(item => {
       let w = Math.round(item.aspect * bookH);
       if (w < Math.round(26 * scale)) w = Math.round(26 * scale);
@@ -1308,30 +1298,36 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
 
     const totalBooksW = itemsWithWidth.reduce((acc, item) => acc + item.width, 0) + (count - 1) * gap;
 
-    // 수평 정렬: 책들을 중앙에 배치
-    const booksStartX = Math.max(paddingX, Math.round((S - totalBooksW) / 2));
+    // 상단 헤더, 하단 선반, 좌우 여백을 최소화 (여백 낭비 제거)
+    const paddingX = 24;
+    const headerH = 52; // 상단 헤더 공간 (타이틀 + 권수/페이지수 + 라인)
+    const bottomMargin = 20; // 하단 바닥 그림자 및 베이스 공간
 
-    // 수직 정렬: 상단 헤더 아래, 바닥 선반 위에 안정적으로 배치
-    const startY = Math.round(topMargin + (availH - bookH) / 2);
+    // 캔버스 가로/세로: 책들이 꽉 차도록 타이트하게 맞춤 (최소 가로 440px)
+    const canvasW = Math.max(440, totalBooksW + paddingX * 2);
+    const canvasH = headerH + bookH + bottomMargin;
 
-    // 1:1 정사각형 고해상도 캔버스 생성 (2x Retina)
+    // 책 배치 시작점
+    const booksStartX = Math.max(paddingX, Math.round((canvasW - totalBooksW) / 2));
+    const startY = headerH;
+
+    // 고해상도 캔버스 생성 (2x Retina)
     const canvas = document.createElement('canvas');
-    canvas.width = S * dpr;
-    canvas.height = S * dpr;
+    canvas.width = canvasW * dpr;
+    canvas.height = canvasH * dpr;
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
 
-    // 3. 배경 그리기 (서재 배경과 일치하는 내추럴 웜 베이지 & 크라프트 그라데이션)
-    const bgGrad = ctx.createLinearGradient(0, 0, 0, S);
+    // 3. 배경 그리기 (서재 배경과 일치하는 내추럴 웜 베이지 그라데이션)
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, canvasH);
     bgGrad.addColorStop(0, '#f9f6f1');
     bgGrad.addColorStop(0.45, '#f4eee5');
     bgGrad.addColorStop(1, '#ece4d8');
     ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, S, S);
+    ctx.fillRect(0, 0, canvasW, canvasH);
 
-    // 4. 상단 타이틀 헤더 렌더링 (스크린샷 형태: [2025년 11월 9권 ↓ ────────])
+    // 4. 상단 타이틀 헤더 렌더링 ([2026년 9월 7권 · 2,450p ────────])
     let titleText = shelfTitle;
-    let countText = `${count}권`;
     const ymMatch = shelfTitle.match(/(\d{4}년\s*\d{1,2}월)/);
     const yMatch = shelfTitle.match(/(\d{4}년)/);
     if (ymMatch) {
@@ -1344,30 +1340,32 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       titleText = '완독일 미정';
     }
 
+    const countText = totalPages > 0 ? `${count}권 · ${totalPages.toLocaleString()}p` : `${count}권`;
+
     ctx.save();
-    const titleY = Math.max(34, Math.min(48, Math.round(startY * 0.55)));
+    const titleY = Math.round(headerH * 0.52);
 
     // 제목 텍스트 (볼드 차콜 블랙)
-    ctx.font = '700 22px -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Noto Sans KR", sans-serif';
+    ctx.font = '700 20px -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Noto Sans KR", sans-serif';
     ctx.fillStyle = '#1c1917';
     ctx.textBaseline = 'middle';
     ctx.fillText(titleText, paddingX, titleY);
     const titleMetrics = ctx.measureText(titleText);
 
-    // 권수 텍스트 (그레이시 톤)
-    const countX = paddingX + titleMetrics.width + 12;
-    ctx.font = '600 19px -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Noto Sans KR", sans-serif';
+    // 권수 및 총 페이지수 텍스트 (그레이시 톤)
+    const countX = paddingX + titleMetrics.width + 10;
+    ctx.font = '600 17px -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Noto Sans KR", sans-serif';
     ctx.fillStyle = '#78716c';
     ctx.fillText(countText, countX, titleY);
     const countMetrics = ctx.measureText(countText);
 
-    // 우측 페이드아웃 구분선 (아이콘 제외)
-    const lineStartX = countX + countMetrics.width + 16;
-    const lineEndX = S - paddingX;
+    // 우측 페이드아웃 구분선
+    const lineStartX = countX + countMetrics.width + 14;
+    const lineEndX = canvasW - paddingX;
     if (lineEndX > lineStartX) {
       const lineGrad = ctx.createLinearGradient(lineStartX, 0, lineEndX, 0);
-      lineGrad.addColorStop(0, 'rgba(0, 0, 0, 0.08)');
-      lineGrad.addColorStop(0.6, 'rgba(0, 0, 0, 0.03)');
+      lineGrad.addColorStop(0, 'rgba(0, 0, 0, 0.10)');
+      lineGrad.addColorStop(0.65, 'rgba(0, 0, 0, 0.03)');
       lineGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.strokeStyle = lineGrad;
       ctx.lineWidth = 1;
@@ -1381,13 +1379,13 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
     // 5. 책등 및 바닥 선반 렌더링
     let curX = booksStartX;
 
-    // 책장 바닥 접점 그림자 (최소화)
+    // 책장 바닥 접점 그림자
     const shelfBaseY = startY + bookH;
-    const contactGrad = ctx.createLinearGradient(0, shelfBaseY, 0, shelfBaseY + 2 * scale);
-    contactGrad.addColorStop(0, 'rgba(0, 0, 0, 0.05)');
+    const contactGrad = ctx.createLinearGradient(0, shelfBaseY, 0, shelfBaseY + 2.5 * scale);
+    contactGrad.addColorStop(0, 'rgba(0, 0, 0, 0.08)');
     contactGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = contactGrad;
-    ctx.fillRect(booksStartX - 4, shelfBaseY, totalBooksW + 8, 2 * scale);
+    ctx.fillRect(booksStartX - 4, shelfBaseY, totalBooksW + 8, 2.5 * scale);
 
     itemsWithWidth.forEach(item => {
       const { book, img, width: w } = item;
@@ -6580,7 +6578,7 @@ function getAllCommunityBooks() {
     books.forEach(b => {
       if (b && b.id !== '8ook_user_guide' && b.title) {
         if (!b.created_at) {
-          b.created_at = b.date ? new Date(b.date).toISOString() : new Date().toISOString();
+          b.created_at = b.date ? new Date(b.date).toISOString() : (b.year ? new Date(b.year, 0, 1).toISOString() : '2024-01-01T00:00:00.000Z');
         }
         map.set(b.id, b);
       }
