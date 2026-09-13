@@ -4556,6 +4556,8 @@ function copyBookForBlog(bookId) {
   const keywords = (book.keywords && book.keywords.length) ? book.keywords.map(k => `#${k}`).join(' ') : '';
   const sentence = book.sentence ? book.sentence.trim() : '';
 
+  const coverUrl = book.cover ? getSafeImageUrl(book.cover) : '';
+
   const scraps = [...(book.scraps || [])].sort((a, b) => (Number(a.page) || 0) - (Number(b.page) || 0));
 
   // 1. Plain Text Format (No icons, no table)
@@ -4567,6 +4569,7 @@ function copyBookForBlog(bookId) {
   if (pages) plain += `분량: ${pages}\n`;
   if (ratingStr) plain += `평점: ${ratingStr}\n`;
   if (keywords) plain += `키워드: ${keywords}\n`;
+  if (coverUrl && coverUrl.startsWith('http')) plain += `표지: ${coverUrl}\n`;
 
   if (sentence) {
     plain += `\n[한 줄 평]\n“${sentence}”\n`;
@@ -4598,6 +4601,12 @@ function copyBookForBlog(bookId) {
   html += `<h2 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: #111;">《${esc(title)}》</h2>`;
   if (subtitle) {
     html += `<div style="font-size: 14px; color: #666; margin-bottom: 14px;">${esc(subtitle)}</div>`;
+  }
+
+  if (coverUrl) {
+    html += `<div style="margin: 14px 0 18px 0;">`;
+    html += `<img src="${esc(coverUrl)}" alt="${esc(title)} 표지" style="max-width: 200px; height: auto; border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.15); display: block;" />`;
+    html += `</div>`;
   }
 
   html += `<div style="margin: 14px 0 18px 0; font-size: 14px; line-height: 1.8;">`;
