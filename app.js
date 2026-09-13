@@ -1836,6 +1836,12 @@ function cleanBookScraps(book) {
 ============================================== */
 function showDetail(id, direction = null) {
   let book = books.find(b => b.id === id);
+  if (!book && typeof window !== 'undefined' && window.NEO_BOOKS_131) {
+    book = window.NEO_BOOKS_131.find(b => b.id === id);
+  }
+  if (!book && typeof remoteCommunityBooks !== 'undefined' && Array.isArray(remoteCommunityBooks)) {
+    book = remoteCommunityBooks.find(b => b.id === id);
+  }
   if (!book && id === '8ook_user_guide') {
     book = getUserGuideBook();
   }
@@ -6498,6 +6504,59 @@ const SEED_COMMUNITY_SCRAPS = [
   }
 ];
 
+let remoteCommunityBooks = [];
+
+async function fetchRemoteCommunityBooks() {
+  if (!supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient
+      .from('books')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(60);
+    if (!error && Array.isArray(data) && data.length > 0) {
+      remoteCommunityBooks = data;
+      renderCommunityBooks();
+      renderCommunityScraps();
+    }
+  } catch (e) {
+    console.warn('Failed to fetch remote community books:', e);
+  }
+}
+
+function getAllCommunityBooks() {
+  const map = new Map();
+
+  // 1. Current user's books (highest priority)
+  if (Array.isArray(books)) {
+    books.forEach(b => {
+      if (b && b.id !== '8ook_user_guide' && b.title) {
+        map.set(b.id, b);
+      }
+    });
+  }
+
+  // 2. Remote community books from Supabase across all users
+  if (Array.isArray(remoteCommunityBooks)) {
+    remoteCommunityBooks.forEach(b => {
+      if (b && b.id !== '8ook_user_guide' && b.title && !map.has(b.id)) {
+        map.set(b.id, b);
+      }
+    });
+  }
+
+  // 3. Shared community dataset (window.NEO_BOOKS_131) from all users
+  if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
+    window.NEO_BOOKS_131.forEach(b => {
+      if (b && b.id !== '8ook_user_guide' && b.title && !map.has(b.id)) {
+        map.set(b.id, b);
+      }
+    });
+  }
+
+  return Array.from(map.values());
+}
+
 function showCommunity() {
   document.body.classList.remove('page-detail');
   closeAppMenu();
@@ -6521,6 +6580,7 @@ function showCommunity() {
     vl.textContent = '독서 커뮤니티';
   }
 
+  fetchRemoteCommunityBooks();
   renderCommunityBooks();
   renderCommunityScraps();
   switchCommunityTab(currentCommunityTab);
@@ -6547,12 +6607,12 @@ function switchCommunityTab(tab) {
 }
 
 function getCommunityBooksList() {
-  // Only return books actually added in user's library, up to 12
-  const actualBooks = (books || []).filter(b => b && b.id !== '8ook_user_guide' && b.title);
+  // Return books across ALL users, up to 12
+  const allBooks = getAllCommunityBooks();
 
   // Prioritize books with actually entered 한줄평 (sentence / review)
-  const withReview = actualBooks.filter(b => (b.sentence || b.review || b.oneLineReview || '').trim());
-  const withoutReview = actualBooks.filter(b => !(b.sentence || b.review || b.oneLineReview || '').trim());
+  const withReview = allBooks.filter(b => (b.sentence || b.review || b.oneLineReview || '').trim());
+  const withoutReview = allBooks.filter(b => !(b.sentence || b.review || b.oneLineReview || '').trim());
 
   const sortByTime = (arr) => [...arr].sort((a, b) => {
     const timeA = new Date(a.created_at || a.date || 0).getTime();
@@ -6664,7 +6724,8 @@ function renderCommunityBooks() {
 }
 
 function getCommunityScrapsList() {
-  // Collect user's actually entered sentences & scraps
+  // Collect all users' actually entered sentences & scraps
+  const allBooks = getAllCommunityBooks();
   const userScraps = [];
   const sortByTime = (arr) => [...arr].sort((a, b) => {
     const timeA = new Date(a.created_at || a.date || 0).getTime();
@@ -6673,7 +6734,7 @@ function getCommunityScrapsList() {
     return 0;
   });
 
-  const sortedBooks = sortByTime((books || []).filter(b => b && b.id !== '8ook_user_guide'));
+  const sortedBooks = sortByTime(allBooks);
 
   sortedBooks.forEach(b => {
     if (b.sentence && b.sentence.trim()) {
