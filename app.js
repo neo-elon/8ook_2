@@ -4607,7 +4607,6 @@ function copyBookForBlog(bookId) {
   if (date) plain += `완독일: ${date}\n`;
   if (pages) plain += `분량: ${pages}\n`;
   if (ratingStr) plain += `평점: ${ratingStr}\n`;
-  if (keywords) plain += `키워드: ${keywords}\n`;
   if (coverUrl && coverUrl.startsWith('http')) plain += `표지: ${coverUrl}\n`;
 
   if (sentence) {
@@ -4620,15 +4619,14 @@ function copyBookForBlog(bookId) {
   if (scraps.length === 0) {
     plain += `(기록된 문장이 없습니다.)\n`;
   } else {
-    scraps.forEach((s, idx) => {
-      const pageInfo = s.page ? ` (p.${s.page})` : '';
-      plain += `\n${idx + 1}.${pageInfo}\n“${s.text}”\n`;
+    scraps.forEach((s) => {
+      plain += `\n“${s.text}”\n`;
+      if (s.page) {
+        const pageNum = String(s.page).replace(/^[^\d]*/, '').trim() || String(s.page).trim();
+        plain += `p.${pageNum}\n`;
+      }
       if (s.memo) {
         plain += `생각: ${s.memo}\n`;
-      }
-      const sTags = (s.tags || s.keywords || []).filter(Boolean);
-      if (sTags.length) {
-        plain += `${sTags.map(t => `#${t}`).join(' ')}\n`;
       }
     });
   }
@@ -4653,11 +4651,10 @@ function copyBookForBlog(bookId) {
   if (date) html += `<div><strong>완독일:</strong> ${esc(date)}</div>`;
   if (pages) html += `<div><strong>분량:</strong> ${esc(pages)}</div>`;
   if (ratingStr) html += `<div><strong>평점:</strong> ${esc(ratingStr)}</div>`;
-  if (keywords) html += `<div><strong>키워드:</strong> ${esc(keywords)}</div>`;
   html += `</div>`;
 
   if (sentence) {
-    html += `<blockquote style="margin: 16px 0 20px 0; padding: 14px 20px; border-left: 4px solid #8c6239; background: #faf7f2; border-radius: 4px; font-size: 19px; font-style: italic; color: #222; line-height: 1.7;">`;
+    html += `<blockquote style="margin: 16px 0 20px 0; padding: 14px 20px; border-left: 4px solid #8c6239; background: #faf7f2; border-radius: 4px; font-size: 16px; font-style: italic; color: #222; line-height: 1.7;">`;
     html += `“${esc(sentence)}”`;
     html += `</blockquote>`;
   }
@@ -4668,17 +4665,20 @@ function copyBookForBlog(bookId) {
   if (scraps.length === 0) {
     html += `<p style="color: #888; font-size: 13.5px;">(기록된 문장이 없습니다.)</p>`;
   } else {
-    scraps.forEach((s, idx) => {
-      const pageInfo = s.page ? ` (p.${s.page})` : '';
+    scraps.forEach((s) => {
+      const pageNum = s.page ? (String(s.page).replace(/^[^\d]*/, '').trim() || String(s.page).trim()) : '';
+      const pageHtml = pageNum ? `<div style="font-size: 13px; color: #78716c; margin-top: 6px; font-style: normal;">p.${esc(pageNum)}</div>` : '';
+
       html += `<div style="margin-bottom: 24px;">`;
-      html += `<div style="font-size: 13px; font-weight: 700; color: #8c6239; margin-bottom: 6px;">${idx + 1}.${pageInfo}</div>`;
-      html += `<blockquote style="margin: 0 0 8px 0; padding: 12px 18px; background: #fbf9f5; border-left: 3px solid #c97a2b; border-radius: 4px; font-size: 19px; font-style: italic; line-height: 1.7; color: #111;">“${esc(s.text)}”</blockquote>`;
+      html += `<blockquote style="margin: 0 0 6px 0; padding: 12px 18px; background: #fbf9f5; border-left: 3px solid #c97a2b; border-radius: 4px; font-size: 16px; font-style: italic; line-height: 1.7; color: #111;">`;
+      html += `“${esc(s.text)}”`;
+      if (pageHtml) {
+        html += pageHtml;
+      }
+      html += `</blockquote>`;
+
       if (s.memo) {
         html += `<div style="margin: 6px 0 0 8px; font-size: 13.5px; color: #444; line-height: 1.6;"><strong>생각:</strong> ${esc(s.memo)}</div>`;
-      }
-      const sTags = (s.tags || s.keywords || []).filter(Boolean);
-      if (sTags.length) {
-        html += `<div style="margin: 4px 0 0 8px; font-size: 12.5px; color: #8c6239;">${sTags.map(t => `#${esc(t)}`).join(' ')}</div>`;
       }
       html += `</div>`;
     });
