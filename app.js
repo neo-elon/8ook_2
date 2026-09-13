@@ -4618,7 +4618,7 @@ function copyBookForBlog(bookId) {
   html += `</div>`;
 
   if (sentence) {
-    html += `<blockquote style="margin: 16px 0 20px 0; padding: 12px 18px; border-left: 4px solid #8c6239; background: #faf7f2; border-radius: 4px; font-size: 14.5px; color: #222; font-style: normal; line-height: 1.65;">`;
+    html += `<blockquote style="margin: 16px 0 20px 0; padding: 14px 20px; border-left: 4px solid #8c6239; background: #faf7f2; border-radius: 4px; font-size: 19px; font-style: italic; color: #222; line-height: 1.7;">`;
     html += `“${esc(sentence)}”`;
     html += `</blockquote>`;
   }
@@ -4631,9 +4631,9 @@ function copyBookForBlog(bookId) {
   } else {
     scraps.forEach((s, idx) => {
       const pageInfo = s.page ? ` (p.${s.page})` : '';
-      html += `<div style="margin-bottom: 22px;">`;
-      html += `<div style="font-size: 13px; font-weight: 700; color: #8c6239; margin-bottom: 5px;">${idx + 1}.${pageInfo}</div>`;
-      html += `<blockquote style="margin: 0 0 8px 0; padding: 11px 16px; background: #fbf9f5; border-left: 3px solid #c97a2b; border-radius: 4px; font-size: 14px; line-height: 1.7; color: #111; font-style: normal;">“${esc(s.text)}”</blockquote>`;
+      html += `<div style="margin-bottom: 24px;">`;
+      html += `<div style="font-size: 13px; font-weight: 700; color: #8c6239; margin-bottom: 6px;">${idx + 1}.${pageInfo}</div>`;
+      html += `<blockquote style="margin: 0 0 8px 0; padding: 12px 18px; background: #fbf9f5; border-left: 3px solid #c97a2b; border-radius: 4px; font-size: 19px; font-style: italic; line-height: 1.7; color: #111;">“${esc(s.text)}”</blockquote>`;
       if (s.memo) {
         html += `<div style="margin: 6px 0 0 8px; font-size: 13.5px; color: #444; line-height: 1.6;"><strong>생각:</strong> ${esc(s.memo)}</div>`;
       }
