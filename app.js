@@ -4626,7 +4626,7 @@ function copyBookForBlog(bookId) {
         plain += `p.${pageNum}\n`;
       }
       if (s.memo) {
-        plain += `생각: ${s.memo}\n`;
+        plain += `${s.memo}\n`;
       }
     });
   }
@@ -4678,7 +4678,7 @@ function copyBookForBlog(bookId) {
       html += `</blockquote>`;
 
       if (s.memo) {
-        html += `<div style="margin: 6px 0 0 8px; font-size: 13.5px; color: #444; line-height: 1.6;"><strong>생각:</strong> ${esc(s.memo)}</div>`;
+        html += `<div style="margin: 6px 0 0 8px; font-size: 13.5px; color: #444; line-height: 1.6;">${esc(s.memo)}</div>`;
       }
       html += `</div>`;
     });
