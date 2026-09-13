@@ -3045,18 +3045,18 @@
       transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(70,50,30,0.08);
     }
-    .comm-scrap-inner {
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
+    .comm-scrap-body {
+      display: flow-root;
+      margin-bottom: 6px;
     }
     .comm-scrap-cover {
-      width: 58px;
-      height: 84px;
+      float: left;
+      width: 56px;
+      height: 80px;
       object-fit: cover;
       border-radius: 4px;
       box-shadow: 0 3px 10px rgba(0,0,0,0.18);
-      flex-shrink: 0;
+      margin: 2px 14px 8px 0;
       background: var(--bg-primary);
       cursor: pointer;
       transition: transform 0.2s var(--ease);
@@ -3066,8 +3066,8 @@
     }
     .comm-scrap-cover-placeholder,
     .comm-book-cover-placeholder {
-      width: 58px;
-      height: 84px;
+      width: 56px;
+      height: 80px;
       border-radius: 4px;
       display: flex;
       align-items: center;
@@ -3079,17 +3079,15 @@
       font-family: 'Playfair Display', serif;
       font-weight: 700;
       cursor: pointer;
-      flex-shrink: 0;
+    }
+    .comm-scrap-cover-placeholder {
+      float: left;
+      margin: 2px 14px 8px 0;
     }
     .comm-book-cover-placeholder {
       width: 74px;
       height: 106px;
-    }
-    .comm-scrap-content {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
+      flex-shrink: 0;
     }
     .comm-scrap-text {
       font-size: 14.5px;
@@ -3119,16 +3117,19 @@
       font-style: normal;
     }
     .comm-scrap-memo {
+      clear: both;
       font-size: 12px;
       color: var(--text-300);
       background: rgba(140,98,57,0.04);
-      padding: 5px 10px;
+      padding: 6px 12px;
       border-radius: 4px;
+      margin-top: 8px;
       margin-bottom: 8px;
       line-height: 1.5;
       word-break: break-word;
     }
     .comm-scrap-footer {
+      clear: both;
       display: flex;
       flex-direction: column;
       gap: 6px;

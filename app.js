@@ -4469,12 +4469,15 @@ function renderScrapsArchive() {
          </div>`
       : '';
 
+    const bookTitleParts = splitBookTitle(book);
+    const bookMainTitle = bookTitleParts.main || book.title;
+
     return `
       <div class="scrap-card-full" id="archive-sc-${scrap.id}">
         <div class="scrap-card-header">
           ${coverHtml}
           <div class="scrap-card-meta">
-            <div class="scrap-card-title" onclick="showDetail('${book.id}')" title="도서 상세 보기">${esc(book.title)}</div>
+            <div class="scrap-card-title" onclick="showDetail('${book.id}')" title="도서 상세 보기">${esc(bookMainTitle)}</div>
             <div class="scrap-card-sub">
               <span>${esc(book.author || '저자 미상')}</span>
               ${scrap.page ? `<span>• p.${scrap.page}</span>` : ''}
@@ -4494,7 +4497,7 @@ function renderScrapsArchive() {
             ${tagsHtml}
           </div>
           <div class="scrap-card-actions">
-            <button class="btn btn-ghost btn-sm" onclick="copyScrapQuoteText('${esc(scrap.text.replace(/'/g, "\\'"))}', '${esc(book.title.replace(/'/g, "\\'"))}', '${esc((book.author || '').replace(/'/g, "\\'"))}')" title="문장 복사" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">
+            <button class="btn btn-ghost btn-sm" onclick="copyScrapQuoteText('${esc(scrap.text.replace(/'/g, "\\'"))}', '${esc(bookMainTitle.replace(/'/g, "\\'"))}', '${esc((book.author || '').replace(/'/g, "\\'"))}')" title="문장 복사" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">
               복사
             </button>
             <button class="btn btn-ghost btn-sm" onclick="showDetail('${book.id}')" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">
@@ -6827,12 +6830,14 @@ function getCommunityScrapsList() {
   // ONLY collect from "수집한 문장" (b.scraps), NOT "나만의 한 문장" (b.sentence)!
   sortedBooks.forEach(b => {
     if (b.scraps && b.scraps.length) {
+      const bTitleParts = splitBookTitle(b);
+      const bMainTitle = bTitleParts.main || b.title;
       b.scraps.forEach(s => {
         userScraps.push({
           id: 'us_' + s.id,
           bookId: b.id,
           text: s.text,
-          bookTitle: b.title,
+          bookTitle: bMainTitle,
           author: b.author || '',
           cover: b.cover || '',
           page: s.page || null,
@@ -6885,38 +6890,39 @@ function renderCommunityScraps() {
       ? `<div class="comm-scrap-tags">${s.tags.map(t => `<span class="comm-scrap-tag">#${esc(t)}</span>`).join('')}</div>`
       : '';
 
+    const titleParts = splitBookTitle(s.bookTitle || '');
+    const mainTitle = titleParts.main || s.bookTitle || '';
+
     const coverUrl = s.cover ? getSafeImageUrl(s.cover) : '';
     const clickDetail = s.bookId ? `onclick="showDetail('${s.bookId}')"` : '';
     const coverHtml = coverUrl
-      ? `<img class="comm-scrap-cover" src="${esc(coverUrl)}" alt="${esc(s.bookTitle)}" referrerpolicy="no-referrer" loading="lazy" ${clickDetail} onerror="handleCommCoverError(this)">`
+      ? `<img class="comm-scrap-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" loading="lazy" ${clickDetail} onerror="handleCommCoverError(this)">`
       : `<div class="comm-scrap-cover-placeholder" ${clickDetail}>8ook</div>`;
 
     return `
       <div class="comm-scrap-card" id="csc-${s.id}">
-        <div class="comm-scrap-inner">
+        <div class="comm-scrap-body">
           ${coverHtml}
-          <div class="comm-scrap-content">
-            <div class="comm-scrap-text">${esc(s.text)}</div>
-            ${s.memo ? `<div class="comm-scrap-memo"><strong>생각:</strong> ${esc(s.memo)}</div>` : ''}
-            <div class="comm-scrap-footer">
-              <div class="comm-scrap-title-row">
-                <strong class="comm-scrap-book-title" ${clickDetail} style="${s.bookId ? 'cursor:pointer;' : ''}">《${esc(s.bookTitle)}》</strong>
-              </div>
-              <div class="comm-scrap-meta-row">
-                <div class="comm-scrap-meta-left">
-                  ${s.author ? `<span class="comm-scrap-author">${esc(s.author)}</span>` : ''}
-                  ${s.page ? `<span class="comm-scrap-page">p.${s.page}</span>` : ''}
-                  ${tagsHtml}
-                </div>
-                <div class="comm-scrap-actions">
-                  <button class="comm-scrap-btn" onclick="copyCommunityQuote('${esc(s.text.replace(/'/g, "\\'"))}', '${esc(s.bookTitle.replace(/'/g, "\\'"))}', '${esc((s.author || '').replace(/'/g, "\\'"))}', '${s.page || ''}')" title="문장 복사">
-                    복사
-                  </button>
-                  <button type="button" class="comm-scrap-like-btn${isLiked ? ' liked' : ''}" onclick="toggleCommunityLike('${s.id}', this, event)" title="좋아요">
-                    <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
-                  </button>
-                </div>
-              </div>
+          <div class="comm-scrap-text">${esc(s.text)}</div>
+          ${s.memo ? `<div class="comm-scrap-memo"><strong>생각:</strong> ${esc(s.memo)}</div>` : ''}
+        </div>
+        <div class="comm-scrap-footer">
+          <div class="comm-scrap-title-row">
+            <strong class="comm-scrap-book-title" ${clickDetail} style="${s.bookId ? 'cursor:pointer;' : ''}">《${esc(mainTitle)}》</strong>
+          </div>
+          <div class="comm-scrap-meta-row">
+            <div class="comm-scrap-meta-left">
+              ${s.author ? `<span class="comm-scrap-author">${esc(s.author)}</span>` : ''}
+              ${s.page ? `<span class="comm-scrap-page">p.${s.page}</span>` : ''}
+              ${tagsHtml}
+            </div>
+            <div class="comm-scrap-actions">
+              <button class="comm-scrap-btn" onclick="copyCommunityQuote('${esc(s.text.replace(/'/g, "\\'"))}', '${esc(mainTitle.replace(/'/g, "\\'"))}', '${esc((s.author || '').replace(/'/g, "\\'"))}', '${s.page || ''}')" title="문장 복사">
+                복사
+              </button>
+              <button type="button" class="comm-scrap-like-btn${isLiked ? ' liked' : ''}" onclick="toggleCommunityLike('${s.id}', this, event)" title="좋아요">
+                <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
+              </button>
             </div>
           </div>
         </div>
