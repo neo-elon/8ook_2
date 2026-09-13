@@ -6656,7 +6656,7 @@ function switchCommunityTab(tab) {
 }
 
 function getCommunityBooksList() {
-  // Return books across ALL users, sorted strictly by newest added time first!
+  // Return books across ALL users, sorted strictly by newest added time first (maximum 9 books)
   const allBooks = getAllCommunityBooks();
 
   const sorted = [...allBooks].sort((a, b) => {
@@ -6668,7 +6668,7 @@ function getCommunityBooksList() {
     return (b.seq || 0) - (a.seq || 0);
   });
 
-  return sorted.slice(0, 18).map((b) => {
+  return sorted.slice(0, 9).map((b) => {
     const titleParts = splitBookTitle(b);
     const userRating = (b.rating && Number(b.rating) > 0) ? Number(b.rating) : null;
     const userReview = (b.sentence || b.review || b.oneLineReview || '').trim();
