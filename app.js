@@ -1114,19 +1114,16 @@ function buildShelfRulerSvg(shelfRow) {
   const svgH = 20;
 
   let elements = [];
-  let cumPages = 0;
-  let lastCardRight = 0;
-  let lastLabelX = -999;
 
   // Baseline across the entire shelf
   elements.push(`<line x1="0" y1="1" x2="${svgW}" y2="1" stroke="rgba(140, 98, 57, 0.22)" stroke-width="1"/>`);
 
-  // Start tick at 0
-  elements.push(`<line x1="1" y1="1" x2="1" y2="7" stroke="rgba(140, 98, 57, 0.55)" stroke-width="1.2"/>`);
-  elements.push(`<text x="2" y="16" font-size="8.5" font-family="'Playfair Display', serif" font-weight="600" fill="var(--text-300)" text-anchor="start">0</text>`);
-  lastLabelX = 2;
+  const firstCardLeft = cards[0].offsetLeft;
+  const lastCard = cards[cards.length - 1];
+  const lastCardRight = lastCard.offsetLeft + lastCard.offsetWidth;
+  const totalBooksW = Math.max(1, lastCardRight - firstCardLeft);
 
-  // First pass: calculate total pages so we know label density
+  // Sum total shelf pages
   let totalShelfPages = 0;
   cards.forEach(card => {
     let p = parseInt(card.getAttribute('data-pages'), 10);
@@ -1137,62 +1134,54 @@ function buildShelfRulerSvg(shelfRow) {
     totalShelfPages += p;
   });
 
-  cards.forEach(card => {
-    const cardLeft = card.offsetLeft;
-    const cardW = card.offsetWidth;
-    lastCardRight = cardLeft + cardW;
+  if (totalShelfPages <= 0) return '';
 
-    let p = parseInt(card.getAttribute('data-pages'), 10);
-    if (isNaN(p) || p <= 0) {
-      p = Math.max(100, Math.round((cardW - 18) / 0.055 / 10) * 10);
+  // Calculate completely uniform, equidistant step for every 100 pages
+  const pxPerPage = totalBooksW / totalShelfPages;
+
+  // Start tick at 0
+  const startX = firstCardLeft;
+  elements.push(`<line x1="${startX}" y1="1" x2="${startX}" y2="7" stroke="rgba(140, 98, 57, 0.55)" stroke-width="1.2"/>`);
+  elements.push(`<text x="${startX}" y="16" font-size="8.5" font-family="'Playfair Display', serif" font-weight="600" fill="var(--text-300)" text-anchor="middle">0</text>`);
+
+  let lastLabelX = startX;
+
+  // Render strictly uniform, equidistant 100-page ticks across the entire shelf
+  for (let pageVal = 100; pageVal <= totalShelfPages; pageVal += 100) {
+    const x = Math.round(startX + (pageVal * pxPerPage));
+
+    const is1000 = (pageVal % 1000 === 0);
+    const is500 = (pageVal % 500 === 0);
+
+    let tickH = 4;
+    let strokeColor = 'rgba(140, 98, 57, 0.38)';
+    let strokeW = 1;
+
+    if (is1000) {
+      tickH = 9;
+      strokeColor = 'var(--violet)';
+      strokeW = 1.5;
+    } else if (is500) {
+      tickH = 7;
+      strokeColor = 'var(--violet)';
+      strokeW = 1.2;
     }
 
-    const bookStartPages = cumPages;
-    const bookEndPages = cumPages + p;
+    elements.push(`<line x1="${x}" y1="1" x2="${x}" y2="${1 + tickH}" stroke="${strokeColor}" stroke-width="${strokeW}"><title>${pageVal.toLocaleString()}p</title></line>`);
 
-    // Find all 100-page multiples within this book
-    const firstMult = Math.ceil((bookStartPages + 0.001) / 100) * 100;
-    for (let pageVal = firstMult; pageVal <= bookEndPages; pageVal += 100) {
-      const ratio = (pageVal - bookStartPages) / p;
-      const x = Math.round(cardLeft + (cardW * ratio));
-
-      const is1000 = (pageVal % 1000 === 0);
-      const is500 = (pageVal % 500 === 0);
-
-      let tickH = 4;
-      let strokeColor = 'rgba(140, 98, 57, 0.38)';
-      let strokeW = 1;
-
-      if (is1000) {
-        tickH = 9;
-        strokeColor = 'var(--violet)';
-        strokeW = 1.5;
-      } else if (is500) {
-        tickH = 7;
-        strokeColor = 'var(--violet)';
-        strokeW = 1.2;
-      }
-
-      elements.push(`<line x1="${x}" y1="1" x2="${x}" y2="${1 + tickH}" stroke="${strokeColor}" stroke-width="${strokeW}"><title>${pageVal.toLocaleString()}p</title></line>`);
-
-      // Determine whether to display number label
-      const shouldShowLabel = is500 || (totalShelfPages <= 600 && (x - lastLabelX >= 28));
-      if (shouldShowLabel && (x - lastLabelX >= 22)) {
-        const labelText = pageVal >= 1000 ? pageVal.toLocaleString() : String(pageVal);
-        elements.push(`<text x="${x}" y="16" font-size="8.5" font-family="'Playfair Display', serif" font-weight="600" fill="var(--text-300)" text-anchor="middle">${labelText}</text>`);
-        lastLabelX = x;
-      }
+    // Determine whether to display number label (500, 1000, 1500... or smaller milestones without collision)
+    const shouldShowLabel = is500 || (totalShelfPages <= 600 && (x - lastLabelX >= 28));
+    if (shouldShowLabel && (x - lastLabelX >= 24) && (lastCardRight - x >= 24)) {
+      const labelText = pageVal >= 1000 ? pageVal.toLocaleString() : String(pageVal);
+      elements.push(`<text x="${x}" y="16" font-size="8.5" font-family="'Playfair Display', serif" font-weight="600" fill="var(--text-300)" text-anchor="middle">${labelText}</text>`);
+      lastLabelX = x;
     }
-
-    cumPages = bookEndPages;
-  });
+  }
 
   // End total badge at the end of the books
-  if (lastCardRight > 0 && cumPages > 0) {
-    const endX = lastCardRight;
-    elements.push(`<line x1="${endX}" y1="1" x2="${endX}" y2="8" stroke="var(--violet)" stroke-width="1.5"/>`);
-    elements.push(`<text x="${endX + 6}" y="13" font-size="9" font-family="'Noto Sans KR', sans-serif" font-weight="700" fill="var(--violet)">총 ${cumPages.toLocaleString()}p</text>`);
-  }
+  const endX = lastCardRight;
+  elements.push(`<line x1="${endX}" y1="1" x2="${endX}" y2="8" stroke="var(--violet)" stroke-width="1.5"/>`);
+  elements.push(`<text x="${endX + 6}" y="13" font-size="9" font-family="'Noto Sans KR', sans-serif" font-weight="700" fill="var(--violet)">총 ${totalShelfPages.toLocaleString()}p</text>`);
 
   return `<svg class="shelf-page-ruler-svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="display:block; overflow:visible;">
     ${elements.join('')}
