@@ -67,16 +67,42 @@ try {
   console.error("Supabase initialization failed:", e);
 }
 
-// Database schema detection flag
+// Database schema detection flags
 let dbSupportsSpineCover = false;
+let dbSupportsIsPublic = (function () {
+  try {
+    return localStorage.getItem('rj_db_supports_is_public') !== 'false';
+  } catch (e) {
+    return false;
+  }
+})();
+
+function handleSupabaseSchemaError(err) {
+  if (!err) return false;
+  let changed = false;
+  const msg = (String(err.message || '') + ' ' + String(err.details || '')).toLowerCase();
+  if (err.code === 'PGRST204' || msg.includes('is_public')) {
+    dbSupportsIsPublic = false;
+    try { localStorage.setItem('rj_db_supports_is_public', 'false'); } catch (e) {}
+    changed = true;
+  }
+  if (err.code === 'PGRST204' || msg.includes('spinecover')) {
+    dbSupportsSpineCover = false;
+    changed = true;
+  }
+  return changed;
+}
 
 function sanitizeBookForSupabase(bookObj) {
   const allowed = [
     'id', 'user_id', 'title', 'author', 'pages', 'date',
-    'sentence', 'cover', 'rating', 'scraps', 'keywords', 'created_at', 'is_public'
+    'sentence', 'cover', 'rating', 'scraps', 'keywords', 'created_at'
   ];
   if (dbSupportsSpineCover) {
     allowed.push('spineCover');
+  }
+  if (dbSupportsIsPublic) {
+    allowed.push('is_public');
   }
   const clean = {};
   for (const k of allowed) {
@@ -248,6 +274,13 @@ async function loadData() {
       let { error: syncError } = await supabaseClient
         .from('books')
         .upsert(payloadToUpload, { onConflict: 'id' });
+      if (syncError && handleSupabaseSchemaError(syncError)) {
+        const safePayload = booksToUpload.map(b => sanitizeBookForSupabase(b));
+        const res = await supabaseClient
+          .from('books')
+          .upsert(safePayload, { onConflict: 'id' });
+        syncError = res.error;
+      }
       if (!syncError) {
         books = booksToUpload;
         toast('기존 로컬 책장 데이터를 Supabase에 동기화했습니다.');
@@ -2471,8 +2504,7 @@ async function saveBook() {
             .eq('id', editingBookId)
             .eq('user_id', user.id);
 
-          if (error && (error.code === 'PGRST204' || String(error.message).includes('spineCover'))) {
-            dbSupportsSpineCover = false;
+          if (error && handleSupabaseSchemaError(error)) {
             const safeBook = sanitizeBookForSupabase(updatedBook);
             const res = await supabaseClient
               .from('books')
@@ -2497,8 +2529,7 @@ async function saveBook() {
           .from('books')
           .insert([payload]);
 
-        if (error && (error.code === 'PGRST204' || String(error.message).includes('spineCover'))) {
-          dbSupportsSpineCover = false;
+        if (error && handleSupabaseSchemaError(error)) {
           const safeData = sanitizeBookForSupabase(data);
           const res = await supabaseClient
             .from('books')
