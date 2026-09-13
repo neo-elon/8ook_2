@@ -2024,7 +2024,14 @@
       word-break:keep-all;
       opacity:0.92;
     }
-    .detail-author { font-size:15px; color:var(--text-300); }
+    .detail-author {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-300);
+      letter-spacing: -0.2px;
+      line-height: 1.4;
+    }
 
     .meta-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:2px; }
     .chip {
@@ -2032,6 +2039,7 @@
       background:var(--glass); border:1px solid var(--border);
       border-radius:20px; padding:5px 12px;
       font-size:12px; color:var(--text-300);
+      font-family: 'Noto Sans KR', sans-serif;
       transition: background .4s, border-color .4s;
     }
     .chip-icon { font-size:13px; }
@@ -2046,6 +2054,8 @@
       padding: 0;
       border-radius: 0;
       color: var(--text-200);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 12px;
     }
 
     /* ── Keyword tag chip in detail ── */
