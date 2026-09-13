@@ -2190,7 +2190,8 @@
       margin-right: auto;
       flex-wrap: wrap;
     }
-    .scrap-add-bottom-btn {
+    .scrap-add-bottom-btn,
+    .scrap-copy-bottom-btn {
       flex: 1;
       min-width: 140px;
       padding: 10px 16px;
@@ -2207,42 +2208,15 @@
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .scrap-add-bottom-btn:hover {
+    .scrap-add-bottom-btn:hover,
+    .scrap-copy-bottom-btn:hover {
       background: rgba(140, 98, 57, 0.12);
       border-color: var(--gold);
       color: var(--text-100);
       transform: translateY(-1px);
       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
     }
-    .scrap-add-bottom-btn:active {
-      transform: translateY(0);
-    }
-
-    .scrap-copy-bottom-btn {
-      flex: 1;
-      min-width: 140px;
-      padding: 10px 16px;
-      font-size: 13px;
-      font-weight: 600;
-      border-radius: var(--radius-md);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      border: 1px solid var(--border-accent);
-      background: var(--bg-surface);
-      color: var(--text-200);
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-    }
-    .scrap-copy-bottom-btn:hover {
-      background: rgba(140, 98, 57, 0.09);
-      border-color: var(--violet);
-      color: var(--text-100);
-      transform: translateY(-1px);
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-    }
+    .scrap-add-bottom-btn:active,
     .scrap-copy-bottom-btn:active {
       transform: translateY(0);
     }
