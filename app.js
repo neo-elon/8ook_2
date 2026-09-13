@@ -108,19 +108,18 @@ alter table books add column if not exists "spineCover" text;
 
 alter table books enable row level security;
 
--- Drop existing public policies if any
+-- Drop existing policies if any to recreate
 drop policy if exists "Allow public read" on books;
 drop policy if exists "Allow public insert" on books;
 drop policy if exists "Allow public update" on books;
 drop policy if exists "Allow public delete" on books;
-
--- Drop individual policies if any to recreate
 drop policy if exists "Allow individual read" on books;
 drop policy if exists "Allow individual insert" on books;
 drop policy if exists "Allow individual update" on books;
 drop policy if exists "Allow individual delete" on books;
 
-create policy "Allow individual read" on books for select using (auth.uid() = user_id);
+-- 모든 사용자(커뮤니티)가 도서를 조회할 수 있도록 SELECT 정책 허용 (수정/삭제/등록은 본인만)
+create policy "Allow public read" on books for select using (true);
 create policy "Allow individual insert" on books for insert with check (auth.uid() = user_id);
 create policy "Allow individual update" on books for update using (auth.uid() = user_id);
 create policy "Allow individual delete" on books for delete using (auth.uid() = user_id);`;
@@ -908,7 +907,7 @@ function renderGallery() {
     } else {
       empty.querySelector('.empty-icon').textContent = '8ook.';
       empty.querySelector('.empty-h').textContent = '아직 기록된 책이 없어요';
-      empty.querySelector('.empty-p').innerHTML = '상단의 <strong>＋</strong> 버튼으로 첫 번째 책을 기록해보세요.';
+      empty.querySelector('.empty-p').innerHTML = '위의 <strong>책 추가(＋)</strong> 버튼을 눌러 책을 추가하세요.';
     }
   } else {
     empty.classList.remove('show');
@@ -4286,17 +4285,18 @@ async function saveScrap() {
   const tags = currentScrapTags.slice();
 
   let updatedScraps;
+  const nowIso = new Date().toISOString();
   if (editingScrapId) {
     updatedScraps = book.scraps.map(s =>
       s.id === editingScrapId
-        ? { ...s, text, page, memo, tags, at: new Date().toISOString() }
+        ? { ...s, text, page, memo, tags, at: nowIso, updated_at: nowIso }
         : s
     );
   } else {
     if (book.scraps.length >= 100) {
       toast('스크랩은 최대 100개까지 가능합니다'); return;
     }
-    updatedScraps = [...book.scraps, { id: uid(), text, page, memo, tags, at: new Date().toISOString() }];
+    updatedScraps = [...book.scraps, { id: uid(), text, page, memo, tags, at: nowIso, created_at: nowIso }];
   }
 
   try {
@@ -4319,6 +4319,9 @@ async function saveScrap() {
     const scrapsView = document.getElementById('view-scraps');
     if (scrapsView && scrapsView.classList.contains('show')) {
       renderScrapsArchive();
+    }
+    if (typeof renderCommunityScraps === 'function') {
+      renderCommunityScraps();
     }
   } catch (err) {
     console.error(err);
@@ -6677,6 +6680,31 @@ const SEED_COMMUNITY_SCRAPS = [
   }
 ];
 
+/* ==============================================
+   COMMUNITY TIME & DATA HELPERS
+   ============================================== */
+function formatTimeAgo(dateStr) {
+  if (!dateStr) return '최근';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '최근';
+  const diffMs = Date.now() - d.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMins < 1) return '방금 전';
+  if (diffMins < 60) return `${diffMins}분 전`;
+  if (diffHours < 24) return `${diffHours}시간 전`;
+  if (diffDays < 7) return `${diffDays}일 전`;
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function getSafeTimestamp(val) {
+  if (!val) return 0;
+  const t = new Date(val).getTime();
+  return isNaN(t) ? 0 : t;
+}
+
 let remoteCommunityBooks = [];
 
 async function fetchRemoteCommunityBooks() {
@@ -6686,8 +6714,8 @@ async function fetchRemoteCommunityBooks() {
       .from('books')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(60);
-    if (!error && Array.isArray(data) && data.length > 0) {
+      .limit(100);
+    if (!error && Array.isArray(data)) {
       remoteCommunityBooks = data;
       renderCommunityBooks();
       renderCommunityScraps();
@@ -6700,23 +6728,30 @@ async function fetchRemoteCommunityBooks() {
 function getAllCommunityBooks() {
   const map = new Map();
 
-  // 1. Current user's books (highest priority)
-  if (Array.isArray(books)) {
-    books.forEach(b => {
+  // 1. Remote community books from Supabase across all users (모든 유저에게 공통인 최신 기준 원천 데이터)
+  if (Array.isArray(remoteCommunityBooks)) {
+    remoteCommunityBooks.forEach(b => {
       if (b && !isGuideBook(b) && b.title) {
-        if (!b.created_at) {
-          b.created_at = b.date ? new Date(b.date).toISOString() : (b.year ? new Date(b.year, 0, 1).toISOString() : '2024-01-01T00:00:00.000Z');
-        }
         map.set(b.id, b);
       }
     });
   }
 
-  // 2. Remote community books from Supabase across all users
-  if (Array.isArray(remoteCommunityBooks)) {
-    remoteCommunityBooks.forEach(b => {
-      if (b && !isGuideBook(b) && b.title && !map.has(b.id)) {
-        map.set(b.id, b);
+  // 2. 현재 로그인 사용자의 로컬 books (새로 추가되어 아직 Supabase fetch 전이거나 최신 스크랩이 추가된 경우 병합)
+  if (Array.isArray(books)) {
+    books.forEach(b => {
+      if (b && !isGuideBook(b) && b.title) {
+        if (!map.has(b.id)) {
+          map.set(b.id, b);
+        } else {
+          // 이미 Supabase에서 온 도서라면, 스크랩 수가 더 많은 쪽(최신 수정)으로 보강
+          const remoteB = map.get(b.id);
+          const localScrapsCount = (b.scraps || []).length;
+          const remoteScrapsCount = (remoteB.scraps || []).length;
+          if (localScrapsCount > remoteScrapsCount) {
+            map.set(b.id, { ...remoteB, ...b });
+          }
+        }
       }
     });
   }
@@ -6733,7 +6768,7 @@ function getAllCommunityBooks() {
   return Array.from(map.values());
 }
 
-function showCommunity(pushHistory = true) {
+async function showCommunity(pushHistory = true) {
   document.body.classList.remove('page-detail');
   closeAppMenu();
   document.getElementById('view-gallery').style.display = 'none';
@@ -6762,10 +6797,13 @@ function showCommunity(pushHistory = true) {
     }
   }
 
-  fetchRemoteCommunityBooks();
+  // 먼저 로컬/기존 캐시로 즉시 렌더링
   renderCommunityBooks();
   renderCommunityScraps();
   switchCommunityTab(currentCommunityTab);
+
+  // 최신 Supabase 원격 데이터 비동기 페치 및 동기화 렌더링
+  await fetchRemoteCommunityBooks();
 }
 
 function switchCommunityTab(tab) {
@@ -6793,8 +6831,8 @@ function getCommunityBooksList() {
   const allBooks = getAllCommunityBooks();
 
   const sorted = [...allBooks].sort((a, b) => {
-    const timeA = a.created_at ? new Date(a.created_at).getTime() : (a.date ? new Date(a.date).getTime() : 0);
-    const timeB = b.created_at ? new Date(b.created_at).getTime() : (b.date ? new Date(b.date).getTime() : 0);
+    const timeA = getSafeTimestamp(a.created_at) || getSafeTimestamp(a.date);
+    const timeB = getSafeTimestamp(b.created_at) || getSafeTimestamp(b.date);
     if (timeA && timeB && timeA !== timeB) return timeB - timeA;
     if (timeA && !timeB) return -1;
     if (!timeA && timeB) return 1;
@@ -6805,27 +6843,7 @@ function getCommunityBooksList() {
     const titleParts = splitBookTitle(b);
     const userRating = (b.rating && Number(b.rating) > 0) ? Number(b.rating) : null;
     const userReview = (b.sentence || b.review || b.oneLineReview || '').trim();
-
-    // Human-friendly relative time
-    let displayTime = '최근';
     const rawDate = b.created_at || b.date;
-    if (rawDate) {
-      const d = new Date(rawDate);
-      if (!isNaN(d.getTime())) {
-        const diffMs = Date.now() - d.getTime();
-        const diffHours = diffMs / (1000 * 60 * 60);
-        const diffDays = diffHours / 24;
-        if (diffHours >= 0 && diffHours < 1) {
-          displayTime = '방금 전';
-        } else if (diffHours >= 1 && diffHours < 24) {
-          displayTime = `${Math.floor(diffHours)}시간 전`;
-        } else if (diffDays >= 1 && diffDays < 7) {
-          displayTime = `${Math.floor(diffDays)}일 전`;
-        } else {
-          displayTime = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
-        }
-      }
-    }
 
     return {
       id: b.id,
@@ -6835,7 +6853,7 @@ function getCommunityBooksList() {
       cover: b.cover || '',
       rating: userRating,
       review: userReview || null,
-      time: displayTime
+      time: formatTimeAgo(rawDate)
     };
   });
 }
@@ -6952,17 +6970,9 @@ function toggleCommunityBookLike(id, btnEl, event) {
 }
 
 function getCommunityScrapsList() {
-  // Collect all users' actually entered sentences & scraps
+  // Collect all users' actually entered sentences & scraps across ALL books
   const allBooks = getAllCommunityBooks();
   const userScraps = [];
-  const sortByTime = (arr) => [...arr].sort((a, b) => {
-    const timeA = new Date(a.created_at || a.date || 0).getTime();
-    const timeB = new Date(b.created_at || b.date || 0).getTime();
-    if (timeA && timeB && timeA !== timeB) return timeB - timeA;
-    return 0;
-  });
-
-  const sortedBooks = sortByTime(allBooks);
 
   // Map for fast lookup of covers and book ids by book title
   const bookByTitle = new Map();
@@ -6972,14 +6982,17 @@ function getCommunityScrapsList() {
     }
   });
 
-  // ONLY collect from "수집한 문장" (b.scraps), NOT "나만의 한 문장" (b.sentence)!
-  sortedBooks.forEach(b => {
+  // ONLY collect from "수집한 문장" (b.scraps)
+  allBooks.forEach(b => {
     if (b.scraps && b.scraps.length) {
       const bTitleParts = splitBookTitle(b);
       const bMainTitle = bTitleParts.main || b.title;
       b.scraps.forEach(s => {
+        if (!s.text || !s.text.trim()) return;
+        const scrapTime = s.created_at || s.at || b.created_at || b.date;
+        const rawTime = getSafeTimestamp(scrapTime);
         userScraps.push({
-          id: 'us_' + s.id,
+          id: 'us_' + (s.id || uid()),
           bookId: b.id,
           text: s.text,
           bookTitle: bMainTitle,
@@ -6989,11 +7002,15 @@ function getCommunityScrapsList() {
           memo: s.memo || '',
           tags: s.tags || s.keywords || [],
           likes: 0,
-          time: s.created_at ? formatTimeAgo(s.created_at) : '최근'
+          rawTime: rawTime,
+          time: formatTimeAgo(scrapTime)
         });
       });
     }
   });
+
+  // 문장 자체의 등록 시각(rawTime) 기준으로 모든 유저에게 완벽히 동일한 최신순(내림차순) 정렬!
+  userScraps.sort((a, b) => b.rawTime - a.rawTime);
 
   if (userScraps.length >= 30) {
     return userScraps.slice(0, 30);
