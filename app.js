@@ -6164,7 +6164,7 @@ const SEED_COMMUNITY_BOOKS = [
     id: 'cb_1',
     title: '도구는 어떻게 권력이 되는가',
     author: '신무연 지음, 정기문 감수',
-    cover: 'https://image.aladin.co.kr/product/34591/89/cover500/k062932906_1.jpg',
+    cover: 'https://image.aladin.co.kr/product/40129/94/cover200/k132131865_1.jpg',
     rating: 5,
     review: '기술의 독점이 계급의 분화를 낳았다는 역사적 통찰이 번뜩이는 역작.',
     time: '방금 전'
@@ -6173,7 +6173,7 @@ const SEED_COMMUNITY_BOOKS = [
     id: 'cb_2',
     title: '작별하지 않는다',
     author: '한강',
-    cover: 'https://image.aladin.co.kr/product/27877/5/cover500/8954682154_1.jpg',
+    cover: 'https://image.aladin.co.kr/product/27877/5/cover200/8954682154_3.jpg',
     rating: 5,
     review: '눈송이처럼 날리는 기억과 상흔, 슬픔을 건너는 고결한 문장들.',
     time: '25분 전'
@@ -6182,7 +6182,7 @@ const SEED_COMMUNITY_BOOKS = [
     id: 'cb_3',
     title: '코스모스',
     author: '칼 세이건',
-    cover: 'https://image.aladin.co.kr/product/58/25/cover500/8937415585_1.jpg',
+    cover: 'https://image.aladin.co.kr/product/39676/50/cover200/k382130398_1.jpg',
     rating: 5,
     review: '우리는 모두 별에서 온 물질이라는 아름다운 진실을 일깨워 준다.',
     time: '1시간 전'
@@ -6191,7 +6191,7 @@ const SEED_COMMUNITY_BOOKS = [
     id: 'cb_4',
     title: '데미안',
     author: '헤르만 헤세',
-    cover: 'https://image.aladin.co.kr/product/26/0/cover500/8937460440_1.jpg',
+    cover: 'https://image.aladin.co.kr/product/26/0/cover200/s452139198_1.jpg',
     rating: 5,
     review: '내 속에서 솟아 나오려는 것, 바로 그것을 나는 살아보려 했다.',
     time: '2시간 전'
@@ -6200,7 +6200,7 @@ const SEED_COMMUNITY_BOOKS = [
     id: 'cb_5',
     title: '우리가 빛의 속도로 갈 수 없다면',
     author: '김초엽',
-    cover: 'https://image.aladin.co.kr/product/19545/63/cover500/8966262473_1.jpg',
+    cover: 'https://image.aladin.co.kr/product/19359/16/cover200/s722039767_1.jpg',
     rating: 5,
     review: '다정함과 과학적 상상력이 조화롭게 직조된 경이로운 세계.',
     time: '3시간 전'
@@ -6209,7 +6209,7 @@ const SEED_COMMUNITY_BOOKS = [
     id: 'cb_6',
     title: '모순',
     author: '양귀자',
-    cover: 'https://image.aladin.co.kr/product/2345/14/cover500/8975276766_1.jpg',
+    cover: 'https://image.aladin.co.kr/product/2584/37/cover200/s392131969_1.jpg',
     rating: 5,
     review: '인생은 탐구하는 것이 아니라 그저 온몸으로 살아내는 것.',
     time: '4시간 전'
@@ -6218,7 +6218,7 @@ const SEED_COMMUNITY_BOOKS = [
     id: 'cb_7',
     title: '사피엔스',
     author: '유발 하라리',
-    cover: 'https://image.aladin.co.kr/product/7036/83/cover500/8934972467_1.jpg',
+    cover: 'https://image.aladin.co.kr/product/31424/4/cover200/k482832219_1.jpg',
     rating: 5,
     review: '인류를 지구의 지배자로 만든 힘, 상상과 스토리텔링의 본질.',
     time: '5시간 전'
@@ -6227,7 +6227,7 @@ const SEED_COMMUNITY_BOOKS = [
     id: 'cb_8',
     title: '여행의 이유',
     author: '김영하',
-    cover: 'https://image.aladin.co.kr/product/18844/89/cover500/8954655971_1.jpg',
+    cover: 'https://image.aladin.co.kr/product/33763/31/cover200/s332036339_1.jpg',
     rating: 4,
     review: '우리가 집을 떠나 낯선 곳으로 향하는 진짜 이유에 관한 매혹적인 산문.',
     time: '6시간 전'
@@ -6236,18 +6236,36 @@ const SEED_COMMUNITY_BOOKS = [
     id: 'cb_9',
     title: '참을 수 없는 존재의 가벼움',
     author: '밀란 쿤데라',
-    cover: 'https://image.aladin.co.kr/product/330/50/cover500/8937462346_1.jpg',
+    cover: 'https://image.aladin.co.kr/product/34797/80/cover200/8937437562_1.jpg',
     rating: 5,
     review: '무거움과 가벼움의 갈림길에서 인간이란 존재의 의미를 묻다.',
-    time: '어제'
+    time: '8시간 전'
   },
   {
     id: 'cb_10',
     title: '종의 기원',
     author: '정유정',
-    cover: 'https://image.aladin.co.kr/product/8276/75/cover500/8925558933_1.jpg',
+    cover: 'https://image.aladin.co.kr/product/7492/9/cover200/8956609950_2.jpg',
     rating: 5,
     review: '인간 내면의 심연과 악의 기원을 집요하게 추적하는 압도적 서스펜스.',
+    time: '12시간 전'
+  },
+  {
+    id: 'cb_11',
+    title: '소년이 온다',
+    author: '한강',
+    cover: 'https://image.aladin.co.kr/product/4086/97/cover200/8936434128_2.jpg',
+    rating: 5,
+    review: '어둡고 아픈 역사 속에서 피어난 맑고 정결한 인간성의 증언.',
+    time: '어제'
+  },
+  {
+    id: 'cb_12',
+    title: '불편한 편의점',
+    author: '김호연',
+    cover: 'https://image.aladin.co.kr/product/29045/74/cover200/k192836746_2.jpg',
+    rating: 5,
+    review: '골목길 작은 편의점에서 서로의 온기를 나누며 삶을 다시 살아내는 따스한 위로.',
     time: '어제'
   }
 ];
@@ -6634,7 +6652,7 @@ function switchCommunityTab(tab) {
 }
 
 function getCommunityBooksList() {
-  // Merge user's recently added books (anonymously) at top, followed by seed books, total 10
+  // Merge user's recently added books (anonymously) at top, followed by seed books, total 12
   const userRecentBooks = books
     .filter(b => b.id !== '8ook_user_guide')
     .slice(0, 3)
@@ -6650,11 +6668,11 @@ function getCommunityBooksList() {
 
   const combined = [...userRecentBooks];
   SEED_COMMUNITY_BOOKS.forEach(sb => {
-    if (combined.length < 10 && !combined.some(b => b.title === sb.title)) {
+    if (combined.length < 12 && !combined.some(b => b.title === sb.title)) {
       combined.push(sb);
     }
   });
-  return combined.slice(0, 10);
+  return combined.slice(0, 12);
 }
 
 function renderCommunityBooks() {
@@ -6668,7 +6686,7 @@ function renderCommunityBooks() {
   container.innerHTML = list.map(b => {
     const coverUrl = b.cover ? getSafeImageUrl(b.cover) : '';
     const coverHtml = coverUrl
-      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(b.title)}" onclick="searchAladinByQuery('${esc(b.title)}')" onerror="this.outerHTML='<div class=\\'comm-book-cover\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-300);font-weight:700;\\'>8ook</div>'">`
+      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(b.title)}" referrerpolicy="no-referrer" loading="lazy" onclick="searchAladinByQuery('${esc(b.title)}')" onerror="this.outerHTML='<div class=\\'comm-book-cover\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-300);font-weight:700;\\'>8ook</div>'">`
       : `<div class="comm-book-cover" style="display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-300);font-weight:700;">8ook</div>`;
 
     const ratingStars = '★'.repeat(Math.round(b.rating || 5)) + '☆'.repeat(5 - Math.round(b.rating || 5));
