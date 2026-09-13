@@ -1206,16 +1206,16 @@
       transform: none !important;
     }
 
-    .book-card.spine-mode.is-closed {
+    .book-card.spine-mode.is-closed:not(.guide-spread-card) {
       width: var(--spine-w, 48px) !important;
       z-index: 10 !important;
     }
-    .book-card.spine-mode.is-closed .spine-face {
+    .book-card.spine-mode.is-closed:not(.guide-spread-card) .spine-face {
       opacity: 1 !important;
       transform: none !important;
       pointer-events: auto !important;
     }
-    .book-card.spine-mode.is-closed .cover-face {
+    .book-card.spine-mode.is-closed:not(.guide-spread-card) .cover-face {
       opacity: 0 !important;
       transform: rotateY(-90deg) !important;
       pointer-events: none !important;
@@ -1610,6 +1610,64 @@
       box-shadow:0 24px 60px rgba(0,0,0,.35),
                  0 0 0 1px var(--card-hover-border),
                  var(--shadow-glow);
+    }
+
+    /* ==============================================
+       Guide Book Open Spread Card (표지가 펼쳐진 이용가이드)
+    ============================================== */
+    .book-card.spine-mode.guide-spread-card {
+      width: 240px !important;
+      z-index: 25 !important;
+      transform: none !important;
+      cursor: pointer;
+    }
+    .book-card.spine-mode.guide-spread-card .spine-face {
+      opacity: 0 !important;
+      transform: rotateY(90deg) scale(0.92) !important;
+      pointer-events: none !important;
+    }
+    .book-card.spine-mode.guide-spread-card .cover-face {
+      opacity: 1 !important;
+      transform: rotateY(0deg) !important;
+      pointer-events: auto !important;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(212, 175, 55, 0.4), 0 0 20px rgba(212, 175, 55, 0.15);
+      border-radius: 4px 6px 6px 4px;
+      transition: transform 0.28s ease, box-shadow 0.28s ease;
+    }
+    .book-card.spine-mode.guide-spread-card:hover .cover-face {
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(212, 175, 55, 0.7), 0 0 28px rgba(212, 175, 55, 0.35);
+      transform: translateY(-4px) scale(1.02);
+    }
+    .book-card.spine-mode.guide-spread-card .book-hover-overlay {
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      background: linear-gradient(to top, rgba(12, 14, 18, 0.95) 0%, rgba(12, 14, 18, 0.7) 45%, rgba(12, 14, 18, 0.3) 100%);
+    }
+    .book-card.spine-mode.guide-spread-card:hover .book-hover-overlay {
+      opacity: 1;
+    }
+    .guide-ribbon-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: linear-gradient(135deg, #d4af37 0%, #aa820a 100%);
+      color: #121008;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      z-index: 6;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .guide-detail-mode .detail-thumb {
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(212, 175, 55, 0.35), 0 0 24px rgba(212, 175, 55, 0.2) !important;
+      border-radius: 6px;
+      overflow: hidden;
     }
 
     /* Spine Mode Add Book Card */

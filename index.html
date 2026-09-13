@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260912_cover_theme">
+  <link rel="stylesheet" href="style.css?v=20260913_guide_spread">
 </head>
 <body>
 
@@ -98,6 +98,14 @@
     <!-- Navigation Section -->
     <div class="menu-section-title">페이지 이동</div>
     <nav class="menu-nav-list">
+      <button class="menu-nav-item" onclick="openUserGuide(); closeAppMenu();" style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25);">
+        <span class="menu-nav-icon" style="font-size:14px; color:#d4af37;">📖</span>
+        <div class="menu-nav-text">
+          <span class="menu-nav-title" style="color:#f5eacc; font-weight:700;">8ook 이용 가이드</span>
+          <span class="menu-nav-desc" style="color:#c4b79b;">펼쳐진 가이드북 &amp; 최신 기능 완벽 안내</span>
+        </div>
+      </button>
+
       <button class="menu-nav-item" onclick="showGallery(); closeAppMenu();">
         <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">01</span>
         <div class="menu-nav-text">
@@ -862,6 +870,6 @@
 <!-- Next-Gen WebAssembly Barcode Engine (ZXing-C++ compiled to WASM) -->
 <script src="https://cdn.jsdelivr.net/npm/zxing-wasm@latest/dist/iife/reader/index.js"></script>
 
-  <script src="app.js?v=20260912_cover_theme" defer></script>
+  <script src="app.js?v=20260913_guide_spread" defer></script>
 </body>
 </html>
