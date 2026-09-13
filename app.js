@@ -6716,10 +6716,7 @@ function renderCommunityBooks() {
       <div class="comm-book-card">
         ${coverHtml}
         <div class="comm-book-info">
-          <div class="comm-book-title-wrap">
-            <div class="comm-book-title" onclick="showDetail('${b.id}')" title="${esc(mainTitle)}">${esc(mainTitle)}</div>
-            ${subTitle ? `<div class="comm-book-subtitle" title="${esc(subTitle)}">${esc(subTitle)}</div>` : ''}
-          </div>
+          <div class="comm-book-title" onclick="showDetail('${b.id}')" title="${esc(mainTitle)}">${esc(mainTitle)}</div>
           <div class="comm-book-author">${esc(b.author)}</div>
           ${ratingHtml}
           ${reviewHtml}
@@ -6839,7 +6836,7 @@ function renderCommunityScraps() {
 
   container.innerHTML = list.map((s, idx) => {
     const isLiked = !!storedLikes[s.id];
-    const currentLikes = (s.likes || 0) + (isLiked ? 1 : 0);
+    const currentLikes = isLiked ? 1 : 0;
     const tagsHtml = (s.tags && s.tags.length)
       ? `<div class="comm-scrap-tags">${s.tags.map(t => `<span class="comm-scrap-tag">#${esc(t)}</span>`).join('')}</div>`
       : '';
@@ -6861,7 +6858,7 @@ function renderCommunityScraps() {
               복사
             </button>
             <button class="comm-scrap-btn${isLiked ? ' liked' : ''}" onclick="toggleCommunityLike('${s.id}', this)" title="공감">
-              <span>공감</span> <span class="like-count">${currentLikes}</span>
+              <span style="color:#e11d48; font-size:11px;">♥</span> <span>공감</span> <span class="like-count">${currentLikes}</span>
             </button>
           </div>
         </div>
@@ -6895,16 +6892,15 @@ function toggleCommunityLike(id, btnEl) {
 
   const wasLiked = !!storedLikes[id];
   const countSpan = btnEl.querySelector('.like-count');
-  let currentCount = parseInt(countSpan.textContent, 10) || 0;
 
   if (wasLiked) {
     delete storedLikes[id];
     btnEl.classList.remove('liked');
-    countSpan.textContent = Math.max(0, currentCount - 1);
+    countSpan.textContent = '0';
   } else {
     storedLikes[id] = true;
     btnEl.classList.add('liked');
-    countSpan.textContent = currentCount + 1;
+    countSpan.textContent = '1';
     toast('익명으로 공감을 남겼습니다 ♥');
   }
 
