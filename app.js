@@ -6163,109 +6163,97 @@ const SEED_COMMUNITY_BOOKS = [
   {
     id: 'cb_1',
     title: '도구는 어떻게 권력이 되는가',
+    subtitle: '문명을 이끈 50가지 발명품으로 읽는 세계사',
     author: '신무연 지음, 정기문 감수',
     cover: 'https://image.aladin.co.kr/product/40129/94/cover200/k132131865_1.jpg',
-    rating: 5,
-    review: '기술의 독점이 계급의 분화를 낳았다는 역사적 통찰이 번뜩이는 역작.',
     time: '방금 전'
   },
   {
     id: 'cb_2',
     title: '작별하지 않는다',
+    subtitle: '한강 장편소설',
     author: '한강',
     cover: 'https://image.aladin.co.kr/product/27877/5/cover200/8954682154_3.jpg',
-    rating: 5,
-    review: '눈송이처럼 날리는 기억과 상흔, 슬픔을 건너는 고결한 문장들.',
     time: '25분 전'
   },
   {
     id: 'cb_3',
     title: '코스모스',
+    subtitle: '',
     author: '칼 세이건',
     cover: 'https://image.aladin.co.kr/product/39676/50/cover200/k382130398_1.jpg',
-    rating: 5,
-    review: '우리는 모두 별에서 온 물질이라는 아름다운 진실을 일깨워 준다.',
     time: '1시간 전'
   },
   {
     id: 'cb_4',
     title: '데미안',
+    subtitle: '',
     author: '헤르만 헤세',
     cover: 'https://image.aladin.co.kr/product/26/0/cover200/s452139198_1.jpg',
-    rating: 5,
-    review: '내 속에서 솟아 나오려는 것, 바로 그것을 나는 살아보려 했다.',
     time: '2시간 전'
   },
   {
     id: 'cb_5',
     title: '우리가 빛의 속도로 갈 수 없다면',
+    subtitle: '',
     author: '김초엽',
     cover: 'https://image.aladin.co.kr/product/19359/16/cover200/s722039767_1.jpg',
-    rating: 5,
-    review: '다정함과 과학적 상상력이 조화롭게 직조된 경이로운 세계.',
     time: '3시간 전'
   },
   {
     id: 'cb_6',
     title: '모순',
+    subtitle: '양귀자 소설',
     author: '양귀자',
     cover: 'https://image.aladin.co.kr/product/2584/37/cover200/s392131969_1.jpg',
-    rating: 5,
-    review: '인생은 탐구하는 것이 아니라 그저 온몸으로 살아내는 것.',
     time: '4시간 전'
   },
   {
     id: 'cb_7',
     title: '사피엔스',
+    subtitle: '유인원에서 사이보그까지, 인간 역사의 대담하고 위대한 질문',
     author: '유발 하라리',
     cover: 'https://image.aladin.co.kr/product/31424/4/cover200/k482832219_1.jpg',
-    rating: 5,
-    review: '인류를 지구의 지배자로 만든 힘, 상상과 스토리텔링의 본질.',
     time: '5시간 전'
   },
   {
     id: 'cb_8',
     title: '여행의 이유',
+    subtitle: '',
     author: '김영하',
     cover: 'https://image.aladin.co.kr/product/33763/31/cover200/s332036339_1.jpg',
-    rating: 4,
-    review: '우리가 집을 떠나 낯선 곳으로 향하는 진짜 이유에 관한 매혹적인 산문.',
     time: '6시간 전'
   },
   {
     id: 'cb_9',
     title: '참을 수 없는 존재의 가벼움',
+    subtitle: '',
     author: '밀란 쿤데라',
     cover: 'https://image.aladin.co.kr/product/34797/80/cover200/8937437562_1.jpg',
-    rating: 5,
-    review: '무거움과 가벼움의 갈림길에서 인간이란 존재의 의미를 묻다.',
     time: '8시간 전'
   },
   {
     id: 'cb_10',
     title: '종의 기원',
+    subtitle: '정유정 장편소설',
     author: '정유정',
     cover: 'https://image.aladin.co.kr/product/7492/9/cover200/8956609950_2.jpg',
-    rating: 5,
-    review: '인간 내면의 심연과 악의 기원을 집요하게 추적하는 압도적 서스펜스.',
     time: '12시간 전'
   },
   {
     id: 'cb_11',
     title: '소년이 온다',
+    subtitle: '',
     author: '한강',
     cover: 'https://image.aladin.co.kr/product/4086/97/cover200/8936434128_2.jpg',
-    rating: 5,
-    review: '어둡고 아픈 역사 속에서 피어난 맑고 정결한 인간성의 증언.',
     time: '어제'
   },
   {
     id: 'cb_12',
     title: '불편한 편의점',
+    subtitle: '',
     author: '김호연',
     cover: 'https://image.aladin.co.kr/product/29045/74/cover200/k192836746_2.jpg',
-    rating: 5,
-    review: '골목길 작은 편의점에서 서로의 온기를 나누며 삶을 다시 살아내는 따스한 위로.',
     time: '어제'
   }
 ];
@@ -6652,19 +6640,25 @@ function switchCommunityTab(tab) {
 }
 
 function getCommunityBooksList() {
-  // Merge user's recently added books (anonymously) at top, followed by seed books, total 12
+  // Merge user's recently added books at top, followed by seed books, total 12
   const userRecentBooks = books
     .filter(b => b.id !== '8ook_user_guide')
     .slice(0, 3)
-    .map((b, idx) => ({
-      id: 'ub_' + b.id,
-      title: b.title,
-      author: b.author || '저자 미상',
-      cover: b.cover || '',
-      rating: b.rating || 5,
-      review: b.sentence || '어느 독서가의 서재에 최근 담긴 책입니다.',
-      time: idx === 0 ? '방금 전' : `${idx * 15}분 전`
-    }));
+    .map((b, idx) => {
+      const titleParts = parseTitleParts(b);
+      const userRating = (b.rating && Number(b.rating) > 0) ? Number(b.rating) : null;
+      const userReview = (b.sentence || b.oneLineReview || '').trim();
+      return {
+        id: 'ub_' + b.id,
+        title: titleParts.main || b.title,
+        subtitle: titleParts.sub || b.subtitle || '',
+        author: b.author || '저자 미상',
+        cover: b.cover || '',
+        rating: userRating,
+        review: userReview || null,
+        time: idx === 0 ? '방금 전' : `${idx * 15}분 전`
+      };
+    });
 
   const combined = [...userRecentBooks];
   SEED_COMMUNITY_BOOKS.forEach(sb => {
@@ -6684,24 +6678,37 @@ function renderCommunityBooks() {
   if (countEl) countEl.textContent = list.length;
 
   container.innerHTML = list.map(b => {
+    const titleParts = parseTitleParts(b);
+    const mainTitle = b.title && b.subtitle !== undefined ? b.title : (titleParts.main || b.title);
+    const subTitle = b.subtitle !== undefined ? b.subtitle : (titleParts.sub || '');
+
     const coverUrl = b.cover ? getSafeImageUrl(b.cover) : '';
     const coverHtml = coverUrl
-      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(b.title)}" referrerpolicy="no-referrer" loading="lazy" onclick="searchAladinByQuery('${esc(b.title)}')" onerror="this.outerHTML='<div class=\\'comm-book-cover\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-300);font-weight:700;\\'>8ook</div>'">`
+      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" loading="lazy" onclick="searchAladinByQuery('${esc(mainTitle)}')" onerror="this.outerHTML='<div class=\\'comm-book-cover\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-300);font-weight:700;\\'>8ook</div>'">`
       : `<div class="comm-book-cover" style="display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-300);font-weight:700;">8ook</div>`;
 
-    const ratingStars = '★'.repeat(Math.round(b.rating || 5)) + '☆'.repeat(5 - Math.round(b.rating || 5));
+    const ratingHtml = (b.rating && Number(b.rating) > 0)
+      ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${Number(b.rating).toFixed(1)}</span></div>`
+      : '';
+
+    const reviewHtml = (b.review && b.review.trim())
+      ? `<div class="comm-book-review">“${esc(b.review.trim())}”</div>`
+      : '';
 
     return `
       <div class="comm-book-card">
         ${coverHtml}
         <div class="comm-book-info">
-          <div class="comm-book-title" onclick="searchAladinByQuery('${esc(b.title)}')" title="${esc(b.title)}">${esc(b.title)}</div>
+          <div class="comm-book-title-wrap">
+            <div class="comm-book-title" onclick="searchAladinByQuery('${esc(mainTitle)}')" title="${esc(mainTitle)}">${esc(mainTitle)}</div>
+            ${subTitle ? `<div class="comm-book-subtitle" title="${esc(subTitle)}">${esc(subTitle)}</div>` : ''}
+          </div>
           <div class="comm-book-author">${esc(b.author)}</div>
-          <div class="comm-book-rating">${ratingStars} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${b.rating || 5}.0</span></div>
-          ${b.review ? `<div class="comm-book-review">“${esc(b.review)}”</div>` : ''}
+          ${ratingHtml}
+          ${reviewHtml}
           <div class="comm-book-meta">
-            <span class="comm-book-anon">익명의 독서가 · ${b.time}</span>
-            <button class="comm-book-search-btn" onclick="searchAladinByQuery('${esc(b.title)}')">책 검색</button>
+            <span class="comm-book-time">${esc(b.time || '')}</span>
+            <button class="comm-book-search-btn" onclick="searchAladinByQuery('${esc(mainTitle)}')">책 검색</button>
           </div>
         </div>
       </div>

@@ -2916,9 +2916,14 @@
       flex-direction: column;
       gap: 4px;
     }
+    .comm-book-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
     .comm-book-title {
       font-family: 'Playfair Display', 'Noto Serif KR', serif;
-      font-size: 14.5px;
+      font-size: 14px;
       font-weight: 700;
       color: var(--text-100);
       line-height: 1.35;
@@ -2930,6 +2935,19 @@
     }
     .comm-book-title:hover {
       color: var(--violet);
+    }
+    .comm-book-subtitle {
+      font-size: 11px;
+      color: var(--text-300);
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .comm-book-time {
+      font-size: 11px;
+      color: var(--text-400);
     }
     .comm-book-author {
       font-size: 11.5px;
