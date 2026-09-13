@@ -6618,7 +6618,6 @@ function renderCommunityBooks() {
   if (list.length === 0) {
     container.innerHTML = `
       <div style="grid-column: 1 / -1; padding: 60px 20px; text-align: center; color: var(--text-300); font-size: 13.5px;">
-        <div style="font-size: 32px; margin-bottom: 12px; opacity: 0.6;">📚</div>
         <div style="font-weight: 600; color: var(--text-200); margin-bottom: 4px;">아직 서재에 추가된 도서가 없습니다.</div>
         <div style="font-size: 12px; color: var(--text-400);">서재에 책을 등록하면 최근 추가된 도서로 이곳에 표시됩니다.</div>
       </div>
@@ -6758,7 +6757,7 @@ function renderCommunityScraps() {
               복사
             </button>
             <button class="comm-scrap-btn${isLiked ? ' liked' : ''}" onclick="toggleCommunityLike('${s.id}', this)" title="공감">
-              <span>♥</span> <span class="like-count">${currentLikes}</span>
+              <span>공감</span> <span class="like-count">${currentLikes}</span>
             </button>
           </div>
         </div>
