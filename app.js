@@ -159,17 +159,27 @@ let aladinCallbackCounter = 0;
 let aladinSearchResults = [];
 
 /* ==============================================
-   STORAGE
+   STORAGE & GUIDE HELPERS
 ============================================== */
+function isGuideBook(book) {
+  if (!book) return false;
+  return book.id === '8ook_user_guide' ||
+    (typeof book.title === 'string' && book.title.includes('8ook. 이용 가이드')) ||
+    (typeof book.author === 'string' && book.author.includes('8ook 제작팀'));
+}
+
 function saveData() {
   try {
     if (currentUser) {
-      localStorage.setItem(`rj_books_${currentUser.id}`, JSON.stringify(books));
+      // 로그인 사용자 로컬 저장소에는 이용 가이드북을 저장하지 않음
+      const userBooks = books.filter(b => !isGuideBook(b));
+      localStorage.setItem(`rj_books_${currentUser.id}`, JSON.stringify(userBooks));
     } else {
       localStorage.setItem('rj_books', JSON.stringify(books));
     }
   } catch (e) { }
 }
+
 async function loadData() {
   let localBooks = [];
   try {
@@ -179,7 +189,7 @@ async function loadData() {
   } catch (e) { }
 
   if (currentUser) {
-    localBooks = localBooks.map(b => {
+    localBooks = localBooks.filter(b => !isGuideBook(b)).map(b => {
       if (b.id && b.id.startsWith('notion_') && !b.id.endsWith('_' + currentUser.id)) {
         const pageIdPart = b.id.substring(7, 39);
         return { ...b, id: 'notion_' + pageIdPart + '_' + currentUser.id };
@@ -212,15 +222,16 @@ async function loadData() {
       dbSupportsSpineCover = true;
     }
 
-    // Migration: If Supabase is empty but we have local guest books, upload them to Supabase
+    // Migration: If Supabase is empty but we have local guest books, upload them to Supabase (이용 가이드북 제외)
     const guestBooksStr = localStorage.getItem('rj_books');
     let guestBooks = [];
     if (guestBooksStr) {
       try { guestBooks = JSON.parse(guestBooksStr); } catch (e) { }
     }
+    const userGuestBooks = guestBooks.filter(b => !isGuideBook(b));
 
-    if (remoteBooks.length === 0 && guestBooks.length > 0) {
-      const booksToUpload = guestBooks.map(b => {
+    if (remoteBooks.length === 0 && userGuestBooks.length > 0) {
+      const booksToUpload = userGuestBooks.map(b => {
         let newId = b.id;
         if (b.id && b.id.startsWith('notion_')) {
           const pageIdPart = b.id.substring(7, 39);
@@ -248,12 +259,29 @@ async function loadData() {
     } else {
       books = remoteBooks;
     }
+
+    // 로그인 계정인 경우 Supabase 또는 books 배열에 잘못 들어간 이용 가이드북이 있다면 완전 정리
+    if (currentUser) {
+      const guideBooksInRemote = books.filter(b => isGuideBook(b));
+      if (guideBooksInRemote.length > 0) {
+        const guideIdsToDelete = guideBooksInRemote.map(b => b.id);
+        books = books.filter(b => !isGuideBook(b));
+        if (supabaseClient && currentUser.id) {
+          supabaseClient.from('books').delete().in('id', guideIdsToDelete).eq('user_id', currentUser.id).then(() => {
+            console.log('Cleaned up guide books from Supabase:', guideIdsToDelete);
+          }).catch(err => console.warn('Guide cleanup error:', err));
+        }
+      } else {
+        books = books.filter(b => !isGuideBook(b));
+      }
+    }
+
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
   } catch (e) {
     console.error('Supabase load error, using local storage backup:', e);
-    books = localBooks;
+    books = currentUser ? localBooks.filter(b => !isGuideBook(b)) : localBooks;
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
@@ -838,7 +866,7 @@ function renderGallery() {
   // Filter books
   let displayBooks = books;
   if (currentUser) {
-    displayBooks = displayBooks.filter(b => b.id !== '8ook_user_guide');
+    displayBooks = displayBooks.filter(b => !isGuideBook(b));
   }
   if (galleryViewMode === 'stars') {
     displayBooks = displayBooks.filter(b => b.rating === 5);
@@ -887,8 +915,8 @@ function renderGallery() {
   }
 
   const sortedBooks = [...displayBooks].sort((a, b) => {
-    if (a.id === '8ook_user_guide') return -1;
-    if (b.id === '8ook_user_guide') return 1;
+    if (isGuideBook(a)) return -1;
+    if (isGuideBook(b)) return 1;
     if (!a.date) return 1;
     if (!b.date) return -1;
     return new Date(b.date) - new Date(a.date);
@@ -1616,13 +1644,13 @@ function createBookCardElement(book, i, isSpineMode) {
         </div>
       </div>` : '';
 
-  const isGuideBook = book.id === '8ook_user_guide';
+  const isGuideCard = isGuideBook(book);
 
   if (isSpineMode) {
-    const spineW = isGuideBook ? 240 : getSpineWidth(book.pages);
+    const spineW = isGuideCard ? 240 : getSpineWidth(book.pages);
     card.style.width = spineW + 'px';
     card.style.setProperty('--spine-w', spineW + 'px');
-    if (isGuideBook) {
+    if (isGuideCard) {
       card.classList.add('guide-spread-card', 'is-hovered');
     }
 
@@ -1689,7 +1717,7 @@ function createBookCardElement(book, i, isSpineMode) {
           ${spineWaxSeal}
         </div>
         <div class="cover-face">
-          ${isGuideBook ? '<div class="guide-ribbon-badge">📖 이용 가이드</div>' : ''}
+          ${isGuideCard ? '<div class="guide-ribbon-badge">📖 이용 가이드</div>' : ''}
           ${imgPart}
           ${kingStarBadge}
           <div class="book-hover-overlay">
@@ -1700,7 +1728,7 @@ function createBookCardElement(book, i, isSpineMode) {
             <div class="ov-author">${esc(book.author || '')}</div>
             ${sentence}
             ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
-            ${isGuideBook ? '<div class="ov-tap-guide" style="opacity:1;">클릭하여 이용 가이드 읽기 ➔</div>' : ''}
+            ${isGuideCard ? '<div class="ov-tap-guide" style="opacity:1;">클릭하여 이용 가이드 읽기 ➔</div>' : ''}
           </div>
         </div>
       </div>
@@ -1722,7 +1750,7 @@ function createBookCardElement(book, i, isSpineMode) {
     }
 
     card.addEventListener('mousemove', (e) => {
-      if (isGuideBook) {
+      if (isGuideCard) {
         card.title = '8ook. 이용 가이드 (클릭하여 읽기)';
         return;
       }
@@ -1745,7 +1773,7 @@ function createBookCardElement(book, i, isSpineMode) {
 
     card.addEventListener('click', (e) => {
       // 이용가이드 카드는 클릭 시 바로 상세 가이드로 이동
-      if (isGuideBook) {
+      if (isGuideCard) {
         showDetail(book.id);
         return;
       }
@@ -1788,7 +1816,7 @@ function createBookCardElement(book, i, isSpineMode) {
     });
 
     card.addEventListener('mouseleave', () => {
-      if (!isGuideBook) {
+      if (!isGuideCard) {
         card.classList.remove('is-closed');
         card.classList.remove('is-hovered');
       }
@@ -1796,7 +1824,7 @@ function createBookCardElement(book, i, isSpineMode) {
     });
   } else {
     card.innerHTML = `
-      ${isGuideBook ? '<div class="guide-ribbon-badge">📖 이용 가이드</div>' : ''}
+      ${isGuideCard ? '<div class="guide-ribbon-badge">📖 이용 가이드</div>' : ''}
       ${imgPart}
       ${kingStarBadge}
       <div class="book-hover-overlay">
@@ -1807,12 +1835,12 @@ function createBookCardElement(book, i, isSpineMode) {
         <div class="ov-author">${esc(book.author || '')}</div>
         ${sentence}
         ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
-        <div class="ov-tap-guide">${isGuideBook ? '클릭하여 이용 가이드 읽기 ➔' : '한 번 더 탭하면 서평으로 이동 →'}</div>
+        <div class="ov-tap-guide">${isGuideCard ? '클릭하여 이용 가이드 읽기 ➔' : '한 번 더 탭하면 서평으로 이동 →'}</div>
       </div>
     `;
 
     card.addEventListener('click', (e) => {
-      if (isGuideBook) {
+      if (isGuideCard) {
         showDetail(book.id);
         return;
       }
@@ -1877,7 +1905,7 @@ function showDetail(id, direction = null, pushHistory = true) {
   if (!book && typeof remoteCommunityBooks !== 'undefined' && Array.isArray(remoteCommunityBooks)) {
     book = remoteCommunityBooks.find(b => b.id === id);
   }
-  if (!book && id === '8ook_user_guide') {
+  if (!book && (id === '8ook_user_guide' || id === 'guide' || (typeof id === 'string' && id.includes('guide')))) {
     book = getUserGuideBook();
   }
   if (!book) return;
@@ -1893,8 +1921,8 @@ function showDetail(id, direction = null, pushHistory = true) {
     wrap.classList.add('slide-from-right');
   }
 
-  const isGuideBook = book.id === '8ook_user_guide';
-  if (isGuideBook) {
+  const isGuideDetail = isGuideBook(book);
+  if (isGuideDetail) {
     wrap.classList.add('guide-detail-mode');
   } else {
     wrap.classList.remove('guide-detail-mode');
@@ -1935,8 +1963,8 @@ function showDetail(id, direction = null, pushHistory = true) {
       <div class="detail-rating-row" style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
         <div class="detail-stars">${starsHtml(book.rating, 22)}</div>
         <div class="detail-book-actions" style="display:flex; gap:6px; align-items:center;">
-          ${isGuideBook
-            ? `<button class="btn btn-ghost btn-sm" onclick="ensureUserGuideBook(); showDetail('8ook_user_guide'); toast('가이드가 최신 상태로 갱신되었습니다');" style="padding:2px 8px; font-size:11px; border-radius:4px; height:22px; line-height:1; color:#d4af37; border-color:rgba(212,175,55,0.4);">가이드 최신화</button>`
+          ${isGuideDetail
+            ? `<button class="btn btn-ghost btn-sm" onclick="showDetail('8ook_user_guide'); toast('가이드가 최신 상태로 갱신되었습니다');" style="padding:2px 8px; font-size:11px; border-radius:4px; height:22px; line-height:1; color:#d4af37; border-color:rgba(212,175,55,0.4);">가이드 최신화</button>`
             : `<button class="btn btn-ghost btn-sm" onclick="openEditModal('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:4px; height:22px; line-height:1;">편집</button>
                <button class="btn btn-danger btn-sm" onclick="doDeleteBook('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:22px; line-height:1;">삭제</button>`
           }
@@ -1948,20 +1976,20 @@ function showDetail(id, direction = null, pushHistory = true) {
     <div class="scraps-sec">
       <div class="scraps-hdr" style="display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
         <div style="display:flex; align-items:center; gap:8px;">
-          <div class="scraps-htitle">${isGuideBook ? '상세 가이드 챕터' : '수집한 문장'}</div>
-          ${isGuideBook ? '' : `
+          <div class="scraps-htitle">${isGuideDetail ? '상세 가이드 챕터' : '수집한 문장'}</div>
+          ${isGuideDetail ? '' : `
             <button class="btn btn-ghost btn-sm" onclick="openScrapModal('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:12px; height:22px; line-height:1;">+ 추가</button>
             <button class="btn btn-ghost btn-sm" onclick="copyBookForBlog('${book.id}')" title="블로그 포스팅용으로 도서 정보와 수집한 문장 전체를 복사합니다" style="padding:2px 8px; font-size:11px; border-radius:12px; height:22px; line-height:1;">📋 내용 복사</button>
           `}
         </div>
-        <div class="scraps-badge" id="scrap-badge">${scrapCount} ${isGuideBook ? '챕터' : '/ 100'}</div>
+        <div class="scraps-badge" id="scrap-badge">${scrapCount} ${isGuideDetail ? '챕터' : '/ 100'}</div>
       </div>
       <div class="scrap-list" id="scrap-list">${scrapsHtml}</div>
-      ${!isGuideBook && scrapCount === 0
+      ${!isGuideDetail && scrapCount === 0
       ? `<div class="scraps-empty">아직 수집한 문장이 없습니다.<br>
            <small style="font-size:11px;">상단이나 아래의 "+ 문장 추가" 버튼으로 문장을 기록해보세요</small></div>`
       : ''}
-      ${!isGuideBook ? `
+      ${!isGuideDetail ? `
       <div class="scraps-bottom-action">
         <button type="button" class="scrap-add-bottom-btn" onclick="openScrapModal('${book.id}')">
           <span style="font-size:15px; font-weight:700; color:var(--lavender); line-height:1;">＋</span>
@@ -2004,7 +2032,7 @@ function showDetail(id, direction = null, pushHistory = true) {
 function buildScrapsHtml(book) {
   cleanBookScraps(book);
   if (!book.scraps || !book.scraps.length) return '';
-  const isGuide = book.id === '8ook_user_guide';
+  const isGuide = isGuideBook(book);
   const sortedScraps = [...book.scraps].sort((a, b) => (a.page || 0) - (b.page || 0));
 
   return sortedScraps.map(s => {
@@ -4430,7 +4458,8 @@ function renderScrapsArchive() {
   const tagCounts = {};
   let totalScrapsCount = 0;
 
-  books.forEach(book => {
+  const sourceBooks = currentUser ? books.filter(b => !isGuideBook(b)) : books;
+  sourceBooks.forEach(book => {
     (book.scraps || []).forEach(scrap => {
       totalScrapsCount++;
       const tags = scrap.tags || scrap.keywords || [];
@@ -4971,16 +5000,16 @@ window.addEventListener('resize', () => {
 ============================================== */
 function updateSidebar() {
   const now = new Date();
-  let filteredBooks = books;
+  let filteredBooks = currentUser ? books.filter(b => !isGuideBook(b)) : books;
 
   if (statsPeriod === 'year') {
-    filteredBooks = books.filter(b => {
+    filteredBooks = filteredBooks.filter(b => {
       if (!b.date) return false;
       const d = new Date(b.date);
       return d.getFullYear() === now.getFullYear();
     });
   } else if (statsPeriod === 'month') {
-    filteredBooks = books.filter(b => {
+    filteredBooks = filteredBooks.filter(b => {
       if (!b.date) return false;
       const d = new Date(b.date);
       return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
@@ -5008,7 +5037,8 @@ function showRandomQuote() {
 
   // Collect all scraps
   const allScraps = [];
-  books.forEach(book => {
+  const sourceBooks = currentUser ? books.filter(b => !isGuideBook(b)) : books;
+  sourceBooks.forEach(book => {
     if (book.scraps && book.scraps.length) {
       book.scraps.forEach(s => {
         allScraps.push({
@@ -6083,35 +6113,31 @@ function getUserGuideBook() {
 function ensureUserGuideBook() {
   if (currentUser) {
     // 로그인 시에는 내 서재(책장)에서 완전히 제외하고 데이터베이스에서도 정리
-    const hadGuide = books.some(b => b.id === '8ook_user_guide');
-    if (hadGuide) {
-      books = books.filter(b => b.id !== '8ook_user_guide');
+    const guideBooks = books.filter(b => isGuideBook(b));
+    if (guideBooks.length > 0) {
+      const guideIds = guideBooks.map(b => b.id);
+      books = books.filter(b => !isGuideBook(b));
       saveData();
       if (supabaseClient && currentUser.id) {
-        supabaseClient.from('books').delete().eq('id', '8ook_user_guide').eq('user_id', currentUser.id).catch(() => {});
+        supabaseClient.from('books').delete().in('id', guideIds).eq('user_id', currentUser.id).then(() => {
+          console.log('Cleaned up guide books in ensureUserGuideBook:', guideIds);
+        }).catch(() => {});
       }
     }
     return;
   }
 
-  // 비로그인 게스트 환경: 책장이 완전히 비어있을 때만 첫 안내용으로 책장에 노출
+  // 비로그인 게스트 환경: 중복 가이드북이 생기지 않도록 정리하고, 책장이 완전히 비어있을 때만 첫 안내용으로 책장에 노출
+  const nonGuideBooks = books.filter(b => !isGuideBook(b));
+  const guideBooks = books.filter(b => isGuideBook(b));
   const guideBook = getUserGuideBook();
-  const existingIdx = books.findIndex(b => b.id === '8ook_user_guide');
-  if (existingIdx !== -1) {
-    books[existingIdx] = {
-      ...books[existingIdx],
-      title: guideBook.title,
-      author: guideBook.author,
-      pages: guideBook.pages,
-      cover: guideBook.cover,
-      rating: 5,
-      sentence: guideBook.sentence,
-      scraps: guideBook.scraps,
-      keywords: guideBook.keywords
-    };
-    saveData();
-  } else if (books.length === 0) {
+
+  if (books.length === 0) {
     books = [guideBook];
+    saveData();
+  } else if (guideBooks.length > 0) {
+    // 가이드북이 1권 이상 존재할 경우 최신 가이드북 단 1권만 유지하여 중복 방지
+    books = [...nonGuideBooks, guideBook];
     saveData();
   }
 }
@@ -6677,7 +6703,7 @@ function getAllCommunityBooks() {
   // 1. Current user's books (highest priority)
   if (Array.isArray(books)) {
     books.forEach(b => {
-      if (b && b.id !== '8ook_user_guide' && b.title) {
+      if (b && !isGuideBook(b) && b.title) {
         if (!b.created_at) {
           b.created_at = b.date ? new Date(b.date).toISOString() : (b.year ? new Date(b.year, 0, 1).toISOString() : '2024-01-01T00:00:00.000Z');
         }
@@ -6689,7 +6715,7 @@ function getAllCommunityBooks() {
   // 2. Remote community books from Supabase across all users
   if (Array.isArray(remoteCommunityBooks)) {
     remoteCommunityBooks.forEach(b => {
-      if (b && b.id !== '8ook_user_guide' && b.title && !map.has(b.id)) {
+      if (b && !isGuideBook(b) && b.title && !map.has(b.id)) {
         map.set(b.id, b);
       }
     });
@@ -6698,7 +6724,7 @@ function getAllCommunityBooks() {
   // 3. Shared community dataset (window.NEO_BOOKS_131) from all users
   if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
     window.NEO_BOOKS_131.forEach(b => {
-      if (b && b.id !== '8ook_user_guide' && b.title && !map.has(b.id)) {
+      if (b && !isGuideBook(b) && b.title && !map.has(b.id)) {
         map.set(b.id, b);
       }
     });
