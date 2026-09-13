@@ -1,5 +1,14 @@
 'use strict';
 
+// Sync dynamic viewport height for iPadOS / iOS Safari & Chrome
+function syncAppHeight() {
+  const vh = window.innerHeight;
+  document.documentElement.style.setProperty('--app-height', `${vh}px`);
+}
+window.addEventListener('resize', syncAppHeight, { passive: true });
+window.addEventListener('orientationchange', syncAppHeight, { passive: true });
+syncAppHeight();
+
 // Supabase Configuration
 const supabaseUrl = 'https://guaimwzlmdacerpvsxxw.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1YWltd3psbWRhY2VycHZzeHh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODM1NDIsImV4cCI6MjA5NjY1OTU0Mn0.zF8A_Ul3Y5aIPjZcVTYIj1gUkConuQ-b9eO7EjnoWUE';
