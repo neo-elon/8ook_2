@@ -6163,104 +6163,7 @@ let currentFeedRating = 5;
    ============================================== */
 let currentCommunityTab = 'books';
 
-const SEED_COMMUNITY_BOOKS = [
-  {
-    id: 'cb_1',
-    title: '도구는 어떻게 권력이 되는가',
-    subtitle: '문명을 이끈 50가지 발명품으로 읽는 세계사',
-    author: '신무연 지음, 정기문 감수',
-    cover: 'https://image.aladin.co.kr/product/40129/94/cover200/k132131865_1.jpg',
-    time: '방금 전'
-  },
-  {
-    id: 'cb_2',
-    title: '작별하지 않는다',
-    subtitle: '한강 장편소설',
-    author: '한강',
-    cover: 'https://image.aladin.co.kr/product/27877/5/cover200/8954682154_3.jpg',
-    time: '25분 전'
-  },
-  {
-    id: 'cb_3',
-    title: '코스모스',
-    subtitle: '',
-    author: '칼 세이건',
-    cover: 'https://image.aladin.co.kr/product/39676/50/cover200/k382130398_1.jpg',
-    time: '1시간 전'
-  },
-  {
-    id: 'cb_4',
-    title: '데미안',
-    subtitle: '',
-    author: '헤르만 헤세',
-    cover: 'https://image.aladin.co.kr/product/26/0/cover200/s452139198_1.jpg',
-    time: '2시간 전'
-  },
-  {
-    id: 'cb_5',
-    title: '우리가 빛의 속도로 갈 수 없다면',
-    subtitle: '',
-    author: '김초엽',
-    cover: 'https://image.aladin.co.kr/product/19359/16/cover200/s722039767_1.jpg',
-    time: '3시간 전'
-  },
-  {
-    id: 'cb_6',
-    title: '모순',
-    subtitle: '양귀자 소설',
-    author: '양귀자',
-    cover: 'https://image.aladin.co.kr/product/2584/37/cover200/s392131969_1.jpg',
-    time: '4시간 전'
-  },
-  {
-    id: 'cb_7',
-    title: '사피엔스',
-    subtitle: '유인원에서 사이보그까지, 인간 역사의 대담하고 위대한 질문',
-    author: '유발 하라리',
-    cover: 'https://image.aladin.co.kr/product/31424/4/cover200/k482832219_1.jpg',
-    time: '5시간 전'
-  },
-  {
-    id: 'cb_8',
-    title: '여행의 이유',
-    subtitle: '',
-    author: '김영하',
-    cover: 'https://image.aladin.co.kr/product/33763/31/cover200/s332036339_1.jpg',
-    time: '6시간 전'
-  },
-  {
-    id: 'cb_9',
-    title: '참을 수 없는 존재의 가벼움',
-    subtitle: '',
-    author: '밀란 쿤데라',
-    cover: 'https://image.aladin.co.kr/product/34797/80/cover200/8937437562_1.jpg',
-    time: '8시간 전'
-  },
-  {
-    id: 'cb_10',
-    title: '종의 기원',
-    subtitle: '정유정 장편소설',
-    author: '정유정',
-    cover: 'https://image.aladin.co.kr/product/7492/9/cover200/8956609950_2.jpg',
-    time: '12시간 전'
-  },
-  {
-    id: 'cb_11',
-    title: '소년이 온다',
-    subtitle: '',
-    author: '한강',
-    cover: 'https://image.aladin.co.kr/product/4086/97/cover200/8936434128_2.jpg',
-    time: '어제'
-  },
-  {
-    id: 'cb_12',
-    title: '불편한 편의점',
-    subtitle: '',
-    author: '김호연',
-    cover: 'https://image.aladin.co.kr/product/29045/74/cover200/k192836746_2.jpg',
-    time: '어제'
-  }
-];
+const SEED_COMMUNITY_BOOKS = [];
 
 const SEED_COMMUNITY_SCRAPS = [
   {
@@ -6644,33 +6547,59 @@ function switchCommunityTab(tab) {
 }
 
 function getCommunityBooksList() {
-  // Merge user's recently added books at top, followed by seed books, total 12
-  const userRecentBooks = books
-    .filter(b => b.id !== '8ook_user_guide')
-    .slice(0, 3)
-    .map((b, idx) => {
-      const titleParts = parseTitleParts(b);
-      const userRating = (b.rating && Number(b.rating) > 0) ? Number(b.rating) : null;
-      const userReview = (b.sentence || b.oneLineReview || '').trim();
-      return {
-        id: 'ub_' + b.id,
-        title: titleParts.main || b.title,
-        subtitle: titleParts.sub || b.subtitle || '',
-        author: b.author || '저자 미상',
-        cover: b.cover || '',
-        rating: userRating,
-        review: userReview || null,
-        time: idx === 0 ? '방금 전' : `${idx * 15}분 전`
-      };
-    });
+  // Only return books actually added in user's library, up to 12
+  const actualBooks = (books || []).filter(b => b && b.id !== '8ook_user_guide' && b.title);
 
-  const combined = [...userRecentBooks];
-  SEED_COMMUNITY_BOOKS.forEach(sb => {
-    if (combined.length < 12 && !combined.some(b => b.title === sb.title)) {
-      combined.push(sb);
-    }
+  // Prioritize books with actually entered 한줄평 (sentence / review)
+  const withReview = actualBooks.filter(b => (b.sentence || b.review || b.oneLineReview || '').trim());
+  const withoutReview = actualBooks.filter(b => !(b.sentence || b.review || b.oneLineReview || '').trim());
+
+  const sortByTime = (arr) => [...arr].sort((a, b) => {
+    const timeA = new Date(a.created_at || a.date || 0).getTime();
+    const timeB = new Date(b.created_at || b.date || 0).getTime();
+    if (timeA && timeB && timeA !== timeB) return timeB - timeA;
+    return 0;
   });
-  return combined.slice(0, 12);
+
+  const sorted = [...sortByTime(withReview), ...sortByTime(withoutReview)];
+
+  return sorted.slice(0, 12).map((b) => {
+    const titleParts = splitBookTitle(b);
+    const userRating = (b.rating && Number(b.rating) > 0) ? Number(b.rating) : null;
+    const userReview = (b.sentence || b.review || b.oneLineReview || '').trim();
+
+    // Human-friendly relative time
+    let displayTime = '최근';
+    const rawDate = b.created_at || b.date;
+    if (rawDate) {
+      const d = new Date(rawDate);
+      if (!isNaN(d.getTime())) {
+        const diffMs = Date.now() - d.getTime();
+        const diffHours = diffMs / (1000 * 60 * 60);
+        const diffDays = diffHours / 24;
+        if (diffHours >= 0 && diffHours < 1) {
+          displayTime = '방금 전';
+        } else if (diffHours >= 1 && diffHours < 24) {
+          displayTime = `${Math.floor(diffHours)}시간 전`;
+        } else if (diffDays >= 1 && diffDays < 7) {
+          displayTime = `${Math.floor(diffDays)}일 전`;
+        } else {
+          displayTime = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+        }
+      }
+    }
+
+    return {
+      id: b.id,
+      title: titleParts.main || b.title,
+      subtitle: titleParts.sub || b.subtitle || '',
+      author: b.author || '저자 미상',
+      cover: b.cover || '',
+      rating: userRating,
+      review: userReview || null,
+      time: displayTime
+    };
+  });
 }
 
 function renderCommunityBooks() {
@@ -6681,22 +6610,38 @@ function renderCommunityBooks() {
   const countEl = document.getElementById('comm-books-count');
   if (countEl) countEl.textContent = list.length;
 
+  const titleEl = document.getElementById('comm-books-panel-title');
+  if (titleEl) {
+    titleEl.textContent = list.length > 0 ? `새로 추가된 책 ${list.length}권` : '새로 추가된 책';
+  }
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; padding: 60px 20px; text-align: center; color: var(--text-300); font-size: 13.5px;">
+        <div style="font-size: 32px; margin-bottom: 12px; opacity: 0.6;">📚</div>
+        <div style="font-weight: 600; color: var(--text-200); margin-bottom: 4px;">아직 서재에 추가된 도서가 없습니다.</div>
+        <div style="font-size: 12px; color: var(--text-400);">서재에 책을 등록하면 최근 추가된 도서로 이곳에 표시됩니다.</div>
+      </div>
+    `;
+    return;
+  }
+
   container.innerHTML = list.map(b => {
-    const titleParts = parseTitleParts(b);
+    const titleParts = splitBookTitle(b);
     const mainTitle = b.title && b.subtitle !== undefined ? b.title : (titleParts.main || b.title);
     const subTitle = b.subtitle !== undefined ? b.subtitle : (titleParts.sub || '');
 
     const coverUrl = b.cover ? getSafeImageUrl(b.cover) : '';
     const coverHtml = coverUrl
-      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" loading="lazy" onclick="searchAladinByQuery('${esc(mainTitle)}')" onerror="this.outerHTML='<div class=\\'comm-book-cover\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-300);font-weight:700;\\'>8ook</div>'">`
-      : `<div class="comm-book-cover" style="display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-300);font-weight:700;">8ook</div>`;
+      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" loading="lazy" onclick="showDetail('${b.id}')" onerror="this.outerHTML='<div class=\\'comm-book-cover\\' onclick=\\'showDetail(\\\'${b.id}\\\')\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-300);font-weight:700;\\'>8ook</div>'">`
+      : `<div class="comm-book-cover" onclick="showDetail('${b.id}')" style="display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-300);font-weight:700;">8ook</div>`;
 
     const ratingHtml = (b.rating && Number(b.rating) > 0)
       ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${Number(b.rating).toFixed(1)}</span></div>`
       : '';
 
     const reviewHtml = (b.review && b.review.trim())
-      ? `<div class="comm-book-review">“${esc(b.review.trim())}”</div>`
+      ? `<div class="comm-book-review" title="${esc(b.review.trim())}">“${esc(b.review.trim())}”</div>`
       : '';
 
     return `
@@ -6704,7 +6649,7 @@ function renderCommunityBooks() {
         ${coverHtml}
         <div class="comm-book-info">
           <div class="comm-book-title-wrap">
-            <div class="comm-book-title" onclick="searchAladinByQuery('${esc(mainTitle)}')" title="${esc(mainTitle)}">${esc(mainTitle)}</div>
+            <div class="comm-book-title" onclick="showDetail('${b.id}')" title="${esc(mainTitle)}">${esc(mainTitle)}</div>
             ${subTitle ? `<div class="comm-book-subtitle" title="${esc(subTitle)}">${esc(subTitle)}</div>` : ''}
           </div>
           <div class="comm-book-author">${esc(b.author)}</div>
@@ -6712,7 +6657,6 @@ function renderCommunityBooks() {
           ${reviewHtml}
           <div class="comm-book-meta">
             <span class="comm-book-time">${esc(b.time || '')}</span>
-            <button class="comm-book-search-btn" onclick="searchAladinByQuery('${esc(mainTitle)}')">책 검색</button>
           </div>
         </div>
       </div>
@@ -6721,10 +6665,32 @@ function renderCommunityBooks() {
 }
 
 function getCommunityScrapsList() {
-  // Collect user's recent scraps (anonymously) up to 5, then append seed scraps up to 30
+  // Collect user's actually entered sentences & scraps
   const userScraps = [];
-  books.forEach(b => {
-    if (b.id !== '8ook_user_guide' && b.scraps && b.scraps.length) {
+  const sortByTime = (arr) => [...arr].sort((a, b) => {
+    const timeA = new Date(a.created_at || a.date || 0).getTime();
+    const timeB = new Date(b.created_at || b.date || 0).getTime();
+    if (timeA && timeB && timeA !== timeB) return timeB - timeA;
+    return 0;
+  });
+
+  const sortedBooks = sortByTime((books || []).filter(b => b && b.id !== '8ook_user_guide'));
+
+  sortedBooks.forEach(b => {
+    if (b.sentence && b.sentence.trim()) {
+      userScraps.push({
+        id: 'us_sent_' + b.id,
+        text: b.sentence.trim(),
+        bookTitle: b.title,
+        author: b.author || '',
+        page: null,
+        memo: '',
+        tags: b.keywords || [],
+        likes: b.rating ? Number(b.rating) * 5 : 12,
+        time: '최근'
+      });
+    }
+    if (b.scraps && b.scraps.length) {
       b.scraps.forEach(s => {
         userScraps.push({
           id: 'us_' + s.id,
@@ -6734,14 +6700,18 @@ function getCommunityScrapsList() {
           page: s.page || null,
           memo: s.memo || '',
           tags: s.tags || s.keywords || [],
-          likes: 5,
-          time: '방금 전'
+          likes: 7,
+          time: '최근'
         });
       });
     }
   });
 
-  const combined = [...userScraps.slice(0, 5)];
+  if (userScraps.length >= 30) {
+    return userScraps.slice(0, 30);
+  }
+
+  const combined = [...userScraps];
   SEED_COMMUNITY_SCRAPS.forEach(ss => {
     if (combined.length < 30 && !combined.some(s => s.text === ss.text)) {
       combined.push(ss);
