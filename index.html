@@ -523,6 +523,21 @@
         </div>
       </div>
 
+      <!-- Community Visibility Option -->
+      <div class="fg" style="margin-top:14px; margin-bottom:4px; padding:12px 14px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <div style="font-size:12.5px; font-weight:600; color:var(--text-200); display:flex; align-items:center; gap:6px;">
+            <span>커뮤니티 공개</span>
+            <span id="comm-visibility-badge" style="font-size:10px; font-weight:600; padding:1px 7px; border-radius:10px; background:rgba(74,222,128,0.15); color:#4ade80;">공개</span>
+          </div>
+          <div style="font-size:11px; color:var(--text-400);">체크를 끄면(비공개) 내 서재에만 저장되고 커뮤니티에는 일체 노출되지 않습니다.</div>
+        </div>
+        <label class="comm-toggle-switch">
+          <input type="checkbox" id="bk-is-public" checked onchange="updateCommVisibilityBadge(this.checked)">
+          <span class="comm-toggle-slider"></span>
+        </label>
+      </div>
+
     </div>
 
     <div class="modal-foot">

@@ -73,7 +73,7 @@ let dbSupportsSpineCover = false;
 function sanitizeBookForSupabase(bookObj) {
   const allowed = [
     'id', 'user_id', 'title', 'author', 'pages', 'date',
-    'sentence', 'cover', 'rating', 'scraps', 'keywords', 'created_at'
+    'sentence', 'cover', 'rating', 'scraps', 'keywords', 'created_at', 'is_public'
   ];
   if (dbSupportsSpineCover) {
     allowed.push('spineCover');
@@ -100,11 +100,13 @@ const DB_SQL_SCRIPT = `create table if not exists books (
   scraps jsonb default '[]'::jsonb,
   keywords text[] default '{}'::text[],
   created_at timestamptz default now(),
-  user_id uuid default auth.uid()
+  user_id uuid default auth.uid(),
+  is_public boolean default true
 );
 
--- 기존 테이블에 spineCover 컬럼이 없다면 추가
+-- 기존 테이블에 spineCover 및 is_public 컬럼이 없다면 추가
 alter table books add column if not exists "spineCover" text;
+alter table books add column if not exists is_public boolean default true;
 
 alter table books enable row level security;
 
@@ -1935,6 +1937,9 @@ function showDetail(id, direction = null, pushHistory = true) {
   const chips = [];
   if (book.pages) chips.push(`<div class="chip">${Number(book.pages).toLocaleString()}p</div>`);
   if (book.date) chips.push(`<div class="chip">${fmtDate(book.date)}</div>`);
+  if (book.is_public === false) {
+    chips.push(`<div class="chip" style="background:rgba(239,68,68,0.15); color:#f87171; border-color:rgba(239,68,68,0.3);" title="내 서재에만 보이고 커뮤니티에는 비공개됩니다">🔒 비공개</div>`);
+  }
   const scrapCount = (book.scraps || []).length;
 
   const kwHtml = (book.keywords && book.keywords.length)
@@ -2187,6 +2192,24 @@ function showStats(pushHistory = true) {
 let modalCover = '';
 let modalSpineCover = '';
 
+function updateCommVisibilityBadge(isPublic) {
+  const badge = document.getElementById('comm-visibility-badge');
+  if (!badge) return;
+  if (isPublic) {
+    badge.textContent = '공개';
+    badge.style.background = 'rgba(74,222,128,0.15)';
+    badge.style.color = '#4ade80';
+  } else {
+    badge.textContent = '비공개';
+    badge.style.background = 'rgba(239,68,68,0.15)';
+    badge.style.color = '#f87171';
+  }
+}
+
+function openBookModal() {
+  openAddModal();
+}
+
 function openAddModal() {
   editingBookId = null;
   currentRating = 0;
@@ -2207,6 +2230,11 @@ function openAddModal() {
   document.getElementById('bk-kw1').value = '';
   document.getElementById('bk-kw2').value = '';
   document.getElementById('bk-kw3').value = '';
+  const pubEl = document.getElementById('bk-is-public');
+  if (pubEl) {
+    pubEl.checked = true;
+    updateCommVisibilityBadge(true);
+  }
   hideSearchResults();
   resetPrev();
   resetSpinePrev();
@@ -2244,6 +2272,13 @@ async function openEditModal(id, focusKeywords = false) {
   document.getElementById('bk-kw1').value = kws[0] || '';
   document.getElementById('bk-kw2').value = kws[1] || '';
   document.getElementById('bk-kw3').value = kws[2] || '';
+
+  const pubEl = document.getElementById('bk-is-public');
+  if (pubEl) {
+    const isPub = b.is_public !== false;
+    pubEl.checked = isPub;
+    updateCommVisibilityBadge(isPub);
+  }
 
   if (b.cover && !b.cover.startsWith('data:')) {
     document.getElementById('bk-img-url').value = b.cover;
@@ -2397,6 +2432,9 @@ async function saveBook() {
     }
   }
 
+  const pubInputEl = document.getElementById('bk-is-public');
+  const is_public = pubInputEl ? pubInputEl.checked : true;
+
   const data = {
     title,
     author: document.getElementById('bk-author').value.trim(),
@@ -2406,6 +2444,7 @@ async function saveBook() {
     cover: modalCover,
     spineCover: modalSpineCover,
     rating: currentRating,
+    is_public,
     keywords: [
       document.getElementById('bk-kw1').value.trim(),
       document.getElementById('bk-kw2').value.trim(),
@@ -6728,19 +6767,19 @@ async function fetchRemoteCommunityBooks() {
 function getAllCommunityBooks() {
   const map = new Map();
 
-  // 1. Remote community books from Supabase across all users (모든 유저에게 공통인 최신 기준 원천 데이터)
+  // 1. Remote community books from Supabase across all users (공개 도서만 포함)
   if (Array.isArray(remoteCommunityBooks)) {
     remoteCommunityBooks.forEach(b => {
-      if (b && !isGuideBook(b) && b.title) {
+      if (b && !isGuideBook(b) && b.title && b.is_public !== false) {
         map.set(b.id, b);
       }
     });
   }
 
-  // 2. 현재 로그인 사용자의 로컬 books (새로 추가되어 아직 Supabase fetch 전이거나 최신 스크랩이 추가된 경우 병합)
+  // 2. 현재 로그인 사용자의 로컬 books (공개 도서만 병합)
   if (Array.isArray(books)) {
     books.forEach(b => {
-      if (b && !isGuideBook(b) && b.title) {
+      if (b && !isGuideBook(b) && b.title && b.is_public !== false) {
         if (!map.has(b.id)) {
           map.set(b.id, b);
         } else {
@@ -6759,7 +6798,7 @@ function getAllCommunityBooks() {
   // 3. Shared community dataset (window.NEO_BOOKS_131) from all users
   if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
     window.NEO_BOOKS_131.forEach(b => {
-      if (b && !isGuideBook(b) && b.title && !map.has(b.id)) {
+      if (b && !isGuideBook(b) && b.title && b.is_public !== false && !map.has(b.id)) {
         map.set(b.id, b);
       }
     });
