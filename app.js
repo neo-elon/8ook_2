@@ -996,8 +996,12 @@ function renderGallery() {
 
       requestAnimationFrame(() => {
         shelfContainer.querySelectorAll('.spine-real-img').forEach(img => {
-          if (img.complete && img.naturalWidth) {
-            adjustSpineCardWidth(img);
+          if (img.complete) {
+            if (img.naturalWidth > 0) {
+              adjustSpineCardWidth(img);
+            } else {
+              handleRealSpineError(img);
+            }
           }
         });
       });
@@ -1073,8 +1077,12 @@ function renderGallery() {
 
       requestAnimationFrame(() => {
         shelfContainer.querySelectorAll('.spine-real-img').forEach(img => {
-          if (img.complete && img.naturalWidth) {
-            adjustSpineCardWidth(img);
+          if (img.complete) {
+            if (img.naturalWidth > 0) {
+              adjustSpineCardWidth(img);
+            } else {
+              handleRealSpineError(img);
+            }
           }
         });
         updateShelfScrollTrackerVisibility();
@@ -1156,8 +1164,12 @@ function renderGallery() {
     // Sync already-cached spine images immediately
     requestAnimationFrame(() => {
       shelfContainer.querySelectorAll('.spine-real-img').forEach(img => {
-        if (img.complete && img.naturalWidth) {
-          adjustSpineCardWidth(img);
+        if (img.complete) {
+          if (img.naturalWidth > 0) {
+            adjustSpineCardWidth(img);
+          } else {
+            handleRealSpineError(img);
+          }
         }
       });
       updateShelfScrollTrackerVisibility();
@@ -1719,7 +1731,7 @@ function createBookCardElement(book, i, isSpineMode) {
     const spineImgUrl = book.spineCover || book.spine || getSpineImageUrl(book.cover);
 
     const realSpineTag = spineImgUrl
-      ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="${esc(book.title)}" onload="adjustSpineCardWidth(this)" onerror="handleRealSpineError(this)">`
+      ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="" onload="adjustSpineCardWidth(this)" onerror="handleRealSpineError(this)">`
       : '';
 
     card.innerHTML = `
@@ -7200,12 +7212,8 @@ function handlePrevError(img) {
 }
 
 function handleSpinePrevError(img) {
+  if (!img) return;
   img.onerror = null;
-  if (!img.dataset.tried1 && img.src.includes('/Spine/')) {
-    img.dataset.tried1 = 'true';
-    img.src = img.src.replace('/Spine/', '/spine/');
-    return;
-  }
   const parent = img.parentElement;
   if (parent) {
     parent.innerHTML = '<div class="img-prev-ph spine-ph"><span style="font-size:10px; writing-mode:vertical-rl; letter-spacing:1px; color:var(--text-300);">기본 책등</span></div>';
@@ -7213,14 +7221,15 @@ function handleSpinePrevError(img) {
 }
 
 function handleRealSpineError(img) {
+  if (!img) return;
   img.onerror = null;
-  if (!img.dataset.tried1 && img.src.includes('/Spine/')) {
-    img.dataset.tried1 = 'true';
-    img.src = img.src.replace('/Spine/', '/spine/');
-  } else {
-    img.classList.add('hide-real');
-    const fb = img.parentElement ? img.parentElement.querySelector('.spine-custom-view') : null;
-    if (fb) fb.classList.add('show-fallback');
+  img.classList.add('hide-real');
+  img.style.display = 'none';
+  const parent = img.parentElement;
+  const fb = parent ? parent.querySelector('.spine-custom-view') : null;
+  if (fb) {
+    fb.classList.add('show-fallback');
+    fb.style.display = 'flex';
   }
 }
 
