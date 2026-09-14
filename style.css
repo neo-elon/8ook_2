@@ -3339,7 +3339,6 @@
     .comm-scrap-card {
       background: var(--bg-surface);
       border: 1px solid var(--border);
-      border-left: 4px solid var(--lavender);
       border-radius: var(--radius-md);
       padding: 16px 18px;
       transition: all 0.25s var(--ease);
@@ -3354,7 +3353,6 @@
     }
     .comm-scrap-card:hover {
       border-color: var(--border-accent);
-      border-left-color: var(--violet);
       transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(70,50,30,0.08);
     }
