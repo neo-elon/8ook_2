@@ -3133,20 +3133,22 @@
       color: var(--text-400);
     }
 
-    /* ── Books Grid (10 Books - 3-Column Masonry Layout) ── */
+    /* ── Books Grid (3-Column Row-by-Row Grid with Natural Card Heights) ── */
     .comm-books-grid {
-      columns: 3;
-      column-gap: 14px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      align-items: start;
     }
     @media (max-width: 900px) {
       .comm-books-grid {
-        columns: 2;
-        column-gap: 14px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
       }
     }
     @media (max-width: 580px) {
       .comm-books-grid {
-        columns: 1;
+        grid-template-columns: 1fr;
       }
     }
     .comm-book-card {
@@ -3159,10 +3161,6 @@
       transition: all 0.25s var(--ease);
       box-shadow: var(--shadow-card);
       position: relative;
-      break-inside: avoid;
-      -webkit-column-break-inside: avoid;
-      page-break-inside: avoid;
-      margin-bottom: 14px;
     }
     .comm-book-card:hover {
       transform: translateY(-3px);

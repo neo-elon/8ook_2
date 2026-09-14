@@ -7157,11 +7157,9 @@ let communityBooksLimit = 9;
 let isCommunityBooksLoading = false;
 let communityBooksObserver = null;
 
-function getCommunityBooksList() {
-  // Return books across ALL users, sorted strictly by newest added time first
+function getSortedCommunityBooks() {
   const allBooks = getAllCommunityBooks();
-
-  const sorted = [...allBooks].sort((a, b) => {
+  return [...allBooks].sort((a, b) => {
     const timeA = getSafeTimestamp(a.created_at) || getSafeTimestamp(a.date);
     const timeB = getSafeTimestamp(b.created_at) || getSafeTimestamp(b.date);
     if (timeA && timeB && timeA !== timeB) return timeB - timeA;
@@ -7169,24 +7167,29 @@ function getCommunityBooksList() {
     if (!timeA && timeB) return 1;
     return (b.seq || 0) - (a.seq || 0);
   });
+}
 
-  return sorted.slice(0, communityBooksLimit).map((b) => {
-    const titleParts = splitBookTitle(b);
-    const userRating = (b.rating && Number(b.rating) > 0) ? Number(b.rating) : null;
-    const userReview = (b.sentence || b.review || b.oneLineReview || '').trim();
-    const rawDate = b.created_at || b.date;
+function formatCommunityBook(b) {
+  const titleParts = splitBookTitle(b);
+  const userRating = (b.rating && Number(b.rating) > 0) ? Number(b.rating) : null;
+  const userReview = (b.sentence || b.review || b.oneLineReview || '').trim();
+  const rawDate = b.created_at || b.date;
 
-    return {
-      id: b.id,
-      title: titleParts.main || b.title,
-      subtitle: titleParts.sub || b.subtitle || '',
-      author: b.author || '저자 미상',
-      cover: b.cover || '',
-      rating: userRating,
-      review: userReview || null,
-      time: formatTimeAgo(rawDate)
-    };
-  });
+  return {
+    id: b.id,
+    title: titleParts.main || b.title,
+    subtitle: titleParts.sub || b.subtitle || '',
+    author: b.author || '저자 미상',
+    cover: b.cover || '',
+    rating: userRating,
+    review: userReview || null,
+    time: formatTimeAgo(rawDate)
+  };
+}
+
+function getCommunityBooksList() {
+  const sorted = getSortedCommunityBooks();
+  return sorted.slice(0, communityBooksLimit).map(formatCommunityBook);
 }
 
 function handleCoverError(img) {
@@ -7257,13 +7260,79 @@ function handleCommCoverError(img) {
   img.replaceWith(ph);
 }
 
+function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
+  const bid = String(b.id);
+  const titleParts = splitBookTitle(b);
+  const mainTitle = b.title && b.subtitle !== undefined ? b.title : (titleParts.main || b.title);
+
+  const coverUrl = b.cover ? getSafeImageUrl(b.cover) : '';
+  const coverHtml = coverUrl
+    ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" decoding="async" onclick="showDetail('${esc(bid)}')" onerror="handleCommCoverError(this)">`
+    : `<div class="comm-book-cover-placeholder" onclick="showDetail('${esc(bid)}')">8ook</div>`;
+
+  const ratingHtml = (b.rating && Number(b.rating) > 0)
+    ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${Number(b.rating).toFixed(1)}</span></div>`
+    : '';
+
+  const reviewHtml = (b.review && b.review.trim())
+    ? `<div class="comm-book-review" title="${esc(b.review.trim())}">“${esc(b.review.trim())}”</div>`
+    : '';
+
+  const remoteSet = communityLikesMap.get(bid) || new Set();
+  const isLiked = (currentUser && remoteSet.has(currentUser.id)) || remoteSet.has(myId) || !!storedBookLikes['bk_' + bid];
+  let currentLikes = remoteSet.size;
+  if (isLiked && !remoteSet.has(myId) && (!currentUser || !remoteSet.has(currentUser.id))) {
+    currentLikes += 1;
+  }
+
+  return `
+    <div class="comm-book-card" id="comm-bk-${esc(bid)}">
+      ${coverHtml}
+      <div class="comm-book-info">
+        <div class="comm-book-title" onclick="showDetail('${esc(bid)}')" title="${esc(mainTitle)}">${esc(mainTitle)}</div>
+        <div class="comm-book-author">${esc(b.author)}</div>
+        ${ratingHtml}
+        ${reviewHtml}
+        <div class="comm-book-meta">
+          <span class="comm-book-time">${esc(b.time || '')}</span>
+          <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
+            <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function updateCommunityBooksTrigger(currentCount, totalCount) {
+  const triggerEl = document.getElementById('comm-books-load-trigger');
+  if (!triggerEl) return;
+  if (currentCount < totalCount) {
+    triggerEl.style.display = 'block';
+    triggerEl.innerHTML = `
+      <button type="button" class="comm-load-more-btn" onclick="loadMoreCommunityBooks()" title="도서 더 불러오기">
+        <span>도서 더 보기 (${Math.min(currentCount, totalCount)} / ${totalCount}) ↓</span>
+      </button>
+    `;
+  } else if (totalCount > 9) {
+    triggerEl.style.display = 'block';
+    triggerEl.innerHTML = `
+      <div class="comm-all-loaded-text">모든 도서를 불러왔습니다 (${totalCount}권)</div>
+    `;
+  } else {
+    triggerEl.style.display = 'none';
+    triggerEl.innerHTML = '';
+  }
+}
+
 function renderCommunityBooks() {
   const container = document.getElementById('comm-books-grid');
   if (!container) return;
 
-  const list = getCommunityBooksList();
-  const allBooks = getAllCommunityBooks();
-  const totalCount = allBooks.length;
+  const sorted = getSortedCommunityBooks();
+  const totalCount = sorted.length;
+  const list = sorted.slice(0, communityBooksLimit).map(formatCommunityBook);
+
   const countEl = document.getElementById('comm-books-count');
   if (countEl) countEl.remove();
 
@@ -7291,84 +7360,40 @@ function renderCommunityBooks() {
   } catch (e) {}
 
   const myId = getClientLikeId();
+  container.innerHTML = list.map(b => buildCommunityBookCardHtml(b, storedBookLikes, myId)).join('');
 
-  container.innerHTML = list.map(b => {
-    const bid = String(b.id);
-    const titleParts = splitBookTitle(b);
-    const mainTitle = b.title && b.subtitle !== undefined ? b.title : (titleParts.main || b.title);
-    const subTitle = b.subtitle !== undefined ? b.subtitle : (titleParts.sub || '');
-
-    const coverUrl = b.cover ? getSafeImageUrl(b.cover) : '';
-    const coverHtml = coverUrl
-      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" decoding="async" onclick="showDetail('${esc(bid)}')" onerror="handleCommCoverError(this)">`
-      : `<div class="comm-book-cover-placeholder" onclick="showDetail('${esc(bid)}')">8ook</div>`;
-
-    const ratingHtml = (b.rating && Number(b.rating) > 0)
-      ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${Number(b.rating).toFixed(1)}</span></div>`
-      : '';
-
-    const reviewHtml = (b.review && b.review.trim())
-      ? `<div class="comm-book-review" title="${esc(b.review.trim())}">“${esc(b.review.trim())}”</div>`
-      : '';
-
-    const remoteSet = communityLikesMap.get(bid) || new Set();
-    const isLiked = (currentUser && remoteSet.has(currentUser.id)) || remoteSet.has(myId) || !!storedBookLikes['bk_' + bid];
-    let currentLikes = remoteSet.size;
-    if (isLiked && !remoteSet.has(myId) && (!currentUser || !remoteSet.has(currentUser.id))) {
-      currentLikes += 1;
-    }
-
-    return `
-      <div class="comm-book-card" id="comm-bk-${esc(bid)}">
-        ${coverHtml}
-        <div class="comm-book-info">
-          <div class="comm-book-title" onclick="showDetail('${esc(bid)}')" title="${esc(mainTitle)}">${esc(mainTitle)}</div>
-          <div class="comm-book-author">${esc(b.author)}</div>
-          ${ratingHtml}
-          ${reviewHtml}
-          <div class="comm-book-meta">
-            <span class="comm-book-time">${esc(b.time || '')}</span>
-            <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
-              <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  // 3줄(3열) 단위 추가 로딩 트리거 업데이트
-  const triggerEl = document.getElementById('comm-books-load-trigger');
-  if (triggerEl) {
-    if (list.length < totalCount) {
-      triggerEl.style.display = 'block';
-      triggerEl.innerHTML = `
-        <button type="button" class="comm-load-more-btn" onclick="loadMoreCommunityBooks()" title="도서 더 불러오기">
-          <span>도서 더 보기 (${list.length} / ${totalCount}) ↓</span>
-        </button>
-      `;
-    } else if (totalCount > 9) {
-      triggerEl.style.display = 'block';
-      triggerEl.innerHTML = `
-        <div class="comm-all-loaded-text">모든 도서를 불러왔습니다 (${totalCount}권)</div>
-      `;
-    } else {
-      triggerEl.style.display = 'none';
-      triggerEl.innerHTML = '';
-    }
-  }
-
+  updateCommunityBooksTrigger(communityBooksLimit, totalCount);
   setupCommunityBooksObserver();
 }
 
 function loadMoreCommunityBooks() {
   if (isCommunityBooksLoading) return;
-  const allBooks = getAllCommunityBooks();
-  if (communityBooksLimit >= allBooks.length) return;
+  const container = document.getElementById('comm-books-grid');
+  if (!container) return;
+
+  const sorted = getSortedCommunityBooks();
+  const totalCount = sorted.length;
+  if (communityBooksLimit >= totalCount) return;
 
   isCommunityBooksLoading = true;
-  communityBooksLimit += 6; // 3열 레이아웃에 맞춰 6권(2줄)씩 자연스럽게 추가 로딩
-  renderCommunityBooks();
+  const prevLimit = communityBooksLimit;
+  communityBooksLimit += 6; // 3열 기준 2줄(6권)씩 추가
+
+  const nextBatch = sorted.slice(prevLimit, communityBooksLimit).map(formatCommunityBook);
+
+  let storedBookLikes = {};
+  try {
+    const raw = localStorage.getItem('rj_community_book_likes');
+    if (raw) storedBookLikes = JSON.parse(raw);
+  } catch (e) {}
+  const myId = getClientLikeId();
+
+  // 기존 순서를 전혀 건드리지 않고 아래쪽에 그대로 추가 (Append-only)
+  const newCardsHtml = nextBatch.map(b => buildCommunityBookCardHtml(b, storedBookLikes, myId)).join('');
+  container.insertAdjacentHTML('beforeend', newCardsHtml);
+
+  updateCommunityBooksTrigger(communityBooksLimit, totalCount);
+
   setTimeout(() => {
     isCommunityBooksLoading = false;
   }, 200);
@@ -7400,12 +7425,15 @@ function setupCommunityBooksObserver() {
 }
 
 function checkCommunityScroll() {
-  if (currentCommunityTab !== 'books' || isCommunityBooksLoading) return;
+  if (currentCommunityTab === 'books') {
+    if (isCommunityBooksLoading) return;
+  } else if (currentCommunityTab === 'popular') {
+    if (isCommunityPopularLoading) return;
+  } else {
+    return;
+  }
   const commView = document.getElementById('view-community');
   if (!commView || !commView.classList.contains('show')) return;
-
-  const allBooks = getAllCommunityBooks();
-  if (communityBooksLimit >= allBooks.length) return;
 
   const remainingInner = commView.scrollHeight - (commView.scrollTop + commView.clientHeight);
   const remainingWindow = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
@@ -7518,6 +7546,69 @@ function getMostShelvedCommunityBooks() {
   return result;
 }
 
+function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
+  const bid = String(b.id);
+  const coverUrl = b.cover ? getSafeImageUrl(b.cover) : '';
+  const coverHtml = coverUrl
+    ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(b.title)}" referrerpolicy="no-referrer" decoding="async" onclick="showDetail('${esc(bid)}')" onerror="handleCommCoverError(this)">`
+    : `<div class="comm-book-cover-placeholder" onclick="showDetail('${esc(bid)}')">8ook</div>`;
+
+  const ratingHtml = (b.rating && Number(b.rating) > 0)
+    ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${Number(b.rating).toFixed(1)}</span></div>`
+    : '';
+
+  const reviewHtml = (b.review && b.review.trim())
+    ? `<div class="comm-book-review" title="${esc(b.review.trim())}">“${esc(b.review.trim())}”</div>`
+    : '';
+
+  const remoteSet = communityLikesMap.get(bid) || new Set();
+  const isLiked = (currentUser && remoteSet.has(currentUser.id)) || remoteSet.has(myId) || !!storedBookLikes['bk_' + bid];
+  let currentLikes = remoteSet.size;
+  if (isLiked && !remoteSet.has(myId) && (!currentUser || !remoteSet.has(currentUser.id))) {
+    currentLikes += 1;
+  }
+
+  return `
+    <div class="comm-book-card" id="comm-pop-${esc(bid)}">
+      ${coverHtml}
+      <div class="comm-book-info">
+        <div class="comm-shelved-badge">🔖 ${b.shelvedCount}회 꽂힘</div>
+        <div class="comm-book-title" onclick="showDetail('${esc(bid)}')" title="${esc(b.title)}">${esc(b.title)}</div>
+        <div class="comm-book-author">${esc(b.author)}</div>
+        ${ratingHtml}
+        ${reviewHtml}
+        <div class="comm-book-meta">
+          <span class="comm-book-time">${esc(b.time || '')}</span>
+          <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
+            <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function updateCommunityPopularTrigger(currentCount, totalCount) {
+  const triggerEl = document.getElementById('comm-popular-load-trigger');
+  if (!triggerEl) return;
+  if (currentCount < totalCount) {
+    triggerEl.style.display = 'block';
+    triggerEl.innerHTML = `
+      <button type="button" class="comm-load-more-btn" onclick="loadMoreCommunityPopularBooks()" title="도서 더 불러오기">
+        <span>도서 더 보기 (${Math.min(currentCount, totalCount)} / ${totalCount}) ↓</span>
+      </button>
+    `;
+  } else if (totalCount > 9) {
+    triggerEl.style.display = 'block';
+    triggerEl.innerHTML = `
+      <div class="comm-all-loaded-text">모든 꽂힌 도서를 불러왔습니다 (${totalCount}권)</div>
+    `;
+  } else {
+    triggerEl.style.display = 'none';
+    triggerEl.innerHTML = '';
+  }
+}
+
 function renderCommunityPopularBooks() {
   const container = document.getElementById('comm-popular-grid');
   if (!container) return;
@@ -7545,81 +7636,39 @@ function renderCommunityPopularBooks() {
   } catch (e) {}
 
   const myId = getClientLikeId();
+  container.innerHTML = list.map(b => buildCommunityPopularBookCardHtml(b, storedBookLikes, myId)).join('');
 
-  container.innerHTML = list.map(b => {
-    const bid = String(b.id);
-    const coverUrl = b.cover ? getSafeImageUrl(b.cover) : '';
-    const coverHtml = coverUrl
-      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(b.title)}" referrerpolicy="no-referrer" decoding="async" onclick="showDetail('${esc(bid)}')" onerror="handleCommCoverError(this)">`
-      : `<div class="comm-book-cover-placeholder" onclick="showDetail('${esc(bid)}')">8ook</div>`;
-
-    const ratingHtml = (b.rating && Number(b.rating) > 0)
-      ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${Number(b.rating).toFixed(1)}</span></div>`
-      : '';
-
-    const reviewHtml = (b.review && b.review.trim())
-      ? `<div class="comm-book-review" title="${esc(b.review.trim())}">“${esc(b.review.trim())}”</div>`
-      : '';
-
-    const remoteSet = communityLikesMap.get(bid) || new Set();
-    const isLiked = (currentUser && remoteSet.has(currentUser.id)) || remoteSet.has(myId) || !!storedBookLikes['bk_' + bid];
-    let currentLikes = remoteSet.size;
-    if (isLiked && !remoteSet.has(myId) && (!currentUser || !remoteSet.has(currentUser.id))) {
-      currentLikes += 1;
-    }
-
-    return `
-      <div class="comm-book-card" id="comm-pop-${esc(bid)}">
-        ${coverHtml}
-        <div class="comm-book-info">
-          <div class="comm-shelved-badge">🔖 ${b.shelvedCount}회 꽂힘</div>
-          <div class="comm-book-title" onclick="showDetail('${esc(bid)}')" title="${esc(b.title)}">${esc(b.title)}</div>
-          <div class="comm-book-author">${esc(b.author)}</div>
-          ${ratingHtml}
-          ${reviewHtml}
-          <div class="comm-book-meta">
-            <span class="comm-book-time">${esc(b.time || '')}</span>
-            <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
-              <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  // Update trigger
-  const triggerEl = document.getElementById('comm-popular-load-trigger');
-  if (triggerEl) {
-    if (list.length < totalCount) {
-      triggerEl.style.display = 'block';
-      triggerEl.innerHTML = `
-        <button type="button" class="comm-load-more-btn" onclick="loadMoreCommunityPopularBooks()" title="도서 더 불러오기">
-          <span>도서 더 보기 (${list.length} / ${totalCount}) ↓</span>
-        </button>
-      `;
-    } else if (totalCount > 9) {
-      triggerEl.style.display = 'block';
-      triggerEl.innerHTML = `
-        <div class="comm-all-loaded-text">모든 꽂힌 도서를 불러왔습니다 (${totalCount}권)</div>
-      `;
-    } else {
-      triggerEl.style.display = 'none';
-      triggerEl.innerHTML = '';
-    }
-  }
-
+  updateCommunityPopularTrigger(communityPopularBooksLimit, totalCount);
   setupCommunityPopularObserver();
 }
 
 function loadMoreCommunityPopularBooks() {
   if (isCommunityPopularLoading) return;
+  const container = document.getElementById('comm-popular-grid');
+  if (!container) return;
+
   const allPopular = getMostShelvedCommunityBooks();
-  if (communityPopularBooksLimit >= allPopular.length) return;
+  const totalCount = allPopular.length;
+  if (communityPopularBooksLimit >= totalCount) return;
 
   isCommunityPopularLoading = true;
+  const prevLimit = communityPopularBooksLimit;
   communityPopularBooksLimit += 6;
-  renderCommunityPopularBooks();
+
+  const nextBatch = allPopular.slice(prevLimit, communityPopularBooksLimit);
+
+  let storedBookLikes = {};
+  try {
+    const raw = localStorage.getItem('rj_community_book_likes');
+    if (raw) storedBookLikes = JSON.parse(raw);
+  } catch (e) {}
+  const myId = getClientLikeId();
+
+  const newCardsHtml = nextBatch.map(b => buildCommunityPopularBookCardHtml(b, storedBookLikes, myId)).join('');
+  container.insertAdjacentHTML('beforeend', newCardsHtml);
+
+  updateCommunityPopularTrigger(communityPopularBooksLimit, totalCount);
+
   setTimeout(() => {
     isCommunityPopularLoading = false;
   }, 200);
