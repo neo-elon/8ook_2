@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260914_modal_v41">
+  <link rel="stylesheet" href="style.css?v=20260914_modal_v42">
 </head>
 <body>
 
@@ -523,26 +523,21 @@
         </div>
       </div>
 
-      <!-- Community Visibility Option -->
-      <div class="fg" style="margin-top:14px; margin-bottom:4px; padding:12px 14px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:space-between;">
-        <div style="display:flex; flex-direction:column; gap:2px;">
-          <div style="font-size:12.5px; font-weight:600; color:var(--text-200); display:flex; align-items:center; gap:6px;">
-            <span>커뮤니티 공개</span>
-            <span id="comm-visibility-badge" style="font-size:10px; font-weight:600; padding:1px 7px; border-radius:10px; background:rgba(74,222,128,0.15); color:#4ade80;">공개</span>
-          </div>
-          <div style="font-size:11px; color:var(--text-400);">체크를 끄면(비공개) 내 서재에만 저장되고 커뮤니티에는 일체 노출되지 않습니다.</div>
-        </div>
-        <label class="comm-toggle-switch">
-          <input type="checkbox" id="bk-is-public" checked onchange="updateCommVisibilityBadge(this.checked)">
-          <span class="comm-toggle-slider"></span>
-        </label>
-      </div>
-
     </div>
 
-    <div class="modal-foot">
-      <button class="btn btn-ghost" onclick="closeModal('book-modal')">취소</button>
-      <button class="btn btn-primary" onclick="saveBook()" id="book-save-btn">저장</button>
+    <div class="modal-foot modal-foot-between">
+      <label class="comm-foot-toggle-btn" for="bk-is-public" title="체크 시 커뮤니티에 공개되며, 해제하면 내 서재에만 비공개 저장됩니다">
+        <span class="comm-toggle-switch comm-toggle-sm">
+          <input type="checkbox" id="bk-is-public" checked onchange="updateCommVisibilityBadge(this.checked)">
+          <span class="comm-toggle-slider"></span>
+        </span>
+        <span class="comm-foot-label">커뮤니티 공개</span>
+        <span id="comm-visibility-badge" class="comm-vis-badge">공개</span>
+      </label>
+      <div class="modal-foot-btns">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('book-modal')">취소</button>
+        <button type="button" class="btn btn-primary" onclick="saveBook()" id="book-save-btn">저장</button>
+      </div>
     </div>
   </div>
 </div>
@@ -873,6 +868,6 @@
 <!-- All Users Community Dataset -->
 <script src="neo_books_131.js" defer></script>
 
-  <script src="app.js?v=20260914_modal_v41" defer></script>
+  <script src="app.js?v=20260914_modal_v42" defer></script>
 </body>
 </html>

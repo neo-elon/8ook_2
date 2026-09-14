@@ -4201,3 +4201,85 @@ mark.search-highlight {
   transform: translateX(20px);
   background-color: #ffffff;
 }
+
+/* Modal Foot with Left-aligned Community Visibility */
+.modal-foot.modal-foot-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px 22px;
+  gap: 12px;
+}
+
+.modal-foot-btns {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.comm-foot-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 11px 5px 6px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.comm-foot-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--border-hover);
+}
+
+.comm-foot-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-200);
+  line-height: 1;
+}
+
+.comm-vis-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  line-height: 1.2;
+  transition: all 0.2s ease;
+}
+
+/* Compact Toggle Switch for footer */
+.comm-toggle-switch.comm-toggle-sm {
+  width: 34px;
+  height: 20px;
+}
+
+.comm-toggle-sm .comm-toggle-slider {
+  border-radius: 20px;
+}
+
+.comm-toggle-sm .comm-toggle-slider:before {
+  height: 14px;
+  width: 14px;
+  left: 2px;
+  bottom: 2px;
+}
+
+.comm-toggle-sm input:checked + .comm-toggle-slider:before {
+  transform: translateX(14px);
+}
+
+@media (max-width: 480px) {
+  .modal-foot.modal-foot-between {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .modal-foot-btns {
+    margin-left: auto;
+  }
+}
