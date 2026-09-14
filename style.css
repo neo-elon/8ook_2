@@ -3118,12 +3118,18 @@
       color: var(--text-400);
     }
 
-    /* ── Books Grid (10 Books - Masonry Layout) ── */
+    /* ── Books Grid (10 Books - 3-Column Masonry Layout) ── */
     .comm-books-grid {
-      columns: 2;
-      column-gap: 16px;
+      columns: 3;
+      column-gap: 14px;
     }
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
+      .comm-books-grid {
+        columns: 2;
+        column-gap: 14px;
+      }
+    }
+    @media (max-width: 580px) {
       .comm-books-grid {
         columns: 1;
       }
@@ -3132,16 +3138,16 @@
       background: var(--bg-surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 15px;
+      padding: 13px 13px 12px;
       display: flex;
-      gap: 14px;
+      gap: 12px;
       transition: all 0.25s var(--ease);
       box-shadow: var(--shadow-card);
       position: relative;
       break-inside: avoid;
       -webkit-column-break-inside: avoid;
       page-break-inside: avoid;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
     .comm-book-card:hover {
       transform: translateY(-3px);
@@ -3149,8 +3155,8 @@
       box-shadow: 0 10px 24px rgba(70,50,30,0.1);
     }
     .comm-book-cover {
-      width: 74px;
-      height: 106px;
+      width: 68px;
+      height: 98px;
       object-fit: cover;
       border-radius: 4px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.18);
