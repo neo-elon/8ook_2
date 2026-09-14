@@ -3118,11 +3118,15 @@
       color: var(--text-400);
     }
 
-    /* ── Books Grid (10 Books) ── */
+    /* ── Books Grid (10 Books - Masonry Layout) ── */
     .comm-books-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
+      columns: 2;
+      column-gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .comm-books-grid {
+        columns: 1;
+      }
     }
     .comm-book-card {
       background: var(--bg-surface);
@@ -3134,6 +3138,10 @@
       transition: all 0.25s var(--ease);
       box-shadow: var(--shadow-card);
       position: relative;
+      break-inside: avoid;
+      -webkit-column-break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 16px;
     }
     .comm-book-card:hover {
       transform: translateY(-3px);
@@ -3223,7 +3231,7 @@
       font-style: italic;
     }
     .comm-book-meta {
-      margin-top: auto;
+      margin-top: 8px;
       padding-top: 6px;
       display: flex;
       justify-content: space-between;
