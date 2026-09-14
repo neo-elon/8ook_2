@@ -1992,7 +1992,7 @@ function showDetail(id, direction = null, pushHistory = true) {
   if (book.pages) chips.push(`<div class="chip">${Number(book.pages).toLocaleString()}p</div>`);
   if (book.date) chips.push(`<div class="chip">${fmtDate(book.date)}</div>`);
   if (book.is_public === false) {
-    chips.push(`<div class="chip" style="background:rgba(239,68,68,0.15); color:#f87171; border-color:rgba(239,68,68,0.3);" title="내 서재에만 보이고 커뮤니티에는 비공개됩니다">🔒 비공개</div>`);
+    chips.push(`<div class="chip" style="background:rgba(239,68,68,0.15); color:#f87171; border-color:rgba(239,68,68,0.3);" title="내 서재에만 보이고 북클럽에는 비공개됩니다">🔒 비공개</div>`);
   }
   const scrapCount = (book.scraps || []).length;
 
@@ -7101,7 +7101,7 @@ async function showCommunity(pushHistory = true) {
   const vl = document.getElementById('view-label');
   if (vl) {
     vl.style.display = 'inline-block';
-    vl.textContent = '독서 커뮤니티';
+    vl.textContent = '북클럽';
   }
 
   if (pushHistory && window.history && window.history.pushState) {

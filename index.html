@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260914_books_append_v54">
+  <link rel="stylesheet" href="style.css?v=20260914_bookclub_v56">
 </head>
 <body>
 
@@ -126,7 +126,7 @@
       <button id="community-nav-btn" class="menu-nav-item" onclick="showCommunity(); closeAppMenu();">
         <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">04</span>
         <div class="menu-nav-text">
-          <span class="menu-nav-title">독서 커뮤니티</span>
+          <span class="menu-nav-title">북클럽</span>
           <span class="menu-nav-desc">새로 추가된 책 &amp; 문장 아카이브</span>
         </div>
       </button>
@@ -288,8 +288,8 @@
       
       <!-- Community Hero Header -->
       <div class="community-hero">
-        <div class="community-hero-badge">COMMUNITY ARCHIVE</div>
-        <h2 class="community-hero-title">독서 커뮤니티</h2>
+        <div class="community-hero-badge">BOOK CLUB ARCHIVE</div>
+        <h2 class="community-hero-title">북클럽</h2>
         <p class="community-hero-subtitle">익명의 독서가들이 나누는 새로 추가된 도서와 마음에 남은 문장들</p>
 
         <!-- Segmented Tab Switcher -->
@@ -537,12 +537,12 @@
     </div>
 
     <div class="modal-foot modal-foot-between">
-      <label class="comm-foot-toggle-btn" for="bk-is-public" title="체크 시 커뮤니티에 공개되며, 해제하면 내 서재에만 비공개 저장됩니다">
+      <label class="comm-foot-toggle-btn" for="bk-is-public" title="체크 시 북클럽에 공개되며, 해제하면 내 서재에만 비공개 저장됩니다">
         <span class="comm-toggle-switch comm-toggle-sm">
           <input type="checkbox" id="bk-is-public" checked onchange="updateCommVisibilityBadge(this.checked)">
           <span class="comm-toggle-slider"></span>
         </span>
-        <span class="comm-foot-label">커뮤니티 공개</span>
+        <span class="comm-foot-label">북클럽 공개</span>
         <span id="comm-visibility-badge" class="comm-vis-badge">공개</span>
       </label>
       <div class="modal-foot-btns">
@@ -879,6 +879,6 @@
 <!-- All Users Community Dataset -->
 <script src="neo_books_131.js" defer></script>
 
-  <script src="app.js?v=20260914_books_append_v55" defer></script>
+  <script src="app.js?v=20260914_bookclub_v56" defer></script>
 </body>
 </html>
