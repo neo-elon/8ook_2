@@ -1657,8 +1657,7 @@ function createBookCardElement(book, i, isSpineMode) {
 
   let imgPart = '';
   if (book.cover) {
-    imgPart = `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}" crossorigin="anonymous"
-      onerror="this.outerHTML='<div class=\\'book-card-placeholder\\'><span class=\\'placeholder-title\\'>${esc(book.title)}</span></div>'">`;
+    imgPart = `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}" data-title="${esc(book.title)}" crossorigin="anonymous" onerror="handleCoverError(this)">`;
   } else {
     imgPart = `<div class="book-card-placeholder">
       <span class="placeholder-title">${esc(book.title)}</span>
@@ -1702,16 +1701,7 @@ function createBookCardElement(book, i, isSpineMode) {
     const spineImgUrl = book.spineCover || book.spine || getSpineImageUrl(book.cover);
 
     const realSpineTag = spineImgUrl
-      ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="${esc(book.title)}" onload="adjustSpineCardWidth(this)" onerror="
-          if (!this.dataset.tried1 && this.src.includes('/Spine/')) {
-            this.dataset.tried1 = 'true';
-            this.src = this.src.replace('/Spine/', '/spine/');
-          } else {
-            this.classList.add('hide-real');
-            const fb = this.parentElement ? this.parentElement.querySelector('.spine-custom-view') : null;
-            if (fb) fb.classList.add('show-fallback');
-          }
-        ">`
+      ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="${esc(book.title)}" onload="adjustSpineCardWidth(this)" onerror="handleRealSpineError(this)">`
       : '';
 
     card.innerHTML = `
@@ -1965,8 +1955,7 @@ function showDetail(id, direction = null, pushHistory = true) {
   }
 
   const coverHtml = book.cover
-    ? `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}"
-        onerror="this.outerHTML='<div class=\\'detail-thumb-placeholder\\'>8ook</div>'">`
+    ? `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}" onerror="handleDetailThumbError(this)">`
     : `<div class="detail-thumb-placeholder">8ook</div>`;
 
   const chips = [];
@@ -2391,7 +2380,7 @@ function setPrev(src) {
   const el = document.getElementById('book-prev');
   if (!el) return;
   el.innerHTML =
-    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.parentElement.innerHTML='<div class=\\'img-prev-ph\\'><span style=\\'font-size:10px; color:var(--text-300);\\'>표지 오류</span></div>'">`;
+    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="handlePrevError(this)">`;
 }
 
 function resetPrev() {
@@ -2408,14 +2397,7 @@ function setSpinePrev(src) {
   const el = document.getElementById('spine-prev');
   if (!el) return;
   el.innerHTML =
-    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:fill; display:block;" onerror="
-      if (!this.dataset.tried1 && this.src.includes('/Spine/')) {
-        this.dataset.tried1 = 'true';
-        this.src = this.src.replace('/Spine/', '/spine/');
-      } else {
-        this.parentElement.innerHTML='<div class=\\'img-prev-ph spine-ph\\'><span style=\\'font-size:10px; writing-mode:vertical-rl; letter-spacing:1px; color:var(--text-300);\\'>기본 책등</span></div>';
-      }
-    ">`;
+    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:fill; display:block;" onerror="handleSpinePrevError(this)">`;
 }
 
 function resetSpinePrev() {
@@ -4696,7 +4678,7 @@ function renderScrapsArchive() {
     const { book, scrap } = item;
     const tags = scrap.tags || scrap.keywords || [];
     const coverHtml = book.cover
-      ? `<img src="${esc(getSafeImageUrl(book.cover))}" class="scrap-card-cover" alt="${esc(book.title)}" onclick="showDetail('${book.id}')" onerror="this.outerHTML='<div class=\\'scrap-card-cover-placeholder\\' onclick=\\'showDetail(\\\\'${book.id}\\\\')\\'>8ook</div>'">`
+      ? `<img src="${esc(getSafeImageUrl(book.cover))}" class="scrap-card-cover" alt="${esc(book.title)}" onclick="showDetail('${book.id}')" onerror="handleScrapCoverError(this)">`
       : `<div class="scrap-card-cover-placeholder" onclick="showDetail('${book.id}')">8ook</div>`;
 
     const tagsHtml = tags.map(t => {
@@ -6987,6 +6969,67 @@ function getCommunityBooksList() {
       time: formatTimeAgo(rawDate)
     };
   });
+}
+
+function handleCoverError(img) {
+  img.onerror = null;
+  const ph = document.createElement('div');
+  ph.className = 'book-card-placeholder';
+  const span = document.createElement('span');
+  span.className = 'placeholder-title';
+  span.textContent = img.getAttribute('data-title') || img.alt || '';
+  ph.appendChild(span);
+  img.replaceWith(ph);
+}
+
+function handleDetailThumbError(img) {
+  img.onerror = null;
+  const ph = document.createElement('div');
+  ph.className = 'detail-thumb-placeholder';
+  ph.textContent = '8ook';
+  img.replaceWith(ph);
+}
+
+function handleScrapCoverError(img) {
+  img.onerror = null;
+  const ph = document.createElement('div');
+  ph.className = 'scrap-card-cover-placeholder';
+  ph.textContent = '8ook';
+  if (img.onclick) ph.onclick = img.onclick;
+  img.replaceWith(ph);
+}
+
+function handlePrevError(img) {
+  img.onerror = null;
+  const parent = img.parentElement;
+  if (parent) {
+    parent.innerHTML = '<div class="img-prev-ph"><span style="font-size:10px; color:var(--text-300);">표지 오류</span></div>';
+  }
+}
+
+function handleSpinePrevError(img) {
+  img.onerror = null;
+  if (!img.dataset.tried1 && img.src.includes('/Spine/')) {
+    img.dataset.tried1 = 'true';
+    img.src = img.src.replace('/Spine/', '/spine/');
+    return;
+  }
+  const parent = img.parentElement;
+  if (parent) {
+    parent.innerHTML = '<div class="img-prev-ph spine-ph"><span style="font-size:10px; writing-mode:vertical-rl; letter-spacing:1px; color:var(--text-300);">기본 책등</span></div>';
+  }
+}
+
+function handleRealSpineError(img) {
+  img.onerror = null;
+  if (!img.dataset.tried1 && img.src.includes('/Spine/')) {
+    img.dataset.tried1 = 'true';
+    img.src = img.src.replace('/Spine/', '/spine/');
+  } else {
+    img.classList.add('hide-real');
+    const fb = img.parentElement ? img.parentElement.querySelector('.spine-custom-view') : null;
+    if (fb) fb.classList.add('show-fallback');
+  }
 }
 
 function handleCommCoverError(img) {
