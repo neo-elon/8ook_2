@@ -1335,277 +1335,204 @@
       display: flex !important;
     }
 
-    /* 1. Fine Bookcloth / Leather Grain Texture (미세 가죽 결) */
-    .spine-leather-grain {
+    /* ── Modern Paperback Spine Design ── */
+    .spine-custom-view {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 3px 10px;
+      z-index: 0;
+      border-radius: 2px 2px 0 0;
+      overflow: hidden;
+      box-shadow: inset 2px 0 3px rgba(0,0,0,0.18), inset -1px 0 2px rgba(255,255,255,0.12);
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      transition: background 0.4s ease-out;
+    }
+    .spine-custom-view.show-fallback {
+      display: flex !important;
+    }
+
+    /* Subtle Paper Hinge Fold Crease */
+    .spine-paperback-crease {
       position: absolute;
       inset: 0;
       pointer-events: none;
       z-index: 1;
-      opacity: 0.22;
-      background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.18) 1px, transparent 1px),
-                        radial-gradient(circle at 0% 0%, rgba(0,0,0,0.25) 1px, transparent 1px);
-      background-size: 3px 3px, 4px 4px;
-      mix-blend-mode: overlay;
-    }
-
-    /* 2. Realistic Cylindrical 3D Spine Curvature (원통형 양장본 입체 볼륨감) */
-    .spine-volume-shading {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 2;
       background: linear-gradient(
         90deg,
-        rgba(0, 0, 0, 0.38) 0%,
-        rgba(0, 0, 0, 0.12) 10%,
-        rgba(255, 255, 255, 0.08) 30%,
-        rgba(255, 255, 255, 0.14) 52%,
-        rgba(255, 255, 255, 0.05) 75%,
-        rgba(0, 0, 0, 0.15) 92%,
-        rgba(0, 0, 0, 0.45) 100%
+        rgba(0, 0, 0, 0.22) 0%,
+        rgba(0, 0, 0, 0.05) 8%,
+        rgba(255, 255, 255, 0.08) 22%,
+        rgba(255, 255, 255, 0.14) 50%,
+        rgba(255, 255, 255, 0.04) 78%,
+        rgba(0, 0, 0, 0.08) 92%,
+        rgba(0, 0, 0, 0.28) 100%
       );
     }
 
-    /* 3. Book Headband / Tailband Cloth Rim (상하단 패브릭 꽃천 바인딩 림) */
-    .spine-headband {
+    /* Modern Top Header / Badge */
+    .spine-paperback-header {
       position: relative;
-      z-index: 3;
-      width: 100%;
-      height: 4px;
-      flex-shrink: 0;
-      background: repeating-linear-gradient(
-        45deg,
-        #d4af37 0px,
-        #d4af37 3px,
-        #8a1c24 3px,
-        #8a1c24 6px,
-        #f4ebd0 6px,
-        #f4ebd0 8px
-      );
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-    }
-    .spine-headband.top {
-      border-radius: 2px 2px 0 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-    }
-    .spine-headband.bottom {
-      border-top: 1px solid rgba(0, 0, 0, 0.3);
-      margin-top: 2px;
-    }
-
-    /* 4. Raised Rib Bands / Gilt Cords (돌출 배 / 양장본 띠) */
-    .spine-raised-rib {
-      position: relative;
-      z-index: 3;
-      width: 88%;
-      height: 3px;
-      flex-shrink: 0;
-      margin: 2px auto;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.32) 0%, rgba(0, 0, 0, 0.42) 100%);
-      border-radius: 1px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.22);
-    }
-
-    /* 5. Gilt Fillet Rules (금박 괘선) */
-    .spine-top-fillet {
-      position: relative;
-      z-index: 3;
+      z-index: 2;
       width: 100%;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      padding: 3px 4px 1px;
-    }
-    .spine-gilt-rule {
-      width: 76%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent 0%, rgba(218, 185, 110, 0.8) 50%, transparent 100%);
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
-    }
-
-    /* ==============================================
-       Vintage Wax Seal Stamp for 5-Star (Life Book)
-    ============================================== */
-    .spine-wax-seal {
-      position: absolute;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: clamp(22px, calc(var(--spine-w, 36px) - 8px), 30px);
-      height: clamp(22px, calc(var(--spine-w, 36px) - 8px), 30px);
-      background: radial-gradient(circle at 34% 30%, #b82734 0%, #88141d 46%, #59090f 84%, #3a0307 100%);
-      border-radius: 47% 53% 51% 49% / 52% 48% 52% 48%;
-      display: flex;
-      align-items: center;
       justify-content: center;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
-      z-index: 4;
-      pointer-events: none;
-      user-select: none;
-      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .book-card:hover .spine-wax-seal {
-      transform: translateX(-50%) scale(1.15) rotate(2deg);
-    }
-
-    /* Wax seal inner embossed ring & typography */
-    .wax-seal-core {
-      width: 80%;
-      height: 80%;
-      border-radius: 50%;
-      border: 1px dashed rgba(245, 208, 160, 0.45);
-      box-shadow: none;
-      display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 1px;
-      color: #ffd8a8;
-      font-family: 'Cinzel', 'Playfair Display', 'Noto Serif KR', Georgia, serif;
-      font-weight: 800;
-      line-height: 1;
+      padding-top: 2px;
     }
-
-    .wax-seal-num {
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-
-    .wax-seal-star {
+    .spine-paperback-badge {
+      font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
       font-size: 8px;
-      transform: translateY(-0.5px);
-      color: #ffd8a8;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.9);
+      text-transform: uppercase;
+      padding: 1px 4px;
+      border-radius: 2px;
+      background: rgba(0, 0, 0, 0.2);
     }
 
-    /* 5점 책등의 경우 하단 출판사 엠블럼 자리를 왁스 인장이 대체 */
-    .book-card.five-stars .spine-publisher-emblem {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    /* 6. Series Mark in Header */
-    .spine-series-tag {
-      position: relative;
-      z-index: 3;
-      width: 100%;
-      text-align: center;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      font-family: 'Cinzel', 'Playfair Display', 'Noto Serif KR', serif;
-      padding: 1px 0;
-      color: #f6ecdc !important;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 4px rgba(212, 175, 55, 0.3);
-    }
-
+    /* Modern Spine Title */
     .spine-title-wrap {
       position: relative;
-      z-index: 3;
+      z-index: 2;
       flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;
-      padding: 6px 0;
+      padding: 10px 0 6px;
       overflow: hidden;
       width: 100%;
     }
-    .spine-title-serif {
+    .spine-title-modern {
       writing-mode: vertical-rl;
       text-orientation: mixed;
-      font-size: 14.5px;
-      font-weight: 700;
-      letter-spacing: 1.8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
       max-height: 235px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-family: 'Noto Serif KR', 'Batang', 'Gungsuh', serif;
-      color: #f6ecdc !important;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 6px rgba(212, 175, 55, 0.35);
-      margin-top: 2px;
+      font-family: 'Noto Sans KR', 'Pretendard', -apple-system, sans-serif;
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+      line-height: 1.1;
     }
 
+    /* Modern Spine Author */
     .spine-author-wrap {
       position: relative;
-      z-index: 3;
-      padding: 4px 0;
+      z-index: 2;
+      padding: 4px 0 8px;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .spine-author-serif {
+    .spine-author-modern {
       writing-mode: vertical-rl;
       text-orientation: mixed;
-      font-size: 10.5px;
-      font-weight: 600;
-      letter-spacing: 1.2px;
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.8px;
       max-height: 70px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-family: 'Noto Serif KR', 'Batang', serif;
-      color: rgba(245, 235, 215, 0.9) !important;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+      font-family: 'Noto Sans KR', sans-serif;
+      color: rgba(255, 255, 255, 0.85);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
     }
 
-    /* Publisher Emblem & Logo at Bottom */
-    .spine-publisher-emblem {
+    /* Modern Spine Footer / Barcode Edition Mark */
+    .spine-paperback-footer {
       position: relative;
-      z-index: 3;
+      z-index: 2;
+      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2px;
-      margin-bottom: 2px;
+      padding-bottom: 2px;
     }
-    .spine-publisher-emblem .emblem-fig {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(218, 185, 110, 0.85) !important;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-      position: relative;
+    .spine-barcode-mark {
+      display: flex;
+      align-items: flex-end;
+      gap: 1.5px;
+      height: 9px;
+      opacity: 0.6;
+      color: currentColor;
     }
-    .spine-publisher-emblem .publisher-name {
-      font-size: 8.5px;
-      font-weight: 700;
-      letter-spacing: 0.8px;
-      font-family: 'Cinzel', 'Playfair Display', serif;
-      color: rgba(218, 185, 110, 0.9) !important;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+    .spine-barcode-mark i {
+      display: inline-block;
+      width: 1px;
+      height: 100%;
+      background: currentColor;
+    }
+    .spine-barcode-mark i:nth-child(2) { width: 2px; height: 85%; }
+    .spine-barcode-mark i:nth-child(3) { width: 1px; height: 100%; }
+    .spine-barcode-mark i:nth-child(4) { width: 2.5px; height: 75%; }
+    .spine-barcode-mark i:nth-child(5) { width: 1px; height: 100%; }
+
+    /* Modern Light / Cream Paper Spine Variant */
+    .spine-custom-view.spine-light-paper {
+      border-color: rgba(0, 0, 0, 0.12);
+      box-shadow: inset 2px 0 3px rgba(0,0,0,0.08), inset -1px 0 2px rgba(255,255,255,0.4);
+    }
+    .spine-custom-view.spine-light-paper .spine-paperback-badge {
+      background: rgba(0, 0, 0, 0.08);
+      color: #1a1d20;
+    }
+    .spine-custom-view.spine-light-paper .spine-title-modern {
+      color: #1a1d20 !important;
+      text-shadow: none;
+    }
+    .spine-custom-view.spine-light-paper .spine-author-modern {
+      color: #4b5257 !important;
+      text-shadow: none;
+    }
+    .spine-custom-view.spine-light-paper .spine-barcode-mark {
+      color: #1a1d20;
+      opacity: 0.45;
     }
 
-    /* Antique Light Vellum Theme Overrides (아이보리 양장본 잉크 각인) */
-    .spine-custom-view.spine-light-vellum {
-      border: 1px solid rgba(140, 98, 57, 0.3);
-      box-shadow: inset 1px 0 2px rgba(255,255,255,0.3), inset -1px 0 3px rgba(100,70,40,0.25);
+    /* 5-Star Sleek Gold Bookmark Ribbon (Modern replacement for bulky wax seal) */
+    .spine-wax-seal {
+      position: absolute;
+      top: 0;
+      right: 5px;
+      width: 13px;
+      height: 24px;
+      background: linear-gradient(180deg, #e6ca65 0%, #d4af37 60%, #b38b18 100%);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 2px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      z-index: 5;
+      pointer-events: none;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .spine-custom-view.spine-light-vellum .spine-title-serif {
-      color: #1a1815 !important;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+    .book-card:hover .spine-wax-seal {
+      transform: translateY(2px) scale(1.08);
     }
-    .spine-custom-view.spine-light-vellum .spine-author-serif {
-      color: #4a433a !important;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+    .wax-seal-core {
+      font-size: 8.5px;
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .spine-custom-view.spine-light-vellum .spine-series-tag {
-      color: #1a1815 !important;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) !important;
-    }
-    .spine-custom-view.spine-light-vellum .spine-publisher-emblem .emblem-fig {
-      border-color: #8c6239 !important;
-    }
-    .spine-custom-view.spine-light-vellum .spine-publisher-emblem .publisher-name {
-      color: #8c6239 !important;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) !important;
-    }
-    .spine-custom-view.spine-light-vellum .spine-gilt-rule {
-      background: linear-gradient(90deg, transparent 0%, rgba(140, 98, 57, 0.6) 50%, transparent 100%);
-    }
+    .wax-seal-num { display: none; }
+    .wax-seal-star { font-size: 8px; color: #fff; }
 
     /* Front Cover Face (Revealed on Hover/Touch) */
     .cover-face {
