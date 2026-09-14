@@ -7038,44 +7038,68 @@ async function fetchRemoteCommunityBooks() {
   }
 }
 
+// 파일 불러오기(Notion 가져오기 등) 및 기본 서재 데이터의 소유자를 단일 독서가로 정합성 있게 식별
+function resolveCommunityBookOwner(b, source) {
+  if (!b) return 'unknown_user';
+  // 파일 불러오기(Notion 가져오기)로 생성된 ID나 Neo 계정 고유 ID는 동일 인물로 통합
+  if (b.id && String(b.id).startsWith('notion_')) return 'user_owner_neo';
+  if (b.user_id === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') return 'user_owner_neo';
+  if (source === 'neo_dataset') return 'user_owner_neo';
+
+  if (source === 'local') {
+    if (currentUser && currentUser.id && currentUser.id !== '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') {
+      return currentUser.id;
+    }
+    return 'user_owner_neo';
+  }
+
+  return b.user_id || ('remote_anon_' + (b.id || 'unknown'));
+}
+
 function getAllCommunityBooks() {
   const map = new Map();
+  const seenUserTitle = new Set();
+
+  function processBook(b, source) {
+    if (!b || isGuideBook(b) || !b.title || b.title === '__like__' || b.id?.startsWith('like_') || b.is_public === false) return;
+    const ownerId = resolveCommunityBookOwner(b, source);
+    const normTitle = (b.title || '').trim().toLowerCase().replace(/[\s\-_:·・《》〈〉()]/g, '');
+    const userTitleKey = ownerId + '::' + normTitle;
+
+    // 파일 불러오기 및 기본 데이터셋 간 동일 사용자의 중복 도서는 1건으로 통합
+    if (seenUserTitle.has(userTitleKey)) {
+      if (map.has(b.id)) return;
+      const existingKey = Array.from(map.keys()).find(k => {
+        const eb = map.get(k);
+        return eb && normTitle === (eb.title || '').trim().toLowerCase().replace(/[\s\-_:·・《》〈〉()]/g, '');
+      });
+      if (existingKey) {
+        const eb = map.get(existingKey);
+        const bScraps = (b.scraps || []).length;
+        const ebScraps = (eb.scraps || []).length;
+        if (bScraps > ebScraps || (!eb.cover && b.cover)) {
+          map.set(existingKey, { ...eb, ...b, id: existingKey });
+        }
+      }
+      return;
+    }
+    seenUserTitle.add(userTitleKey);
+    map.set(b.id, b);
+  }
 
   // 1. Remote community books from Supabase across all users (공개 도서만 포함)
   if (Array.isArray(remoteCommunityBooks)) {
-    remoteCommunityBooks.forEach(b => {
-      if (b && !isGuideBook(b) && b.title && b.title !== '__like__' && !b.id?.startsWith('like_') && b.is_public !== false) {
-        map.set(b.id, b);
-      }
-    });
+    remoteCommunityBooks.forEach(b => processBook(b, 'remote'));
   }
 
   // 2. 현재 로그인 사용자의 로컬 books (공개 도서만 병합)
   if (Array.isArray(books)) {
-    books.forEach(b => {
-      if (b && !isGuideBook(b) && b.title && b.title !== '__like__' && !b.id?.startsWith('like_') && b.is_public !== false) {
-        if (!map.has(b.id)) {
-          map.set(b.id, b);
-        } else {
-          // 이미 Supabase에서 온 도서라면, 스크랩 수가 더 많은 쪽(최신 수정)으로 보강
-          const remoteB = map.get(b.id);
-          const localScrapsCount = (b.scraps || []).length;
-          const remoteScrapsCount = (remoteB.scraps || []).length;
-          if (localScrapsCount > remoteScrapsCount) {
-            map.set(b.id, { ...remoteB, ...b });
-          }
-        }
-      }
-    });
+    books.forEach(b => processBook(b, 'local'));
   }
 
   // 3. Shared community dataset (window.NEO_BOOKS_131) from all users
   if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
-    window.NEO_BOOKS_131.forEach(b => {
-      if (b && !isGuideBook(b) && b.title && b.title !== '__like__' && !b.id?.startsWith('like_') && b.is_public !== false && !map.has(b.id)) {
-        map.set(b.id, b);
-      }
-    });
+    window.NEO_BOOKS_131.forEach(b => processBook(b, 'neo_dataset'));
   }
 
   return Array.from(map.values());
@@ -7521,7 +7545,7 @@ function getMostShelvedCommunityBooks() {
   const groups = new Map();
   const seenBookIds = new Set();
 
-  function addToGroup(b, sourceUserId) {
+  function addToGroup(b, source) {
     if (!b || isGuideBook(b) || !b.title || b.title === '__like__' || b.id?.startsWith('like_') || b.is_public === false) return;
     const strId = b.id ? String(b.id) : null;
     if (strId && seenBookIds.has(strId)) return;
@@ -7542,8 +7566,8 @@ function getMostShelvedCommunityBooks() {
     g.copies.push(b);
     g.totalScraps += (b.scraps || []).length;
 
-    // 한 사람이 여러 번 등록(재독 등)한 것은 1명으로만 인정
-    const personId = b.user_id || sourceUserId || (b.id ? 'anon_' + b.id : 'anon');
+    // 파일 불러오기(Notion 가져오기) 및 동일 독서가의 중복 등록을 단일 인물로 정확히 판별
+    const personId = resolveCommunityBookOwner(b, source);
     g.distinctUsers.add(personId);
 
     // Pick best representative (one with cover, review, and author)
@@ -7551,20 +7575,19 @@ function getMostShelvedCommunityBooks() {
     if (!g.repBook.review && (b.review || b.sentence)) g.repBook = b;
   }
 
-  // 1. Supabase 원격 도서 (각 도서의 실제 user_id 반영)
+  // 1. Supabase 원격 도서 (각 도서의 출처 반영)
   if (Array.isArray(remoteCommunityBooks)) {
-    remoteCommunityBooks.forEach(b => addToGroup(b, b.user_id || ('remote_anon_' + b.id)));
+    remoteCommunityBooks.forEach(b => addToGroup(b, 'remote'));
   }
 
-  // 2. 현재 로그인/로컬 사용자의 서재 도서 (현재 사용자 1명의 서재로 인식)
-  const myUserId = (currentUser && currentUser.id) ? currentUser.id : 'local_current_user';
+  // 2. 현재 로그인/로컬 사용자의 서재 도서
   if (Array.isArray(books)) {
-    books.forEach(b => addToGroup(b, myUserId));
+    books.forEach(b => addToGroup(b, 'local'));
   }
 
-  // 3. 기본 데이터셋 도서 (큐레이터 1명의 연도별 누적 독서기록으로 인식)
+  // 3. 기본 데이터셋 도서 (큐레이터 서재 도서)
   if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
-    window.NEO_BOOKS_131.forEach(b => addToGroup(b, 'neo_dataset_curator'));
+    window.NEO_BOOKS_131.forEach(b => addToGroup(b, 'neo_dataset'));
   }
 
   const result = [];
