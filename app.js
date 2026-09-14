@@ -190,6 +190,11 @@ let currentAladinQuery = '';
 /* ==============================================
    STORAGE & GUIDE HELPERS
 ============================================== */
+function isLikeRecord(book) {
+  if (!book) return false;
+  return book.title === '__like__' || (typeof book.id === 'string' && book.id.startsWith('like_'));
+}
+
 function isGuideBook(book) {
   if (!book) return false;
   return book.id === '8ook_user_guide' ||
@@ -200,11 +205,12 @@ function isGuideBook(book) {
 function saveData() {
   try {
     if (currentUser) {
-      // 로그인 사용자 로컬 저장소에는 이용 가이드북을 저장하지 않음
-      const userBooks = books.filter(b => !isGuideBook(b));
+      // 로그인 사용자 로컬 저장소에는 이용 가이드북 및 좋아요 레코드를 저장하지 않음
+      const userBooks = books.filter(b => !isGuideBook(b) && !isLikeRecord(b));
       localStorage.setItem(`rj_books_${currentUser.id}`, JSON.stringify(userBooks));
     } else {
-      localStorage.setItem('rj_books', JSON.stringify(books));
+      const guestBooks = books.filter(b => !isLikeRecord(b));
+      localStorage.setItem('rj_books', JSON.stringify(guestBooks));
     }
   } catch (e) { }
 }
@@ -218,17 +224,24 @@ async function loadData() {
   } catch (e) { }
 
   if (currentUser) {
-    localBooks = localBooks.filter(b => !isGuideBook(b)).map(b => {
+    localBooks = localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b)).map(b => {
       if (b.id && b.id.startsWith('notion_') && !b.id.endsWith('_' + currentUser.id)) {
         const pageIdPart = b.id.substring(7, 39);
         return { ...b, id: 'notion_' + pageIdPart + '_' + currentUser.id };
       }
       return b;
     });
+  } else {
+    localBooks = localBooks.filter(b => !isLikeRecord(b));
   }
 
   if (!supabaseClient || !currentUser) {
     books = localBooks;
+    books.forEach(b => cleanBookScraps(b));
+    ensureUserGuideBook();
+    saveData();
+    fetchCommunityLikes();
+    initCommunityLikesChannel();
     return;
   }
 
@@ -246,7 +259,8 @@ async function loadData() {
       throw error;
     }
 
-    const remoteBooks = data || [];
+    const rawRemoteBooks = data || [];
+    const remoteBooks = rawRemoteBooks.filter(b => !isLikeRecord(b));
     if (remoteBooks.length > 0 && 'spineCover' in remoteBooks[0]) {
       dbSupportsSpineCover = true;
     }
@@ -257,7 +271,7 @@ async function loadData() {
     if (guestBooksStr) {
       try { guestBooks = JSON.parse(guestBooksStr); } catch (e) { }
     }
-    const userGuestBooks = guestBooks.filter(b => !isGuideBook(b));
+    const userGuestBooks = guestBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b));
 
     if (remoteBooks.length === 0 && userGuestBooks.length > 0) {
       const booksToUpload = userGuestBooks.map(b => {
@@ -296,7 +310,7 @@ async function loadData() {
       books = remoteBooks;
     }
 
-    // 로그인 계정인 경우 Supabase 또는 books 배열에 잘못 들어간 이용 가이드북이 있다면 완전 정리
+    // 로그인 계정인 경우 Supabase 또는 books 배열에 잘못 들어간 이용 가이드북이 있다면 완전 정리 (좋아요 레코드 제외)
     if (currentUser) {
       const guideBooksInRemote = books.filter(b => isGuideBook(b));
       if (guideBooksInRemote.length > 0) {
@@ -315,12 +329,16 @@ async function loadData() {
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
+    fetchCommunityLikes();
+    initCommunityLikesChannel();
   } catch (e) {
     console.error('Supabase load error, using local storage backup:', e);
-    books = currentUser ? localBooks.filter(b => !isGuideBook(b)) : localBooks;
+    books = currentUser ? localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b)) : localBooks.filter(b => !isLikeRecord(b));
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
+    fetchCommunityLikes();
+    initCommunityLikesChannel();
   }
 }
 function showDbSetupModal() {
@@ -6819,6 +6837,141 @@ function getSafeTimestamp(val) {
 }
 
 let remoteCommunityBooks = [];
+let communityLikesMap = new Map();
+let commLikesChannel = null;
+let localLikeBroadcast = null;
+
+function getClientLikeId() {
+  if (currentUser && currentUser.id) return currentUser.id;
+  let cid = '';
+  try {
+    cid = localStorage.getItem('rj_client_like_id');
+    if (!cid) {
+      cid = 'guest_' + Math.random().toString(36).substring(2, 11);
+      localStorage.setItem('rj_client_like_id', cid);
+    }
+  } catch (e) {
+    cid = 'guest_temp';
+  }
+  return cid;
+}
+
+function broadcastLikeUpdate(targetId, userId, isLiked) {
+  const payload = { targetId: String(targetId), userId, isLiked };
+  // 1. Cross-tab BroadcastChannel
+  if (localLikeBroadcast) {
+    try {
+      localLikeBroadcast.postMessage(payload);
+    } catch (e) {}
+  }
+  // 2. Supabase Realtime channel
+  if (commLikesChannel) {
+    try {
+      commLikesChannel.send({
+        type: 'broadcast',
+        event: 'like_update',
+        payload: payload
+      });
+    } catch (e) {
+      console.warn('Failed to broadcast like update via Supabase:', e);
+    }
+  }
+}
+
+async function fetchCommunityLikes() {
+  if (!supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient
+      .from('books')
+      .select('id, user_id, author')
+      .eq('title', '__like__');
+
+    if (!error && Array.isArray(data)) {
+      communityLikesMap.clear();
+      data.forEach(row => {
+        const targetId = row.author;
+        const uId = row.user_id;
+        if (targetId && uId) {
+          const strTId = String(targetId);
+          if (!communityLikesMap.has(strTId)) {
+            communityLikesMap.set(strTId, new Set());
+          }
+          communityLikesMap.get(strTId).add(uId);
+        }
+      });
+      renderCommunityBooks();
+      renderCommunityScraps();
+    }
+  } catch (e) {
+    console.warn('Failed to fetch community likes:', e);
+  }
+}
+
+function initCommunityLikesChannel() {
+  if (typeof BroadcastChannel !== 'undefined' && !localLikeBroadcast) {
+    try {
+      localLikeBroadcast = new BroadcastChannel('8ook_likes_channel');
+      localLikeBroadcast.onmessage = (event) => {
+        if (event && event.data) {
+          applyIncomingLikeUpdate(event.data);
+        }
+      };
+    } catch (e) {}
+  }
+
+  if (!supabaseClient || commLikesChannel) return;
+  try {
+    commLikesChannel = supabaseClient.channel('comm_likes_broadcast')
+      .on('broadcast', { event: 'like_update' }, (payload) => {
+        if (payload && payload.payload) {
+          applyIncomingLikeUpdate(payload.payload);
+        }
+      })
+      .subscribe();
+  } catch (e) {
+    console.warn('Realtime like channel error:', e);
+  }
+}
+
+function applyIncomingLikeUpdate(payload) {
+  const { targetId, userId, isLiked } = payload;
+  if (!targetId || !userId) return;
+
+  const strId = String(targetId);
+  if (!communityLikesMap.has(strId)) {
+    communityLikesMap.set(strId, new Set());
+  }
+  const set = communityLikesMap.get(strId);
+  if (isLiked) {
+    set.add(userId);
+  } else {
+    set.delete(userId);
+  }
+
+  const myId = getClientLikeId();
+  const isMine = (currentUser && userId === currentUser.id) || userId === myId;
+
+  // Update book cards in DOM
+  const escapedTargetId = (window.CSS && CSS.escape) ? CSS.escape(strId) : strId;
+  const bookBtns = document.querySelectorAll(`.comm-book-like-btn[data-target-id="${escapedTargetId}"], .comm-book-like-btn[onclick*="${escapedTargetId}"]`);
+  bookBtns.forEach(btn => {
+    const countSpan = btn.querySelector('.like-count');
+    if (countSpan) countSpan.textContent = String(set.size);
+    if (isMine) {
+      btn.classList.toggle('liked', isLiked);
+    }
+  });
+
+  // Update scrap cards in DOM
+  const scrapBtns = document.querySelectorAll(`.comm-scrap-like-btn[data-target-id="${escapedTargetId}"], .comm-scrap-like-btn[onclick*="${escapedTargetId}"]`);
+  scrapBtns.forEach(btn => {
+    const countSpan = btn.querySelector('.like-count');
+    if (countSpan) countSpan.textContent = String(set.size);
+    if (isMine) {
+      btn.classList.toggle('liked', isLiked);
+    }
+  });
+}
 
 async function fetchRemoteCommunityBooks() {
   if (!supabaseClient) return;
@@ -6844,7 +6997,7 @@ function getAllCommunityBooks() {
   // 1. Remote community books from Supabase across all users (공개 도서만 포함)
   if (Array.isArray(remoteCommunityBooks)) {
     remoteCommunityBooks.forEach(b => {
-      if (b && !isGuideBook(b) && b.title && b.is_public !== false) {
+      if (b && !isGuideBook(b) && b.title && b.title !== '__like__' && !b.id?.startsWith('like_') && b.is_public !== false) {
         map.set(b.id, b);
       }
     });
@@ -6853,7 +7006,7 @@ function getAllCommunityBooks() {
   // 2. 현재 로그인 사용자의 로컬 books (공개 도서만 병합)
   if (Array.isArray(books)) {
     books.forEach(b => {
-      if (b && !isGuideBook(b) && b.title && b.is_public !== false) {
+      if (b && !isGuideBook(b) && b.title && b.title !== '__like__' && !b.id?.startsWith('like_') && b.is_public !== false) {
         if (!map.has(b.id)) {
           map.set(b.id, b);
         } else {
@@ -6872,7 +7025,7 @@ function getAllCommunityBooks() {
   // 3. Shared community dataset (window.NEO_BOOKS_131) from all users
   if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
     window.NEO_BOOKS_131.forEach(b => {
-      if (b && !isGuideBook(b) && b.title && b.is_public !== false && !map.has(b.id)) {
+      if (b && !isGuideBook(b) && b.title && b.title !== '__like__' && !b.id?.startsWith('like_') && b.is_public !== false && !map.has(b.id)) {
         map.set(b.id, b);
       }
     });
@@ -6915,8 +7068,12 @@ async function showCommunity(pushHistory = true) {
   renderCommunityScraps();
   switchCommunityTab(currentCommunityTab);
 
-  // 최신 Supabase 원격 데이터 비동기 페치 및 동기화 렌더링
-  await fetchRemoteCommunityBooks();
+  // 최신 Supabase 원격 도서 및 좋아요 데이터 비동기 페치 및 동기화 렌더링
+  await Promise.all([
+    fetchRemoteCommunityBooks(),
+    fetchCommunityLikes()
+  ]);
+  initCommunityLikesChannel();
 }
 
 function switchCommunityTab(tab) {
@@ -7071,15 +7228,18 @@ function renderCommunityBooks() {
     if (raw) storedBookLikes = JSON.parse(raw);
   } catch (e) {}
 
+  const myId = getClientLikeId();
+
   container.innerHTML = list.map(b => {
+    const bid = String(b.id);
     const titleParts = splitBookTitle(b);
     const mainTitle = b.title && b.subtitle !== undefined ? b.title : (titleParts.main || b.title);
     const subTitle = b.subtitle !== undefined ? b.subtitle : (titleParts.sub || '');
 
     const coverUrl = b.cover ? getSafeImageUrl(b.cover) : '';
     const coverHtml = coverUrl
-      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" decoding="async" onclick="showDetail('${b.id}')" onerror="handleCommCoverError(this)">`
-      : `<div class="comm-book-cover-placeholder" onclick="showDetail('${b.id}')">8ook</div>`;
+      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" decoding="async" onclick="showDetail('${esc(bid)}')" onerror="handleCommCoverError(this)">`
+      : `<div class="comm-book-cover-placeholder" onclick="showDetail('${esc(bid)}')">8ook</div>`;
 
     const ratingHtml = (b.rating && Number(b.rating) > 0)
       ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${Number(b.rating).toFixed(1)}</span></div>`
@@ -7089,20 +7249,24 @@ function renderCommunityBooks() {
       ? `<div class="comm-book-review" title="${esc(b.review.trim())}">“${esc(b.review.trim())}”</div>`
       : '';
 
-    const isLiked = !!storedBookLikes['bk_' + b.id];
-    const currentLikes = isLiked ? 1 : 0;
+    const remoteSet = communityLikesMap.get(bid) || new Set();
+    const isLiked = (currentUser && remoteSet.has(currentUser.id)) || remoteSet.has(myId) || !!storedBookLikes['bk_' + bid];
+    let currentLikes = remoteSet.size;
+    if (isLiked && !remoteSet.has(myId) && (!currentUser || !remoteSet.has(currentUser.id))) {
+      currentLikes += 1;
+    }
 
     return `
-      <div class="comm-book-card">
+      <div class="comm-book-card" id="comm-bk-${esc(bid)}">
         ${coverHtml}
         <div class="comm-book-info">
-          <div class="comm-book-title" onclick="showDetail('${b.id}')" title="${esc(mainTitle)}">${esc(mainTitle)}</div>
+          <div class="comm-book-title" onclick="showDetail('${esc(bid)}')" title="${esc(mainTitle)}">${esc(mainTitle)}</div>
           <div class="comm-book-author">${esc(b.author)}</div>
           ${ratingHtml}
           ${reviewHtml}
           <div class="comm-book-meta">
             <span class="comm-book-time">${esc(b.time || '')}</span>
-            <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" onclick="toggleCommunityBookLike('${b.id}', this, event)" title="좋아요">
+            <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
               <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
             </button>
           </div>
@@ -7112,35 +7276,88 @@ function renderCommunityBooks() {
   }).join('');
 }
 
-function toggleCommunityBookLike(id, btnEl, event) {
+async function toggleCommunityBookLike(id, btnEl, event) {
   if (event) {
     event.stopPropagation();
     event.preventDefault();
   }
+  const strId = String(id);
   let storedLikes = {};
   try {
     const raw = localStorage.getItem('rj_community_book_likes');
     if (raw) storedLikes = JSON.parse(raw);
   } catch (e) {}
 
-  const key = 'bk_' + id;
-  const wasLiked = !!storedLikes[key];
-  const countSpan = btnEl.querySelector('.like-count');
-
-  if (wasLiked) {
-    delete storedLikes[key];
-    btnEl.classList.remove('liked');
-    countSpan.textContent = '0';
-  } else {
-    storedLikes[key] = true;
-    btnEl.classList.add('liked');
-    countSpan.textContent = '1';
-    toast('도서에 좋아요를 남겼습니다 ♥');
+  const key = 'bk_' + strId;
+  const myId = getClientLikeId();
+  if (!communityLikesMap.has(strId)) {
+    communityLikesMap.set(strId, new Set());
   }
+  const remoteSet = communityLikesMap.get(strId);
 
+  const wasLiked = (currentUser && remoteSet.has(currentUser.id)) || remoteSet.has(myId) || !!storedLikes[key];
+  const willBeLiked = !wasLiked;
+
+  // 1. Update local cache
+  if (willBeLiked) {
+    storedLikes[key] = true;
+    remoteSet.add(myId);
+    if (currentUser) remoteSet.add(currentUser.id);
+  } else {
+    delete storedLikes[key];
+    remoteSet.delete(myId);
+    if (currentUser) remoteSet.delete(currentUser.id);
+  }
   try {
     localStorage.setItem('rj_community_book_likes', JSON.stringify(storedLikes));
   } catch (e) {}
+
+  // 2. Immediate UI update
+  btnEl.classList.toggle('liked', willBeLiked);
+  const countSpan = btnEl.querySelector('.like-count');
+  if (countSpan) {
+    countSpan.textContent = String(remoteSet.size);
+  }
+  if (willBeLiked) {
+    toast('도서에 좋아요를 남겼습니다 ♥');
+  } else {
+    toast('도서 좋아요를 취소했습니다.');
+  }
+
+  // 3. Broadcast to all open tabs and connected devices
+  broadcastLikeUpdate(strId, currentUser?.id || myId, willBeLiked);
+
+  // 4. If logged in, persist to Supabase books table
+  if (currentUser && supabaseClient) {
+    const safeUId = currentUser.id.replace(/[^a-zA-Z0-9_-]/g, '');
+    const safeTargetId = strId.replace(/[^a-zA-Z0-9_-]/g, '');
+    const likeRowId = 'like_' + safeUId + '_' + safeTargetId;
+
+    try {
+      if (willBeLiked) {
+        const { error } = await supabaseClient.from('books').upsert({
+          id: likeRowId,
+          user_id: currentUser.id,
+          title: '__like__',
+          author: strId,
+          is_public: true,
+          created_at: new Date().toISOString()
+        }, { onConflict: 'id' });
+        if (error) console.warn('[Like Sync] Upsert error:', error);
+      } else {
+        const { error } = await supabaseClient.from('books').delete().eq('id', likeRowId).eq('user_id', currentUser.id);
+        if (error) console.warn('[Like Sync] Delete error:', error);
+      }
+    } catch (err) {
+      console.warn('[Like Sync] Supabase error:', err);
+    }
+  } else if (willBeLiked) {
+    setTimeout(() => {
+      if (!currentUser) {
+        toast('로그인하시면 다른 기기에서도 좋아요가 영구 보존됩니다.');
+      }
+    }, 1200);
+  }
 }
 
 function getCommunityScrapsList() {
@@ -7219,9 +7436,17 @@ function renderCommunityScraps() {
     if (raw) storedLikes = JSON.parse(raw);
   } catch (e) {}
 
+  const myId = getClientLikeId();
+
   container.innerHTML = list.map((s, idx) => {
-    const isLiked = !!storedLikes[s.id];
-    const currentLikes = isLiked ? 1 : 0;
+    const sid = String(s.id);
+    const remoteSet = communityLikesMap.get(sid) || new Set();
+    const isLiked = (currentUser && remoteSet.has(currentUser.id)) || remoteSet.has(myId) || !!storedLikes[sid];
+    let currentLikes = remoteSet.size;
+    if (isLiked && !remoteSet.has(myId) && (!currentUser || !remoteSet.has(currentUser.id))) {
+      currentLikes += 1;
+    }
+
     const tagsHtml = (s.tags && s.tags.length)
       ? `<div class="comm-scrap-tags">${s.tags.map(t => `<span class="comm-scrap-tag">#${esc(t)}</span>`).join('')}</div>`
       : '';
@@ -7230,13 +7455,13 @@ function renderCommunityScraps() {
     const mainTitle = titleParts.main || s.bookTitle || '';
 
     const coverUrl = s.cover ? getSafeImageUrl(s.cover) : '';
-    const clickDetail = s.bookId ? `onclick="showDetail('${s.bookId}')"` : '';
+    const clickDetail = s.bookId ? `onclick="showDetail('${esc(s.bookId)}')"` : '';
     const coverHtml = coverUrl
       ? `<img class="comm-scrap-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" decoding="async" ${clickDetail} onerror="handleCommCoverError(this)">`
       : `<div class="comm-scrap-cover-placeholder" ${clickDetail}>8ook</div>`;
 
     return `
-      <div class="comm-scrap-card" id="csc-${s.id}">
+      <div class="comm-scrap-card" id="csc-${esc(sid)}">
         <div class="comm-scrap-body">
           ${coverHtml}
           <div class="comm-scrap-text">${esc(s.text)}</div>
@@ -7256,7 +7481,7 @@ function renderCommunityScraps() {
               <button class="comm-scrap-btn" onclick="copyCommunityQuote('${esc(s.text.replace(/'/g, "\\'"))}', '${esc(mainTitle.replace(/'/g, "\\'"))}', '${esc((s.author || '').replace(/'/g, "\\'"))}', '${s.page || ''}')" title="문장 복사">
                 복사
               </button>
-              <button type="button" class="comm-scrap-like-btn${isLiked ? ' liked' : ''}" onclick="toggleCommunityLike('${s.id}', this, event)" title="좋아요">
+              <button type="button" class="comm-scrap-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(sid)}" onclick="toggleCommunityLike('${esc(sid)}', this, event)" title="좋아요">
                 <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
               </button>
             </div>
@@ -7283,34 +7508,87 @@ function copyCommunityQuote(text, bookTitle, author, page) {
   }
 }
 
-function toggleCommunityLike(id, btnEl, event) {
+async function toggleCommunityLike(id, btnEl, event) {
   if (event) {
     event.stopPropagation();
     event.preventDefault();
   }
+  const strId = String(id);
   let storedLikes = {};
   try {
     const raw = localStorage.getItem('rj_community_likes');
     if (raw) storedLikes = JSON.parse(raw);
   } catch (e) {}
 
-  const wasLiked = !!storedLikes[id];
-  const countSpan = btnEl.querySelector('.like-count');
-
-  if (wasLiked) {
-    delete storedLikes[id];
-    btnEl.classList.remove('liked');
-    if (countSpan) countSpan.textContent = '0';
-  } else {
-    storedLikes[id] = true;
-    btnEl.classList.add('liked');
-    if (countSpan) countSpan.textContent = '1';
-    toast('문장에 좋아요를 남겼습니다 ♥');
+  const myId = getClientLikeId();
+  if (!communityLikesMap.has(strId)) {
+    communityLikesMap.set(strId, new Set());
   }
+  const remoteSet = communityLikesMap.get(strId);
 
+  const wasLiked = (currentUser && remoteSet.has(currentUser.id)) || remoteSet.has(myId) || !!storedLikes[strId];
+  const willBeLiked = !wasLiked;
+
+  // 1. Update local cache
+  if (willBeLiked) {
+    storedLikes[strId] = true;
+    remoteSet.add(myId);
+    if (currentUser) remoteSet.add(currentUser.id);
+  } else {
+    delete storedLikes[strId];
+    remoteSet.delete(myId);
+    if (currentUser) remoteSet.delete(currentUser.id);
+  }
   try {
     localStorage.setItem('rj_community_likes', JSON.stringify(storedLikes));
   } catch (e) {}
+
+  // 2. Immediate UI update
+  btnEl.classList.toggle('liked', willBeLiked);
+  const countSpan = btnEl.querySelector('.like-count');
+  if (countSpan) {
+    countSpan.textContent = String(remoteSet.size);
+  }
+  if (willBeLiked) {
+    toast('문장에 좋아요를 남겼습니다 ♥');
+  } else {
+    toast('문장 좋아요를 취소했습니다.');
+  }
+
+  // 3. Broadcast
+  broadcastLikeUpdate(strId, currentUser?.id || myId, willBeLiked);
+
+  // 4. Supabase sync if logged in
+  if (currentUser && supabaseClient) {
+    const safeUId = currentUser.id.replace(/[^a-zA-Z0-9_-]/g, '');
+    const safeTargetId = strId.replace(/[^a-zA-Z0-9_-]/g, '');
+    const likeRowId = 'like_' + safeUId + '_' + safeTargetId;
+
+    try {
+      if (willBeLiked) {
+        const { error } = await supabaseClient.from('books').upsert({
+          id: likeRowId,
+          user_id: currentUser.id,
+          title: '__like__',
+          author: strId,
+          is_public: true,
+          created_at: new Date().toISOString()
+        }, { onConflict: 'id' });
+        if (error) console.warn('[Like Sync] Scrap upsert error:', error);
+      } else {
+        const { error } = await supabaseClient.from('books').delete().eq('id', likeRowId).eq('user_id', currentUser.id);
+        if (error) console.warn('[Like Sync] Scrap delete error:', error);
+      }
+    } catch (err) {
+      console.warn('[Like Sync] Supabase error:', err);
+    }
+  } else if (willBeLiked) {
+    setTimeout(() => {
+      if (!currentUser) {
+        toast('로그인하시면 다른 기기에서도 좋아요가 영구 보존됩니다.');
+      }
+    }, 1200);
+  }
 }
 
 
