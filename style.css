@@ -2326,7 +2326,10 @@
 
     .modal-hdr {
       display:flex; align-items:center; justify-content:space-between;
-      padding:22px 22px 0;
+      padding:20px 22px 10px;
+      position:sticky; top:0;
+      background:var(--bg-surface);
+      z-index:10;
     }
     .modal-ttl { font-size:19px; font-weight:700; color:var(--text-100); }
     .modal-x {

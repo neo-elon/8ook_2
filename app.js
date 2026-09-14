@@ -2258,7 +2258,8 @@ function openAddModal() {
   modalCover = '';
   modalSpineCover = '';
   document.getElementById('book-modal-ttl').textContent = '책 추가';
-  document.getElementById('bk-title').value = '';
+  const titleEl = document.getElementById('bk-title');
+  if (titleEl) titleEl.value = '';
   const subEl = document.getElementById('bk-subtitle');
   if (subEl) subEl.value = '';
   document.getElementById('bk-author').value = '';
@@ -2284,6 +2285,18 @@ function openAddModal() {
   if (spineEl) { spineEl.style.width = '44px'; spineEl.style.minWidth = '44px'; }
   updateStarBtns(0);
   openModal('book-modal');
+
+  const modal = document.getElementById('book-modal');
+  if (modal) {
+    modal.scrollTop = 0;
+    const box = modal.querySelector('.modal-box');
+    if (box) box.scrollTop = 0;
+  }
+  setTimeout(() => {
+    const box = document.querySelector('#book-modal .modal-box');
+    if (box) box.scrollTop = 0;
+    if (titleEl) titleEl.focus();
+  }, 50);
 }
 
 async function openEditModal(id, focusKeywords = false) {
@@ -2302,7 +2315,8 @@ async function openEditModal(id, focusKeywords = false) {
 
   document.getElementById('book-modal-ttl').textContent = '책 정보 수정';
   const titleParts = splitBookTitle(b);
-  document.getElementById('bk-title').value = titleParts.main;
+  const titleEl = document.getElementById('bk-title');
+  if (titleEl) titleEl.value = titleParts.main;
   const editSubEl = document.getElementById('bk-subtitle');
   if (editSubEl) editSubEl.value = titleParts.sub;
   document.getElementById('bk-author').value = b.author || '';
@@ -2349,12 +2363,22 @@ async function openEditModal(id, focusKeywords = false) {
   updateStarBtns(currentRating);
   openModal('book-modal');
 
-  if (focusKeywords) {
-    setTimeout(() => {
+  const modal = document.getElementById('book-modal');
+  if (modal) {
+    modal.scrollTop = 0;
+    const box = modal.querySelector('.modal-box');
+    if (box) box.scrollTop = 0;
+  }
+  setTimeout(() => {
+    const box = document.querySelector('#book-modal .modal-box');
+    if (box) box.scrollTop = 0;
+    if (focusKeywords) {
       const kw = document.getElementById('bk-kw1');
       if (kw) { kw.focus(); kw.select(); }
-    }, 150);
-  }
+    } else {
+      if (titleEl) titleEl.focus();
+    }
+  }, 50);
 }
 
 function onUrlInput(v) {
@@ -5857,7 +5881,15 @@ function adjustGrid(scale) {
    MODAL HELPERS
 ============================================== */
 function openModal(id) {
-  document.getElementById(id).classList.add('open');
+  const modal = document.getElementById(id);
+  if (modal) {
+    modal.classList.add('open');
+    modal.scrollTop = 0;
+    const box = modal.querySelector('.modal-box');
+    if (box) box.scrollTop = 0;
+    const body = modal.querySelector('.modal-body');
+    if (body) body.scrollTop = 0;
+  }
   document.body.style.overflow = 'hidden';
 }
 function closeModal(id) {
@@ -5871,8 +5903,6 @@ function closeModal(id) {
     ocrImg = null; ocrSelDiv = null;
   }
 
-
-
   if (id === 'barcode-scanner-modal') {
     closeBarcodeScannerModal();
   }
@@ -5880,6 +5910,11 @@ function closeModal(id) {
   const modal = document.getElementById(id);
   if (modal) {
     modal.classList.remove('open');
+    modal.scrollTop = 0;
+    const box = modal.querySelector('.modal-box');
+    if (box) box.scrollTop = 0;
+    const body = modal.querySelector('.modal-body');
+    if (body) body.scrollTop = 0;
   }
   document.body.style.overflow = '';
 
