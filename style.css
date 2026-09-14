@@ -2494,9 +2494,10 @@
       font-size: 11.5px;
       font-weight: 600;
       color: var(--text-300);
-      min-width: 46px;
-      width: 46px;
+      min-width: 44px;
+      width: 44px;
       flex-shrink: 0;
+      white-space: nowrap !important;
       border-right: 1px solid var(--border);
       padding-right: 6px;
       margin-right: 8px;
@@ -2577,49 +2578,77 @@
       }
     }
     
-    /* Date input Safari & WebKit Normalization */
-    .bk-date-inp,
-    input[type="date"].bk-date-inp {
+    /* Date input inside fi-inline-row: seamless transparent alignment */
+    .fi-inline-row .bk-date-inp,
+    .fi-inline-input.bk-date-inp,
+    input[type="date"].fi-inline-input {
       -webkit-appearance: none !important;
       -moz-appearance: none !important;
       appearance: none !important;
-      display: block !important;
+      display: flex !important;
+      align-items: center !important;
       width: 100% !important;
       max-width: 100% !important;
       min-width: 0 !important;
       box-sizing: border-box !important;
-      padding: 8px 6px !important;
-      font-size: 12px !important;
-      height: 38px !important;
+      padding: 0 !important;
+      font-size: 13px !important;
+      height: 100% !important;
       line-height: normal !important;
-      text-align: center !important;
-      background: var(--glass) !important;
-      border: 1px solid var(--border) !important;
-      border-radius: var(--radius-sm) !important;
+      text-align: left !important;
+      background: transparent !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      outline: none !important;
       color: var(--text-100) !important;
       color-scheme: light !important;
-      overflow: hidden !important;
+      cursor: pointer !important;
     }
-    .bk-date-inp::-webkit-date-and-time-value {
-      min-width: 0 !important;
-      text-align: center !important;
-      margin: 0 !important;
+    .fi-inline-row .bk-date-inp:focus,
+    .fi-inline-input.bk-date-inp:focus,
+    input[type="date"].fi-inline-input:focus {
+      outline: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      background: transparent !important;
+    }
+    .fi-inline-row .bk-date-inp::-webkit-datetime-edit-fields-wrapper {
       padding: 0 !important;
-      line-height: 20px !important;
+      background: transparent !important;
     }
-    .bk-date-inp::-webkit-datetime-edit {
-      display: inline-flex !important;
-      justify-content: center !important;
-      padding: 0 !important;
-      min-width: 0 !important;
-    }
-    .bk-date-inp::-webkit-calendar-picker-indicator {
+    .fi-inline-row .bk-date-inp::-webkit-inner-spin-button {
       display: none !important;
       -webkit-appearance: none !important;
-      width: 0 !important;
-      height: 0 !important;
+    }
+    .fi-inline-row .bk-date-inp::-webkit-date-and-time-value,
+    .fi-inline-input.bk-date-inp::-webkit-date-and-time-value {
+      min-width: 0 !important;
+      text-align: left !important;
       margin: 0 !important;
       padding: 0 !important;
+      line-height: normal !important;
+    }
+    .fi-inline-row .bk-date-inp::-webkit-datetime-edit,
+    .fi-inline-input.bk-date-inp::-webkit-datetime-edit {
+      display: inline-flex !important;
+      justify-content: flex-start !important;
+      padding: 0 !important;
+      min-width: 0 !important;
+    }
+    .fi-inline-row .bk-date-inp::-webkit-calendar-picker-indicator,
+    .fi-inline-input.bk-date-inp::-webkit-calendar-picker-indicator {
+      display: inline-block !important;
+      cursor: pointer !important;
+      opacity: 0.55 !important;
+      padding: 0 !important;
+      margin-left: auto !important;
+      margin-right: 2px !important;
+      transition: opacity 0.2s !important;
+    }
+    .fi-inline-row .bk-date-inp::-webkit-calendar-picker-indicator:hover,
+    .fi-inline-input.bk-date-inp::-webkit-calendar-picker-indicator:hover {
+      opacity: 0.9 !important;
     }
 
     .img-prev-ph {
