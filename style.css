@@ -1314,7 +1314,7 @@
     }
 
     /* ==============================================
-       Premium Clothbound Hardcover Spine (천 표지 / 패브릭 북클로스 양장본)
+       Modern Paperback Spine Design (그림자 효과 최소화)
     ============================================== */
     .spine-custom-view {
       position: absolute;
@@ -1323,97 +1323,59 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 3px 6px;
+      padding: 8px 3px 10px;
       z-index: 0;
       border-radius: 2px 2px 0 0;
       overflow: hidden;
-      box-shadow: inset 2px 0 4px rgba(0, 0, 0, 0.35), inset -2px 0 4px rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(0, 0, 0, 0.28);
+      box-shadow: inset 1px 0 1px rgba(0, 0, 0, 0.08), inset -1px 0 1px rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.12);
       transition: background 0.4s ease-out;
     }
     .spine-custom-view.show-fallback {
       display: flex !important;
     }
 
-    /* 촘촘하고 섬세한 천(린넨/북클로스) 직조 질감 레이어 */
-    .spine-cloth-texture {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-      opacity: 0.32;
-      background-image:
-        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.08) 0px, rgba(255, 255, 255, 0.08) 1px, transparent 1px, transparent 2px),
-        repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.16) 0px, rgba(0, 0, 0, 0.16) 1px, transparent 1px, transparent 2px),
-        radial-gradient(ellipse at 50% 35%, rgba(255, 255, 255, 0.12) 0%, rgba(0, 0, 0, 0.25) 100%);
-      mix-blend-mode: overlay;
-    }
-
-    /* 양장본 천 표지 특유의 프렌치 그루브 힌지 관절 홈 */
-    .spine-cloth-hinge {
+    /* Subtle Paper Hinge Fold Crease (그림자 최소화) */
+    .spine-paperback-crease {
       position: absolute;
       inset: 0;
       pointer-events: none;
       z-index: 1;
       background: linear-gradient(
         90deg,
-        rgba(0, 0, 0, 0.42) 0%,
-        rgba(0, 0, 0, 0.1) 8%,
-        rgba(255, 255, 255, 0.08) 22%,
-        rgba(255, 255, 255, 0.15) 50%,
-        rgba(255, 255, 255, 0.05) 78%,
-        rgba(0, 0, 0, 0.14) 92%,
-        rgba(0, 0, 0, 0.46) 100%
+        rgba(0, 0, 0, 0.08) 0%,
+        rgba(0, 0, 0, 0.02) 8%,
+        rgba(255, 255, 255, 0.05) 25%,
+        rgba(255, 255, 255, 0.08) 50%,
+        rgba(255, 255, 255, 0.04) 75%,
+        rgba(0, 0, 0, 0.03) 92%,
+        rgba(0, 0, 0, 0.1) 100%
       );
     }
 
-    /* 천 양장본 상/하단 스트라이프 꽃천(Headband) */
-    .spine-cloth-headband {
-      position: absolute;
-      left: 0;
-      right: 0;
-      height: 3.5px;
-      z-index: 3;
-      pointer-events: none;
-      background: repeating-linear-gradient(
-        90deg,
-        #d4af37 0px, #d4af37 2.5px,
-        #232a35 2.5px, #232a35 5px
-      );
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
-    }
-    .spine-cloth-headband.top { top: 0; }
-    .spine-cloth-headband.bottom { bottom: 0; }
-
-    /* 천 표지 상단 금박 필릿 및 8ook 각인 */
-    .spine-cloth-header {
+    /* Modern Top Header / Badge */
+    .spine-paperback-header {
       position: relative;
       z-index: 2;
       width: 100%;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      gap: 2.5px;
-      padding-top: 4px;
+      padding-top: 2px;
     }
-    .spine-cloth-fillet {
-      width: 78%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent 0%, rgba(247, 231, 196, 0.7) 50%, transparent 100%);
-      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
-    }
-    .spine-cloth-badge {
-      font-family: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
-      font-size: 8.5px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      color: #f7e8c3;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85), 0 0 3px rgba(212, 175, 55, 0.4);
+    .spine-paperback-badge {
+      font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.95);
       text-transform: uppercase;
-      padding: 0.5px 0;
+      padding: 1px 4px;
+      border-radius: 2px;
+      background: rgba(0, 0, 0, 0.18);
     }
 
-    /* 천 표지 금박 압인(Gold Foil Stamping) 도서 제목 */
+    /* Modern Spine Title (그림자 최소화) */
     .spine-title-wrap {
       position: relative;
       z-index: 2;
@@ -1422,94 +1384,100 @@
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;
-      padding: 8px 0 6px;
+      padding: 10px 0 6px;
       overflow: hidden;
       width: 100%;
     }
-    .spine-title-cloth {
+    .spine-title-modern {
       writing-mode: vertical-rl;
       text-orientation: mixed;
       font-size: 13.5px;
       font-weight: 600;
-      letter-spacing: 1.8px;
+      letter-spacing: 1.5px;
       max-height: 235px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-family: 'Noto Serif KR', 'Playfair Display', 'Batang', serif;
-      color: #f9ecd2;
-      text-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.85), 0 0 3px rgba(225, 190, 110, 0.45);
-      line-height: 1.15;
+      font-family: 'Noto Sans KR', 'Pretendard', -apple-system, sans-serif;
+      color: #ffffff;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+      line-height: 1.1;
     }
 
-    /* 천 표지 금박 각인 저자명 */
+    /* Modern Spine Author (그림자 최소화) */
     .spine-author-wrap {
       position: relative;
       z-index: 2;
-      padding: 4px 0 6px;
+      padding: 4px 0 8px;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .spine-author-cloth {
+    .spine-author-modern {
       writing-mode: vertical-rl;
       text-orientation: mixed;
       font-size: 9.5px;
       font-weight: 500;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
       max-height: 70px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-family: 'Noto Serif KR', serif;
-      color: rgba(247, 235, 215, 0.88);
-      text-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.8);
+      font-family: 'Noto Sans KR', sans-serif;
+      color: rgba(255, 255, 255, 0.88);
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.18);
     }
 
-    /* 천 표지 하단 금박 엠블럼 */
-    .spine-cloth-footer {
+    /* Modern Spine Footer / Barcode Edition Mark */
+    .spine-paperback-footer {
       position: relative;
       z-index: 2;
       width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2.5px;
-      padding-bottom: 4px;
+      padding-bottom: 2px;
     }
-    .spine-cloth-emblem {
-      width: 6.5px;
-      height: 6.5px;
-      border: 1px solid rgba(247, 231, 196, 0.75);
-      transform: rotate(45deg);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
+    .spine-barcode-mark {
+      display: flex;
+      align-items: flex-end;
+      gap: 1.5px;
+      height: 9px;
+      opacity: 0.65;
+      color: currentColor;
     }
+    .spine-barcode-mark i {
+      display: inline-block;
+      width: 1px;
+      height: 100%;
+      background: currentColor;
+    }
+    .spine-barcode-mark i:nth-child(2) { width: 2px; height: 85%; }
+    .spine-barcode-mark i:nth-child(3) { width: 1px; height: 100%; }
+    .spine-barcode-mark i:nth-child(4) { width: 2.5px; height: 75%; }
+    .spine-barcode-mark i:nth-child(5) { width: 1px; height: 100%; }
 
-    /* 내추럴 오트밀/밝은 린넨 천 표지 (음각 잉크 압인) */
-    .spine-custom-view.spine-light-cloth {
-      border-color: rgba(60, 45, 30, 0.25);
-      box-shadow: inset 2px 0 4px rgba(0, 0, 0, 0.12), inset -2px 0 4px rgba(0, 0, 0, 0.12);
+    /* Modern Light / Cream Paper Spine Variant (그림자 최소화) */
+    .spine-custom-view.spine-light-paper {
+      border-color: rgba(0, 0, 0, 0.08);
+      box-shadow: inset 1px 0 2px rgba(0, 0, 0, 0.04), inset -1px 0 1px rgba(255, 255, 255, 0.3);
     }
-    .spine-custom-view.spine-light-cloth .spine-cloth-fillet {
-      background: linear-gradient(90deg, transparent 0%, rgba(60, 48, 36, 0.45) 50%, transparent 100%);
-      box-shadow: none;
+    .spine-custom-view.spine-light-paper .spine-paperback-badge {
+      background: rgba(0, 0, 0, 0.06);
+      color: #1a1d20;
     }
-    .spine-custom-view.spine-light-cloth .spine-cloth-badge {
-      color: #2b251e;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+    .spine-custom-view.spine-light-paper .spine-title-modern {
+      color: #1a1d20 !important;
+      text-shadow: none;
     }
-    .spine-custom-view.spine-light-cloth .spine-title-cloth {
-      color: #231e19 !important;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55) !important;
+    .spine-custom-view.spine-light-paper .spine-author-modern {
+      color: #4b5257 !important;
+      text-shadow: none;
     }
-    .spine-custom-view.spine-light-cloth .spine-author-cloth {
-      color: #554a3e !important;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-    }
-    .spine-custom-view.spine-light-cloth .spine-cloth-emblem {
-      border-color: rgba(60, 48, 36, 0.55);
-      box-shadow: none;
+    .spine-custom-view.spine-light-paper .spine-barcode-mark {
+      color: #1a1d20;
+      opacity: 0.45;
     }
 
     /* 5-Star Sleek Gold Bookmark Ribbon (Modern replacement for bulky wax seal) */
