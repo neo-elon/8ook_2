@@ -7521,7 +7521,7 @@ function getMostShelvedCommunityBooks() {
   const groups = new Map();
   const seenBookIds = new Set();
 
-  function addToGroup(b) {
+  function addToGroup(b, sourceUserId) {
     if (!b || isGuideBook(b) || !b.title || b.title === '__like__' || b.id?.startsWith('like_') || b.is_public === false) return;
     const strId = b.id ? String(b.id) : null;
     if (strId && seenBookIds.has(strId)) return;
@@ -7541,30 +7541,38 @@ function getMostShelvedCommunityBooks() {
     const g = groups.get(normTitle);
     g.copies.push(b);
     g.totalScraps += (b.scraps || []).length;
-    if (b.user_id) g.distinctUsers.add(b.user_id);
-    else if (b.id) g.distinctUsers.add(b.id);
+
+    // 한 사람이 여러 번 등록(재독 등)한 것은 1명으로만 인정
+    const personId = b.user_id || sourceUserId || (b.id ? 'anon_' + b.id : 'anon');
+    g.distinctUsers.add(personId);
 
     // Pick best representative (one with cover, review, and author)
     if (!g.repBook.cover && b.cover) g.repBook = b;
     if (!g.repBook.review && (b.review || b.sentence)) g.repBook = b;
   }
 
+  // 1. Supabase 원격 도서 (각 도서의 실제 user_id 반영)
   if (Array.isArray(remoteCommunityBooks)) {
-    remoteCommunityBooks.forEach(b => addToGroup(b));
+    remoteCommunityBooks.forEach(b => addToGroup(b, b.user_id || ('remote_anon_' + b.id)));
   }
+
+  // 2. 현재 로그인/로컬 사용자의 서재 도서 (현재 사용자 1명의 서재로 인식)
+  const myUserId = (currentUser && currentUser.id) ? currentUser.id : 'local_current_user';
   if (Array.isArray(books)) {
-    books.forEach(b => addToGroup(b));
+    books.forEach(b => addToGroup(b, myUserId));
   }
+
+  // 3. 기본 데이터셋 도서 (큐레이터 1명의 연도별 누적 독서기록으로 인식)
   if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
-    window.NEO_BOOKS_131.forEach(b => addToGroup(b));
+    window.NEO_BOOKS_131.forEach(b => addToGroup(b, 'neo_dataset_curator'));
   }
 
   const result = [];
   groups.forEach((g) => {
-    // 실제 꽂힌 서재 횟수만 계산 (가중치 제거, 실제 등록된 서재/사본 수)
-    const count = Math.max(g.copies.length, g.distinctUsers.size);
+    // 한 사람이 여러 번 꽂은 것은 1회로 합산 -> 서로 다른 독서가(서재) 수만 카운트
+    const count = g.distinctUsers.size;
 
-    // 1회 꽂힌 책은 아예 제외 (2회 이상 꽂힌 책만 노출)
+    // 서로 다른 독서가가 1명(1회) 이하인 책은 제외 (2명 이상의 서로 다른 독서가가 꽂은 책만 노출)
     if (count <= 1) return;
 
     const b = g.repBook;
