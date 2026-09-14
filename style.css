@@ -3052,22 +3052,37 @@
       border: 1px solid var(--border);
       border-radius: 30px;
       padding: 4px;
-      gap: 6px;
+      gap: 5px;
       max-width: 100%;
+    }
+    @media (max-width: 520px) {
+      .comm-tab-bar {
+        display: flex;
+        gap: 3px;
+        padding: 3px;
+        width: 100%;
+      }
+      .comm-tab-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 7px 8px !important;
+        font-size: 11px !important;
+      }
     }
     .comm-tab-btn {
       border: 1px solid transparent;
       background: transparent;
-      padding: 8px 18px;
+      padding: 8px 16px;
       border-radius: 24px;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       color: var(--text-300);
       cursor: pointer;
       transition: all 0.25s var(--ease);
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
+      white-space: nowrap;
     }
     .comm-tab-btn:hover {
       color: var(--text-100);
@@ -3312,6 +3327,23 @@
       font-size: 11.5px;
       color: var(--text-400);
       padding: 8px 0;
+      letter-spacing: -0.2px;
+    }
+
+    /* Shelved count badge for most popular books */
+    .comm-shelved-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(140, 98, 57, 0.12);
+      border: 1px solid rgba(140, 98, 57, 0.28);
+      color: var(--violet);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 12px;
+      width: fit-content;
+      margin-bottom: 2px;
       letter-spacing: -0.2px;
     }
 

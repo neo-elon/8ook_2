@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260914_books_infscroll_v52">
+  <link rel="stylesheet" href="style.css?v=20260914_popular_tab_v53">
 </head>
 <body>
 
@@ -297,6 +297,9 @@
           <button type="button" class="comm-tab-btn active" id="comm-tab-books-btn" onclick="switchCommunityTab('books')">
             <span class="comm-tab-label">새로 추가된 책</span>
           </button>
+          <button type="button" class="comm-tab-btn" id="comm-tab-popular-btn" onclick="switchCommunityTab('popular')">
+            <span class="comm-tab-label">많이 꽂힌 책</span>
+          </button>
           <button type="button" class="comm-tab-btn" id="comm-tab-scraps-btn" onclick="switchCommunityTab('scraps')">
             <span class="comm-tab-label">새로 추가된 문장</span>
           </button>
@@ -313,6 +316,18 @@
           <!-- Rendered dynamically -->
         </div>
         <div id="comm-books-load-trigger" class="comm-load-trigger"></div>
+      </div>
+
+      <!-- Popular / Most Shelved Books Panel -->
+      <div id="comm-popular-panel" class="comm-panel">
+        <div class="comm-panel-header">
+          <div class="comm-panel-title" id="comm-popular-panel-title">많이 꽂힌 책</div>
+          <div class="comm-panel-caption">여러 독서가의 서재에 함께 꽂힌 도서들</div>
+        </div>
+        <div class="comm-books-grid" id="comm-popular-grid">
+          <!-- Rendered dynamically -->
+        </div>
+        <div id="comm-popular-load-trigger" class="comm-load-trigger"></div>
       </div>
 
       <!-- Scraps Panel -->

@@ -7112,10 +7112,12 @@ async function showCommunity(pushHistory = true) {
 
   // 커뮤니티 도서 초기 9권 설정 및 무한 스크롤 리스너 준비
   communityBooksLimit = 9;
+  communityPopularBooksLimit = 9;
   initCommunityScroll();
 
   // 먼저 로컬/기존 캐시로 즉시 렌더링
   renderCommunityBooks();
+  renderCommunityPopularBooks();
   renderCommunityScraps();
   switchCommunityTab(currentCommunityTab);
 
@@ -7130,20 +7132,24 @@ async function showCommunity(pushHistory = true) {
 function switchCommunityTab(tab) {
   currentCommunityTab = tab;
   const booksBtn = document.getElementById('comm-tab-books-btn');
+  const popularBtn = document.getElementById('comm-tab-popular-btn');
   const scrapsBtn = document.getElementById('comm-tab-scraps-btn');
   const booksPanel = document.getElementById('comm-books-panel');
+  const popularPanel = document.getElementById('comm-popular-panel');
   const scrapsPanel = document.getElementById('comm-scraps-panel');
 
-  if (tab === 'books') {
-    if (booksBtn) booksBtn.classList.add('active');
-    if (scrapsBtn) scrapsBtn.classList.remove('active');
-    if (booksPanel) booksPanel.classList.add('active');
-    if (scrapsPanel) scrapsPanel.classList.remove('active');
-  } else {
-    if (booksBtn) booksBtn.classList.remove('active');
-    if (scrapsBtn) scrapsBtn.classList.add('active');
-    if (booksPanel) booksPanel.classList.remove('active');
-    if (scrapsPanel) scrapsPanel.classList.add('active');
+  if (booksBtn) booksBtn.classList.toggle('active', tab === 'books');
+  if (popularBtn) popularBtn.classList.toggle('active', tab === 'popular');
+  if (scrapsBtn) scrapsBtn.classList.toggle('active', tab === 'scraps');
+
+  if (booksPanel) booksPanel.classList.toggle('active', tab === 'books');
+  if (popularPanel) popularPanel.classList.toggle('active', tab === 'popular');
+  if (scrapsPanel) scrapsPanel.classList.toggle('active', tab === 'scraps');
+
+  if (tab === 'popular') {
+    renderCommunityPopularBooks();
+  } else if (tab === 'books') {
+    renderCommunityBooks();
   }
 }
 
@@ -7405,7 +7411,17 @@ function checkCommunityScroll() {
   const remainingWindow = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
 
   if (remainingInner < 300 || remainingWindow < 300) {
-    loadMoreCommunityBooks();
+    if (currentCommunityTab === 'books') {
+      const allBooks = getAllCommunityBooks();
+      if (communityBooksLimit < allBooks.length) {
+        loadMoreCommunityBooks();
+      }
+    } else if (currentCommunityTab === 'popular') {
+      const allPopular = getMostShelvedCommunityBooks();
+      if (communityPopularBooksLimit < allPopular.length) {
+        loadMoreCommunityPopularBooks();
+      }
+    }
   }
 }
 
@@ -7416,6 +7432,222 @@ function initCommunityScroll() {
     commView.addEventListener('scroll', checkCommunityScroll, { passive: true });
     window.addEventListener('scroll', checkCommunityScroll, { passive: true });
   }
+}
+
+let communityPopularBooksLimit = 9;
+let isCommunityPopularLoading = false;
+let communityPopularObserver = null;
+
+function getMostShelvedCommunityBooks() {
+  const groups = new Map();
+
+  function addToGroup(b) {
+    if (!b || isGuideBook(b) || !b.title || b.title === '__like__' || b.id?.startsWith('like_') || b.is_public === false) return;
+    const normTitle = (b.title || '').trim().toLowerCase().replace(/[\s\-_:·・《》〈〉()]/g, '');
+    if (!normTitle) return;
+
+    if (!groups.has(normTitle)) {
+      groups.set(normTitle, {
+        repBook: b,
+        copies: [],
+        totalScraps: 0,
+        distinctUsers: new Set()
+      });
+    }
+    const g = groups.get(normTitle);
+    g.copies.push(b);
+    g.totalScraps += (b.scraps || []).length;
+    if (b.user_id) g.distinctUsers.add(b.user_id);
+    else if (b.id) g.distinctUsers.add(b.id);
+
+    // Pick best representative (one with cover, review, and author)
+    if (!g.repBook.cover && b.cover) g.repBook = b;
+    if (!g.repBook.review && (b.review || b.sentence)) g.repBook = b;
+  }
+
+  if (Array.isArray(remoteCommunityBooks)) {
+    remoteCommunityBooks.forEach(b => addToGroup(b));
+  }
+  if (Array.isArray(books)) {
+    books.forEach(b => addToGroup(b));
+  }
+  if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
+    window.NEO_BOOKS_131.forEach(b => addToGroup(b));
+  }
+
+  const result = [];
+  groups.forEach((g) => {
+    const b = g.repBook;
+    const titleParts = splitBookTitle(b);
+    const mainTitle = b.title && b.subtitle !== undefined ? b.title : (titleParts.main || b.title);
+    const subTitle = b.subtitle !== undefined ? b.subtitle : (titleParts.sub || '');
+    const userRating = (b.rating && Number(b.rating) > 0) ? Number(b.rating) : null;
+    const userReview = (b.sentence || b.review || b.oneLineReview || '').trim();
+
+    // 꽂힌 횟수: 등록된 서재 수 + 스크랩 활성도 가중치
+    let count = Math.max(g.copies.length, g.distinctUsers.size);
+    if (g.totalScraps > 0) {
+      count += Math.min(5, Math.ceil(g.totalScraps / 2));
+    }
+
+    const bid = String(b.id);
+    const remoteSet = communityLikesMap.get(bid) || new Set();
+    const likesCount = remoteSet.size;
+
+    result.push({
+      id: b.id,
+      title: mainTitle,
+      subtitle: subTitle,
+      author: b.author || '저자 미상',
+      cover: b.cover || '',
+      rating: userRating,
+      review: userReview || null,
+      shelvedCount: count,
+      likesCount: likesCount,
+      time: formatTimeAgo(b.created_at || b.date)
+    });
+  });
+
+  // 여러 번 꽂힌 순(내림차순) 정렬, 동일 시 좋아요/평점 순
+  result.sort((a, b) => {
+    if (b.shelvedCount !== a.shelvedCount) return b.shelvedCount - a.shelvedCount;
+    if (b.likesCount !== a.likesCount) return b.likesCount - a.likesCount;
+    return (b.rating || 0) - (a.rating || 0);
+  });
+
+  return result;
+}
+
+function renderCommunityPopularBooks() {
+  const container = document.getElementById('comm-popular-grid');
+  if (!container) return;
+
+  const allPopular = getMostShelvedCommunityBooks();
+  const totalCount = allPopular.length;
+  const list = allPopular.slice(0, communityPopularBooksLimit);
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; padding: 60px 20px; text-align: center; color: var(--text-300); font-size: 13.5px;">
+        <div style="font-weight: 600; color: var(--text-200); margin-bottom: 4px;">아직 여러 서재에 꽂힌 도서가 없습니다.</div>
+        <div style="font-size: 12px; color: var(--text-400);">여러 서재에 공통으로 책이 등록되면 이곳에 모입니다.</div>
+      </div>
+    `;
+    const triggerEl = document.getElementById('comm-popular-load-trigger');
+    if (triggerEl) triggerEl.innerHTML = '';
+    return;
+  }
+
+  let storedBookLikes = {};
+  try {
+    const raw = localStorage.getItem('rj_community_book_likes');
+    if (raw) storedBookLikes = JSON.parse(raw);
+  } catch (e) {}
+
+  const myId = getClientLikeId();
+
+  container.innerHTML = list.map(b => {
+    const bid = String(b.id);
+    const coverUrl = b.cover ? getSafeImageUrl(b.cover) : '';
+    const coverHtml = coverUrl
+      ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(b.title)}" referrerpolicy="no-referrer" decoding="async" onclick="showDetail('${esc(bid)}')" onerror="handleCommCoverError(this)">`
+      : `<div class="comm-book-cover-placeholder" onclick="showDetail('${esc(bid)}')">8ook</div>`;
+
+    const ratingHtml = (b.rating && Number(b.rating) > 0)
+      ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${Number(b.rating).toFixed(1)}</span></div>`
+      : '';
+
+    const reviewHtml = (b.review && b.review.trim())
+      ? `<div class="comm-book-review" title="${esc(b.review.trim())}">“${esc(b.review.trim())}”</div>`
+      : '';
+
+    const remoteSet = communityLikesMap.get(bid) || new Set();
+    const isLiked = (currentUser && remoteSet.has(currentUser.id)) || remoteSet.has(myId) || !!storedBookLikes['bk_' + bid];
+    let currentLikes = remoteSet.size;
+    if (isLiked && !remoteSet.has(myId) && (!currentUser || !remoteSet.has(currentUser.id))) {
+      currentLikes += 1;
+    }
+
+    return `
+      <div class="comm-book-card" id="comm-pop-${esc(bid)}">
+        ${coverHtml}
+        <div class="comm-book-info">
+          <div class="comm-shelved-badge">🔖 ${b.shelvedCount}회 꽂힘</div>
+          <div class="comm-book-title" onclick="showDetail('${esc(bid)}')" title="${esc(b.title)}">${esc(b.title)}</div>
+          <div class="comm-book-author">${esc(b.author)}</div>
+          ${ratingHtml}
+          ${reviewHtml}
+          <div class="comm-book-meta">
+            <span class="comm-book-time">${esc(b.time || '')}</span>
+            <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
+              <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Update trigger
+  const triggerEl = document.getElementById('comm-popular-load-trigger');
+  if (triggerEl) {
+    if (list.length < totalCount) {
+      triggerEl.style.display = 'block';
+      triggerEl.innerHTML = `
+        <button type="button" class="comm-load-more-btn" onclick="loadMoreCommunityPopularBooks()" title="도서 더 불러오기">
+          <span>도서 더 보기 (${list.length} / ${totalCount}) ↓</span>
+        </button>
+      `;
+    } else if (totalCount > 9) {
+      triggerEl.style.display = 'block';
+      triggerEl.innerHTML = `
+        <div class="comm-all-loaded-text">모든 꽂힌 도서를 불러왔습니다 (${totalCount}권)</div>
+      `;
+    } else {
+      triggerEl.style.display = 'none';
+      triggerEl.innerHTML = '';
+    }
+  }
+
+  setupCommunityPopularObserver();
+}
+
+function loadMoreCommunityPopularBooks() {
+  if (isCommunityPopularLoading) return;
+  const allPopular = getMostShelvedCommunityBooks();
+  if (communityPopularBooksLimit >= allPopular.length) return;
+
+  isCommunityPopularLoading = true;
+  communityPopularBooksLimit += 6;
+  renderCommunityPopularBooks();
+  setTimeout(() => {
+    isCommunityPopularLoading = false;
+  }, 200);
+}
+
+function setupCommunityPopularObserver() {
+  if (typeof IntersectionObserver === 'undefined') return;
+  if (communityPopularObserver) {
+    communityPopularObserver.disconnect();
+  }
+  const triggerEl = document.getElementById('comm-popular-load-trigger');
+  if (!triggerEl) return;
+
+  communityPopularObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        if (currentCommunityTab === 'popular' && !isCommunityPopularLoading) {
+          loadMoreCommunityPopularBooks();
+        }
+      }
+    });
+  }, {
+    root: document.getElementById('view-community') || null,
+    rootMargin: '250px 0px',
+    threshold: 0.05
+  });
+
+  communityPopularObserver.observe(triggerEl);
 }
 
 async function toggleCommunityBookLike(id, btnEl, event) {
