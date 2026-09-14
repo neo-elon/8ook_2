@@ -2186,13 +2186,12 @@
     }
 
     .scrap-list {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      columns: 2;
+      column-gap: 12px;
     }
     @media (max-width: 768px) {
       .scrap-list {
-        grid-template-columns: 1fr;
+        columns: 1;
       }
     }
     .scrap-item {
@@ -2201,6 +2200,10 @@
       display:flex; flex-direction:column; gap:7px;
       transition:border-color .2s;
       position:relative;
+      break-inside: avoid;
+      -webkit-column-break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 12px;
     }
     .scrap-item:hover { border-color:var(--border-accent); }
     .scrap-quote {
@@ -2209,7 +2212,7 @@
     }
     .scrap-quote::before { content:'\201C'; color:var(--violet); font-size:18px; line-height:0; vertical-align:-3px; margin-right:1px; }
     .scrap-quote::after  { content:'\201D'; color:var(--violet); font-size:18px; line-height:0; vertical-align:-3px; margin-left:1px; }
-    .scrap-foot { display:flex; gap:12px; align-items:center; margin-top:auto; }
+    .scrap-foot { display:flex; gap:12px; align-items:center; }
     .scrap-page { font-size:11px; color:var(--text-400); }
     .scrap-memo { font-size:12px; color:var(--text-300); font-style:normal; }
     .scrap-del {
@@ -3264,13 +3267,12 @@
 
     /* ── Scraps Stream (30 Quotes) ── */
     .comm-scraps-stream {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
+      columns: 2;
+      column-gap: 14px;
     }
     @media (max-width: 768px) {
       .comm-scraps-stream {
-        grid-template-columns: 1fr;
+        columns: 1;
       }
     }
     .comm-scrap-card {
@@ -3284,6 +3286,10 @@
       position: relative;
       display: flex;
       flex-direction: column;
+      break-inside: avoid;
+      -webkit-column-break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 14px;
     }
     .comm-scrap-card:hover {
       border-color: var(--border-accent);
@@ -3415,7 +3421,7 @@
       gap: 6px;
       border-top: 1px dashed var(--border-muted);
       padding-top: 8px;
-      margin-top: auto;
+      margin-top: 4px;
     }
     .comm-scrap-title-row {
       display: flex;
@@ -4107,13 +4113,12 @@
 
 /* Scraps Result Cards */
 .scraps-archive-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  columns: 2;
+  column-gap: 14px;
 }
 @media (max-width: 768px) {
   .scraps-archive-list {
-    grid-template-columns: 1fr;
+    columns: 1;
   }
 }
 .scrap-card-full {
@@ -4126,6 +4131,10 @@
   gap: 12px;
   transition: all 0.25s var(--ease);
   position: relative;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  margin-bottom: 14px;
 }
 .scrap-card-full:hover {
   border-color: var(--border-accent);
@@ -4233,7 +4242,6 @@
   gap: 8px;
   padding-top: 8px;
   border-top: 1px solid var(--border-muted);
-  margin-top: auto;
 }
 .scrap-card-tags {
   display: flex;
