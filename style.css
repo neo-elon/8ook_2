@@ -3133,23 +3133,19 @@
       color: var(--text-400);
     }
 
-    /* ── Books Grid (3-Column Row-by-Row Grid with Natural Card Heights) ── */
+    /* ── Books Masonry Flex Layout (Uniform 14px Vertical Gap) ── */
     .comm-books-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      display: flex;
       gap: 14px;
-      align-items: start;
+      align-items: flex-start;
+      width: 100%;
     }
-    @media (max-width: 900px) {
-      .comm-books-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-      }
-    }
-    @media (max-width: 580px) {
-      .comm-books-grid {
-        grid-template-columns: 1fr;
-      }
+    .comm-books-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 0;
     }
     .comm-book-card {
       background: var(--bg-surface);
@@ -3161,6 +3157,8 @@
       transition: all 0.25s var(--ease);
       box-shadow: var(--shadow-card);
       position: relative;
+      width: 100%;
+      box-sizing: border-box;
     }
     .comm-book-card:hover {
       transform: translateY(-3px);

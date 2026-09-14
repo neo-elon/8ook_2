@@ -7325,6 +7325,12 @@ function updateCommunityBooksTrigger(currentCount, totalCount) {
   }
 }
 
+function getCommunityColumnCount() {
+  if (window.innerWidth <= 580) return 1;
+  if (window.innerWidth <= 900) return 2;
+  return 3;
+}
+
 function renderCommunityBooks() {
   const container = document.getElementById('comm-books-grid');
   if (!container) return;
@@ -7343,7 +7349,7 @@ function renderCommunityBooks() {
 
   if (list.length === 0) {
     container.innerHTML = `
-      <div style="grid-column: 1 / -1; padding: 60px 20px; text-align: center; color: var(--text-300); font-size: 13.5px;">
+      <div style="width: 100%; padding: 60px 20px; text-align: center; color: var(--text-300); font-size: 13.5px;">
         <div style="font-weight: 600; color: var(--text-200); margin-bottom: 4px;">아직 서재에 추가된 도서가 없습니다.</div>
         <div style="font-size: 12px; color: var(--text-400);">서재에 책을 등록하면 최근 추가된 도서로 이곳에 표시됩니다.</div>
       </div>
@@ -7360,7 +7366,21 @@ function renderCommunityBooks() {
   } catch (e) {}
 
   const myId = getClientLikeId();
-  container.innerHTML = list.map(b => buildCommunityBookCardHtml(b, storedBookLikes, myId)).join('');
+  const numCols = getCommunityColumnCount();
+  container._colCount = numCols;
+
+  container.innerHTML = Array.from({ length: numCols }, (_, i) => 
+    `<div class="comm-books-col" data-col="${i}"></div>`
+  ).join('');
+
+  const colEls = container.querySelectorAll('.comm-books-col');
+
+  list.forEach((b, idx) => {
+    const colIdx = idx % numCols;
+    if (colEls[colIdx]) {
+      colEls[colIdx].insertAdjacentHTML('beforeend', buildCommunityBookCardHtml(b, storedBookLikes, myId));
+    }
+  });
 
   updateCommunityBooksTrigger(communityBooksLimit, totalCount);
   setupCommunityBooksObserver();
@@ -7388,9 +7408,21 @@ function loadMoreCommunityBooks() {
   } catch (e) {}
   const myId = getClientLikeId();
 
-  // 기존 순서를 전혀 건드리지 않고 아래쪽에 그대로 추가 (Append-only)
-  const newCardsHtml = nextBatch.map(b => buildCommunityBookCardHtml(b, storedBookLikes, myId)).join('');
-  container.insertAdjacentHTML('beforeend', newCardsHtml);
+  let colEls = container.querySelectorAll('.comm-books-col');
+  if (!colEls || colEls.length === 0) {
+    renderCommunityBooks();
+    isCommunityBooksLoading = false;
+    return;
+  }
+  const numCols = colEls.length;
+
+  nextBatch.forEach((b, idx) => {
+    const globalIdx = prevLimit + idx;
+    const colIdx = globalIdx % numCols;
+    if (colEls[colIdx]) {
+      colEls[colIdx].insertAdjacentHTML('beforeend', buildCommunityBookCardHtml(b, storedBookLikes, myId));
+    }
+  });
 
   updateCommunityBooksTrigger(communityBooksLimit, totalCount);
 
@@ -7453,12 +7485,31 @@ function checkCommunityScroll() {
   }
 }
 
+let _commResizeTimer = null;
+function handleCommunityResize() {
+  clearTimeout(_commResizeTimer);
+  _commResizeTimer = setTimeout(() => {
+    const commView = document.getElementById('view-community');
+    if (!commView || !commView.classList.contains('show')) return;
+    const newCols = getCommunityColumnCount();
+    const booksContainer = document.getElementById('comm-books-grid');
+    if (booksContainer && booksContainer._colCount !== newCols) {
+      renderCommunityBooks();
+    }
+    const popContainer = document.getElementById('comm-popular-grid');
+    if (popContainer && popContainer._colCount !== newCols) {
+      renderCommunityPopularBooks();
+    }
+  }, 150);
+}
+
 function initCommunityScroll() {
   const commView = document.getElementById('view-community');
   if (commView && !commView._scrollBound) {
     commView._scrollBound = true;
     commView.addEventListener('scroll', checkCommunityScroll, { passive: true });
     window.addEventListener('scroll', checkCommunityScroll, { passive: true });
+    window.addEventListener('resize', handleCommunityResize, { passive: true });
   }
 }
 
@@ -7619,7 +7670,7 @@ function renderCommunityPopularBooks() {
 
   if (list.length === 0) {
     container.innerHTML = `
-      <div style="grid-column: 1 / -1; padding: 60px 20px; text-align: center; color: var(--text-300); font-size: 13.5px;">
+      <div style="width: 100%; padding: 60px 20px; text-align: center; color: var(--text-300); font-size: 13.5px;">
         <div style="font-weight: 600; color: var(--text-200); margin-bottom: 4px;">아직 여러 서재에 꽂힌 도서가 없습니다.</div>
         <div style="font-size: 12px; color: var(--text-400);">여러 서재에 공통으로 책이 등록되면 이곳에 모입니다.</div>
       </div>
@@ -7636,7 +7687,21 @@ function renderCommunityPopularBooks() {
   } catch (e) {}
 
   const myId = getClientLikeId();
-  container.innerHTML = list.map(b => buildCommunityPopularBookCardHtml(b, storedBookLikes, myId)).join('');
+  const numCols = getCommunityColumnCount();
+  container._colCount = numCols;
+
+  container.innerHTML = Array.from({ length: numCols }, (_, i) => 
+    `<div class="comm-books-col" data-col="${i}"></div>`
+  ).join('');
+
+  const colEls = container.querySelectorAll('.comm-books-col');
+
+  list.forEach((b, idx) => {
+    const colIdx = idx % numCols;
+    if (colEls[colIdx]) {
+      colEls[colIdx].insertAdjacentHTML('beforeend', buildCommunityPopularBookCardHtml(b, storedBookLikes, myId));
+    }
+  });
 
   updateCommunityPopularTrigger(communityPopularBooksLimit, totalCount);
   setupCommunityPopularObserver();
@@ -7664,8 +7729,21 @@ function loadMoreCommunityPopularBooks() {
   } catch (e) {}
   const myId = getClientLikeId();
 
-  const newCardsHtml = nextBatch.map(b => buildCommunityPopularBookCardHtml(b, storedBookLikes, myId)).join('');
-  container.insertAdjacentHTML('beforeend', newCardsHtml);
+  let colEls = container.querySelectorAll('.comm-books-col');
+  if (!colEls || colEls.length === 0) {
+    renderCommunityPopularBooks();
+    isCommunityPopularLoading = false;
+    return;
+  }
+  const numCols = colEls.length;
+
+  nextBatch.forEach((b, idx) => {
+    const globalIdx = prevLimit + idx;
+    const colIdx = globalIdx % numCols;
+    if (colEls[colIdx]) {
+      colEls[colIdx].insertAdjacentHTML('beforeend', buildCommunityPopularBookCardHtml(b, storedBookLikes, myId));
+    }
+  });
 
   updateCommunityPopularTrigger(communityPopularBooksLimit, totalCount);
 
