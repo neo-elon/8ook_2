@@ -8028,29 +8028,32 @@ function renderCommunityScraps() {
 
     return `
       <div class="comm-scrap-card" id="csc-${esc(sid)}">
-        <div class="comm-scrap-body">
+        <div class="comm-scrap-header">
           ${coverHtml}
-          <div class="comm-scrap-text">${esc(s.text)}</div>
-          ${s.memo ? `<div class="comm-scrap-memo-wrap"><div class="comm-scrap-memo">${esc(s.memo)}</div></div>` : ''}
-        </div>
-        <div class="comm-scrap-footer">
-          <div class="comm-scrap-title-row">
-            <strong class="comm-scrap-book-title" ${clickDetail} style="${s.bookId ? 'cursor:pointer;' : ''}">《${esc(mainTitle)}》</strong>
+          <div class="comm-scrap-meta">
+            <div class="comm-scrap-title" ${clickDetail} title="도서 상세 보기">${esc(mainTitle)}</div>
+            <div class="comm-scrap-sub">
+              <span>${esc(s.author || '저자 미상')}</span>
+              ${s.page ? `<span>• p.${s.page}</span>` : ''}
+              ${s.time ? `<span>• ${s.time}</span>` : ''}
+            </div>
           </div>
-          <div class="comm-scrap-meta-row">
-            <div class="comm-scrap-meta-left">
-              ${s.author ? `<span class="comm-scrap-author">${esc(s.author)}</span>` : ''}
-              ${s.page ? `<span class="comm-scrap-page">p.${s.page}</span>` : ''}
-              ${tagsHtml}
-            </div>
-            <div class="comm-scrap-actions">
-              <button class="comm-scrap-btn" onclick="copyCommunityQuote('${esc(s.text.replace(/'/g, "\\'"))}', '${esc(mainTitle.replace(/'/g, "\\'"))}', '${esc((s.author || '').replace(/'/g, "\\'"))}', '${s.page || ''}')" title="문장 복사">
-                복사
-              </button>
-              <button type="button" class="comm-scrap-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(sid)}" onclick="toggleCommunityLike('${esc(sid)}', this, event)" title="좋아요">
-                <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
-              </button>
-            </div>
+        </div>
+
+        <div class="comm-scrap-text">${esc(s.text)}</div>
+        ${s.memo ? `<div class="comm-scrap-memo-wrap"><div class="comm-scrap-memo">${esc(s.memo)}</div></div>` : ''}
+
+        <div class="comm-scrap-footer">
+          <div class="comm-scrap-tags">
+            ${tagsHtml}
+          </div>
+          <div class="comm-scrap-actions">
+            <button class="comm-scrap-btn" onclick="copyCommunityQuote('${esc(s.text.replace(/'/g, "\\'"))}', '${esc(mainTitle.replace(/'/g, "\\'"))}', '${esc((s.author || '').replace(/'/g, "\\'"))}', '${s.page || ''}')" title="문장 복사">
+              복사
+            </button>
+            <button type="button" class="comm-scrap-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(sid)}" onclick="toggleCommunityLike('${esc(sid)}', this, event)" title="좋아요">
+              <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
+            </button>
           </div>
         </div>
       </div>

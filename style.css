@@ -3340,12 +3340,13 @@
       background: var(--bg-surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 16px 18px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
       transition: all 0.25s var(--ease);
       box-shadow: var(--shadow-card);
       position: relative;
-      display: flex;
-      flex-direction: column;
       break-inside: avoid;
       -webkit-column-break-inside: avoid;
       page-break-inside: avoid;
@@ -3356,44 +3357,70 @@
       transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(70,50,30,0.08);
     }
-    .comm-scrap-body {
-      display: flow-root;
-      margin-bottom: 6px;
+    .comm-scrap-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
     .comm-scrap-cover {
-      float: left;
-      width: 56px;
-      height: 80px;
+      width: 34px;
+      height: 48px;
+      border-radius: 3px;
       object-fit: cover;
-      border-radius: 4px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.18);
-      margin: 2px 14px 8px 0;
-      background: var(--bg-primary);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
       cursor: pointer;
+      flex-shrink: 0;
+      background: var(--border-muted);
       transition: transform 0.2s var(--ease);
     }
     .comm-scrap-cover:hover {
       transform: scale(1.05);
     }
-    .comm-scrap-cover-placeholder,
-    .comm-book-cover-placeholder {
-      width: 56px;
-      height: 80px;
-      border-radius: 4px;
+    .comm-scrap-cover-placeholder {
+      width: 34px;
+      height: 48px;
+      border-radius: 3px;
       display: flex;
       align-items: center;
       justify-content: center;
       background: var(--glass);
       border: 1px solid var(--border);
-      color: var(--text-300);
-      font-size: 11px;
+      color: var(--text-400);
+      font-size: 10px;
       font-family: 'Playfair Display', serif;
       font-weight: 700;
       cursor: pointer;
+      flex-shrink: 0;
     }
-    .comm-scrap-cover-placeholder {
-      float: left;
-      margin: 2px 14px 8px 0;
+    .comm-scrap-meta {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .comm-scrap-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-100);
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.15s;
+    }
+    .comm-scrap-title:hover {
+      color: var(--lavender);
+    }
+    .comm-scrap-sub {
+      font-size: 11.5px;
+      color: var(--text-300);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .comm-book-cover-placeholder {
       width: 74px;
@@ -3401,19 +3428,23 @@
       flex-shrink: 0;
     }
     .comm-scrap-text {
+      font-family: 'Pretendard', 'Noto Sans KR', -apple-system, sans-serif;
       font-size: 14.5px;
-      line-height: 1.7;
+      line-height: 1.75;
       color: var(--text-100);
       font-style: italic;
-      margin-bottom: 8px;
+      letter-spacing: -0.2px;
       word-break: break-word;
       overflow-wrap: break-word;
+      position: relative;
+      padding: 0 2px;
     }
     .comm-scrap-text::before {
       content: '“';
       font-size: 18px;
       color: var(--lavender);
       line-height: 0;
+      display: inline-block;
       vertical-align: -3px;
       margin-right: 3px;
       font-style: normal;
@@ -3423,6 +3454,7 @@
       font-size: 18px;
       color: var(--lavender);
       line-height: 0;
+      display: inline-block;
       vertical-align: -3px;
       margin-left: 3px;
       font-style: normal;
@@ -3476,16 +3508,16 @@
     .comm-scrap-footer {
       clear: both;
       display: flex;
-      flex-direction: column;
-      gap: 6px;
-      border-top: 1px dashed var(--border-muted);
-      padding-top: 8px;
-      margin-top: 4px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      margin-top: 6px;
     }
     .comm-scrap-title-row {
-      display: flex;
-      align-items: center;
-      line-height: 1.4;
+      display: none;
     }
     .comm-scrap-book-title {
       font-size: 12px;
@@ -3503,6 +3535,7 @@
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 6px;
+      width: 100%;
     }
     .comm-scrap-meta-left {
       display: flex;
@@ -3519,16 +3552,28 @@
     }
     .comm-scrap-tags {
       display: inline-flex;
-      gap: 4px;
+      gap: 5px;
       flex-wrap: wrap;
     }
     .comm-scrap-tag {
-      font-size: 10px;
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
       color: var(--violet);
-      background: rgba(140,98,57,0.06);
-      padding: 1px 5px;
-      border-radius: 3px;
+      background: rgba(140, 98, 57, 0.08);
+      border: 1px solid rgba(140, 98, 57, 0.16);
+      padding: 2px 7px;
+      border-radius: 4px;
       white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+    .comm-scrap-tag:hover {
+      background: rgba(140, 98, 57, 0.16);
+      border-color: var(--violet);
+      color: var(--indigo);
+      transform: translateY(-1px);
     }
     .comm-scrap-actions {
       display: flex;
@@ -4280,32 +4325,36 @@
   gap: 8px;
 }
 .scrap-card-body {
-  font-family: 'Noto Serif KR', serif;
+  font-family: 'Pretendard', 'Noto Sans KR', -apple-system, sans-serif;
   font-size: 14.5px;
-  line-height: 1.8;
+  line-height: 1.75;
   color: var(--text-100);
+  font-style: italic;
+  letter-spacing: -0.2px;
   position: relative;
-  padding: 0 4px;
+  padding: 0 2px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .scrap-card-body::before {
-  content: '\201C';
-  color: var(--violet);
-  font-size: 20px;
-  font-family: 'Playfair Display', serif;
+  content: '“';
+  font-size: 18px;
+  color: var(--lavender);
   line-height: 0;
   display: inline-block;
   vertical-align: -3px;
   margin-right: 3px;
+  font-style: normal;
 }
 .scrap-card-body::after {
-  content: '\201D';
-  color: var(--violet);
-  font-size: 20px;
-  font-family: 'Playfair Display', serif;
+  content: '”';
+  font-size: 18px;
+  color: var(--lavender);
   line-height: 0;
   display: inline-block;
   vertical-align: -3px;
   margin-left: 3px;
+  font-style: normal;
 }
 .scrap-card-memo {
   font-size: 12.5px;
