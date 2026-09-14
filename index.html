@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260914_tonematch_v43">
+  <link rel="stylesheet" href="style.css?v=20260914_layout_v44">
 </head>
 <body>
 
@@ -422,16 +422,15 @@
       </div>
 
       <!-- Subtitle -->
-      <div class="fg" style="margin-top:-4px; margin-bottom:12px;">
-        <div class="flbl" style="font-size:11px;">부제 <span style="font-weight:400; color:var(--text-300); font-size:11px;">(선택 — 제목 아래 작게 표시)</span></div>
-        <input type="text" class="fi" id="bk-subtitle" placeholder="부제목 입력 (예: 실전편, 애자일 소프트웨어 장인 정신)">
+      <div class="fg" style="margin-top:-6px; margin-bottom:12px;">
+        <input type="text" class="fi" id="bk-subtitle" placeholder="부제목 입력 (선택 — 제목 아래 작게 표시)">
       </div>
 
       <!-- Search results -->
       <div id="aladin-results"></div>
 
-      <!-- Flex Container for Cover Image, Spine Image and Book Info -->
-      <div class="modal-flex-row" style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 14px;">
+      <!-- Flex Container for Cover Image and Author & Pages -->
+      <div class="modal-flex-row">
         <!-- Left Column: Front Cover & Spine Image Previews (Integrated Book View) -->
         <div class="book-preview-column">
           <div class="flbl" style="font-size: 11px; margin-bottom: 4px;">책등 / 앞표지</div>
@@ -451,48 +450,48 @@
           </div>
         </div>
 
-        <!-- Right Column: Info fields (Author, Pages, Date, Rating, Image URLs) -->
-        <div class="book-info-fields" style="flex: 1; display: flex; flex-direction: column; gap: 10px; align-self: stretch; min-width: 0; width: 100%;">
-          <!-- 2x2 Grid: Author, Pages, Date, Rating -->
-          <div class="book-info-grid">
-            <!-- 저자 -->
-            <div class="fg">
-              <div class="flbl">저자</div>
-              <input type="text" class="fi" id="bk-author" placeholder="저자명">
-            </div>
-
-            <!-- 페이지수 -->
-            <div class="fg">
-              <div class="flbl">페이지수</div>
-              <input type="number" class="fi" id="bk-pages" placeholder="0" min="0">
-            </div>
-
-            <!-- 완독일 -->
-            <div class="fg">
-              <div class="flbl">완독일</div>
-              <input type="date" id="bk-date" class="fi bk-date-inp">
-            </div>
-
-            <!-- 별점 -->
-            <div class="fg">
-              <div class="flbl">별점</div>
-              <div class="star-row" id="star-inp">
-                <button class="star-btn-inp" data-v="1" onclick="setRating(1)" aria-label="별점 1" type="button">☆</button>
-                <button class="star-btn-inp" data-v="2" onclick="setRating(2)" aria-label="별점 2" type="button">☆</button>
-                <button class="star-btn-inp" data-v="3" onclick="setRating(3)" aria-label="별점 3" type="button">☆</button>
-                <button class="star-btn-inp" data-v="4" onclick="setRating(4)" aria-label="별점 4" type="button">☆</button>
-                <button class="star-btn-inp" data-v="5" onclick="setRating(5)" aria-label="별점 5" type="button">☆</button>
-              </div>
-            </div>
+        <!-- Right Column: Author & Pages -->
+        <div class="book-info-fields">
+          <!-- 저자 -->
+          <div class="fg" style="margin-bottom: 8px;">
+            <div class="flbl">저자</div>
+            <input type="text" class="fi" id="bk-author" placeholder="저자명">
           </div>
 
-          <!-- Hidden inputs for backward compatibility -->
-          <input type="hidden" id="bk-img-url">
-          <input type="file" id="bk-img-file" style="display:none">
-          <input type="hidden" id="bk-spine-url">
-          <input type="file" id="bk-spine-file" style="display:none">
+          <!-- 페이지수 -->
+          <div class="fg" style="margin-bottom: 0;">
+            <div class="flbl">페이지수</div>
+            <input type="number" class="fi" id="bk-pages" placeholder="0" min="0">
+          </div>
         </div>
       </div>
+
+      <!-- 2-Column Row for Date and Rating -->
+      <div class="frow book-date-rating-row">
+        <!-- 완독일 -->
+        <div class="fg">
+          <div class="flbl">완독일</div>
+          <input type="date" id="bk-date" class="fi bk-date-inp">
+        </div>
+
+        <!-- 별점 -->
+        <div class="fg">
+          <div class="flbl">별점</div>
+          <div class="star-row" id="star-inp">
+            <button class="star-btn-inp" data-v="1" onclick="setRating(1)" aria-label="별점 1" type="button">☆</button>
+            <button class="star-btn-inp" data-v="2" onclick="setRating(2)" aria-label="별점 2" type="button">☆</button>
+            <button class="star-btn-inp" data-v="3" onclick="setRating(3)" aria-label="별점 3" type="button">☆</button>
+            <button class="star-btn-inp" data-v="4" onclick="setRating(4)" aria-label="별점 4" type="button">☆</button>
+            <button class="star-btn-inp" data-v="5" onclick="setRating(5)" aria-label="별점 5" type="button">☆</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden inputs for backward compatibility -->
+      <input type="hidden" id="bk-img-url">
+      <input type="file" id="bk-img-file" style="display:none">
+      <input type="hidden" id="bk-spine-url">
+      <input type="file" id="bk-spine-file" style="display:none">
 
       <!-- Personal sentence -->
       <div class="fg">
@@ -868,6 +867,6 @@
 <!-- All Users Community Dataset -->
 <script src="neo_books_131.js" defer></script>
 
-  <script src="app.js?v=20260914_tonematch_v43" defer></script>
+  <script src="app.js?v=20260914_layout_v44" defer></script>
 </body>
 </html>
