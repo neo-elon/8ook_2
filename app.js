@@ -7110,6 +7110,10 @@ async function showCommunity(pushHistory = true) {
     }
   }
 
+  // 커뮤니티 도서 초기 9권 설정 및 무한 스크롤 리스너 준비
+  communityBooksLimit = 9;
+  initCommunityScroll();
+
   // 먼저 로컬/기존 캐시로 즉시 렌더링
   renderCommunityBooks();
   renderCommunityScraps();
@@ -7143,8 +7147,12 @@ function switchCommunityTab(tab) {
   }
 }
 
+let communityBooksLimit = 9;
+let isCommunityBooksLoading = false;
+let communityBooksObserver = null;
+
 function getCommunityBooksList() {
-  // Return books across ALL users, sorted strictly by newest added time first (maximum 9 books)
+  // Return books across ALL users, sorted strictly by newest added time first
   const allBooks = getAllCommunityBooks();
 
   const sorted = [...allBooks].sort((a, b) => {
@@ -7156,7 +7164,7 @@ function getCommunityBooksList() {
     return (b.seq || 0) - (a.seq || 0);
   });
 
-  return sorted.slice(0, 9).map((b) => {
+  return sorted.slice(0, communityBooksLimit).map((b) => {
     const titleParts = splitBookTitle(b);
     const userRating = (b.rating && Number(b.rating) > 0) ? Number(b.rating) : null;
     const userReview = (b.sentence || b.review || b.oneLineReview || '').trim();
@@ -7248,6 +7256,8 @@ function renderCommunityBooks() {
   if (!container) return;
 
   const list = getCommunityBooksList();
+  const allBooks = getAllCommunityBooks();
+  const totalCount = allBooks.length;
   const countEl = document.getElementById('comm-books-count');
   if (countEl) countEl.remove();
 
@@ -7263,6 +7273,8 @@ function renderCommunityBooks() {
         <div style="font-size: 12px; color: var(--text-400);">서재에 책을 등록하면 최근 추가된 도서로 이곳에 표시됩니다.</div>
       </div>
     `;
+    const triggerEl = document.getElementById('comm-books-load-trigger');
+    if (triggerEl) triggerEl.innerHTML = '';
     return;
   }
 
@@ -7318,6 +7330,92 @@ function renderCommunityBooks() {
       </div>
     `;
   }).join('');
+
+  // 3줄(3열) 단위 추가 로딩 트리거 업데이트
+  const triggerEl = document.getElementById('comm-books-load-trigger');
+  if (triggerEl) {
+    if (list.length < totalCount) {
+      triggerEl.style.display = 'block';
+      triggerEl.innerHTML = `
+        <button type="button" class="comm-load-more-btn" onclick="loadMoreCommunityBooks()" title="도서 더 불러오기">
+          <span>도서 더 보기 (${list.length} / ${totalCount}) ↓</span>
+        </button>
+      `;
+    } else if (totalCount > 9) {
+      triggerEl.style.display = 'block';
+      triggerEl.innerHTML = `
+        <div class="comm-all-loaded-text">모든 도서를 불러왔습니다 (${totalCount}권)</div>
+      `;
+    } else {
+      triggerEl.style.display = 'none';
+      triggerEl.innerHTML = '';
+    }
+  }
+
+  setupCommunityBooksObserver();
+}
+
+function loadMoreCommunityBooks() {
+  if (isCommunityBooksLoading) return;
+  const allBooks = getAllCommunityBooks();
+  if (communityBooksLimit >= allBooks.length) return;
+
+  isCommunityBooksLoading = true;
+  communityBooksLimit += 6; // 3열 레이아웃에 맞춰 6권(2줄)씩 자연스럽게 추가 로딩
+  renderCommunityBooks();
+  setTimeout(() => {
+    isCommunityBooksLoading = false;
+  }, 200);
+}
+
+function setupCommunityBooksObserver() {
+  if (typeof IntersectionObserver === 'undefined') return;
+  if (communityBooksObserver) {
+    communityBooksObserver.disconnect();
+  }
+  const triggerEl = document.getElementById('comm-books-load-trigger');
+  if (!triggerEl) return;
+
+  communityBooksObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        if (currentCommunityTab === 'books' && !isCommunityBooksLoading) {
+          loadMoreCommunityBooks();
+        }
+      }
+    });
+  }, {
+    root: document.getElementById('view-community') || null,
+    rootMargin: '250px 0px',
+    threshold: 0.05
+  });
+
+  communityBooksObserver.observe(triggerEl);
+}
+
+function checkCommunityScroll() {
+  if (currentCommunityTab !== 'books' || isCommunityBooksLoading) return;
+  const commView = document.getElementById('view-community');
+  if (!commView || !commView.classList.contains('show')) return;
+
+  const allBooks = getAllCommunityBooks();
+  if (communityBooksLimit >= allBooks.length) return;
+
+  const remainingInner = commView.scrollHeight - (commView.scrollTop + commView.clientHeight);
+  const remainingWindow = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+
+  if (remainingInner < 300 || remainingWindow < 300) {
+    loadMoreCommunityBooks();
+  }
+}
+
+function initCommunityScroll() {
+  const commView = document.getElementById('view-community');
+  if (commView && !commView._scrollBound) {
+    commView._scrollBound = true;
+    commView.addEventListener('scroll', checkCommunityScroll, { passive: true });
+    window.addEventListener('scroll', checkCommunityScroll, { passive: true });
+  }
 }
 
 async function toggleCommunityBookLike(id, btnEl, event) {

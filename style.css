@@ -3279,6 +3279,42 @@
       font-weight: 600;
     }
 
+    /* ── Community Books Load Trigger & Infinite Scroll ── */
+    .comm-load-trigger {
+      padding: 22px 0 14px;
+      text-align: center;
+      clear: both;
+      width: 100%;
+    }
+    .comm-load-more-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      font-weight: 500;
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: 1px solid var(--border-accent);
+      background: var(--glass);
+      color: var(--text-200);
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+      box-shadow: 0 2px 8px rgba(70,50,30,0.04);
+    }
+    .comm-load-more-btn:hover {
+      background: var(--violet);
+      color: #fff;
+      border-color: var(--violet);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(140,98,57,0.25);
+    }
+    .comm-all-loaded-text {
+      font-size: 11.5px;
+      color: var(--text-400);
+      padding: 8px 0;
+      letter-spacing: -0.2px;
+    }
+
     /* ── Scraps Stream (30 Quotes) ── */
     .comm-scraps-stream {
       columns: 2;
