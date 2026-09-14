@@ -7571,8 +7571,29 @@ function getMostShelvedCommunityBooks() {
     const titleParts = splitBookTitle(b);
     const mainTitle = b.title && b.subtitle !== undefined ? b.title : (titleParts.main || b.title);
     const subTitle = b.subtitle !== undefined ? b.subtitle : (titleParts.sub || '');
-    const userRating = (b.rating && Number(b.rating) > 0) ? Number(b.rating) : null;
-    const userReview = (b.sentence || b.review || b.oneLineReview || '').trim();
+
+    // 여러 서재의 평점 평균 계산
+    let ratingSum = 0;
+    let ratingCount = 0;
+    g.copies.forEach(copy => {
+      const r = parseFloat(copy.rating);
+      if (!isNaN(r) && r > 0) {
+        ratingSum += r;
+        ratingCount += 1;
+      }
+    });
+    const avgRating = ratingCount > 0 ? parseFloat((ratingSum / ratingCount).toFixed(1)) : null;
+
+    // 여러 독서가의 나만의 한문장 모두 수집 (중복 제거)
+    const reviews = [];
+    const seenReviews = new Set();
+    g.copies.forEach(copy => {
+      const rev = (copy.sentence || copy.review || copy.oneLineReview || '').trim();
+      if (rev && !seenReviews.has(rev)) {
+        seenReviews.add(rev);
+        reviews.push(rev);
+      }
+    });
 
     const bid = String(b.id);
     const remoteSet = communityLikesMap.get(bid) || new Set();
@@ -7584,11 +7605,11 @@ function getMostShelvedCommunityBooks() {
       subtitle: subTitle,
       author: b.author || '저자 미상',
       cover: b.cover || '',
-      rating: userRating,
-      review: userReview || null,
+      rating: avgRating,
+      ratingCount: ratingCount,
+      reviews: reviews,
       shelvedCount: count,
-      likesCount: likesCount,
-      time: formatTimeAgo(b.created_at || b.date)
+      likesCount: likesCount
     });
   });
 
@@ -7610,11 +7631,12 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
     : `<div class="comm-book-cover-placeholder" onclick="showDetail('${esc(bid)}')">8ook</div>`;
 
   const ratingHtml = (b.rating && Number(b.rating) > 0)
-    ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${Number(b.rating).toFixed(1)}</span></div>`
+    ? `<div class="comm-book-rating" title="평균 별점 ${Number(b.rating).toFixed(1)}점">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">평균 ${Number(b.rating).toFixed(1)}</span></div>`
     : '';
 
-  const reviewHtml = (b.review && b.review.trim())
-    ? `<div class="comm-book-review" title="${esc(b.review.trim())}">“${esc(b.review.trim())}”</div>`
+  const reviewsList = Array.isArray(b.reviews) ? b.reviews : (b.review ? [b.review] : []);
+  const reviewsHtml = reviewsList.length > 0
+    ? reviewsList.map(r => `<div class="comm-book-review" title="${esc(r)}">“${esc(r)}”</div>`).join('')
     : '';
 
   const remoteSet = communityLikesMap.get(bid) || new Set();
@@ -7632,9 +7654,8 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
         <div class="comm-book-title" onclick="showDetail('${esc(bid)}')" title="${esc(b.title)}">${esc(b.title)}</div>
         <div class="comm-book-author">${esc(b.author)}</div>
         ${ratingHtml}
-        ${reviewHtml}
-        <div class="comm-book-meta">
-          <span class="comm-book-time">${esc(b.time || '')}</span>
+        ${reviewsHtml}
+        <div class="comm-book-meta" style="justify-content: flex-end;">
           <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
             <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
           </button>
