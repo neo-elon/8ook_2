@@ -230,7 +230,7 @@
     /* ── Monthly Bar Chart ── */
     .bar-chart {
       display:flex; align-items:flex-end;
-      gap:5px; height:72px; padding:0 2px;
+      gap:5px; height:94px; padding:0 2px;
     }
     .bar-group {
       flex:1; display:flex; flex-direction:column;
@@ -260,14 +260,14 @@
     /* ── Mini Calendar ── */
     .mini-cal {
       background:var(--glass); border:1px solid var(--border);
-      border-radius:var(--radius-md); padding:10px;
+      border-radius:var(--radius-md); padding:10px 12px;
       transition: background .4s, border-color .4s;
     }
     .cal-header {
       display:flex; align-items:center; justify-content:space-between;
-      margin-bottom:8px;
+      margin-bottom:6px;
     }
-    .cal-month-lbl { font-size:12px; font-weight:500; color:var(--text-200); }
+    .cal-month-lbl { font-size:12px; font-weight:600; color:var(--text-100); }
     .cal-nav {
       background:none; border:none; color:var(--text-400);
       cursor:pointer; font-size:14px; padding:1px 5px;
@@ -279,11 +279,11 @@
       display:grid; grid-template-columns:repeat(7,1fr); gap:1px;
     }
     .cal-dn {
-      font-size:9px; color:var(--text-400);
-      text-align:center; padding:2px 0;
+      font-size:9.5px; color:var(--text-400);
+      text-align:center; padding:1px 0;
     }
     .cal-d {
-      font-size:9px; text-align:center;
+      font-size:9.5px; text-align:center;
       padding:3px 1px; border-radius:4px;
       cursor:default; color:var(--text-300);
       transition:background .2s;

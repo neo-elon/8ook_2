@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260915_unified_scrap_v72">
+  <link rel="stylesheet" href="style.css?v=20260915_stats_align_v73">
 </head>
 <body>
 
@@ -164,11 +164,11 @@
         </div>
       </div>
 
-      <div class="stats-top-row" style="display:flex; gap:24px; flex-wrap:wrap;">
-        <div style="flex: 1; min-width: 280px; display:flex; flex-direction:column; gap:24px;">
+      <div class="stats-top-row" style="display:flex; gap:24px; flex-wrap:wrap; align-items:stretch;">
+        <div style="flex: 1; min-width: 280px; display:flex; flex-direction:column; justify-content:space-between; gap:16px;">
           <!-- Stats Cards -->
           <div>
-            <div class="sec-title-wrap" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <div class="sec-title-wrap" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; min-height:22px;">
               <div class="sec-title" style="margin-bottom:0;">독서 통계</div>
               <div class="stats-filter-btns" style="display:flex; gap:4px;">
                 <button id="stats-btn-all" class="btn btn-xs" onclick="switchStatsPeriod('all')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--violet); color:#fff; border:none;">전체</button>
@@ -193,7 +193,7 @@
           </div>
           <!-- Chart -->
           <div>
-            <div class="sec-title-wrap" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <div class="sec-title-wrap" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; min-height:22px;">
               <div class="sec-title" id="chart-title" style="margin-bottom:0;">월별 독서량</div>
               <div class="chart-toggle-btns" style="display:flex; gap:4px;">
                 <button id="chart-btn-month" class="btn btn-xs" onclick="switchChartMode('month')" style="padding:2px 8px; font-size:10px; border-radius:12px; cursor:pointer; background:var(--violet); color:#fff; border:none;">월별</button>
@@ -204,9 +204,11 @@
           </div>
         </div>
         
-        <div style="flex: 1; min-width: 280px;">
+        <div style="flex: 1; min-width: 280px; display:flex; flex-direction:column;">
           <!-- Calendar -->
-          <div class="sec-title">완독 달력</div>
+          <div class="sec-title-wrap" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; min-height:22px;">
+            <div class="sec-title" style="margin-bottom:0;">완독 달력</div>
+          </div>
           <div class="mini-cal">
             <div class="cal-header">
               <button class="cal-nav" id="cal-prev">‹</button>
