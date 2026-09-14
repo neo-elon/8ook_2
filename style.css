@@ -2596,13 +2596,89 @@
 
     #aladin-results {
       display:none; flex-direction:column;
-      max-height:220px; overflow-y:auto;
       border:1px solid var(--border);
       border-radius:var(--radius-sm);
       margin-bottom:14px;
       background:var(--bg-elevated);
+      box-shadow:0 4px 16px rgba(0,0,0,0.18);
+      overflow:hidden;
     }
     #aladin-results.show { display:flex; }
+
+    .search-results-hdr {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:8px 12px;
+      background:var(--bg-card);
+      border-bottom:1px solid var(--border);
+      gap:8px;
+    }
+    .search-results-count {
+      font-size:11px; font-weight:600; color:var(--text-200); white-space:nowrap;
+    }
+    .search-results-count span {
+      color:var(--accent); font-weight:700;
+    }
+    .search-sort-chips {
+      display:flex; gap:4px; align-items:center; margin-left:auto;
+    }
+    .sort-chip {
+      background:var(--glass);
+      border:1px solid var(--border-muted);
+      color:var(--text-300);
+      padding:3px 8px;
+      border-radius:12px;
+      font-size:10px;
+      cursor:pointer;
+      transition:all .15s ease;
+      font-family:inherit;
+    }
+    .sort-chip:hover {
+      background:var(--glass-hover);
+      color:var(--text-100);
+      border-color:var(--border);
+    }
+    .sort-chip.active {
+      background:var(--accent);
+      color:#fff;
+      border-color:var(--accent);
+      font-weight:600;
+    }
+    .search-results-close {
+      background:transparent;
+      border:none;
+      color:var(--text-400);
+      font-size:16px;
+      line-height:1;
+      padding:2px 6px;
+      border-radius:4px;
+      cursor:pointer;
+    }
+    .search-results-close:hover {
+      background:rgba(239,68,68,0.15);
+      color:#ef4444;
+    }
+
+    .search-results-list {
+      max-height:230px;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+    }
+    .search-results-list::-webkit-scrollbar {
+      width:6px;
+    }
+    .search-results-list::-webkit-scrollbar-thumb {
+      background:var(--border-hover, rgba(201,147,101,0.4));
+      border-radius:4px;
+    }
+
+    .search-results-tip {
+      padding:6px 12px;
+      font-size:10px;
+      color:var(--text-400);
+      background:var(--bg-card);
+      border-top:1px solid var(--border-muted);
+      text-align:center;
+    }
 
     .search-item {
       display:flex; align-items:center; gap:10px;

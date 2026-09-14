@@ -184,6 +184,8 @@ let activeOcrLang = null;
 let aladinSearchTimer = null;
 let aladinCallbackCounter = 0;
 let aladinSearchResults = [];
+let currentAladinSort = 'Accuracy';
+let currentAladinQuery = '';
 
 /* ==============================================
    STORAGE & GUIDE HELPERS
@@ -2692,6 +2694,7 @@ function fetchAladinCover(title, author) {
       SearchTarget: 'Book',
       output: 'JS',
       Cover: 'Big',
+      Sort: 'Accuracy',
       callback: cbName
     });
 
@@ -2726,12 +2729,15 @@ function searchAladin() {
   const query = document.getElementById('bk-title').value.trim();
   if (!query) { toast('도서 제목을 입력해주세요'); return; }
 
+  currentAladinQuery = query;
+  currentAladinSort = 'Accuracy';
+
   const key = getApiKey();
   const results = document.getElementById('aladin-results');
   results.classList.add('show');
   results.innerHTML = `<div class="search-loading"><span class="spin"></span> 검색 중...</div>`;
 
-  runAladinJsonp(query, key, results);
+  runAladinJsonp(query, key, results, currentAladinSort);
 }
 
 function searchAladinByIsbn(isbn) {
@@ -3826,7 +3832,27 @@ function switchBarcodeCamera() {
   _startBarcodeCamera(barcodeCurrentFacing);
 }
 
-function runAladinJsonp(query, key, results) {
+function changeAladinSort(newSort) {
+  if (currentAladinSort === newSort) return;
+  currentAladinSort = newSort;
+  const key = getApiKey();
+  const results = document.getElementById('aladin-results');
+  if (results && currentAladinQuery) {
+    const listEl = results.querySelector('.search-results-list');
+    if (listEl) {
+      const label = newSort === 'SalesPoint' ? '인기순' : newSort === 'PublishTime' ? '최신순' : '정확도순';
+      listEl.innerHTML = `<div class="search-loading"><span class="spin"></span> ${label}으로 정렬 중...</div>`;
+    }
+    results.querySelectorAll('.sort-chip').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.sort === newSort);
+    });
+    runAladinJsonp(currentAladinQuery, key, results, newSort);
+  }
+}
+
+function runAladinJsonp(query, key, results, sort = currentAladinSort || 'Accuracy') {
+  currentAladinQuery = query;
+  currentAladinSort = sort;
   const cbName = '_aladinCb_' + (++aladinCallbackCounter);
   const script = document.createElement('script');
 
@@ -3834,12 +3860,13 @@ function runAladinJsonp(query, key, results) {
     ttbkey: key,
     Query: query,
     QueryType: 'Keyword',
-    MaxResults: '18',
+    MaxResults: '25',
     start: '1',
     SearchTarget: 'Book',
     output: 'JS',
     Cover: 'Big',
     OptResult: 'subInfo',
+    Sort: sort,
     callback: cbName
   });
 
@@ -3859,12 +3886,13 @@ function runAladinJsonp(query, key, results) {
         ttbkey: key,
         Query: query,
         QueryType: 'Title',
-        MaxResults: '18',
+        MaxResults: '25',
         start: '1',
         SearchTarget: 'Book',
         output: 'JS',
         Cover: 'Big',
         OptResult: 'subInfo',
+        Sort: sort,
         callback: cbNameTitle
       });
       scriptTitle.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${paramsTitle}`;
@@ -3877,7 +3905,7 @@ function runAladinJsonp(query, key, results) {
       scriptTitle.onerror = function () {
         delete window[cbNameTitle];
         scriptTitle.remove();
-        results.innerHTML = `<div class="search-empty">검색 결과가 없거나 네트워크 오류가 발생했습니다.</div>`;
+        results.innerHTML = `<div class="search-empty">검색 결과가 없거나 네트워크 오류가 발생했습니다. <button type="button" class="btn btn-ghost btn-xs" style="margin-top:6px;" onclick="hideSearchResults()">닫기</button></div>`;
       };
       document.body.appendChild(scriptTitle);
     }
@@ -3886,14 +3914,14 @@ function runAladinJsonp(query, key, results) {
   script.onerror = function () {
     delete window[cbName];
     script.remove();
-    results.innerHTML = `<div class="search-empty">검색 실패 — 네트워크 상태를 확인해주세요.</div>`;
+    results.innerHTML = `<div class="search-empty">검색 실패 — 네트워크 상태를 확인해주세요. <button type="button" class="btn btn-ghost btn-xs" style="margin-top:6px;" onclick="hideSearchResults()">닫기</button></div>`;
   };
 
   setTimeout(() => {
     if (window[cbName]) {
       delete window[cbName];
       script.remove();
-      results.innerHTML = `<div class="search-empty">응답 시간 초과</div>`;
+      results.innerHTML = `<div class="search-empty">응답 시간 초과 <button type="button" class="btn btn-ghost btn-xs" style="margin-top:6px;" onclick="hideSearchResults()">닫기</button></div>`;
     }
   }, 10000);
 
@@ -3931,10 +3959,26 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
     });
   }
 
+  // Smart re-ranking when sorting by Accuracy
+  if (currentAladinSort === 'Accuracy' && currentAladinQuery && items.length > 0 && !autoApplySingle) {
+    const qClean = currentAladinQuery.toLowerCase().replace(/\s+/g, '');
+    items.sort((a, b) => {
+      const tA = (a.title || '').toLowerCase().replace(/\s+/g, '');
+      const tB = (b.title || '').toLowerCase().replace(/\s+/g, '');
+      const score = (t) => {
+        if (t === qClean) return 0;
+        if (t.startsWith(qClean)) return 1;
+        if (t.includes(qClean)) return 2;
+        return 3;
+      };
+      return score(tA) - score(tB);
+    });
+  }
+
   aladinSearchResults = items;
 
   if (items.length === 0) {
-    results.innerHTML = `<div class="search-empty">검색 결과가 없습니다</div>`;
+    results.innerHTML = `<div class="search-empty">검색 결과가 없습니다 <button type="button" class="btn btn-ghost btn-xs" style="margin-top:6px;" onclick="hideSearchResults()">닫기</button></div>`;
     return;
   }
 
@@ -3960,7 +4004,7 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
     }
   }
 
-  let html = '';
+  let listHtml = '';
   items.forEach((item, index) => {
     const cover = item.cover || '';
     const title = item.title || '';
@@ -3969,7 +4013,7 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
     const pages = item.pages || '';
     const pubDate = item.pubDate || '';
 
-    html += `<div class="search-item" onclick="applyAladinItemByIndex(${index})">
+    listHtml += `<div class="search-item" onclick="applyAladinItemByIndex(${index})">
       <img src="${esc(getSafeImageUrl(cover))}" alt=""
         onerror="this.style.background='var(--bg-card)';this.style.opacity='.3'">
       <div class="search-item-info">
@@ -3980,7 +4024,24 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
     </div>`;
   });
 
-  results.innerHTML = html;
+  const sortHtml = !autoApplySingle ? `
+    <div class="search-results-hdr">
+      <div class="search-results-count">검색 결과 <span>${items.length}</span>권</div>
+      <div class="search-sort-chips">
+        <button type="button" class="sort-chip ${currentAladinSort === 'Accuracy' ? 'active' : ''}" data-sort="Accuracy" onclick="changeAladinSort('Accuracy')">정확도순</button>
+        <button type="button" class="sort-chip ${currentAladinSort === 'SalesPoint' ? 'active' : ''}" data-sort="SalesPoint" onclick="changeAladinSort('SalesPoint')">인기순</button>
+        <button type="button" class="sort-chip ${currentAladinSort === 'PublishTime' ? 'active' : ''}" data-sort="PublishTime" onclick="changeAladinSort('PublishTime')">최신순</button>
+      </div>
+      <button type="button" class="search-results-close" onclick="hideSearchResults()" title="닫기" aria-label="닫기">×</button>
+    </div>` : '';
+
+  results.innerHTML = `
+    ${sortHtml}
+    <div class="search-results-list">
+      ${listHtml}
+    </div>
+    ${items.length > 3 ? '<div class="search-results-tip">원하는 도서를 클릭하면 책 정보가 자동 입력됩니다.</div>' : ''}
+  `;
 }
 
 function applyAladinItemByIndex(index) {
