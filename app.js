@@ -2239,12 +2239,12 @@ function updateCommVisibilityBadge(isPublic) {
   if (!badge) return;
   if (isPublic) {
     badge.textContent = '공개';
-    badge.style.background = 'rgba(74,222,128,0.15)';
-    badge.style.color = '#4ade80';
+    badge.style.background = 'rgba(140, 98, 57, 0.12)';
+    badge.style.color = '#8c6239';
   } else {
     badge.textContent = '비공개';
-    badge.style.background = 'rgba(239,68,68,0.15)';
-    badge.style.color = '#f87171';
+    badge.style.background = 'rgba(35, 29, 23, 0.08)';
+    badge.style.color = 'var(--text-400, rgba(35, 29, 23, 0.4))';
   }
 }
 
