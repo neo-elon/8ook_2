@@ -566,9 +566,9 @@ function splitBookTitle(bookOrTitle) {
 }
 
 // ==============================================
-// Cover Color Extraction & Modern Paperback Spine Theme
+// Cover Color Extraction & Clothbound Linen Hardcover Theme
 // ==============================================
-const SPINE_COVER_CACHE_KEY = 'rj_spine_cover_theme_cache_v2';
+const SPINE_COVER_CACHE_KEY = 'rj_spine_cloth_theme_cache_v3';
 let spineCoverThemeCache = {};
 try {
   const saved = localStorage.getItem(SPINE_COVER_CACHE_KEY);
@@ -605,39 +605,40 @@ function rgbToHsl(r, g, b) {
   return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
 }
 
-function generatePaperbackThemeFromRgb(r, g, b) {
+function generateClothThemeFromRgb(r, g, b) {
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   const avgLum = (max + min) / 2;
   const chroma = max - min;
 
-  // 1. Off-white / Cream Minimalist Paperback (밝은 표지 or 무채색 연회색/미색 표지)
-  if (avgLum >= 195 || (avgLum >= 175 && chroma < 35)) {
+  // 1. Natural Oatmeal / Raw Linen (밝은 표지 or 무채색 미색 계열 패브릭)
+  if (avgLum >= 195 || (avgLum >= 170 && chroma < 30)) {
     const [h, s] = rgbToHsl(r, g, b);
-    const sat = Math.max(4, Math.min(s, 20));
+    const sat = Math.max(8, Math.min(s, 22));
+    const hHue = (h && h > 15 && h < 55) ? h : 38; // 내추럴 오트밀 베이지 톤
     return {
-      bg: `linear-gradient(180deg, hsl(${h || 40}, ${sat}%, 94%) 0%, hsl(${h || 40}, ${sat}%, 89%) 50%, hsl(${h || 40}, ${sat}%, 84%) 100%)`,
-      solidBg: `hsl(${h || 40}, ${sat}%, 89%)`,
+      bg: `linear-gradient(180deg, hsl(${hHue}, ${sat}%, 88%) 0%, hsl(${hHue}, ${sat}%, 82%) 50%, hsl(${hHue}, ${sat}%, 76%) 100%)`,
+      solidBg: `hsl(${hHue}, ${sat}%, 82%)`,
       isLight: true,
-      text: '#1f2429',
-      authorColor: '#5c6470'
+      text: '#2c251e',
+      authorColor: '#5c5245'
     };
   }
 
-  // 2. Modern Matte Paperback (표지 고유의 세련되고 차분한 매트 페이퍼백 컬러)
+  // 2. Rich Clothbound Fabric Dye (원단 염색 특유의 깊고 그윽한 북클로스 패브릭 컬러)
   const [h, s, l] = rgbToHsl(r, g, b);
-  const sat = Math.max(25, Math.min(s, 65));
-  // 26% ~ 48% 범위의 안정적인 현대적 북디자인 페이퍼백 톤
-  const lBase = Math.max(26, Math.min(Math.round(24 + (l / 100) * 22), 48));
-  const lTop = Math.min(lBase + 4, 52);
-  const lBottom = Math.max(lBase - 4, 22);
+  // 패브릭 염색은 채도가 너무 쨍하지 않고(24%~52%), 깊이 있는 음영(16%~34%)을 가짐
+  const sat = Math.max(22, Math.min(s, 54));
+  const lBase = Math.max(16, Math.min(Math.round(15 + (l / 100) * 16), 32));
+  const lTop = Math.min(lBase + 5, 38);
+  const lBottom = Math.max(lBase - 4, 11);
 
   return {
     bg: `linear-gradient(180deg, hsl(${h}, ${sat}%, ${lTop}%) 0%, hsl(${h}, ${sat}%, ${lBase}%) 50%, hsl(${h}, ${sat}%, ${lBottom}%) 100%)`,
     solidBg: `hsl(${h}, ${sat}%, ${lBase}%)`,
     isLight: false,
-    text: '#ffffff',
-    authorColor: 'rgba(255, 255, 255, 0.76)'
+    text: '#f7e8c3',
+    authorColor: 'rgba(247, 232, 195, 0.82)'
   };
 }
 
@@ -712,7 +713,7 @@ function extractCoverTheme(book, callback) {
         const r = Math.round(rSum / totalWeight);
         const g = Math.round(gSum / totalWeight);
         const b = Math.round(bSum / totalWeight);
-        const theme = generatePaperbackThemeFromRgb(r, g, b);
+        const theme = generateClothThemeFromRgb(r, g, b);
         spineCoverThemeCache[key] = theme;
         scheduleSaveSpineCache();
         if (callback) callback(theme);
@@ -740,67 +741,67 @@ function getSpineTheme(book) {
   }
   const spineThemes = [
     {
-      // 1. Nordic Sage / Eucalyptus (차분한 북유럽 세이지)
-      bg: 'linear-gradient(180deg, #435e53 0%, #384f46 50%, #2f433b 100%)',
-      solidBg: '#384f46',
-      text: '#f7faf8',
-      authorColor: '#b4c9bf',
+      // 1. Royal Indigo Linen Cloth (로열 인디고 린넨)
+      bg: 'linear-gradient(180deg, #1f2d3d 0%, #17222e 50%, #101822 100%)',
+      solidBg: '#17222e',
+      text: '#f7e7c4',
+      authorColor: 'rgba(247, 231, 196, 0.85)',
       isLight: false
     },
     {
-      // 2. Terracotta / Warm Clay (따뜻한 테라코타 클레이)
-      bg: 'linear-gradient(180deg, #99503a 0%, #854430 50%, #723927 100%)',
-      solidBg: '#854430',
-      text: '#fff9f7',
-      authorColor: '#e8beaf',
+      // 2. Forest Sage Linen (포레스트 딥 린넨)
+      bg: 'linear-gradient(180deg, #283e33 0%, #1f3128 50%, #17251e 100%)',
+      solidBg: '#1f3128',
+      text: '#f6ebd2',
+      authorColor: 'rgba(246, 235, 210, 0.85)',
       isLight: false
     },
     {
-      // 3. Deep Slate Marine (단정한 슬레이트 마린)
-      bg: 'linear-gradient(180deg, #2b3d54 0%, #233245 50%, #1c2737 100%)',
-      solidBg: '#233245',
-      text: '#f5f8fc',
-      authorColor: '#a7bed4',
+      // 3. Heritage Burgundy Wine (클래식 버건디 클로스)
+      bg: 'linear-gradient(180deg, #441c24 0%, #35141b 50%, #260d13 100%)',
+      solidBg: '#35141b',
+      text: '#faebd2',
+      authorColor: 'rgba(250, 235, 210, 0.85)',
       isLight: false
     },
     {
-      // 4. Sandstone Cream Paper (미니멀 크림 페이퍼백)
-      bg: 'linear-gradient(180deg, #f2ece3 0%, #e9e0d3 50%, #dfd5c5 100%)',
-      solidBg: '#e9e0d3',
-      text: '#24272c',
-      authorColor: '#6e7279',
+      // 4. Natural Oatmeal Linen (내추럴 오트밀 린넨 - Light)
+      bg: 'linear-gradient(180deg, #ded5c3 0%, #d2c8b4 50%, #c4b9a3 100%)',
+      solidBg: '#d2c8b4',
+      text: '#2a241e',
+      authorColor: '#584e44',
       isLight: true
     },
     {
-      // 5. Honey Amber / Ochre (따스한 허니 앰버)
-      bg: 'linear-gradient(180deg, #a86f2a 0%, #946022 50%, #80511a 100%)',
-      solidBg: '#946022',
-      text: '#fffdf9',
-      authorColor: '#f1d5ad',
+      // 5. Warm Terracotta Rust (테라코타 러스틱 클로스)
+      bg: 'linear-gradient(180deg, #783827 0%, #652d1e 50%, #522215 100%)',
+      solidBg: '#652d1e',
+      text: '#fdf0d8',
+      authorColor: 'rgba(253, 240, 216, 0.85)',
       isLight: false
     },
     {
-      // 6. Charcoal Slate (모던 차콜 슬레이트)
-      bg: 'linear-gradient(180deg, #32353c 0%, #292b31 50%, #212227 100%)',
-      solidBg: '#292b31',
-      text: '#f8f9fa',
-      authorColor: '#a8adb8',
+      // 6. Vintage Ochre / Mustard (빈티지 머스터드 오커 린넨)
+      bg: 'linear-gradient(180deg, #855c1e 0%, #704b16 50%, #593a0f 100%)',
+      solidBg: '#704b16',
+      text: '#fef5e2',
+      authorColor: 'rgba(254, 245, 226, 0.85)',
       isLight: false
     },
     {
-      // 7. Dusty Rosewood (감각적인 더스티 로즈우드)
-      bg: 'linear-gradient(180deg, #6c4456 0%, #5d3949 50%, #4f2f3e 100%)',
-      solidBg: '#5d3949',
-      text: '#fcf6f9',
-      authorColor: '#d6b3c3',
+      // 7. Mulberry Plum Cloth (멀베리 플럼 북클로스)
+      bg: 'linear-gradient(180deg, #48263c 0%, #3b1e31 50%, #2e1626 100%)',
+      solidBg: '#3b1e31',
+      text: '#fbf0f6',
+      authorColor: 'rgba(251, 240, 246, 0.85)',
       isLight: false
     },
     {
-      // 8. Klein Cobalt (선명한 클라인 코발트)
-      bg: 'linear-gradient(180deg, #265089 0%, #1e4273 50%, #17345b 100%)',
-      solidBg: '#1e4273',
-      text: '#f7faff',
-      authorColor: '#b4d1f8',
+      // 8. Obsidian Charcoal Tweed (차콜 트위드 슬레이트 클로스)
+      bg: 'linear-gradient(180deg, #292c31 0%, #202226 50%, #18191c 100%)',
+      solidBg: '#202226',
+      text: '#f6ecdc',
+      authorColor: 'rgba(246, 236, 220, 0.82)',
       isLight: false
     }
   ];
@@ -1755,26 +1756,31 @@ function createBookCardElement(book, i, isSpineMode) {
       <div class="spine-3d-wrapper">
         <div class="spine-face">
           ${realSpineTag}
-          <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}${theme.isLight ? ' spine-light-paper' : ''}" style="background: ${theme.bg};">
-            <div class="spine-paperback-crease"></div>
+          <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}${theme.isLight ? ' spine-light-cloth' : ''}" style="background: ${theme.bg};">
+            <div class="spine-cloth-headband top"></div>
+            <div class="spine-cloth-texture"></div>
+            <div class="spine-cloth-hinge"></div>
 
-            <div class="spine-paperback-header">
-              <span class="spine-paperback-badge">8ook.</span>
+            <div class="spine-cloth-header">
+              <div class="spine-cloth-fillet"></div>
+              <span class="spine-cloth-badge">8ook</span>
+              <div class="spine-cloth-fillet"></div>
             </div>
 
             <div class="spine-title-wrap">
-              <span class="spine-title-modern" style="${titleStyleExtra}">${esc(book.title)}</span>
+              <span class="spine-title-cloth" style="${titleStyleExtra}">${esc(book.title)}</span>
             </div>
 
             <div class="spine-author-wrap">
-              <span class="spine-author-modern">${esc(book.author || '8ook 클럽')}</span>
+              <span class="spine-author-cloth">${esc(book.author || '8ook 클럽')}</span>
             </div>
 
-            <div class="spine-paperback-footer">
-              <div class="spine-barcode-mark">
-                <i></i><i></i><i></i><i></i><i></i>
-              </div>
+            <div class="spine-cloth-footer">
+              <div class="spine-cloth-fillet"></div>
+              <div class="spine-cloth-emblem"></div>
+              <div class="spine-cloth-fillet"></div>
             </div>
+            <div class="spine-cloth-headband bottom"></div>
           </div>
           ${spineWaxSeal}
         </div>
@@ -1796,16 +1802,16 @@ function createBookCardElement(book, i, isSpineMode) {
       </div>
     `;
 
-    // 앞표지 기반 모던 페이퍼백 테마 비동기 추출 및 동적 반영
+    // 앞표지 기반 패브릭 북클로스 테마 비동기 추출 및 동적 반영
     if (!getSpineCoverTheme(book) && book.cover) {
       extractCoverTheme(book, (newTheme) => {
         const customView = card.querySelector('.spine-custom-view');
         if (customView) {
           customView.style.background = newTheme.bg;
           if (newTheme.isLight) {
-            customView.classList.add('spine-light-paper');
+            customView.classList.add('spine-light-cloth');
           } else {
-            customView.classList.remove('spine-light-paper');
+            customView.classList.remove('spine-light-cloth');
           }
         }
       });
