@@ -7689,7 +7689,7 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
     <div class="comm-book-card" id="comm-pop-${esc(bid)}">
       ${coverHtml}
       <div class="comm-book-info">
-        <div class="comm-shelved-badge">🔖 ${b.shelvedCount}회 꽂힘</div>
+        <div class="comm-shelved-badge">🔖 ${b.shelvedCount}명의 독서가가 선택</div>
         <div class="comm-book-title" onclick="showDetail('${esc(bid)}')" title="${esc(b.title)}">${esc(b.title)}</div>
         <div class="comm-book-author">${esc(b.author)}</div>
         ${ratingHtml}
