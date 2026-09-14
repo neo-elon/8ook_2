@@ -1726,6 +1726,9 @@ function createBookCardElement(book, i, isSpineMode) {
       </div>` : '';
 
   const isGuideCard = isGuideBook(book);
+  if (book.rating === 5) {
+    card.classList.add('five-stars');
+  }
 
   if (isSpineMode) {
     const spineW = isGuideCard ? 240 : getSpineWidth(book.pages);
