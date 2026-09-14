@@ -7519,9 +7519,14 @@ let communityPopularObserver = null;
 
 function getMostShelvedCommunityBooks() {
   const groups = new Map();
+  const seenBookIds = new Set();
 
   function addToGroup(b) {
     if (!b || isGuideBook(b) || !b.title || b.title === '__like__' || b.id?.startsWith('like_') || b.is_public === false) return;
+    const strId = b.id ? String(b.id) : null;
+    if (strId && seenBookIds.has(strId)) return;
+    if (strId) seenBookIds.add(strId);
+
     const normTitle = (b.title || '').trim().toLowerCase().replace(/[\s\-_:·・《》〈〉()]/g, '');
     if (!normTitle) return;
 
@@ -7556,18 +7561,18 @@ function getMostShelvedCommunityBooks() {
 
   const result = [];
   groups.forEach((g) => {
+    // 실제 꽂힌 서재 횟수만 계산 (가중치 제거, 실제 등록된 서재/사본 수)
+    const count = Math.max(g.copies.length, g.distinctUsers.size);
+
+    // 1회 꽂힌 책은 아예 제외 (2회 이상 꽂힌 책만 노출)
+    if (count <= 1) return;
+
     const b = g.repBook;
     const titleParts = splitBookTitle(b);
     const mainTitle = b.title && b.subtitle !== undefined ? b.title : (titleParts.main || b.title);
     const subTitle = b.subtitle !== undefined ? b.subtitle : (titleParts.sub || '');
     const userRating = (b.rating && Number(b.rating) > 0) ? Number(b.rating) : null;
     const userReview = (b.sentence || b.review || b.oneLineReview || '').trim();
-
-    // 꽂힌 횟수: 등록된 서재 수 + 스크랩 활성도 가중치
-    let count = Math.max(g.copies.length, g.distinctUsers.size);
-    if (g.totalScraps > 0) {
-      count += Math.min(5, Math.ceil(g.totalScraps / 2));
-    }
 
     const bid = String(b.id);
     const remoteSet = communityLikesMap.get(bid) || new Set();
