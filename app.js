@@ -7039,7 +7039,7 @@ function renderCommunityBooks() {
       : `<div class="comm-book-cover-placeholder" onclick="showDetail('${b.id}')">8ook</div>`;
 
     const ratingHtml = (b.rating && Number(b.rating) > 0)
-      ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${Number(b.rating).toFixed(1)}</span></div>`
+      ? `<div class="comm-book-rating" title="별점 ${Number(b.rating).toFixed(1)}점">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))}</div>`
       : '';
 
     const reviewHtml = (b.review && b.review.trim())
@@ -7051,11 +7051,13 @@ function renderCommunityBooks() {
 
     return `
       <div class="comm-book-card">
-        ${coverHtml}
+        <div class="comm-book-cover-col">
+          ${coverHtml}
+          ${ratingHtml}
+        </div>
         <div class="comm-book-info">
           <div class="comm-book-title" onclick="showDetail('${b.id}')" title="${esc(mainTitle)}">${esc(mainTitle)}</div>
           <div class="comm-book-author">${esc(b.author)}</div>
-          ${ratingHtml}
           ${reviewHtml}
           <div class="comm-book-meta">
             <span class="comm-book-time">${esc(b.time || '')}</span>

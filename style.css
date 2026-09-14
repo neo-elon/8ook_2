@@ -3083,28 +3083,37 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .comm-book-cover-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      width: 74px;
+    }
     .comm-book-rating {
       font-size: 11px;
       color: var(--amber);
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
       display: flex;
       align-items: center;
-      gap: 4px;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+      line-height: 1;
+      padding-top: 1px;
     }
     .comm-book-review {
       font-size: 11.5px;
-      line-height: 1.45;
+      line-height: 1.5;
       color: var(--text-200);
       background: rgba(140,98,57,0.06);
       border-left: 2px solid var(--border-accent);
-      padding: 5px 8px;
+      padding: 6px 9px;
       border-radius: 0 4px 4px 0;
       margin-top: 4px;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
       word-break: break-word;
+      overflow-wrap: break-word;
       font-style: italic;
     }
     .comm-book-meta {
