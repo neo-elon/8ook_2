@@ -4481,6 +4481,44 @@
   color: var(--text-100);
 }
 
+/* Inline Thought / Memo Box on Scrap Card */
+.scrap-inline-memo-box {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin: 10px 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeIn 0.2s var(--ease) both;
+}
+.scrap-inline-memo-input {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  border-radius: var(--radius-xs);
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-100);
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 52px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.scrap-inline-memo-input:focus {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 2px rgba(140, 98, 57, 0.15);
+}
+.scrap-inline-memo-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
 /* Highlight mark for search matches */
 mark.search-highlight {
   background: rgba(201, 122, 43, 0.38);

@@ -4794,8 +4794,8 @@ function renderScrapsArchive() {
             <button class="btn btn-ghost btn-sm" onclick="copyScrapQuoteText('${esc(scrap.text.replace(/'/g, "\\'"))}', '${esc(bookMainTitle.replace(/'/g, "\\'"))}', '${esc((book.author || '').replace(/'/g, "\\'"))}')" title="문장 복사" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">
               복사
             </button>
-            <button class="btn btn-ghost btn-sm" onclick="showDetail('${book.id}')" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">
-              책 보기 →
+            <button class="btn btn-ghost btn-sm" onclick="openInlineScrapMemo('${book.id}','${scrap.id}')" title="이 문장에 내 생각 추가" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px; color:var(--violet);">
+              ${scrap.memo ? '내 생각 수정' : '내 생각 추가'}
             </button>
             <button class="btn btn-ghost btn-sm" onclick="editScrap('${book.id}','${scrap.id}')" style="padding:2px 6px; font-size:10px; height:24px; border-radius:4px;">
               수정
@@ -4808,6 +4808,113 @@ function renderScrapsArchive() {
       </div>
     `;
   }).join('');
+}
+
+function openInlineScrapMemo(bookId, scrapId) {
+  const card = document.getElementById(`archive-sc-${scrapId}`);
+  if (!card) return;
+
+  const existingBox = document.getElementById(`inline-memo-box-${scrapId}`);
+  if (existingBox) {
+    const textarea = document.getElementById(`inline-memo-input-${scrapId}`);
+    if (textarea) textarea.focus();
+    return;
+  }
+
+  const book = books.find(b => b.id === bookId);
+  const scrap = book ? (book.scraps || []).find(s => s.id === scrapId) : null;
+  const currentMemo = scrap ? (scrap.memo || '') : '';
+
+  const memoWrap = card.querySelector('.comm-scrap-memo-wrap');
+  if (memoWrap) memoWrap.style.display = 'none';
+
+  const box = document.createElement('div');
+  box.className = 'scrap-inline-memo-box';
+  box.id = `inline-memo-box-${scrapId}`;
+  box.innerHTML = `
+    <textarea class="scrap-inline-memo-input" id="inline-memo-input-${scrapId}" placeholder="이 문장을 읽고 든 생각이나 감상을 기록해보세요..." rows="2">${esc(currentMemo)}</textarea>
+    <div class="scrap-inline-memo-actions">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="cancelInlineScrapMemo('${scrapId}')" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">취소</button>
+      <button type="button" class="btn btn-sm" onclick="saveInlineScrapMemo('${bookId}', '${scrapId}')" style="padding:2px 10px; font-size:11px; height:24px; border-radius:4px; background:var(--violet); color:#fff; border:none; cursor:pointer;">저장</button>
+    </div>
+  `;
+
+  const footer = card.querySelector('.scrap-card-footer');
+  if (footer) {
+    card.insertBefore(box, footer);
+  } else {
+    card.appendChild(box);
+  }
+
+  const textarea = document.getElementById(`inline-memo-input-${scrapId}`);
+  if (textarea) {
+    textarea.focus();
+    textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
+    textarea.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        saveInlineScrapMemo(bookId, scrapId);
+      }
+    });
+  }
+}
+
+function cancelInlineScrapMemo(scrapId) {
+  const box = document.getElementById(`inline-memo-box-${scrapId}`);
+  if (box) box.remove();
+  const card = document.getElementById(`archive-sc-${scrapId}`);
+  if (card) {
+    const memoWrap = card.querySelector('.comm-scrap-memo-wrap');
+    if (memoWrap) memoWrap.style.display = '';
+  }
+}
+
+async function saveInlineScrapMemo(bookId, scrapId) {
+  const input = document.getElementById(`inline-memo-input-${scrapId}`);
+  if (!input) return;
+  const newMemo = input.value.trim();
+
+  if (supabaseClient && !currentUser) {
+    toast('로그인이 필요합니다. 먼저 로그인 해주세요.');
+    return;
+  }
+
+  const book = books.find(b => b.id === bookId);
+  if (!book) return;
+
+  const nowIso = new Date().toISOString();
+  const updatedScraps = (book.scraps || []).map(s =>
+    s.id === scrapId ? { ...s, memo: newMemo, updated_at: nowIso } : s
+  );
+
+  try {
+    if (supabaseClient && currentUser) {
+      const { error } = await supabaseClient
+        .from('books')
+        .update({ scraps: updatedScraps })
+        .eq('id', bookId)
+        .eq('user_id', currentUser.id);
+      if (error) throw error;
+    }
+
+    book.scraps = updatedScraps;
+    saveData();
+    toast(newMemo ? '생각이 저장되었습니다.' : '생각이 삭제되었습니다.');
+
+    if (currentBookId === bookId && document.getElementById('view-detail').classList.contains('show')) {
+      showDetail(bookId);
+    }
+    const scrapsView = document.getElementById('view-scraps');
+    if (scrapsView && scrapsView.classList.contains('show')) {
+      renderScrapsArchive();
+    }
+    if (typeof renderCommunityScraps === 'function') {
+      renderCommunityScraps();
+    }
+  } catch (err) {
+    console.error(err);
+    toast('생각 저장 실패: ' + err.message);
+  }
 }
 
 function copyScrapQuoteText(text, bookTitle, author) {
