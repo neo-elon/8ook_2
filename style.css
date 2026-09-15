@@ -4141,21 +4141,22 @@
   position: relative;
   display: flex;
   align-items: center;
-  background: var(--glass);
+  background: var(--bg-surface);
   border: 1px solid var(--border-accent);
   border-radius: var(--radius-md);
-  padding: 0 14px;
-  height: 46px;
+  padding: 0 16px;
+  height: 48px;
   transition: all 0.25s var(--ease);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 12px rgba(70, 50, 30, 0.05);
 }
 .scraps-search-box:focus-within {
   border-color: var(--violet);
-  box-shadow: 0 0 0 3px rgba(140, 98, 57, 0.22);
+  box-shadow: 0 0 0 3px rgba(140, 98, 57, 0.16), 0 3px 12px rgba(70, 50, 30, 0.08);
 }
 .scraps-search-icon {
-  color: var(--text-400);
-  margin-right: 10px;
+  color: var(--violet);
+  opacity: 0.75;
+  margin-right: 12px;
   flex-shrink: 0;
 }
 .scraps-archive-input {
@@ -4163,7 +4164,7 @@
   border: none;
   background: transparent;
   color: var(--text-100);
-  font-size: 14px;
+  font-size: 14.5px;
   font-family: inherit;
   outline: none;
 }
@@ -4188,15 +4189,14 @@
 }
 
 /* Hashtags Archive Bar */
-/* Hashtags Archive Bar */
 .scraps-hashtags-section {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 14px 18px;
+  padding: 18px 22px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   box-shadow: var(--shadow-card);
 }
 .scraps-hashtags-header {
@@ -4208,7 +4208,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-100);
 }
@@ -4216,7 +4216,7 @@
   color: var(--violet);
 }
 .scraps-hashtags-sub {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--lavender);
   font-weight: 600;
   cursor: pointer;
@@ -4228,46 +4228,68 @@
 .scraps-hashtags-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  align-items: baseline;
+  gap: 8px 16px;
+  line-height: 1.5;
 }
 .scrap-filter-pill {
   display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: rgba(140, 98, 57, 0.07);
-  border: 1px solid rgba(140, 98, 57, 0.16);
-  color: var(--text-200);
-  border-radius: 16px;
-  padding: 4px 11px;
-  font-size: 11.5px;
-  font-weight: 600;
+  align-items: baseline;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 2px 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-100);
   cursor: pointer;
-  transition: all 0.2s var(--ease);
+  transition: color 0.15s var(--ease);
+  box-shadow: none;
+  line-height: 1.4;
+  outline: none;
+}
+.scrap-filter-pill:first-child {
+  padding-right: 14px;
+  margin-right: 2px;
+  border-right: 1px solid var(--border);
+  font-weight: 600;
 }
 .scrap-filter-pill:hover {
-  background: rgba(140, 98, 57, 0.14);
-  border-color: var(--violet);
-  color: var(--text-100);
-  transform: translateY(-1px);
+  background: transparent;
+  border: none;
+  color: var(--violet);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transform: none;
 }
 .scrap-filter-pill.active {
-  background: var(--grad-main);
-  border-color: transparent;
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(140, 98, 57, 0.28);
+  background: transparent;
+  border: none;
+  color: var(--violet);
+  font-weight: 700;
+  box-shadow: none;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
 }
 .scrap-filter-count {
-  font-size: 10px;
-  opacity: 0.85;
-  font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 8px;
-  background: rgba(140, 98, 57, 0.12);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-400);
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  opacity: 1;
+  transition: color 0.15s var(--ease);
+}
+.scrap-filter-pill:hover .scrap-filter-count {
   color: var(--violet);
 }
 .scrap-filter-pill.active .scrap-filter-count {
-  background: rgba(255, 255, 255, 0.25);
-  color: #ffffff;
+  background: transparent;
+  color: var(--violet);
+  font-weight: 700;
   opacity: 1;
 }
 
