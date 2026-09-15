@@ -5315,11 +5315,28 @@ function updateSidebar() {
   const pages = filteredBooks.reduce((s, b) => s + (b.pages || 0), 0);
   const scraps = filteredBooks.reduce((s, b) => s + ((b.scraps || []).length), 0);
 
-  document.getElementById('stat-books').textContent = total;
-  document.getElementById('stat-pages').textContent =
-    pages >= 10000 ? (pages / 1000).toFixed(1) + 'k' : pages.toLocaleString();
-  document.getElementById('stat-scraps').textContent =
-    scraps >= 10000 ? (scraps / 1000).toFixed(1) + 'k' : scraps.toLocaleString();
+  const formatStatNum = (n) => {
+    if (n >= 10000) {
+      return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    }
+    return n.toLocaleString();
+  };
+
+  const setStatEl = (id, val) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = val;
+    el.classList.remove('compact', 'extra-compact');
+    if (val.length >= 6) {
+      el.classList.add('extra-compact');
+    } else if (val.length >= 5) {
+      el.classList.add('compact');
+    }
+  };
+
+  setStatEl('stat-books', total.toLocaleString());
+  setStatEl('stat-pages', formatStatNum(pages));
+  setStatEl('stat-scraps', formatStatNum(scraps));
 
   renderChart();
   renderCal();

@@ -205,7 +205,7 @@
       background:var(--glass);
       border:1px solid var(--border);
       border-radius:var(--radius-md);
-      padding:12px 10px;
+      padding:12px 4px;
       text-align:center;
       position:relative;
       overflow:hidden;
@@ -218,9 +218,23 @@
       opacity:.04;
     }
     .stat-num {
-      font-size:30px; font-weight:700; line-height:1;
+      font-size:26px; font-weight:700; line-height:1.15;
       background:var(--grad-main);
       -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      white-space:nowrap;
+      letter-spacing:-0.5px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:30px;
+    }
+    .stat-num.compact {
+      font-size:21px;
+      letter-spacing:-0.6px;
+    }
+    .stat-num.extra-compact {
+      font-size:18px;
+      letter-spacing:-0.7px;
     }
     .stat-label {
       font-size:10px; color:var(--text-400);
