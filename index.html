@@ -507,8 +507,6 @@
       <!-- Hidden inputs for backward compatibility -->
       <input type="hidden" id="bk-img-url">
       <input type="file" id="bk-img-file" style="display:none">
-      <input type="hidden" id="bk-spine-url">
-      <input type="file" id="bk-spine-file" style="display:none">
 
       <!-- Personal sentence -->
       <div class="fg">
@@ -567,81 +565,20 @@
     </div>
     <div class="modal-body">
 
-      <div class="scrap-tabs">
-        <button class="stab on" id="stab-manual" onclick="switchTab('manual')">직접 입력</button>
-        <button class="stab" id="stab-photo" onclick="switchTab('photo')">사진 OCR</button>
+      <!-- Scrap Input Fields -->
+      <div class="fg">
+        <div class="flbl">스크랩할 문장</div>
+        <textarea class="fi" id="sc-text"
+          placeholder="기억하고 싶은 문장을 입력하세요..." rows="6" oninput="updateRecommendedHashtags()"></textarea>
       </div>
-
-      <!-- Manual Tab -->
-      <div class="stab-body on" id="sbody-manual">
+      <div class="frow">
         <div class="fg">
-          <div class="flbl">스크랩할 문장</div>
-          <textarea class="fi" id="sc-text"
-            placeholder="기억하고 싶은 문장을 입력하세요..." rows="6" oninput="updateRecommendedHashtags()"></textarea>
-        </div>
-        <div class="frow">
-          <div class="fg">
-            <div class="flbl">페이지</div>
-            <input type="number" class="fi" id="sc-page" placeholder="페이지 번호">
-          </div>
-          <div class="fg">
-            <div class="flbl">메모</div>
-            <input type="text" class="fi" id="sc-memo" placeholder="개인 메모 (선택)">
-          </div>
-        </div>
-      </div>
-
-      <!-- Photo Tab -->
-      <div class="stab-body" id="sbody-photo">
-        <div class="fg">
-          <div class="flbl">책 사진 업로드</div>
-          <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap;">
-            <input type="file" id="ocr-file" accept="image/*"
-              style="display:none" onchange="loadOcrImg(this)">
-            <button class="btn btn-ghost" onclick="document.getElementById('ocr-file').click()">
-              이미지 선택
-            </button>
-            <span id="ocr-fname" style="font-size:11px;color:var(--text-400);flex:1;min-width:100px;">선택된 파일 없음</span>
-            
-            <div style="display:flex;align-items:center;gap:6px;">
-              <span class="flbl" style="margin-bottom:0;font-size:11px;">언어:</span>
-              <select class="fi" id="ocr-lang" style="width:105px;padding:4px 8px;font-size:12px;height:28px;" onchange="onOcrLangChange()">
-                <option value="kor" selected>한글 (기본)</option>
-                <option value="eng">영어</option>
-                <option value="kor+eng">한글+영어</option>
-              </select>
-            </div>
-          </div>
-          <div class="flbl" style="margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
-            <span>사진 속 문장을 직접 클릭/탭하여 선택하세요.</span>
-            <div id="ocr-ctrl-btns" style="display:none; gap:6px;">
-              <button class="btn btn-ghost btn-sm" onclick="selectAllOcrLines()" style="padding:2px 8px; font-size:10px; border-radius:12px; height:22px; line-height:1;">전체 선택</button>
-              <button class="btn btn-ghost btn-sm" onclick="clearOcrSelection()" style="padding:2px 8px; font-size:10px; border-radius:12px; height:22px; line-height:1;">선택 해제</button>
-            </div>
-          </div>
-          <div class="ocr-wrap" id="ocr-wrap">
-            <div class="ocr-ph">
-              <span style="font-size: 13px; font-weight: 600; color: var(--lavender); letter-spacing: 0.5px;">OCR SCAN</span>
-              <span>사진을 업로드하면 자동으로 분석을 시작합니다</span>
-              <span style="font-size:10px;">분석된 문장을 탭하여 스크랩에 추가하세요</span>
-            </div>
-          </div>
-          <div class="ocr-status" id="ocr-status"></div>
+          <div class="flbl">페이지</div>
+          <input type="number" class="fi" id="sc-page" placeholder="페이지 번호">
         </div>
         <div class="fg">
-          <div class="flbl">추출된 텍스트 (편집 가능)</div>
-          <textarea class="fi" id="ocr-result" rows="4"
-            placeholder="드래그 선택 후 OCR 결과가 여기에 표시됩니다..." oninput="updateRecommendedHashtags()"></textarea>
-        </div>
-        <div class="frow">
-          <div class="fg">
-            <div class="flbl">페이지</div>
-            <input type="number" class="fi" id="sc-page-ocr" placeholder="페이지 번호">
-          </div>
-          <div class="fg">
-            <div class="flbl">메모</div>
-            <input type="text" class="fi" id="sc-memo-ocr" placeholder="개인 메모 (선택)">
-          </div>
+          <div class="flbl">메모</div>
+          <input type="text" class="fi" id="sc-memo" placeholder="개인 메모 (선택)">
         </div>
       </div>
 
@@ -875,8 +812,6 @@
 
 <!-- Supabase JS -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<!-- Tesseract.js -->
-<script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
 <!-- ZXing Barcode Decoder (Fallback) -->
 <script src="https://unpkg.com/@zxing/library@0.21.0/umd/index.min.js"></script>
 <!-- Next-Gen WebAssembly Barcode Engine (ZXing-C++ compiled to WASM) -->

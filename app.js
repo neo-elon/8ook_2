@@ -161,7 +161,6 @@ let currentBookId = null;
 let editingBookId = null;
 let currentRating = 0;
 let currentScrapBookId = null;
-let currentScrapTab = 'manual';
 let calDate = new Date();
 let gridMin = window.innerWidth <= 640 ? 90 : 170;
 let zoomTimer = null;
@@ -171,14 +170,6 @@ let chartMode = 'month';
 let statsPeriod = 'all';
 let editingScrapId = null;
 let currentGalleryFilter = null;
-
-// OCR state
-let ocrImg = null;
-let ocrSelDiv = null;
-let ocrDragging = false;
-let ocrX0 = 0, ocrY0 = 0;
-let ocrWorker = null;
-let activeOcrLang = null;
 
 // Aladin
 let aladinSearchTimer = null;
@@ -2145,9 +2136,6 @@ async function editScrap(bookId, scrapId) {
   document.getElementById('sc-text').value = scrap.text;
   document.getElementById('sc-page').value = scrap.page || '';
   document.getElementById('sc-memo').value = scrap.memo || '';
-  document.getElementById('ocr-result').value = scrap.text;
-  document.getElementById('sc-page-ocr').value = scrap.page || '';
-  document.getElementById('sc-memo-ocr').value = scrap.memo || '';
 
   currentScrapTags = (scrap.tags || scrap.keywords || []).slice();
   renderScrapModalTags();
@@ -2155,7 +2143,6 @@ async function editScrap(bookId, scrapId) {
   document.getElementById('scrap-modal-title').textContent = '스크랩 수정';
   document.getElementById('scrap-save-btn').textContent = '스크랩 저장';
 
-  switchTab('manual');
   openModal('scrap-modal');
 }
 
@@ -2288,8 +2275,6 @@ function openAddModal() {
   document.getElementById('bk-sentence').value = '';
   document.getElementById('bk-img-url').value = '';
   document.getElementById('bk-img-file').value = '';
-  document.getElementById('bk-spine-url').value = '';
-  document.getElementById('bk-spine-file').value = '';
   document.getElementById('bk-kw1').value = '';
   document.getElementById('bk-kw2').value = '';
   document.getElementById('bk-kw3').value = '';
@@ -2362,12 +2347,6 @@ async function openEditModal(id, focusKeywords = false) {
     document.getElementById('bk-img-url').value = '';
   }
 
-  if (modalSpineCover && !modalSpineCover.startsWith('data:')) {
-    document.getElementById('bk-spine-url').value = modalSpineCover;
-  } else {
-    document.getElementById('bk-spine-url').value = '';
-  }
-
   hideSearchResults();
   if (b.cover) setPrev(b.cover); else resetPrev();
   const editSpineEl = document.getElementById('spine-prev');
@@ -2419,23 +2398,7 @@ function onFileSelect(inp) {
   r.readAsDataURL(f);
 }
 
-function onSpineUrlInput(v) {
-  if (!v) { resetSpinePrev(); modalSpineCover = ''; return; }
-  modalSpineCover = v;
-  setSpinePrev(v);
-}
 
-function onSpineFileSelect(inp) {
-  const f = inp.files[0];
-  if (!f) return;
-  const r = new FileReader();
-  r.onload = e => {
-    modalSpineCover = e.target.result;
-    setSpinePrev(e.target.result);
-    document.getElementById('bk-spine-url').value = '';
-  };
-  r.readAsDataURL(f);
-}
 
 function setPrev(src) {
   if (!src) { resetPrev(); return; }
@@ -2901,46 +2864,7 @@ function runAladinLookUpJsonp(isbn, key, results, isBarcodeScan = false) {
   document.body.appendChild(script);
 }
 
-function preprocessOcrImage(dataUrl) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
 
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imgData.data;
-
-      // Convert to grayscale and apply contrast enhancement
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-
-        // Boost contrast (stretch darks and lights)
-        let val = gray;
-        if (gray < 128) {
-          val = Math.max(0, gray * 0.65);
-        } else {
-          val = Math.min(255, gray * 1.35);
-        }
-
-        data[i] = val;
-        data[i + 1] = val;
-        data[i + 2] = val;
-      }
-
-      ctx.putImageData(imgData, 0, 0);
-      resolve(canvas.toDataURL('image/jpeg', 0.9));
-    };
-    img.onerror = () => resolve(dataUrl);
-    img.src = dataUrl;
-  });
-}
 
 async function handleCameraScan(input) {
   const file = input.files[0];
@@ -4133,11 +4057,9 @@ function applyAladinItem(item) {
     const spineUrl = getSpineImageUrl(item.cover);
     if (spineUrl) {
       modalSpineCover = spineUrl;
-      document.getElementById('bk-spine-url').value = spineUrl;
       setSpinePrev(spineUrl);
     } else {
       modalSpineCover = '';
-      document.getElementById('bk-spine-url').value = '';
       resetSpinePrev();
     }
   }
@@ -4362,9 +4284,7 @@ let recDebounceTimer = null;
 function updateRecommendedHashtags() {
   clearTimeout(recDebounceTimer);
   recDebounceTimer = setTimeout(() => {
-    const textEl = currentScrapTab === 'manual'
-      ? document.getElementById('sc-text')
-      : document.getElementById('ocr-result');
+    const textEl = document.getElementById('sc-text');
     const text = textEl ? textEl.value : '';
     const book = books.find(b => b.id === currentScrapBookId);
     const recs = getRecommendedHashtags(text, book);
@@ -4406,31 +4326,15 @@ async function openScrapModal(id) {
   document.getElementById('sc-text').value = '';
   document.getElementById('sc-page').value = '';
   document.getElementById('sc-memo').value = '';
-  document.getElementById('ocr-result').value = '';
-  document.getElementById('sc-page-ocr').value = '';
-  document.getElementById('sc-memo-ocr').value = '';
-  document.getElementById('ocr-status').style.display = 'none';
-  document.getElementById('ocr-fname').textContent = '선택된 파일 없음';
 
   currentScrapTags = [];
   renderScrapModalTags();
-
-  resetOcrWrap();
-  switchTab('manual');
+  updateRecommendedHashtags();
   openModal('scrap-modal');
 }
 
 function closeScrapModal() {
   closeModal('scrap-modal');
-}
-
-function switchTab(tab) {
-  currentScrapTab = tab;
-  ['manual', 'photo'].forEach(t => {
-    document.getElementById('stab-' + t).classList.toggle('on', t === tab);
-    document.getElementById('sbody-' + t).classList.toggle('on', t === tab);
-  });
-  updateRecommendedHashtags();
 }
 
 async function saveScrap() {
@@ -4443,16 +4347,9 @@ async function saveScrap() {
   }
   const user = currentUser;
 
-  let text, page, memo;
-  if (currentScrapTab === 'manual') {
-    text = document.getElementById('sc-text').value.trim();
-    page = parseInt(document.getElementById('sc-page').value) || 0;
-    memo = document.getElementById('sc-memo').value.trim();
-  } else {
-    text = document.getElementById('ocr-result').value.trim();
-    page = parseInt(document.getElementById('sc-page-ocr').value) || 0;
-    memo = document.getElementById('sc-memo-ocr').value.trim();
-  }
+  const text = document.getElementById('sc-text').value.trim();
+  const page = parseInt(document.getElementById('sc-page').value) || 0;
+  const memo = document.getElementById('sc-memo').value.trim();
 
   if (!text) { toast('문장을 입력해주세요'); return; }
 
@@ -5081,214 +4978,7 @@ function copyBookForBlog(bookId) {
   }
 }
 
-/* ==============================================
-   OCR
-============================================== */
-let ocrLinesData = [];
 
-function resetOcrWrap() {
-  document.getElementById('ocr-wrap').innerHTML = `
-    <div class="ocr-ph">
-      <span class="ocr-ph-icon" style="font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--text-300);">PHOTO OCR</span>
-      <span>사진을 업로드하면 자동으로 분석을 시작합니다</span>
-      <span style="font-size:10px;">분석된 문장을 탭하여 스크랩에 추가하세요</span>
-    </div>`;
-  ocrImg = null;
-  ocrLinesData = [];
-  document.getElementById('ocr-ctrl-btns').style.display = 'none';
-}
-
-function loadOcrImg(inp) {
-  const file = inp.files[0];
-  if (!file) return;
-  document.getElementById('ocr-fname').textContent = file.name;
-
-  const reader = new FileReader();
-  reader.onload = e => {
-    const tempImg = new Image();
-    tempImg.onload = () => {
-      // Draw to canvas to bake EXIF orientation
-      const canvas = document.createElement('canvas');
-      canvas.width = tempImg.naturalWidth;
-      canvas.height = tempImg.naturalHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(tempImg, 0, 0, tempImg.naturalWidth, tempImg.naturalHeight);
-      const orientedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-
-      const wrap = document.getElementById('ocr-wrap');
-      wrap.innerHTML = `
-        <div class="ocr-container" id="ocr-container">
-          <img id="ocr-img-el" src="${orientedDataUrl}" alt="OCR" draggable="false">
-          <div class="ocr-scan-line" id="ocr-scan-line"></div>
-          <div class="ocr-overlay" id="ocr-overlay"></div>
-        </div>`;
-      ocrImg = document.getElementById('ocr-img-el');
-      ocrLinesData = [];
-      document.getElementById('ocr-ctrl-btns').style.display = 'none';
-
-      ocrImg.onload = () => {
-        preprocessOcrImage(orientedDataUrl).then(processedUrl => {
-          runOcr(processedUrl);
-        });
-      };
-    };
-    tempImg.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-async function runOcr(dataUrl) {
-  const statusEl = document.getElementById('ocr-status');
-  statusEl.style.display = 'block';
-  statusEl.innerHTML = '<span class="spin"></span> 사진에서 문장 분석 중...';
-  document.getElementById('ocr-result').value = '';
-
-  const scanLine = document.getElementById('ocr-scan-line');
-  if (scanLine) scanLine.classList.add('scanning');
-
-  try {
-    const lang = document.getElementById('ocr-lang').value || 'kor';
-    if (ocrWorker && activeOcrLang !== lang) {
-      await ocrWorker.terminate().catch(() => { });
-      ocrWorker = null;
-    }
-    if (!ocrWorker) {
-      ocrWorker = await Tesseract.createWorker(lang, 1, {
-        logger: m => {
-          if (m.status === 'recognizing text') {
-            const pct = Math.round(m.progress * 100);
-            statusEl.innerHTML = `<span class="spin"></span> 인식 중... ${pct}%`;
-          }
-        }
-      });
-      activeOcrLang = lang;
-    }
-
-    const { data } = await ocrWorker.recognize(dataUrl);
-
-    // Store lines with their bounding boxes and selected states
-    if (data && data.lines) {
-      ocrLinesData = data.lines
-        .filter(line => line.confidence > 50)
-        .map(line => {
-          // Clean isolated garbage characters (like |, I, l, i, ~, ·, etc.)
-          const cleanedText = line.text.trim()
-            .split(/\s+/)
-            .filter(word => {
-              if (word.length === 1 && /^[|Il!~._,\-·/\\i]+$/.test(word)) {
-                return false;
-              }
-              return true;
-            })
-            .join(' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-
-          return {
-            text: cleanedText,
-            bbox: line.bbox,
-            selected: false
-          };
-        })
-        .filter(l => {
-          if (l.text.length < 2) return false;
-          // Discard lines consisting only of numbers and symbols (must have at least one alphabet or Korean letter)
-          const hasWordChar = /[a-zA-Z가-힣]/.test(l.text);
-          if (!hasWordChar) return false;
-          return true;
-        });
-    }
-
-    if (scanLine) scanLine.classList.remove('scanning');
-
-    if (ocrLinesData.length > 0) {
-      statusEl.innerHTML = '분석 완료. 사진에서 스크랩할 문장을 직접 선택하세요.';
-      document.getElementById('ocr-ctrl-btns').style.display = 'flex';
-      renderOcrOverlays();
-    } else {
-      statusEl.innerHTML = '인식된 텍스트가 없습니다. 다른 사진을 시도하거나 직접 입력해주세요.';
-    }
-
-    setTimeout(() => { statusEl.style.display = 'none'; }, 4500);
-  } catch (err) {
-    console.error(err);
-    if (scanLine) scanLine.classList.remove('scanning');
-    statusEl.innerHTML = '분석 실패. 다시 시도해주세요.';
-    setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
-  }
-}
-
-async function onOcrLangChange() {
-  if (ocrImg && ocrImg.src) {
-    if (ocrWorker) {
-      await ocrWorker.terminate().catch(() => { });
-      ocrWorker = null;
-    }
-    runOcr(ocrImg.src);
-  }
-}
-
-function renderOcrOverlays() {
-  const overlay = document.getElementById('ocr-overlay');
-  if (!overlay || !ocrImg) return;
-  overlay.innerHTML = '';
-
-  const scaleX = ocrImg.clientWidth / ocrImg.naturalWidth;
-  const scaleY = ocrImg.clientHeight / ocrImg.naturalHeight;
-
-  ocrLinesData.forEach((line, idx) => {
-    const l = line.bbox.x0 * scaleX;
-    const t = line.bbox.y0 * scaleY;
-    const w = (line.bbox.x1 - line.bbox.x0) * scaleX;
-    const h = (line.bbox.y1 - line.bbox.y0) * scaleY;
-
-    const div = document.createElement('div');
-    div.className = 'ocr-line-highlight' + (line.selected ? ' selected' : '');
-    div.style.left = l + 'px';
-    div.style.top = t + 'px';
-    div.style.width = w + 'px';
-    div.style.height = h + 'px';
-    div.title = line.text;
-
-    div.onclick = () => {
-      line.selected = !line.selected;
-      div.classList.toggle('selected', line.selected);
-      updateOcrResultFromSelection();
-    };
-
-    overlay.appendChild(div);
-  });
-}
-
-function updateOcrResultFromSelection() {
-  const selectedText = ocrLinesData
-    .filter(l => l.selected)
-    .map(l => l.text)
-    .join(' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  document.getElementById('ocr-result').value = selectedText;
-}
-
-function selectAllOcrLines() {
-  ocrLinesData.forEach(l => l.selected = true);
-  renderOcrOverlays();
-  updateOcrResultFromSelection();
-}
-
-function clearOcrSelection() {
-  ocrLinesData.forEach(l => l.selected = false);
-  renderOcrOverlays();
-  updateOcrResultFromSelection();
-}
-
-// Window resize support for OCR overlays
-window.addEventListener('resize', () => {
-  const modal = document.getElementById('scrap-modal');
-  if (modal && modal.classList.contains('open') && ocrImg && ocrLinesData.length > 0) {
-    renderOcrOverlays();
-  }
-});
 
 /* ==============================================
    SIDEBAR / STATS
@@ -6005,12 +5695,6 @@ function closeModal(id) {
     document.activeElement.blur();
   }
 
-  if (id === 'scrap-modal') {
-    if (ocrWorker) { ocrWorker.terminate().catch(() => { }); ocrWorker = null; }
-    activeOcrLang = null;
-    ocrImg = null; ocrSelDiv = null;
-  }
-
   if (id === 'barcode-scanner-modal') {
     closeBarcodeScannerModal();
   }
@@ -6274,9 +5958,9 @@ function getUserGuideBook() {
       <text x="-70" y="98" fill="#6f5e43" font-size="9" font-family="'Noto Sans KR', sans-serif">• 알라딘 검색 자동 완성</text>
       <text x="-70" y="110" fill="#6f5e43" font-size="9" font-family="'Noto Sans KR', sans-serif">• 초고속 WASM 바코드 스캔</text>
 
-      <text x="-75" y="134" fill="#4d3e28" font-size="11" font-weight="600" font-family="'Noto Sans KR', sans-serif">3. 스마트 OCR 수집</text>
-      <text x="-70" y="148" fill="#6f5e43" font-size="9" font-family="'Noto Sans KR', sans-serif">• 책 페이지 촬영 후 글자 추출</text>
-      <text x="-70" y="160" fill="#6f5e43" font-size="9" font-family="'Noto Sans KR', sans-serif">• 터치로 원하는 문장만 쏙</text>
+      <text x="-75" y="134" fill="#4d3e28" font-size="11" font-weight="600" font-family="'Noto Sans KR', sans-serif">3. 감동적인 문장 수집</text>
+      <text x="-70" y="148" fill="#6f5e43" font-size="9" font-family="'Noto Sans KR', sans-serif">• 페이지별 인상 깊은 구절</text>
+      <text x="-70" y="160" fill="#6f5e43" font-size="9" font-family="'Noto Sans KR', sans-serif">• 나만의 생각 메모 &amp; 감상</text>
 
       <text x="-75" y="184" fill="#4d3e28" font-size="11" font-weight="600" font-family="'Noto Sans KR', sans-serif">4. 인생작 왁스 인장</text>
       <text x="-70" y="198" fill="#6f5e43" font-size="9" font-family="'Noto Sans KR', sans-serif">• 5점 만점 수제 붉은 인장</text>
@@ -6323,7 +6007,7 @@ function getUserGuideBook() {
     date: new Date().toISOString().slice(0, 10),
     cover: coverDataUrl,
     rating: 5,
-    sentence: '3D 양장본 서가, 스마트 OCR 문장 수집, 독서 캘린더와 클라우드 동기화까지 — 8ook를 100% 누리는 완벽 가이드',
+    sentence: '3D 양장본 서가, 나만의 문장 수집, 독서 캘린더와 클라우드 동기화까지 — 8ook를 100% 누리는 완벽 가이드',
     scraps: [
       {
         id: 'guide_ch1',
@@ -6341,10 +6025,10 @@ function getUserGuideBook() {
       },
       {
         id: 'guide_ch3',
-        text: '책을 읽다 마음에 드는 구절을 발견했다면 힘들게 타이핑하지 마세요. 도서 상세 화면에서 "문장 추가"를 누른 뒤 "사진 OCR" 탭을 선택하고 책 페이지를 촬영하면, 인공지능 텍스트 인식 엔진이 한글과 영문을 선명하게 디지털 텍스트로 추출합니다. 추출된 문장 중 간직하고 싶은 부분을 가볍게 터치하여 나만의 생각 메모, 읽은 쪽수(p.), #해시태그와 함께 보관할 수 있습니다.',
+        text: '책을 읽다 마음에 드는 구절을 발견했다면 도서 상세 화면에서 "문장 추가"를 눌러 기억하고 싶은 문장과 나만의 생각 메모, 읽은 쪽수(p.), #해시태그를 함께 기록해 보세요. 차곡차곡 모인 문장들은 나만의 소중한 지적 자산이 됩니다.',
         page: 3,
-        memo: '스마트 카메라 OCR 문장 수집',
-        tags: ['문장수집', 'OCR인식', '인용구']
+        memo: '나만의 문장 수집 & 생각 메모',
+        tags: ['문장수집', '생각메모', '인용구']
       },
       {
         id: 'guide_ch4',
