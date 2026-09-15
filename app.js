@@ -5768,52 +5768,6 @@ galleryScroll.addEventListener('touchend', e => {
   }
 }, { passive: true });
 
-// Community Touch Swipe Gestures
-let commTouchStartX = 0;
-let commTouchStartY = 0;
-let commTouchEndX = 0;
-let commTouchEndY = 0;
-
-const commEl = document.getElementById('view-community');
-
-commEl.addEventListener('touchstart', e => {
-  if (e.touches.length === 1) {
-    commTouchStartX = e.touches[0].screenX;
-    commTouchStartY = e.touches[0].screenY;
-  }
-}, { passive: true });
-
-commEl.addEventListener('touchend', e => {
-  // Ignore swipes if user is scrolling horizontal AR cards
-  if (e.target.closest('#ar-floating-cards-container')) return;
-  if (e.changedTouches.length === 1) {
-    commTouchEndX = e.changedTouches[0].screenX;
-    commTouchEndY = e.changedTouches[0].screenY;
-    handleCommunitySwipe();
-  }
-}, { passive: true });
-
-function handleCommunitySwipe() {
-  const diffX = commTouchEndX - commTouchStartX;
-  const diffY = commTouchEndY - commTouchStartY;
-
-  // Horizontal swipe
-  if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
-    if (diffX > 0) {
-      showGallery();
-      toast('내 서재로 이동');
-    } else {
-      // Bounce left (dragged left on the rightmost page)
-      const wrap = document.querySelector('.community-wrap');
-      if (wrap) {
-        wrap.classList.remove('bounce-left', 'bounce-right');
-        void wrap.offsetWidth;
-        wrap.classList.add('bounce-left');
-      }
-      toast('마지막 페이지입니다.');
-    }
-  }
-}
 
 // Stats Touch Swipe Gestures
 let statsTouchStartX = 0;
