@@ -351,24 +351,27 @@
     <div class="scraps-archive-wrap">
 
       <!-- Hero Header & Stats Summary -->
-      <div class="scraps-archive-header">
-        <div class="scraps-archive-title-area">
-          <div class="scraps-archive-badge">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-            <span>문장 보관함</span>
-          </div>
-          <h2 class="scraps-archive-title">문장 보관함</h2>
-          <p class="scraps-archive-desc">책에서 발견한 소중한 문장들을 문장 본문과 해시태그로 손쉽게 검색하고 모아보세요.</p>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <button type="button" class="btn btn-ghost btn-sm" onclick="reshuffleScraps()" title="문장 순서 랜덤 섞기" style="border-radius:var(--radius-sm); font-size:11px; padding:6px 11px; height:42px; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
-            <span>랜덤 섞기</span>
+      <div class="scraps-hero">
+        <div class="scraps-hero-badge">SENTENCE ARCHIVE</div>
+        <h2 class="scraps-hero-title">문장 보관함</h2>
+        <p class="scraps-hero-subtitle">책에서 발견한 소중한 문장들을 문장 본문과 해시태그로 손쉽게 검색하고 모아보세요</p>
+
+        <!-- Segmented Tab / Action Bar -->
+        <div class="scraps-tab-bar">
+          <button type="button" class="scraps-tab-btn active" id="scraps-tab-all-btn" onclick="clearScrapArchiveSearch(); filterScrapsByTag(null);" title="전체 문장 보기">
+            <span class="scraps-tab-label">전체 문장</span>
+            <span class="scraps-tab-count" id="scraps-total-count">0</span>
           </button>
-          <div class="scraps-stats-counter" id="scraps-total-count-badge">
-            <span class="scraps-counter-num" id="scraps-total-count">0</span>
-            <span class="scraps-counter-label">개의 문장</span>
-          </div>
+          <button type="button" class="scraps-tab-btn" onclick="reshuffleScraps()" title="문장 순서 랜덤 섞기">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 3 21 3 21 8"></polyline>
+              <line x1="4" y1="20" x2="21" y2="3"></line>
+              <polyline points="21 16 21 21 16 21"></polyline>
+              <line x1="15" y1="15" x2="21" y2="21"></line>
+              <line x1="4" y1="4" x2="9" y2="9"></line>
+            </svg>
+            <span class="scraps-tab-label">랜덤 섞기</span>
+          </button>
         </div>
       </div>
 

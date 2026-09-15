@@ -4219,6 +4219,7 @@ function getScrapRandomOrder(scrapId) {
 function reshuffleScraps() {
   scrapsShuffleOrder = {};
   renderScrapsArchive();
+  toast('문장 순서를 새로 섞었습니다');
 }
 
 const SCRAP_THEME_RULES = [
@@ -4653,6 +4654,15 @@ function renderScrapsArchive() {
 
   if (totalCountEl) {
     totalCountEl.textContent = totalScrapsCount;
+  }
+
+  const allTabBtn = document.getElementById('scraps-tab-all-btn');
+  if (allTabBtn) {
+    if (!currentScrapFilterTag && !currentScrapSearchQuery) {
+      allTabBtn.classList.add('active');
+    } else {
+      allTabBtn.classList.remove('active');
+    }
   }
 
   // Render Hashtags filter pills
