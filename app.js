@@ -7938,9 +7938,6 @@ function searchAladinByQuery(query) {
   searchAladin();
 }
 
-
-}
-
 /* ==============================================
    EXPORT TO GOOGLE SHEETS (CSV)
 ============================================== */
