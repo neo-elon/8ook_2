@@ -4863,8 +4863,8 @@ function drawBlogCoverCanvas(img) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
-  // 1. 다크 차콜 배경 채우기
-  ctx.fillStyle = '#1e1e1e';
+  // 1. 차콜 배경 채우기
+  ctx.fillStyle = '#383838';
   ctx.fillRect(0, 0, size, size);
 
   // 2. 배경 이미지: 정사각형 전체를 채우도록 확대(cover)하여 배치
@@ -4877,21 +4877,21 @@ function drawBlogCoverCanvas(img) {
   const bgY = (size - bgH) / 2;
 
   ctx.save();
-  // 흑백 및 어둡게 처리 (사용자 제공 2번 포맷과 일치)
+  // 흑백 및 밝기 조정 (배경을 한결 은은하고 밝게 표현)
   if ('filter' in ctx) {
-    ctx.filter = 'grayscale(100%) brightness(0.36) contrast(0.95)';
+    ctx.filter = 'grayscale(100%) brightness(0.58) contrast(0.92)';
     ctx.drawImage(img, bgX, bgY, bgW, bgH);
   } else {
     ctx.drawImage(img, bgX, bgY, bgW, bgH);
-    ctx.fillStyle = 'rgba(25, 25, 25, 0.65)';
+    ctx.fillStyle = 'rgba(50, 50, 50, 0.35)';
     ctx.fillRect(0, 0, size, size);
   }
   ctx.restore();
 
-  // 가장자리 부드러운 비네팅 효과 (중앙 도서에 시선 집중)
-  const vignette = ctx.createRadialGradient(size / 2, size / 2, size * 0.28, size / 2, size / 2, size * 0.72);
+  // 가장자리 은은한 비네팅 효과 (중앙 도서에 자연스럽게 시선 집중)
+  const vignette = ctx.createRadialGradient(size / 2, size / 2, size * 0.3, size / 2, size / 2, size * 0.72);
   vignette.addColorStop(0, 'rgba(0, 0, 0, 0)');
-  vignette.addColorStop(1, 'rgba(0, 0, 0, 0.38)');
+  vignette.addColorStop(1, 'rgba(0, 0, 0, 0.18)');
   ctx.fillStyle = vignette;
   ctx.fillRect(0, 0, size, size);
 
