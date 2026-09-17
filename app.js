@@ -6003,6 +6003,102 @@ document.addEventListener('keydown', e => {
 });
 
 /* ==============================================
+   SMART PUNCTUATION: AUTO-ELLIPSIS (...) -> (…)
+============================================== */
+let isReplacingEllipsis = false;
+
+function handleEllipsisAutoConvert(e) {
+  if (isReplacingEllipsis) return;
+  if (e.isComposing) return;
+
+  const target = e.target;
+  if (!target || !target.tagName) return;
+  const tag = target.tagName.toLowerCase();
+  if (tag !== 'textarea' && tag !== 'input') return;
+  if (target.readOnly || target.disabled) return;
+  if (target.type === 'number' || target.type === 'password' || target.type === 'file' || target.type === 'date') return;
+  if (target.id === 'db-sql-code') return;
+
+  const pos = target.selectionStart;
+  if (typeof pos !== 'number' || pos < 3) return;
+
+  const val = target.value;
+  const last3 = val.slice(pos - 3, pos);
+  if (last3 === '...' || last3 === '。。。') {
+    isReplacingEllipsis = true;
+    try {
+      const start = pos - 3;
+      const end = pos;
+      let replaced = false;
+
+      if (document.execCommand) {
+        target.setSelectionRange(start, end);
+        replaced = document.execCommand('insertText', false, '…');
+      }
+
+      if (!replaced) {
+        const before = val.slice(0, start);
+        const after = val.slice(end);
+        target.value = before + '…' + after;
+        const newPos = start + 1;
+        target.setSelectionRange(newPos, newPos);
+        target.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+
+      if (target.id === 'sc-text' && typeof updateRecommendedHashtags === 'function') {
+        updateRecommendedHashtags();
+      }
+    } catch (err) {
+      console.warn('Ellipsis replace error:', err);
+    } finally {
+      isReplacingEllipsis = false;
+    }
+  }
+}
+
+function handleSentencePaste(e) {
+  const target = e.target;
+  if (!target || !target.tagName) return;
+  const tag = target.tagName.toLowerCase();
+  if (tag !== 'textarea' && tag !== 'input') return;
+  if (target.readOnly || target.disabled || target.id === 'db-sql-code') return;
+
+  const clipboardData = e.clipboardData || window.clipboardData;
+  if (!clipboardData) return;
+  const pastedText = clipboardData.getData('text');
+  if (!pastedText || (!pastedText.includes('...') && !pastedText.includes('。。。'))) return;
+
+  const isSentenceField = target.id === 'sc-text' || target.id === 'sc-memo' || target.id === 'bk-sentence' || tag === 'textarea';
+  if (!isSentenceField) return;
+
+  e.preventDefault();
+  const converted = pastedText.replace(/\.{3}/g, '…').replace(/。{3}/g, '…');
+  let pasted = false;
+
+  if (document.execCommand) {
+    pasted = document.execCommand('insertText', false, converted);
+  }
+
+  if (!pasted) {
+    const start = target.selectionStart || 0;
+    const end = target.selectionEnd || 0;
+    const val = target.value;
+    target.value = val.slice(0, start) + converted + val.slice(end);
+    const newPos = start + converted.length;
+    target.setSelectionRange(newPos, newPos);
+    target.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  if (target.id === 'sc-text' && typeof updateRecommendedHashtags === 'function') {
+    updateRecommendedHashtags();
+  }
+}
+
+document.addEventListener('input', handleEllipsisAutoConvert, true);
+document.addEventListener('paste', handleSentencePaste, true);
+
+
+/* ==============================================
    INIT
 ============================================= */
 loadTheme();
