@@ -2092,7 +2092,7 @@ function buildScrapsHtml(book) {
   const isGuide = isGuideBook(book);
   const sortedScraps = [...book.scraps].sort((a, b) => (a.page || 0) - (b.page || 0));
 
-  return sortedScraps.map(s => {
+  const renderCard = (s, idx) => {
     const tags = s.tags || s.keywords || [];
     const tagsHtml = tags.length
       ? `<div class="scrap-tags-row" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">
@@ -2100,7 +2100,7 @@ function buildScrapsHtml(book) {
          </div>`
       : '';
     return `
-    <div class="scrap-item" id="sc-${s.id}">
+    <div class="scrap-item" id="sc-${s.id}" style="order:${idx};">
       <div class="scrap-quote">${esc(s.text)}</div>
       ${s.memo ? `<div class="comm-scrap-memo-wrap"><div class="comm-scrap-memo">${esc(s.memo)}</div></div>` : ''}
       ${tagsHtml}
@@ -2115,7 +2115,24 @@ function buildScrapsHtml(book) {
         </div>
       </div>
     </div>
-  `}).join('');
+    `;
+  };
+
+  if (sortedScraps.length <= 1) {
+    return sortedScraps.map((s, idx) => renderCard(s, idx)).join('');
+  }
+
+  const col0 = [];
+  const col1 = [];
+  sortedScraps.forEach((s, idx) => {
+    if (idx % 2 === 0) col0.push(renderCard(s, idx));
+    else col1.push(renderCard(s, idx));
+  });
+
+  return `
+    <div class="scrap-col">${col0.join('')}</div>
+    <div class="scrap-col">${col1.join('')}</div>
+  `;
 }
 
 async function editScrap(bookId, scrapId) {
@@ -4643,7 +4660,7 @@ function renderScrapsArchive() {
     return escaped.replace(regex, '<mark class="search-highlight">$1</mark>');
   };
 
-  listEl.innerHTML = filtered.map(item => {
+  const renderArchiveCard = (item, idx) => {
     const { book, scrap } = item;
     const tags = scrap.tags || scrap.keywords || [];
     const coverHtml = book.cover
@@ -4664,7 +4681,7 @@ function renderScrapsArchive() {
     const bookMainTitle = bookTitleParts.main || book.title;
 
     return `
-      <div class="scrap-card-full" id="archive-sc-${scrap.id}">
+      <div class="scrap-card-full" id="archive-sc-${scrap.id}" style="order:${idx};">
         <div class="scrap-card-header">
           ${coverHtml}
           <div class="scrap-card-meta">
@@ -4704,7 +4721,22 @@ function renderScrapsArchive() {
         </div>
       </div>
     `;
-  }).join('');
+  };
+
+  if (filtered.length <= 1) {
+    listEl.innerHTML = filtered.map((item, idx) => renderArchiveCard(item, idx)).join('');
+  } else {
+    const col0 = [];
+    const col1 = [];
+    filtered.forEach((item, idx) => {
+      if (idx % 2 === 0) col0.push(renderArchiveCard(item, idx));
+      else col1.push(renderArchiveCard(item, idx));
+    });
+    listEl.innerHTML = `
+      <div class="scraps-archive-col">${col0.join('')}</div>
+      <div class="scraps-archive-col">${col1.join('')}</div>
+    `;
+  }
 }
 
 function openInlineScrapMemo(bookId, scrapId) {

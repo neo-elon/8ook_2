@@ -2183,14 +2183,26 @@
     }
 
     .scrap-list {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      display: flex;
       gap: 12px;
-      align-items: start;
+      align-items: flex-start;
+      width: 100%;
+    }
+    .scrap-col {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
     @media (max-width: 768px) {
       .scrap-list {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .scrap-col {
+        display: contents;
       }
     }
     .scrap-item {
@@ -4164,14 +4176,26 @@
 
 /* Scraps Result Cards */
 .scraps-archive-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
   gap: 14px;
-  align-items: start;
+  align-items: flex-start;
+  width: 100%;
+}
+.scraps-archive-col {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 @media (max-width: 768px) {
   .scraps-archive-list {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .scraps-archive-col {
+    display: contents;
   }
 }
 .scrap-card-full {
