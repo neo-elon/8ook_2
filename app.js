@@ -2050,11 +2050,11 @@ function showDetail(id, direction = null, pushHistory = true) {
         </button>
         <button type="button" class="scrap-copy-bottom-btn" onclick="copyBookForBlog('${book.id}')" title="블로그 포스팅용으로 도서 정보와 수집한 문장 전체를 복사합니다">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--lavender); flex-shrink:0;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-          <span>내용 복사하기</span>
+          <span>내용 복사</span>
         </button>
         <button type="button" class="scrap-cover-bottom-btn" onclick="copyBlogCoverImage('${book.id}')" title="블로그용 편집 표지 이미지를 클립보드에 복사합니다">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--lavender); flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-          <span>표지이미지복사</span>
+          <span>표지 복사</span>
         </button>
       </div>` : ''}
     </div>
