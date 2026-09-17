@@ -7025,7 +7025,10 @@ function formatTimeAgo(dateStr) {
 
 function getSafeTimestamp(val) {
   if (!val) return 0;
-  const t = new Date(val).getTime();
+  if (typeof val === 'number') return val;
+  const str = String(val).trim().replace(/\./g, '-');
+  const dStr = /^\d{4}-\d{2}-\d{2}$/.test(str) ? str + 'T00:00:00' : str;
+  const t = new Date(dStr).getTime();
   return isNaN(t) ? 0 : t;
 }
 
@@ -7330,11 +7333,21 @@ let communityBooksObserver = null;
 function getSortedCommunityBooks() {
   const allBooks = getAllCommunityBooks();
   return [...allBooks].sort((a, b) => {
-    const timeA = getSafeTimestamp(a.created_at) || getSafeTimestamp(a.date);
-    const timeB = getSafeTimestamp(b.created_at) || getSafeTimestamp(b.date);
-    if (timeA && timeB && timeA !== timeB) return timeB - timeA;
-    if (timeA && !timeB) return -1;
-    if (!timeA && timeB) return 1;
+    // 1. 완독일(date) 최신순 우선 정렬
+    const dateA = getSafeTimestamp(a.date);
+    const dateB = getSafeTimestamp(b.date);
+    if (dateA && dateB && dateA !== dateB) return dateB - dateA;
+    if (dateA && !dateB) return -1;
+    if (!dateA && dateB) return 1;
+
+    // 2. 완독일이 같거나 없는 경우 등록일(created_at) 순
+    const createA = getSafeTimestamp(a.created_at);
+    const createB = getSafeTimestamp(b.created_at);
+    if (createA && createB && createA !== createB) return createB - createA;
+    if (createA && !createB) return -1;
+    if (!createA && createB) return 1;
+
+    // 3. 데이터셋 seq 순
     return (b.seq || 0) - (a.seq || 0);
   });
 }
@@ -7343,7 +7356,19 @@ function formatCommunityBook(b) {
   const titleParts = splitBookTitle(b);
   const userRating = (b.rating && Number(b.rating) > 0) ? Number(b.rating) : null;
   const userReview = (b.sentence || b.review || b.oneLineReview || '').trim();
-  const rawDate = b.created_at || b.date;
+
+  // 완독일(date) 우선 표시, 없으면 등록일(created_at) 표시
+  let timeStr = '';
+  if (b.date) {
+    const s = String(b.date).trim();
+    if (/^\d{4}[-.]\d{2}[-.]\d{2}$/.test(s)) {
+      timeStr = s.replace(/-/g, '.');
+    } else {
+      timeStr = formatTimeAgo(b.date);
+    }
+  } else if (b.created_at) {
+    timeStr = formatTimeAgo(b.created_at);
+  }
 
   return {
     id: b.id,
@@ -7353,7 +7378,8 @@ function formatCommunityBook(b) {
     cover: b.cover || '',
     rating: userRating,
     review: userReview || null,
-    time: formatTimeAgo(rawDate)
+    date: b.date || '',
+    time: timeStr
   };
 }
 
@@ -7464,7 +7490,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
         ${ratingHtml}
         ${reviewHtml}
         <div class="comm-book-meta">
-          <span class="comm-book-time">${esc(b.time || '')}</span>
+          <span class="comm-book-time" title="${b.date ? `완독일: ${esc(b.date)}` : (b.time ? esc(b.time) : '')}">${esc(b.time || '')}</span>
           <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
             <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
           </button>
