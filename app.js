@@ -2017,13 +2017,13 @@ function showDetail(id, direction = null, pushHistory = true) {
       </div>
     </div>
     <div class="detail-body-sec" style="display:flex; flex-direction:column; gap:16px;">
-      <div class="detail-rating-row" style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+      <div class="detail-rating-row" style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
         <div class="detail-stars">${starsHtml(book.rating, 22)}</div>
-        <div class="detail-book-actions" style="display:flex; gap:6px; align-items:center;">
+        <div class="detail-book-actions" style="display:inline-flex; gap:6px; align-items:center;">
           ${isGuideDetail
-            ? `<button class="btn btn-ghost btn-sm" onclick="showDetail('8ook_user_guide'); toast('가이드가 최신 상태로 갱신되었습니다');" style="padding:2px 8px; font-size:11px; border-radius:4px; height:22px; line-height:1; color:#d4af37; border-color:rgba(212,175,55,0.4);">가이드 최신화</button>`
-            : `<button class="btn btn-ghost btn-sm" onclick="openEditModal('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:4px; height:22px; line-height:1;">편집</button>
-               <button class="btn btn-danger btn-sm" onclick="doDeleteBook('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:22px; line-height:1;">삭제</button>`
+            ? `<button class="btn btn-ghost btn-sm" onclick="showDetail('8ook_user_guide'); toast('가이드가 최신 상태로 갱신되었습니다');" style="padding:0 8px; font-size:11px; border-radius:4px; height:24px; line-height:1; color:#d4af37; border-color:rgba(212,175,55,0.4); display:inline-flex; align-items:center;">가이드 최신화</button>`
+            : `<button class="btn btn-ghost btn-sm" onclick="openEditModal('${book.id}')" style="padding:0 8px; font-size:11.5px; border-radius:4px; height:24px; line-height:1; display:inline-flex; align-items:center; justify-content:center;">편집</button>
+               <button class="btn btn-danger btn-sm" onclick="doDeleteBook('${book.id}')" style="padding:0 8px; font-size:11.5px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:24px; line-height:1; display:inline-flex; align-items:center; justify-content:center;">삭제</button>`
           }
         </div>
       </div>

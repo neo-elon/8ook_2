@@ -2148,12 +2148,28 @@
     /* date picker color-scheme */
     input[type="date"], .bk-date-inp { color-scheme: light; }
 
-    .detail-stars { display:flex; gap:5px; margin-top:2px; }
-    .detail-star {
-      font-size:22px;
-      transition:transform .2s, filter .2s;
+    .detail-stars {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin: 0;
+      line-height: 1;
     }
-    .detail-star.on { filter:drop-shadow(0 0 4px rgba(245,158,11,.4)); }
+    .detail-star {
+      font-size: 22px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 24px;
+      transition: transform .2s, filter .2s;
+    }
+    .detail-star.on { filter: drop-shadow(0 0 4px rgba(245,158,11,.4)); }
+    .detail-book-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
 
     .detail-sentence {
       background:var(--glass);
