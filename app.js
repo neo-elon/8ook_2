@@ -5055,7 +5055,7 @@ async function downloadBlogCoverImage(bookId) {
   toast('블로그용 표지 이미지를 다운로드했습니다.');
 }
 
-async function copyBookForBlog(bookId) {
+function copyBookForBlog(bookId) {
   let book = books.find(b => b.id === bookId);
   if (!book && bookId === '8ook_user_guide') {
     book = getUserGuideBook();
@@ -5073,12 +5073,7 @@ async function copyBookForBlog(bookId) {
   const keywords = (book.keywords && book.keywords.length) ? book.keywords.map(k => `#${k}`).join(' ') : '';
   const sentence = book.sentence ? book.sentence.trim() : '';
 
-  const rawCoverUrl = book.cover ? getSafeImageUrl(book.cover) : '';
-  let blogCoverDataUrl = '';
-  if (rawCoverUrl) {
-    toast('블로그용 표지 편집 및 독서노트 복사 중...');
-    blogCoverDataUrl = await generateBlogCover(rawCoverUrl);
-  }
+  const coverUrl = book.cover ? getSafeImageUrl(book.cover) : '';
 
   const scraps = [...(book.scraps || [])].sort((a, b) => (Number(a.page) || 0) - (Number(b.page) || 0));
 
@@ -5102,7 +5097,7 @@ async function copyBookForBlog(bookId) {
   if (date) plain += `완독일: ${date}\n`;
   if (pages) plain += `분량: ${pages}\n`;
   if (ratingStr) plain += `평점: ${ratingStr}\n`;
-  if (rawCoverUrl && rawCoverUrl.startsWith('http')) plain += `표지: ${rawCoverUrl}\n`;
+  if (coverUrl && coverUrl.startsWith('http')) plain += `표지: ${coverUrl}\n`;
 
   if (sentence) {
     plain += `\n[한 줄 평]\n“${sentence}”\n`;
@@ -5128,7 +5123,7 @@ async function copyBookForBlog(bookId) {
 
   plain += `\n────────────────────────────\n출처: 8ook (나만의 독서기록)\n`;
 
-  // 2. Rich HTML Format (첫 줄 제목행 및 2번 포맷으로 편집된 표지 이미지 포함)
+  // 2. Rich HTML Format
   let html = `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; line-height: 1.8; color: #222; max-width: 680px; padding: 8px 0; font-size: 15px;">`;
   if (blogTitleLine) {
     html += `<h1 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 800; line-height: 1.5; color: #111; word-break: keep-all; padding-bottom: 12px; border-bottom: 2px solid #222;">${esc(blogTitleLine)}</h1>`;
@@ -5137,10 +5132,9 @@ async function copyBookForBlog(bookId) {
     html += `<div style="font-size: 15px; color: #666; margin-bottom: 14px;">${esc(subtitle)}</div>`;
   }
 
-  const displayCover = blogCoverDataUrl || rawCoverUrl;
-  if (displayCover) {
-    html += `<div style="margin: 16px 0 20px 0; text-align: center;">`;
-    html += `<img src="${displayCover}" alt="${esc(title)} 표지" style="max-width: 500px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); display: inline-block;" />`;
+  if (coverUrl) {
+    html += `<div style="margin: 14px 0 18px 0;">`;
+    html += `<img src="${esc(coverUrl)}" alt="${esc(title)} 표지" style="max-width: 200px; height: auto; border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.15); display: block;" />`;
     html += `</div>`;
   }
 
@@ -5186,7 +5180,7 @@ async function copyBookForBlog(bookId) {
   html += `<div style="font-size: 13px; color: #999; text-align: right;">출처: 8ook (나만의 독서기록)</div>`;
   html += `</div>`;
 
-  const successMsg = '블로그용 독서노트(편집 표지 포함)가 복사되었습니다! (네이버블로그, 노션 등에서 Ctrl+V)';
+  const successMsg = '블로그용 독서노트가 복사되었습니다! (네이버블로그, 노션 등에서 Ctrl+V)';
   if (navigator.clipboard && window.ClipboardItem) {
     const blobHtml = new Blob([html], { type: 'text/html' });
     const blobText = new Blob([plain], { type: 'text/plain' });
