@@ -3770,6 +3770,11 @@
 /* ==============================================
    SCRAP MODAL HASHTAGS & RECOMMENDATIONS
 ============================================== */
+#scrap-modal input,
+#scrap-modal textarea {
+  ime-mode: active;
+}
+
 .scrap-tags-input-container {
   display: flex;
   flex-wrap: wrap;

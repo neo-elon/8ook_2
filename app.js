@@ -2161,6 +2161,10 @@ async function editScrap(bookId, scrapId) {
   document.getElementById('scrap-save-btn').textContent = '스크랩 저장';
 
   openModal('scrap-modal');
+  setTimeout(() => {
+    const el = document.getElementById('sc-text');
+    if (el) el.focus();
+  }, 100);
 }
 
 function handleBackNavigation() {
@@ -4315,7 +4319,7 @@ function updateRecommendedHashtags() {
     }
 
     chipsContainer.innerHTML = recs.map(tag => `
-      <button type="button" class="scrap-rec-chip" onclick="addScrapTag('${esc(tag)}')" title="#${esc(tag)} 추가">
+      <button type="button" class="scrap-rec-chip" tabindex="-1" onclick="addScrapTag('${esc(tag)}')" title="#${esc(tag)} 추가">
         <span class="rec-plus">+</span> #${esc(tag)}
       </button>
     `).join('');
@@ -4348,6 +4352,10 @@ async function openScrapModal(id) {
   renderScrapModalTags();
   updateRecommendedHashtags();
   openModal('scrap-modal');
+  setTimeout(() => {
+    const el = document.getElementById('sc-text');
+    if (el) el.focus();
+  }, 100);
 }
 
 function closeScrapModal() {
@@ -4365,7 +4373,9 @@ async function saveScrap() {
   const user = currentUser;
 
   const text = document.getElementById('sc-text').value.trim();
-  const page = parseInt(document.getElementById('sc-page').value) || 0;
+  const rawPage = (document.getElementById('sc-page').value || '').trim();
+  const parsedPage = parseInt(rawPage.replace(/^[^\d]*/, ''), 10);
+  const page = isNaN(parsedPage) ? 0 : parsedPage;
   const memo = document.getElementById('sc-memo').value.trim();
 
   if (!text) { toast('문장을 입력해주세요'); return; }
