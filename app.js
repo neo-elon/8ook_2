@@ -1984,7 +1984,7 @@ function showDetail(id, direction = null, pushHistory = true) {
   }
 
   const coverHtml = book.cover
-    ? `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}" onerror="handleDetailThumbError(this)">`
+    ? `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}" onclick="copyBlogCoverImage('${book.id}')" title="클릭하여 블로그용 편집 표지(2번 포맷) 복사" style="cursor:pointer;" onerror="handleDetailThumbError(this)">`
     : `<div class="detail-thumb-placeholder">8ook</div>`;
 
   const chips = [];
@@ -2037,6 +2037,7 @@ function showDetail(id, direction = null, pushHistory = true) {
           ${isGuideDetail ? '' : `
             <button class="btn btn-ghost btn-sm" onclick="openScrapModal('${book.id}')" style="padding:2px 8px; font-size:11px; border-radius:12px; height:22px; line-height:1;">+ 추가</button>
             <button class="btn btn-ghost btn-sm" onclick="copyBookForBlog('${book.id}')" title="블로그 포스팅용으로 도서 정보와 수집한 문장 전체를 복사합니다" style="padding:2px 8px; font-size:11px; border-radius:12px; height:22px; line-height:1;">📋 내용 복사</button>
+            <button class="btn btn-ghost btn-sm" onclick="copyBlogCoverImage('${book.id}')" title="블로그 포맷(2번)으로 편집된 표지 이미지만 클립보드에 복사합니다" style="padding:2px 8px; font-size:11px; border-radius:12px; height:22px; line-height:1; color:var(--lavender);">📷 표지 복사</button>
           `}
         </div>
         <div class="scraps-badge" id="scrap-badge">${scrapCount} ${isGuideDetail ? '챕터' : '/ 100'}</div>
@@ -4848,7 +4849,262 @@ function fallbackCopyText(text, successMsg = '클립보드에 복사되었습니
   document.body.removeChild(ta);
 }
 
-function copyBookForBlog(bookId) {
+/* ==============================================
+   BLOG COVER GENERATOR (2번 커스텀 블로그 포맷)
+   - 1:1 정사각형 캔버스 (800x800)
+   - 배경: 원본 표지 cover 채움 + 흑백(Grayscale) 및 어둡게 처리 + 비네팅
+   - 중앙: 원본 비율 유지 도서 표지 + 깊은 그림자(Drop Shadow) + 깔끔한 테두리
+   - 우하단: "NEO_ELON" 시그니처 워터마크 (약 -13도 기울기, 입체 민트 그린 3D 블록 + 화이트 페이스)
+============================================== */
+
+function drawBlogCoverCanvas(img) {
+  const size = 800;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  // 1. 다크 차콜 배경 채우기
+  ctx.fillStyle = '#1e1e1e';
+  ctx.fillRect(0, 0, size, size);
+
+  // 2. 배경 이미지: 정사각형 전체를 채우도록 확대(cover)하여 배치
+  const imgW = img.naturalWidth || img.width || 400;
+  const imgH = img.naturalHeight || img.height || 600;
+  const scale = Math.max(size / imgW, size / imgH);
+  const bgW = imgW * scale;
+  const bgH = imgH * scale;
+  const bgX = (size - bgW) / 2;
+  const bgY = (size - bgH) / 2;
+
+  ctx.save();
+  // 흑백 및 어둡게 처리 (사용자 제공 2번 포맷과 일치)
+  if ('filter' in ctx) {
+    ctx.filter = 'grayscale(100%) brightness(0.36) contrast(0.95)';
+    ctx.drawImage(img, bgX, bgY, bgW, bgH);
+  } else {
+    ctx.drawImage(img, bgX, bgY, bgW, bgH);
+    ctx.fillStyle = 'rgba(25, 25, 25, 0.65)';
+    ctx.fillRect(0, 0, size, size);
+  }
+  ctx.restore();
+
+  // 가장자리 부드러운 비네팅 효과 (중앙 도서에 시선 집중)
+  const vignette = ctx.createRadialGradient(size / 2, size / 2, size * 0.28, size / 2, size / 2, size * 0.72);
+  vignette.addColorStop(0, 'rgba(0, 0, 0, 0)');
+  vignette.addColorStop(1, 'rgba(0, 0, 0, 0.38)');
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, size, size);
+
+  // 3. 중앙 전면 도서 표지 (원본 가로세로 비율 유지)
+  const targetCoverH = Math.round(size * 0.85); // 캔버스 높이의 85% (약 680px)
+  const targetCoverW = Math.round(targetCoverH * (imgW / imgH));
+  const coverX = Math.round((size - targetCoverW) / 2);
+  const coverY = Math.round((size - targetCoverH) / 2);
+
+  // 중앙 표지 뒤 부드러운 드롭 섀도우
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+  ctx.shadowBlur = 35;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 10;
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(coverX, coverY, targetCoverW, targetCoverH);
+  ctx.restore();
+
+  // 선명한 원본 전면 표지 렌더링
+  ctx.save();
+  ctx.drawImage(img, coverX, coverY, targetCoverW, targetCoverH);
+  // 미세한 1px 테두리로 경계선 선명화
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(coverX + 0.5, coverY + 0.5, targetCoverW - 1, targetCoverH - 1);
+  ctx.restore();
+
+  // 4. "NEO_ELON" 시그니처 워터마크 (우하단 배치 + 약 -13도 상향 기울기)
+  ctx.save();
+
+  const fontSize = Math.round(size * 0.108); // 약 86px
+  ctx.font = `900 ${fontSize}px 'Bebas Neue', 'Impact', 'Arial Black', sans-serif`;
+  ctx.textBaseline = 'alphabetic';
+
+  const text = 'NEO_ELON';
+  const textMetrics = ctx.measureText(text);
+  const textWidth = textMetrics.width;
+
+  // 우하단 앵커 포인트
+  const anchorX = Math.round(size * 0.95);
+  const anchorY = Math.round(size * 0.89);
+  const angle = -13 * (Math.PI / 180); // 반시계 방향 -13도
+
+  ctx.translate(anchorX, anchorY);
+  ctx.rotate(angle);
+
+  const textX = -textWidth;
+  const textY = 0;
+
+  // 3D 블록 돌출 입체감 (민트 그린) 및 그림자
+  const depth = 6;
+  const mintGreen = '#64cf96';
+
+  // 가장 바깥쪽 소프트 다크 섀도우
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+  ctx.shadowBlur = 6;
+  ctx.shadowOffsetX = depth + 3;
+  ctx.shadowOffsetY = depth + 3;
+  ctx.fillStyle = mintGreen;
+  ctx.fillText(text, textX + depth, textY + depth);
+  ctx.restore();
+
+  // 3D 돌출 블록 레이어
+  ctx.fillStyle = mintGreen;
+  for (let d = depth; d >= 0.5; d -= 0.5) {
+    ctx.fillText(text, textX + d, textY + d);
+  }
+
+  // 상단 텍스트 표면 (순백색)
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillText(text, textX, textY);
+
+  ctx.restore();
+
+  return canvas.toDataURL('image/jpeg', 0.92);
+}
+
+function generateBlogCover(coverUrl) {
+  return new Promise((resolve) => {
+    if (!coverUrl) return resolve('');
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+
+    let settled = false;
+    const finish = (result) => {
+      if (!settled) {
+        settled = true;
+        resolve(result);
+      }
+    };
+
+    // 타임아웃 방지 (4초)
+    const timer = setTimeout(() => {
+      finish(coverUrl);
+    }, 4000);
+
+    img.onload = () => {
+      clearTimeout(timer);
+      try {
+        const dataUrl = drawBlogCoverCanvas(img);
+        finish(dataUrl || coverUrl);
+      } catch (err) {
+        console.warn('Canvas export failed:', err);
+        finish(coverUrl);
+      }
+    };
+
+    img.onerror = () => {
+      clearTimeout(timer);
+      // 직접 로딩(CORS 등) 실패 시 안전한 프록시 경유 재시도
+      if (!coverUrl.startsWith('data:') && !coverUrl.includes('wsrv.nl')) {
+        const proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(coverUrl)}&output=jpg`;
+        const pImg = new Image();
+        pImg.crossOrigin = 'anonymous';
+        const pTimer = setTimeout(() => finish(coverUrl), 3000);
+        pImg.onload = () => {
+          clearTimeout(pTimer);
+          try {
+            const dataUrl = drawBlogCoverCanvas(pImg);
+            finish(dataUrl || coverUrl);
+          } catch (e) {
+            finish(coverUrl);
+          }
+        };
+        pImg.onerror = () => {
+          clearTimeout(pTimer);
+          finish(coverUrl);
+        };
+        pImg.src = proxyUrl;
+      } else {
+        finish(coverUrl);
+      }
+    };
+
+    img.src = coverUrl;
+  });
+}
+
+async function copyBlogCoverImage(bookId) {
+  let book = books.find(b => b.id === bookId);
+  if (!book && bookId === '8ook_user_guide') {
+    book = getUserGuideBook();
+  }
+  if (!book || !book.cover) {
+    toast('표지 이미지가 없습니다.');
+    return;
+  }
+
+  toast('블로그용 표지 이미지를 생성하는 중...');
+  const coverUrl = getSafeImageUrl(book.cover);
+  const dataUrl = await generateBlogCover(coverUrl);
+
+  if (!dataUrl || !dataUrl.startsWith('data:image/')) {
+    toast('표지 이미지 생성에 실패했습니다.');
+    return;
+  }
+
+  try {
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    // 폭넓은 클립보드 호환성을 위해 image/png로 복사
+    const pngCanvas = document.createElement('canvas');
+    const pngImg = new Image();
+    pngImg.src = dataUrl;
+    await new Promise(r => { pngImg.onload = r; });
+    pngCanvas.width = pngImg.width;
+    pngCanvas.height = pngImg.height;
+    const pctx = pngCanvas.getContext('2d');
+    pctx.drawImage(pngImg, 0, 0);
+    pngCanvas.toBlob(async (pngBlob) => {
+      if (pngBlob && navigator.clipboard && window.ClipboardItem) {
+        try {
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]);
+          toast('블로그용 편집 표지 이미지가 복사되었습니다! (Ctrl+V로 붙여넣기)');
+        } catch (e) {
+          downloadBlogCoverImage(bookId);
+        }
+      } else {
+        downloadBlogCoverImage(bookId);
+      }
+    }, 'image/png');
+  } catch (err) {
+    console.warn('Clipboard image copy failed, downloading instead:', err);
+    downloadBlogCoverImage(bookId);
+  }
+}
+
+async function downloadBlogCoverImage(bookId) {
+  let book = books.find(b => b.id === bookId);
+  if (!book && bookId === '8ook_user_guide') {
+    book = getUserGuideBook();
+  }
+  if (!book || !book.cover) return;
+
+  const coverUrl = getSafeImageUrl(book.cover);
+  const dataUrl = await generateBlogCover(coverUrl);
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  const titleParts = splitBookTitle(book);
+  const safeName = (titleParts.main || book.title || 'book').replace(/[/\\?%*:|"<>]/g, '_');
+  a.download = `${safeName}_블로그표지.jpg`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  toast('블로그용 표지 이미지를 다운로드했습니다.');
+}
+
+async function copyBookForBlog(bookId) {
   let book = books.find(b => b.id === bookId);
   if (!book && bookId === '8ook_user_guide') {
     book = getUserGuideBook();
@@ -4866,7 +5122,12 @@ function copyBookForBlog(bookId) {
   const keywords = (book.keywords && book.keywords.length) ? book.keywords.map(k => `#${k}`).join(' ') : '';
   const sentence = book.sentence ? book.sentence.trim() : '';
 
-  const coverUrl = book.cover ? getSafeImageUrl(book.cover) : '';
+  const rawCoverUrl = book.cover ? getSafeImageUrl(book.cover) : '';
+  let blogCoverDataUrl = '';
+  if (rawCoverUrl) {
+    toast('블로그용 표지 편집 및 독서노트 복사 중...');
+    blogCoverDataUrl = await generateBlogCover(rawCoverUrl);
+  }
 
   const scraps = [...(book.scraps || [])].sort((a, b) => (Number(a.page) || 0) - (Number(b.page) || 0));
 
@@ -4878,7 +5139,7 @@ function copyBookForBlog(bookId) {
   if (date) plain += `완독일: ${date}\n`;
   if (pages) plain += `분량: ${pages}\n`;
   if (ratingStr) plain += `평점: ${ratingStr}\n`;
-  if (coverUrl && coverUrl.startsWith('http')) plain += `표지: ${coverUrl}\n`;
+  if (rawCoverUrl && rawCoverUrl.startsWith('http')) plain += `표지: ${rawCoverUrl}\n`;
 
   if (sentence) {
     plain += `\n[한 줄 평]\n“${sentence}”\n`;
@@ -4904,16 +5165,17 @@ function copyBookForBlog(bookId) {
 
   plain += `\n────────────────────────────\n출처: 8ook (나만의 독서기록)\n`;
 
-  // 2. Rich HTML Format (No icons, no table structure)
+  // 2. Rich HTML Format (2번 포맷으로 편집된 표지 이미지 포함)
   let html = `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; line-height: 1.8; color: #222; max-width: 680px; padding: 8px 0; font-size: 15px;">`;
   html += `<h2 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 700; color: #111;">《${esc(title)}》</h2>`;
   if (subtitle) {
     html += `<div style="font-size: 15px; color: #666; margin-bottom: 14px;">${esc(subtitle)}</div>`;
   }
 
-  if (coverUrl) {
-    html += `<div style="margin: 14px 0 18px 0;">`;
-    html += `<img src="${esc(coverUrl)}" alt="${esc(title)} 표지" style="max-width: 200px; height: auto; border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.15); display: block;" />`;
+  const displayCover = blogCoverDataUrl || rawCoverUrl;
+  if (displayCover) {
+    html += `<div style="margin: 16px 0 20px 0; text-align: center;">`;
+    html += `<img src="${displayCover}" alt="${esc(title)} 표지" style="max-width: 500px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); display: inline-block;" />`;
     html += `</div>`;
   }
 
@@ -4959,7 +5221,7 @@ function copyBookForBlog(bookId) {
   html += `<div style="font-size: 13px; color: #999; text-align: right;">출처: 8ook (나만의 독서기록)</div>`;
   html += `</div>`;
 
-  const successMsg = '블로그용 독서노트가 복사되었습니다! (네이버블로그, 노션 등에서 Ctrl+V)';
+  const successMsg = '블로그용 독서노트(편집 표지 포함)가 복사되었습니다! (네이버블로그, 노션 등에서 Ctrl+V)';
   if (navigator.clipboard && window.ClipboardItem) {
     const blobHtml = new Blob([html], { type: 'text/html' });
     const blobText = new Blob([plain], { type: 'text/plain' });
