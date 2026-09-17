@@ -4854,7 +4854,6 @@ function fallbackCopyText(text, successMsg = '클립보드에 복사되었습니
    - 1:1 정사각형 캔버스 (800x800)
    - 배경: 원본 표지 cover 채움 + 흑백(Grayscale) 및 어둡게 처리 + 비네팅
    - 중앙: 원본 비율 유지 도서 표지 + 깊은 그림자(Drop Shadow) + 깔끔한 테두리
-   - 우하단: "NEO_ELON" 시그니처 워터마크 (약 -13도 기울기, 입체 민트 그린 3D 블록 + 화이트 페이스)
 ============================================== */
 
 function drawBlogCoverCanvas(img) {
@@ -4920,54 +4919,6 @@ function drawBlogCoverCanvas(img) {
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
   ctx.lineWidth = 1;
   ctx.strokeRect(coverX + 0.5, coverY + 0.5, targetCoverW - 1, targetCoverH - 1);
-  ctx.restore();
-
-  // 4. "NEO_ELON" 시그니처 워터마크 (우하단 배치 + 약 -13도 상향 기울기)
-  ctx.save();
-
-  const fontSize = Math.round(size * 0.108); // 약 86px
-  ctx.font = `900 ${fontSize}px 'Bebas Neue', 'Impact', 'Arial Black', sans-serif`;
-  ctx.textBaseline = 'alphabetic';
-
-  const text = 'NEO_ELON';
-  const textMetrics = ctx.measureText(text);
-  const textWidth = textMetrics.width;
-
-  // 우하단 앵커 포인트
-  const anchorX = Math.round(size * 0.95);
-  const anchorY = Math.round(size * 0.89);
-  const angle = -13 * (Math.PI / 180); // 반시계 방향 -13도
-
-  ctx.translate(anchorX, anchorY);
-  ctx.rotate(angle);
-
-  const textX = -textWidth;
-  const textY = 0;
-
-  // 3D 블록 돌출 입체감 (민트 그린) 및 그림자
-  const depth = 6;
-  const mintGreen = '#64cf96';
-
-  // 가장 바깥쪽 소프트 다크 섀도우
-  ctx.save();
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
-  ctx.shadowBlur = 6;
-  ctx.shadowOffsetX = depth + 3;
-  ctx.shadowOffsetY = depth + 3;
-  ctx.fillStyle = mintGreen;
-  ctx.fillText(text, textX + depth, textY + depth);
-  ctx.restore();
-
-  // 3D 돌출 블록 레이어
-  ctx.fillStyle = mintGreen;
-  for (let d = depth; d >= 0.5; d -= 0.5) {
-    ctx.fillText(text, textX + d, textY + d);
-  }
-
-  // 상단 텍스트 표면 (순백색)
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fillText(text, textX, textY);
-
   ctx.restore();
 
   return canvas.toDataURL('image/jpeg', 0.92);
