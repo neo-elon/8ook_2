@@ -2236,16 +2236,17 @@
       margin-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
       padding-top: 4px;
       width: 100%;
-      max-width: 480px;
+      max-width: 580px;
       margin-left: auto;
       margin-right: auto;
       flex-wrap: wrap;
     }
     .scrap-add-bottom-btn,
-    .scrap-copy-bottom-btn {
+    .scrap-copy-bottom-btn,
+    .scrap-cover-bottom-btn {
       flex: 1;
-      min-width: 140px;
-      padding: 10px 16px;
+      min-width: 125px;
+      padding: 10px 14px;
       font-size: 13px;
       font-weight: 600;
       border-radius: var(--radius-md);
@@ -2260,7 +2261,8 @@
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .scrap-add-bottom-btn:hover,
-    .scrap-copy-bottom-btn:hover {
+    .scrap-copy-bottom-btn:hover,
+    .scrap-cover-bottom-btn:hover {
       background: rgba(140, 98, 57, 0.12);
       border-color: var(--gold);
       color: var(--text-100);
@@ -2268,7 +2270,8 @@
       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
     }
     .scrap-add-bottom-btn:active,
-    .scrap-copy-bottom-btn:active {
+    .scrap-copy-bottom-btn:active,
+    .scrap-cover-bottom-btn:active {
       transform: translateY(0);
     }
 
