@@ -4162,12 +4162,14 @@
 
 /* Scraps Result Cards */
 .scraps-archive-list {
-  columns: 2;
-  column-gap: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  align-items: start;
 }
 @media (max-width: 768px) {
   .scraps-archive-list {
-    columns: 1;
+    grid-template-columns: 1fr;
   }
 }
 .scrap-card-full {
@@ -4180,10 +4182,6 @@
   gap: 12px;
   transition: all 0.25s var(--ease);
   position: relative;
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  page-break-inside: avoid;
-  margin-bottom: 14px;
   box-shadow: var(--shadow-card);
 }
 .scrap-card-full:hover {
