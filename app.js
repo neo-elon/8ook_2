@@ -5131,8 +5131,20 @@ async function copyBookForBlog(bookId) {
 
   const scraps = [...(book.scraps || [])].sort((a, b) => (Number(a.page) || 0) - (Number(b.page) || 0));
 
+  // 첫 줄 제목행 생성 (순서: 저자  도서명  나만의 한문장)
+  const titleDisplay = title ? (title.startsWith('《') ? title : `《${title}》`) : '';
+  const blogTitleParts = [];
+  if (author) blogTitleParts.push(author);
+  if (titleDisplay) blogTitleParts.push(titleDisplay);
+  if (sentence) blogTitleParts.push(sentence);
+  const blogTitleLine = blogTitleParts.join('  ');
+
   // 1. Plain Text Format (No icons, no table)
-  let plain = `[도서 정보]\n`;
+  let plain = '';
+  if (blogTitleLine) {
+    plain += `${blogTitleLine}\n\n`;
+  }
+  plain += `[도서 정보]\n`;
   plain += `도서명: 《${title}》\n`;
   if (subtitle) plain += `부제: ${subtitle}\n`;
   if (author) plain += `저자: ${author}\n`;
@@ -5165,9 +5177,11 @@ async function copyBookForBlog(bookId) {
 
   plain += `\n────────────────────────────\n출처: 8ook (나만의 독서기록)\n`;
 
-  // 2. Rich HTML Format (2번 포맷으로 편집된 표지 이미지 포함)
+  // 2. Rich HTML Format (첫 줄 제목행 및 2번 포맷으로 편집된 표지 이미지 포함)
   let html = `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; line-height: 1.8; color: #222; max-width: 680px; padding: 8px 0; font-size: 15px;">`;
-  html += `<h2 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 700; color: #111;">《${esc(title)}》</h2>`;
+  if (blogTitleLine) {
+    html += `<h1 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 800; line-height: 1.5; color: #111; word-break: keep-all; padding-bottom: 12px; border-bottom: 2px solid #222;">${esc(blogTitleLine)}</h1>`;
+  }
   if (subtitle) {
     html += `<div style="font-size: 15px; color: #666; margin-bottom: 14px;">${esc(subtitle)}</div>`;
   }
