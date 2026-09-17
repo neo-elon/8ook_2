@@ -2229,7 +2229,7 @@
 
     .scraps-bottom-action {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       justify-content: center;
       align-items: stretch;
       margin-top: 10px;
@@ -2239,25 +2239,26 @@
       max-width: 580px;
       margin-left: auto;
       margin-right: auto;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
     .scrap-add-bottom-btn,
     .scrap-copy-bottom-btn,
     .scrap-cover-bottom-btn {
-      flex: 1;
-      min-width: 125px;
-      padding: 10px 14px;
-      font-size: 13px;
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 10px 6px;
+      font-size: 12.5px;
       font-weight: 600;
       border-radius: var(--radius-md);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 7px;
+      gap: 6px;
       border: 1px dashed var(--border-accent);
       background: rgba(140, 98, 57, 0.05);
       color: var(--text-200);
       cursor: pointer;
+      white-space: nowrap;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .scrap-add-bottom-btn:hover,
