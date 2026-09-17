@@ -5126,7 +5126,7 @@ function copyBookForBlog(bookId) {
   // 2. Rich HTML Format
   let html = `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; line-height: 1.8; color: #222; max-width: 680px; padding: 8px 0; font-size: 15px;">`;
   if (blogTitleLine) {
-    html += `<h1 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 800; line-height: 1.5; color: #111; word-break: keep-all; padding-bottom: 12px; border-bottom: 2px solid #222;">${esc(blogTitleLine)}</h1>`;
+    html += `<h1 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 800; line-height: 1.5; color: #111; word-break: keep-all;">${esc(blogTitleLine)}</h1>`;
   }
   html += `<h2 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 700; color: #111;">《${esc(title)}》</h2>`;
   if (subtitle) {
