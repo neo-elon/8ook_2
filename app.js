@@ -5077,9 +5077,16 @@ function copyBookForBlog(bookId) {
   const scraps = [...(book.scraps || [])].sort((a, b) => (Number(a.page) || 0) - (Number(b.page) || 0));
 
   // 첫 줄 제목행 생성 (순서: 저자  도서명  나만의 한문장)
+  // 저자명에서 '지음', '(지은이)' 등 역할 표기를 제거하고 순수 이름만 추출
+  const cleanAuthorForTitle = (author || '')
+    .replace(/\s*\([^)]*(지은이|지음|저자|글|옮긴이|역자|편저)[^)]*\)/g, '')
+    .replace(/^지은이\s*[:：]?\s*/g, '')
+    .replace(/(?:[\s_]+)?(지음|지은이|저|글)\s*$/g, '')
+    .trim();
+
   const titleDisplay = title ? (title.startsWith('《') ? title : `《${title}》`) : '';
   const blogTitleParts = [];
-  if (author) blogTitleParts.push(author);
+  if (cleanAuthorForTitle) blogTitleParts.push(cleanAuthorForTitle);
   if (titleDisplay) blogTitleParts.push(titleDisplay);
   if (sentence) blogTitleParts.push(sentence);
   const blogTitleLine = blogTitleParts.join('  ');
