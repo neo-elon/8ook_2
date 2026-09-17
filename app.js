@@ -5090,6 +5090,7 @@ function copyBookForBlog(bookId) {
   if (blogTitleLine) {
     plain += `${blogTitleLine}\n\n`;
   }
+  plain += `《${title}》\n\n`;
   plain += `[도서 정보]\n`;
   plain += `도서명: 《${title}》\n`;
   if (subtitle) plain += `부제: ${subtitle}\n`;
@@ -5128,6 +5129,7 @@ function copyBookForBlog(bookId) {
   if (blogTitleLine) {
     html += `<h1 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 800; line-height: 1.5; color: #111; word-break: keep-all; padding-bottom: 12px; border-bottom: 2px solid #222;">${esc(blogTitleLine)}</h1>`;
   }
+  html += `<h2 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 700; color: #111;">《${esc(title)}》</h2>`;
   if (subtitle) {
     html += `<div style="font-size: 15px; color: #666; margin-bottom: 14px;">${esc(subtitle)}</div>`;
   }
