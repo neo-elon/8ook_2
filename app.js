@@ -231,6 +231,7 @@ async function loadData() {
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
+    bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
     initCommunityLikesChannel();
     return;
@@ -320,6 +321,7 @@ async function loadData() {
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
+    bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
     initCommunityLikesChannel();
   } catch (e) {
@@ -328,6 +330,7 @@ async function loadData() {
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
+    bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
     initCommunityLikesChannel();
   }
@@ -4259,6 +4262,142 @@ function normalizeToNoun(rawWord) {
   return word;
 }
 
+/* ==============================================
+   ADAPTIVE TAG LEARNING ENGINE (지속 학습 추천 엔진)
+============================================== */
+const TAG_LEARNING_STORAGE_KEY = '8ook_tag_learning_model_v1';
+
+let tagLearningModel = {
+  wordTagWeights: {},   // { [noun]: { [tag]: count } }
+  tagPairs: {},         // { [tagA]: { [tagB]: count } }
+  authorTagWeights: {}, // { [author]: { [tag]: count } }
+  userTagFreq: {},      // { [tag]: { count, lastUsed } }
+  initialized: false
+};
+
+function loadTagLearningModel() {
+  try {
+    const raw = localStorage.getItem(TAG_LEARNING_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        tagLearningModel = {
+          wordTagWeights: parsed.wordTagWeights || {},
+          tagPairs: parsed.tagPairs || {},
+          authorTagWeights: parsed.authorTagWeights || {},
+          userTagFreq: parsed.userTagFreq || {},
+          initialized: true
+        };
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to load tag learning model:', e);
+  }
+}
+
+function saveTagLearningModel() {
+  try {
+    localStorage.setItem(TAG_LEARNING_STORAGE_KEY, JSON.stringify(tagLearningModel));
+  } catch (e) {
+    cleanupTagLearningModel();
+  }
+}
+
+function cleanupTagLearningModel() {
+  try {
+    for (const word in tagLearningModel.wordTagWeights) {
+      const tags = tagLearningModel.wordTagWeights[word];
+      for (const t in tags) {
+        if (tags[t] <= 1) delete tags[t];
+      }
+      if (Object.keys(tags).length === 0) delete tagLearningModel.wordTagWeights[word];
+    }
+    localStorage.setItem(TAG_LEARNING_STORAGE_KEY, JSON.stringify(tagLearningModel));
+  } catch (e) {}
+}
+
+// 문장 및 도서 정보와 사용자가 직접 추가한 태그를 실시간 연관 학습
+function trainTagAssociation(sentenceText, tag, book) {
+  if (!tag) return;
+  const cleanTag = tag.trim().replace(/^#+/, '').replace(/\s+/g, '');
+  if (!cleanTag) return;
+
+  const now = Date.now();
+  // 1. 사용자 직접 태그 사용 빈도 및 최신 사용 시각 기록
+  if (!tagLearningModel.userTagFreq[cleanTag]) {
+    tagLearningModel.userTagFreq[cleanTag] = { count: 0, lastUsed: now };
+  }
+  tagLearningModel.userTagFreq[cleanTag].count += 1;
+  tagLearningModel.userTagFreq[cleanTag].lastUsed = now;
+
+  // 2. 문장 내 핵심 명사들과의 연관 가중치 강화
+  if (sentenceText) {
+    const tokens = sentenceText
+      .replace(/[^\w가-힣\s]/g, ' ')
+      .split(/\s+/)
+      .map(w => w.trim())
+      .filter(Boolean);
+
+    const nouns = new Set();
+    tokens.forEach(tok => {
+      const n = normalizeToNoun(tok);
+      if (n && n !== cleanTag && n.length >= 2) nouns.add(n);
+    });
+
+    nouns.forEach(noun => {
+      if (!tagLearningModel.wordTagWeights[noun]) {
+        tagLearningModel.wordTagWeights[noun] = {};
+      }
+      tagLearningModel.wordTagWeights[noun][cleanTag] = (tagLearningModel.wordTagWeights[noun][cleanTag] || 0) + 1;
+    });
+  }
+
+  // 3. 도서 저자와 태그 간 연관 가중치
+  if (book && book.author) {
+    const normAuthor = book.author.trim();
+    if (normAuthor && normAuthor !== '저자 미상') {
+      if (!tagLearningModel.authorTagWeights[normAuthor]) {
+        tagLearningModel.authorTagWeights[normAuthor] = {};
+      }
+      tagLearningModel.authorTagWeights[normAuthor][cleanTag] = (tagLearningModel.authorTagWeights[normAuthor][cleanTag] || 0) + 1;
+    }
+  }
+
+  // 4. 함께 등록된 태그들 간의 동시 출현(Co-occurrence) 가중치
+  if (Array.isArray(currentScrapTags) && currentScrapTags.length > 0) {
+    currentScrapTags.forEach(otherTag => {
+      if (otherTag && otherTag !== cleanTag) {
+        if (!tagLearningModel.tagPairs[otherTag]) tagLearningModel.tagPairs[otherTag] = {};
+        if (!tagLearningModel.tagPairs[cleanTag]) tagLearningModel.tagPairs[cleanTag] = {};
+        tagLearningModel.tagPairs[otherTag][cleanTag] = (tagLearningModel.tagPairs[otherTag][cleanTag] || 0) + 1;
+        tagLearningModel.tagPairs[cleanTag][otherTag] = (tagLearningModel.tagPairs[cleanTag][otherTag] || 0) + 1;
+      }
+    });
+  }
+
+  saveTagLearningModel();
+}
+
+// 기존 서재의 모든 스크랩 데이터를 학습 모델에 초기 반영
+function bootstrapTagLearningFromLibrary() {
+  if (tagLearningModel.initialized && Object.keys(tagLearningModel.userTagFreq).length > 0) {
+    return;
+  }
+  if (!Array.isArray(books) || books.length === 0) return;
+
+  books.forEach(b => {
+    (b.scraps || []).forEach(s => {
+      const tags = s.tags || s.keywords || [];
+      const text = s.text || '';
+      tags.forEach(t => {
+        trainTagAssociation(text, t, b);
+      });
+    });
+  });
+  tagLearningModel.initialized = true;
+  saveTagLearningModel();
+}
+
 function renderScrapModalTags() {
   const container = document.getElementById('scrap-tag-pills-list');
   const countLabel = document.getElementById('scrap-tags-count-label');
@@ -4288,6 +4427,12 @@ function addScrapTag(tag) {
   if (!currentScrapTags.includes(cleanTag)) {
     currentScrapTags.push(cleanTag);
     renderScrapModalTags();
+
+    // [지속 학습] 사용자가 직접 추가한 태그를 실시간 학습 반영!
+    const textEl = document.getElementById('sc-text');
+    const text = textEl ? textEl.value.trim() : '';
+    const book = books.find(b => b.id === currentScrapBookId);
+    trainTagAssociation(text, cleanTag, book);
   }
   const input = document.getElementById('sc-tag-input');
   if (input) input.value = '';
@@ -4310,71 +4455,101 @@ function handleScrapTagKeydown(e) {
 }
 
 function getRecommendedHashtags(text, book) {
-  const recommendations = new Set();
   const currentText = (text || '').trim();
   if (!currentText) return [];
 
-  // 1. 테마 사전 매칭 (모두 순수 명사 태그)
-  SCRAP_THEME_RULES.forEach(rule => {
-    if (rule.words.some(w => currentText.includes(w))) {
-      recommendations.add(rule.tag);
-    }
-  });
+  const scoreMap = new Map();
+  const addScore = (tag, points) => {
+    if (!tag) return;
+    const clean = tag.trim().replace(/^#+/, '').replace(/\s+/g, '');
+    if (!clean || clean.length < 2 || clean.length > 8) return;
+    scoreMap.set(clean, (scoreMap.get(clean) || 0) + points);
+  };
 
-  // 2. 문장에서 명사형 어휘 정밀 추출 (조사/어미 박리 및 명사 정제)
+  // 문장에서 명사형 어휘 정밀 추출
   const tokens = currentText
     .replace(/[^\w가-힣\s]/g, ' ')
     .split(/\s+/)
     .map(w => w.trim())
     .filter(Boolean);
 
-  const nounFreq = {};
+  const sentenceNouns = new Set();
   tokens.forEach(tok => {
-    const noun = normalizeToNoun(tok);
-    if (noun && noun.length >= 2 && noun.length <= 5) {
-      nounFreq[noun] = (nounFreq[noun] || 0) + 1;
+    const n = normalizeToNoun(tok);
+    if (n && n.length >= 2 && n.length <= 5) {
+      sentenceNouns.add(n);
+      addScore(n, 12); // 문장 내 직접 등장한 핵심 명사 기본 점수
     }
   });
 
-  // 빈도 높은 추출 명사 우선 추가
-  Object.entries(nounFreq)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 4)
-    .forEach(([n]) => recommendations.add(n));
+  // 1. [학습 엔진] 문장 내 단어 -> 사용자가 과거에 직접 매칭했던 태그 연관 가중치 (최고 우선순위!)
+  sentenceNouns.forEach(noun => {
+    const associations = tagLearningModel.wordTagWeights[noun];
+    if (associations) {
+      for (const [tag, count] of Object.entries(associations)) {
+        addScore(tag, count * 22);
+      }
+    }
+  });
 
-  // 3. 현재 도서 키워드 중 명사형만 선별
-  if (book && book.keywords && Array.isArray(book.keywords)) {
-    book.keywords.forEach(k => {
-      const noun = normalizeToNoun(k);
-      if (noun) recommendations.add(noun);
+  // 2. [학습 엔진] 해당 저자의 도서에서 사용자가 자주 쓰는 태그 가중치
+  if (book && book.author && book.author !== '저자 미상') {
+    const authorTags = tagLearningModel.authorTagWeights[book.author.trim()];
+    if (authorTags) {
+      for (const [tag, count] of Object.entries(authorTags)) {
+        addScore(tag, count * 16);
+      }
+    }
+  }
+
+  // 3. [학습 엔진] 현재 선택된 태그들과의 동시 출현(Co-occurrence) 가중치
+  if (Array.isArray(currentScrapTags) && currentScrapTags.length > 0) {
+    currentScrapTags.forEach(curTag => {
+      const pairs = tagLearningModel.tagPairs[curTag];
+      if (pairs) {
+        for (const [tag, count] of Object.entries(pairs)) {
+          addScore(tag, count * 14);
+        }
+      }
     });
   }
 
-  // 4. 내 서재 스크랩 빈출 태그 중 명사형 보강
-  const userTagFreq = {};
-  books.forEach(b => {
-    (b.scraps || []).forEach(s => {
-      const tags = s.tags || s.keywords || [];
-      tags.forEach(t => {
-        const noun = normalizeToNoun(t);
-        if (noun) userTagFreq[noun] = (userTagFreq[noun] || 0) + 1;
-      });
+  // 4. [학습 엔진] 사용자의 전반적인 태그 사용 빈도 및 최신성 가중치
+  const now = Date.now();
+  for (const [tag, info] of Object.entries(tagLearningModel.userTagFreq)) {
+    const daysAgo = (now - (info.lastUsed || now)) / (1000 * 60 * 60 * 24);
+    const recencyMultiplier = daysAgo < 3 ? 1.6 : (daysAgo < 14 ? 1.25 : 1.0);
+    addScore(tag, Math.min(30, info.count * 3.5 * recencyMultiplier));
+  }
+
+  // 5. 테마 사전 매칭 (문맥 감지 기본 명사)
+  SCRAP_THEME_RULES.forEach(rule => {
+    if (rule.words.some(w => currentText.includes(w))) {
+      addScore(rule.tag, 15);
+    }
+  });
+
+  // 6. 현재 도서 키워드
+  if (book && book.keywords && Array.isArray(book.keywords)) {
+    book.keywords.forEach(k => {
+      const n = normalizeToNoun(k);
+      if (n) addScore(n, 10);
     });
-  });
+  }
 
-  Object.entries(userTagFreq)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .forEach(([t]) => recommendations.add(t));
-
-  // 5. 기본 명사 추천
+  // 7. 기본 폴백 태그 (부족할 경우 대비)
   ['인생', '위로', '성장', '사랑', '행복', '독서', '마음', '사유'].forEach(defTag => {
-    if (recommendations.size < 7) recommendations.add(defTag);
+    addScore(defTag, 2);
   });
 
-  return Array.from(recommendations)
-    .filter(tag => !currentScrapTags.includes(tag))
+  // 이미 선택된 태그 제외 후 점수 내림차순 정렬하여 상위 7개 추천
+  const sortedTags = Array.from(scoreMap.entries())
+    .filter(([tag]) => !currentScrapTags.includes(tag))
+    .sort((a, b) => b[1] - a[1])
+    .map(([tag]) => tag)
     .slice(0, 7);
+
+  return sortedTags;
 }
 
 let recDebounceTimer = null;
@@ -4470,6 +4645,10 @@ async function saveScrap() {
   if (!book.scraps) book.scraps = [];
 
   const tags = currentScrapTags.slice();
+
+  // [지속 학습] 최종 저장된 문장과 태그들의 연관 관계를 학습 모델에 영구 반영
+  const currentBook = book;
+  tags.forEach(t => trainTagAssociation(text, t, currentBook));
 
   let updatedScraps;
   const nowIso = new Date().toISOString();
@@ -6181,6 +6360,7 @@ document.addEventListener('paste', handleSentencePaste, true);
    INIT
 ============================================= */
 loadTheme();
+loadTagLearningModel();
 (async () => {
   if (supabaseClient) {
     const urlParams = new URLSearchParams(window.location.search);
