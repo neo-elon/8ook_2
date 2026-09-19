@@ -7603,7 +7603,7 @@ function updateCommunityBooksSortButtons() {
   if (addedBtn) addedBtn.classList.toggle('active', communityBooksSort === 'added');
   const capEl = document.getElementById('comm-books-panel-caption');
   if (capEl) {
-    capEl.textContent = communityBooksSort === 'read' ? '완독일이 최신인 순서로 정렬' : '서재에 등록된 순서로 정렬';
+    capEl.textContent = communityBooksSort === 'read' ? '완독일이 최신인 순서대로 정렬' : '서재에 처음 등록된 순서(1번부터)로 정렬';
   }
 }
 
@@ -7623,24 +7623,27 @@ function getSortedCommunityBooks() {
   const allBooks = getAllCommunityBooks();
   return [...allBooks].sort((a, b) => {
     if (communityBooksSort === 'added') {
-      // 1. 등록일(created_at) 최신순 우선 정렬
+      // 추가순: 1번 등록 도서부터 차례대로(오래된 등록순 / 등록 번호 오름차순)
+      // 1. 등록 번호(seq)가 있는 경우 1번부터 오름차순
+      const seqA = (typeof a.seq === 'number' && a.seq > 0) ? a.seq : 999999;
+      const seqB = (typeof b.seq === 'number' && b.seq > 0) ? b.seq : 999999;
+      if (seqA !== seqB) return seqA - seqB;
+
+      // 2. 등록일시(created_at) 오래된 순 (오름차순)
       const createA = getSafeTimestamp(a.created_at);
       const createB = getSafeTimestamp(b.created_at);
-      if (createA && createB && createA !== createB) return createB - createA;
+      if (createA && createB && createA !== createB) return createA - createB;
       if (createA && !createB) return -1;
       if (!createA && createB) return 1;
 
-      // 2. 완독일(date) 최신순
+      // 3. 완독일(date) 오래된 순 (오름차순)
       const dateA = getSafeTimestamp(a.date);
       const dateB = getSafeTimestamp(b.date);
-      if (dateA && dateB && dateA !== dateB) return dateB - dateA;
-      if (dateA && !dateB) return -1;
-      if (!dateA && dateB) return 1;
+      if (dateA && dateB && dateA !== dateB) return dateA - dateB;
 
-      // 3. 데이터셋 seq 순
-      return (b.seq || 0) - (a.seq || 0);
+      return (a.title || '').localeCompare(b.title || '');
     } else {
-      // 기본: 'read' (완독일순)
+      // 기본: 'read' (완독일 최신순)
       // 1. 완독일(date) 최신순 우선 정렬
       const dateA = getSafeTimestamp(a.date);
       const dateB = getSafeTimestamp(b.date);
@@ -7648,14 +7651,14 @@ function getSortedCommunityBooks() {
       if (dateA && !dateB) return -1;
       if (!dateA && dateB) return 1;
 
-      // 2. 완독일이 같거나 없는 경우 등록일(created_at) 순
+      // 2. 완독일이 같거나 없는 경우 등록일(created_at) 내림차순
       const createA = getSafeTimestamp(a.created_at);
       const createB = getSafeTimestamp(b.created_at);
       if (createA && createB && createA !== createB) return createB - createA;
       if (createA && !createB) return -1;
       if (!createA && createB) return 1;
 
-      // 3. 데이터셋 seq 순
+      // 3. 데이터셋 seq 내림차순
       return (b.seq || 0) - (a.seq || 0);
     }
   });
@@ -7681,13 +7684,15 @@ function formatCommunityBook(b) {
   };
 
   if (communityBooksSort === 'added') {
-    // 추가순: 등록일(created_at) 우선 표시
-    if (b.created_at) {
+    // 추가순: 등록 번호 및 완독/등록일 표시
+    const seqStr = (typeof b.seq === 'number' && b.seq > 0) ? `No.${b.seq}` : '';
+    if (b.date) {
+      const s = String(b.date).trim();
+      timeStr = /^\d{4}[-.]\d{2}[-.]\d{2}$/.test(s) ? s.replace(/-/g, '.') : formatTimeAgo(b.date);
+      timeTooltip = (seqStr ? `${seqStr}번째 등록 도서 · ` : '') + `완독일: ${formatSimpleDate(b.date)}` + (b.created_at ? ` (등록일: ${formatSimpleDate(b.created_at)})` : '');
+    } else if (b.created_at) {
       timeStr = formatTimeAgo(b.created_at);
-      timeTooltip = `추가일: ${formatSimpleDate(b.created_at)}` + (b.date ? ` (완독일: ${formatSimpleDate(b.date)})` : '');
-    } else if (b.date) {
-      timeStr = formatTimeAgo(b.date);
-      timeTooltip = `완독일: ${formatSimpleDate(b.date)}`;
+      timeTooltip = (seqStr ? `${seqStr}번째 등록 도서 · ` : '') + `등록일: ${formatSimpleDate(b.created_at)}`;
     }
   } else {
     // 완독일순: 완독일(date) 우선 표시
@@ -7698,10 +7703,10 @@ function formatCommunityBook(b) {
       } else {
         timeStr = formatTimeAgo(b.date);
       }
-      timeTooltip = `완독일: ${formatSimpleDate(b.date)}` + (b.created_at ? ` (추가일: ${formatSimpleDate(b.created_at)})` : '');
+      timeTooltip = `완독일: ${formatSimpleDate(b.date)}` + (b.created_at ? ` (등록일: ${formatSimpleDate(b.created_at)})` : '');
     } else if (b.created_at) {
       timeStr = formatTimeAgo(b.created_at);
-      timeTooltip = `추가일: ${formatSimpleDate(b.created_at)}`;
+      timeTooltip = `등록일: ${formatSimpleDate(b.created_at)}`;
     }
   }
 
