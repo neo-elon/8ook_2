@@ -7588,26 +7588,76 @@ function switchCommunityTab(tab) {
 let communityBooksLimit = 9;
 let isCommunityBooksLoading = false;
 let communityBooksObserver = null;
+let communityBooksSort = (() => {
+  try {
+    const saved = localStorage.getItem('rj_community_books_sort');
+    if (saved === 'read' || saved === 'added') return saved;
+  } catch (e) {}
+  return 'read';
+})();
+
+function updateCommunityBooksSortButtons() {
+  const readBtn = document.getElementById('comm-sort-read-btn');
+  const addedBtn = document.getElementById('comm-sort-added-btn');
+  if (readBtn) readBtn.classList.toggle('active', communityBooksSort === 'read');
+  if (addedBtn) addedBtn.classList.toggle('active', communityBooksSort === 'added');
+  const capEl = document.getElementById('comm-books-panel-caption');
+  if (capEl) {
+    capEl.textContent = communityBooksSort === 'read' ? '완독일이 최신인 순서로 정렬' : '서재에 등록된 순서로 정렬';
+  }
+}
+
+function setCommunityBooksSort(sortType) {
+  if (communityBooksSort === sortType) return;
+  communityBooksSort = sortType;
+  try {
+    localStorage.setItem('rj_community_books_sort', sortType);
+  } catch (e) {}
+
+  updateCommunityBooksSortButtons();
+  communityBooksLimit = 9; // 정렬 변경 시 첫 9권부터 다시 시작
+  renderCommunityBooks();
+}
 
 function getSortedCommunityBooks() {
   const allBooks = getAllCommunityBooks();
   return [...allBooks].sort((a, b) => {
-    // 1. 완독일(date) 최신순 우선 정렬
-    const dateA = getSafeTimestamp(a.date);
-    const dateB = getSafeTimestamp(b.date);
-    if (dateA && dateB && dateA !== dateB) return dateB - dateA;
-    if (dateA && !dateB) return -1;
-    if (!dateA && dateB) return 1;
+    if (communityBooksSort === 'added') {
+      // 1. 등록일(created_at) 최신순 우선 정렬
+      const createA = getSafeTimestamp(a.created_at);
+      const createB = getSafeTimestamp(b.created_at);
+      if (createA && createB && createA !== createB) return createB - createA;
+      if (createA && !createB) return -1;
+      if (!createA && createB) return 1;
 
-    // 2. 완독일이 같거나 없는 경우 등록일(created_at) 순
-    const createA = getSafeTimestamp(a.created_at);
-    const createB = getSafeTimestamp(b.created_at);
-    if (createA && createB && createA !== createB) return createB - createA;
-    if (createA && !createB) return -1;
-    if (!createA && createB) return 1;
+      // 2. 완독일(date) 최신순
+      const dateA = getSafeTimestamp(a.date);
+      const dateB = getSafeTimestamp(b.date);
+      if (dateA && dateB && dateA !== dateB) return dateB - dateA;
+      if (dateA && !dateB) return -1;
+      if (!dateA && dateB) return 1;
 
-    // 3. 데이터셋 seq 순
-    return (b.seq || 0) - (a.seq || 0);
+      // 3. 데이터셋 seq 순
+      return (b.seq || 0) - (a.seq || 0);
+    } else {
+      // 기본: 'read' (완독일순)
+      // 1. 완독일(date) 최신순 우선 정렬
+      const dateA = getSafeTimestamp(a.date);
+      const dateB = getSafeTimestamp(b.date);
+      if (dateA && dateB && dateA !== dateB) return dateB - dateA;
+      if (dateA && !dateB) return -1;
+      if (!dateA && dateB) return 1;
+
+      // 2. 완독일이 같거나 없는 경우 등록일(created_at) 순
+      const createA = getSafeTimestamp(a.created_at);
+      const createB = getSafeTimestamp(b.created_at);
+      if (createA && createB && createA !== createB) return createB - createA;
+      if (createA && !createB) return -1;
+      if (!createA && createB) return 1;
+
+      // 3. 데이터셋 seq 순
+      return (b.seq || 0) - (a.seq || 0);
+    }
   });
 }
 
@@ -7616,17 +7666,43 @@ function formatCommunityBook(b) {
   const userRating = (b.rating && Number(b.rating) > 0) ? Number(b.rating) : null;
   const userReview = (b.sentence || b.review || b.oneLineReview || '').trim();
 
-  // 완독일(date) 우선 표시, 없으면 등록일(created_at) 표시
   let timeStr = '';
-  if (b.date) {
-    const s = String(b.date).trim();
-    if (/^\d{4}[-.]\d{2}[-.]\d{2}$/.test(s)) {
-      timeStr = s.replace(/-/g, '.');
-    } else {
-      timeStr = formatTimeAgo(b.date);
+  let timeTooltip = '';
+
+  const formatSimpleDate = (val) => {
+    if (!val) return '';
+    const s = String(val).trim();
+    if (/^\d{4}[-.]\d{2}[-.]\d{2}$/.test(s)) return s.replace(/-/g, '.');
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) {
+      return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
     }
-  } else if (b.created_at) {
-    timeStr = formatTimeAgo(b.created_at);
+    return s;
+  };
+
+  if (communityBooksSort === 'added') {
+    // 추가순: 등록일(created_at) 우선 표시
+    if (b.created_at) {
+      timeStr = formatTimeAgo(b.created_at);
+      timeTooltip = `추가일: ${formatSimpleDate(b.created_at)}` + (b.date ? ` (완독일: ${formatSimpleDate(b.date)})` : '');
+    } else if (b.date) {
+      timeStr = formatTimeAgo(b.date);
+      timeTooltip = `완독일: ${formatSimpleDate(b.date)}`;
+    }
+  } else {
+    // 완독일순: 완독일(date) 우선 표시
+    if (b.date) {
+      const s = String(b.date).trim();
+      if (/^\d{4}[-.]\d{2}[-.]\d{2}$/.test(s)) {
+        timeStr = s.replace(/-/g, '.');
+      } else {
+        timeStr = formatTimeAgo(b.date);
+      }
+      timeTooltip = `완독일: ${formatSimpleDate(b.date)}` + (b.created_at ? ` (추가일: ${formatSimpleDate(b.created_at)})` : '');
+    } else if (b.created_at) {
+      timeStr = formatTimeAgo(b.created_at);
+      timeTooltip = `추가일: ${formatSimpleDate(b.created_at)}`;
+    }
   }
 
   return {
@@ -7638,7 +7714,9 @@ function formatCommunityBook(b) {
     rating: userRating,
     review: userReview || null,
     date: b.date || '',
-    time: timeStr
+    created_at: b.created_at || '',
+    time: timeStr,
+    timeTooltip: timeTooltip
   };
 }
 
@@ -7749,7 +7827,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
         ${ratingHtml}
         ${reviewHtml}
         <div class="comm-book-meta">
-          <span class="comm-book-time" title="${b.date ? `완독일: ${esc(b.date)}` : (b.time ? esc(b.time) : '')}">${esc(b.time || '')}</span>
+          <span class="comm-book-time" title="${esc(b.timeTooltip || (b.date ? `완독일: ${b.date}` : (b.time || '')))}">${esc(b.time || '')}</span>
           <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
             <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
           </button>
@@ -7789,6 +7867,8 @@ function getCommunityColumnCount() {
 function renderCommunityBooks() {
   const container = document.getElementById('comm-books-grid');
   if (!container) return;
+
+  updateCommunityBooksSortButtons();
 
   const sorted = getSortedCommunityBooks();
   const totalCount = sorted.length;

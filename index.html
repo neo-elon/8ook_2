@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260918_ime_korean_v74">
+  <link rel="stylesheet" href="style.css?v=20260918_sort_books_v75">
 </head>
 <body>
 
@@ -311,8 +311,20 @@
       <!-- Books Panel -->
       <div id="comm-books-panel" class="comm-panel active">
         <div class="comm-panel-header">
-          <div class="comm-panel-title" id="comm-books-panel-title">새로 추가된 책</div>
-          <div class="comm-panel-caption">서재에 최근 담긴 도서들</div>
+          <div class="comm-panel-header-left">
+            <div class="comm-panel-title" id="comm-books-panel-title">새로 추가된 책</div>
+            <div class="comm-panel-caption" id="comm-books-panel-caption">서재에 최근 담긴 도서들</div>
+          </div>
+          <div class="comm-sort-switch" role="group" aria-label="도서 정렬 순서">
+            <button type="button" class="comm-sort-btn active" id="comm-sort-read-btn" onclick="setCommunityBooksSort('read')" title="완독일이 최신인 순서로 정렬">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span>완독일순</span>
+            </button>
+            <button type="button" class="comm-sort-btn" id="comm-sort-added-btn" onclick="setCommunityBooksSort('added')" title="서재에 등록된 순서로 정렬">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>추가순</span>
+            </button>
+          </div>
         </div>
         <div class="comm-books-grid" id="comm-books-grid">
           <!-- Rendered dynamically -->
