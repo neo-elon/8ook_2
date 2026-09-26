@@ -8386,6 +8386,7 @@ function getMostShelvedCommunityBooks() {
     let ratingSum = 0;
     userRatingMap.forEach(r => ratingSum += r);
     const avgRating = userRatingMap.size > 0 ? parseFloat((ratingSum / userRatingMap.size).toFixed(1)) : null;
+    const ratingCount = userRatingMap.size;
 
     // 여러 독서가의 나만의 한문장 모두 수집 (중복 제거)
     const reviews = [];
