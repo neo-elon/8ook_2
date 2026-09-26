@@ -8249,8 +8249,8 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
   const bid = String(b.id);
   const coverUrl = b.cover ? getSafeImageUrl(b.cover) : '';
   const coverHtml = coverUrl
-    ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(b.title)}" referrerpolicy="no-referrer" decoding="async" onclick="showDetail('${esc(bid)}')" onerror="handleCommCoverError(this)">`
-    : `<div class="comm-book-cover-placeholder" onclick="showDetail('${esc(bid)}')">8ook</div>`;
+    ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(b.title)}" referrerpolicy="no-referrer" decoding="async" onerror="handleCommCoverError(this)">`
+    : `<div class="comm-book-cover-placeholder">8ook</div>`;
 
   const ratingHtml = (b.rating && Number(b.rating) > 0)
     ? `<div class="comm-book-rating" title="평균 별점 ${Number(b.rating).toFixed(1)}점">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">평균 ${Number(b.rating).toFixed(1)}</span></div>`
@@ -8265,7 +8265,7 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
         const badgeHtml = isMulti ? `<span class="comm-kw-count">${count}</span>` : '';
         const cls = isMulti ? 'comm-book-kw-tag is-highlighted' : 'comm-book-kw-tag';
         const titleText = isMulti ? `#${text} (${count}명의 독서가가 함께 꼽은 키워드)` : `#${text}`;
-        return `<span class="${cls}" onclick="showDetail('${esc(bid)}')" title="${esc(titleText)}">#${esc(text)}${badgeHtml}</span>`;
+        return `<span class="${cls}" title="${esc(titleText)}">#${esc(text)}${badgeHtml}</span>`;
       }).join('')}</div>`
     : '';
 
@@ -8282,11 +8282,11 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
   }
 
   return `
-    <div class="comm-book-card" id="comm-pop-${esc(bid)}">
+    <div class="comm-book-card comm-popular-book-card" id="comm-pop-${esc(bid)}">
       ${coverHtml}
       <div class="comm-book-info">
         <div class="comm-shelved-badge">🔖 ${b.shelvedCount}명의 선택</div>
-        <div class="comm-book-title" onclick="showDetail('${esc(bid)}')" title="${esc(b.title)}">${esc(b.title)}</div>
+        <div class="comm-book-title" title="${esc(b.title)}">${esc(b.title)}</div>
         <div class="comm-book-author">${esc(b.author)}</div>
         ${ratingHtml}
         ${keywordsHtml}

@@ -3332,6 +3332,23 @@
       font-weight: 600;
     }
 
+    /* ── 많이 꽂힌 책 카드 (상세 이동 비활성화) ── */
+    .comm-popular-book-card .comm-book-cover {
+      cursor: default;
+    }
+    .comm-popular-book-card .comm-book-cover:hover {
+      transform: none;
+    }
+    .comm-popular-book-card .comm-book-title {
+      cursor: default;
+    }
+    .comm-popular-book-card .comm-book-title:hover {
+      color: var(--text-100);
+    }
+    .comm-popular-book-card .comm-book-kw-tag {
+      cursor: default;
+    }
+
     /* ── Community Books Load Trigger & Infinite Scroll ── */
     .comm-load-trigger {
       padding: 22px 0 14px;
