@@ -3232,13 +3232,13 @@
     .comm-book-kw-tag {
       display: inline-flex;
       align-items: center;
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 500;
-      color: var(--lavender, #bb9af7);
-      background: rgba(187, 154, 247, 0.08);
-      border: 1px solid rgba(187, 154, 247, 0.2);
+      color: var(--lavender, #a67c52);
+      background: rgba(140, 98, 57, 0.06);
+      border: 1px solid rgba(140, 98, 57, 0.2);
       border-radius: var(--radius-sm, 4px);
-      padding: 1.5px 6px;
+      padding: 1.5px 6.5px;
       line-height: 1.3;
       letter-spacing: 0.2px;
       transition: all 0.15s ease;
@@ -3246,22 +3246,21 @@
       font-family: 'Noto Sans KR', sans-serif;
     }
     .comm-book-kw-tag:hover {
-      background: rgba(187, 154, 247, 0.18);
-      border-color: rgba(187, 154, 247, 0.4);
-      color: #fff;
+      background: rgba(140, 98, 57, 0.12);
+      border-color: rgba(140, 98, 57, 0.35);
+      color: var(--violet, #8c6239);
     }
     .comm-book-kw-tag.is-highlighted {
-      background: rgba(187, 154, 247, 0.18);
-      border-color: rgba(187, 154, 247, 0.45);
-      color: #f3e8ff;
-      font-weight: 600;
-      box-shadow: 0 1px 4px rgba(187, 154, 247, 0.12);
+      background: rgba(140, 98, 57, 0.12);
+      border: 1.5px solid rgba(140, 98, 57, 0.45);
+      color: #5a3512;
+      font-weight: 700;
+      box-shadow: 0 1px 3px rgba(100, 75, 50, 0.08);
     }
     .comm-book-kw-tag.is-highlighted:hover {
-      background: rgba(187, 154, 247, 0.28);
-      border-color: rgba(187, 154, 247, 0.65);
-      box-shadow: 0 2px 8px rgba(187, 154, 247, 0.28);
-      color: #fff;
+      background: rgba(140, 98, 57, 0.2);
+      border-color: var(--violet, #8c6239);
+      color: #3b220b;
     }
     .comm-kw-count {
       display: inline-flex;
@@ -3270,11 +3269,11 @@
       font-size: 9px;
       font-weight: 700;
       line-height: 1;
-      padding: 1px 4px;
-      margin-left: 3.5px;
-      border-radius: 6px;
-      background: var(--violet, #bb9af7);
-      color: #1a1625;
+      padding: 1.5px 4.5px;
+      margin-left: 4px;
+      border-radius: 8px;
+      background: var(--violet, #8c6239);
+      color: #ffffff;
       letter-spacing: 0;
     }
     .comm-book-review {
