@@ -7914,7 +7914,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
     : '';
 
   const reviewHtml = (b.review && b.review.trim())
-    ? `<div class="comm-book-review" title="${esc(b.review.trim())}">“${esc(b.review.trim())}”</div>`
+    ? `<div class="comm-book-review">“${esc(b.review.trim())}”</div>`
     : '';
 
   const remoteSet = communityLikesMap.get(bid) || new Set();
@@ -8326,7 +8326,7 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
 
   const reviewsList = Array.isArray(b.reviews) ? b.reviews : (b.review ? [b.review] : []);
   const reviewsHtml = reviewsList.length > 0
-    ? reviewsList.map(r => `<div class="comm-book-review" title="${esc(r)}">“${esc(r)}”</div>`).join('')
+    ? reviewsList.map(r => `<div class="comm-book-review">“${esc(r)}”</div>`).join('')
     : '';
 
   const remoteSet = communityLikesMap.get(bid) || new Set();
