@@ -8329,7 +8329,7 @@ function getMostShelvedCommunityBooks() {
       });
     }
     const g = groups.get(normTitle);
-    g.copies.push(b);
+    g.copies.push({ ...b, _source: source });
     g.totalScraps += (b.scraps || []).length;
 
     // 파일 불러오기(Notion 가져오기) 및 동일 독서가의 중복 등록을 단일 인물로 정확히 판별
@@ -8374,17 +8374,18 @@ function getMostShelvedCommunityBooks() {
     const mainTitle = b.title && b.subtitle !== undefined ? b.title : (titleParts.main || b.title);
     const subTitle = b.subtitle !== undefined ? b.subtitle : (titleParts.sub || '');
 
-    // 여러 서재의 평점 평균 계산
-    let ratingSum = 0;
-    let ratingCount = 0;
+    // 독서가별 평점 평균 계산 (동일 독서가가 여러 번 꽂아도 1인의 평점으로 정합성 유지)
+    const userRatingMap = new Map();
     g.copies.forEach(copy => {
+      const ownerId = resolveCommunityBookOwner(copy, copy._source);
       const r = parseFloat(copy.rating);
       if (!isNaN(r) && r > 0) {
-        ratingSum += r;
-        ratingCount += 1;
+        userRatingMap.set(ownerId, r);
       }
     });
-    const avgRating = ratingCount > 0 ? parseFloat((ratingSum / ratingCount).toFixed(1)) : null;
+    let ratingSum = 0;
+    userRatingMap.forEach(r => ratingSum += r);
+    const avgRating = userRatingMap.size > 0 ? parseFloat((ratingSum / userRatingMap.size).toFixed(1)) : null;
 
     // 여러 독서가의 나만의 한문장 모두 수집 (중복 제거)
     const reviews = [];
@@ -8401,31 +8402,29 @@ function getMostShelvedCommunityBooks() {
     const remoteSet = communityLikesMap.get(bid) || new Set();
     const likesCount = remoteSet.size;
 
-    // 여러 독서가가 꼽은 모든 키워드 수집 (중복 제거 및 언급 빈도순 정렬)
+    // 여러 독서가가 꼽은 모든 키워드 수집 (동일 독서가가 중복 등록한 경우 겹치지 않게 서로 다른 독서가 수만 카운트)
     const kwMap = new Map();
     g.copies.forEach(copy => {
+      const ownerId = resolveCommunityBookOwner(copy, copy._source);
       let rawKws = [];
       if (Array.isArray(copy.keywords)) rawKws = copy.keywords;
       else if (typeof copy.keywords === 'string' && copy.keywords.trim()) rawKws = copy.keywords.split(',');
       else if (Array.isArray(copy.tags)) rawKws = copy.tags;
       else if (typeof copy.tags === 'string' && copy.tags.trim()) rawKws = copy.tags.split(',');
 
-      const userKws = new Set();
       rawKws.forEach(k => {
         const clean = String(k).replace(/^#/, '').trim();
-        if (clean && !userKws.has(clean.toLowerCase())) {
-          userKws.add(clean.toLowerCase());
-          const existing = kwMap.get(clean.toLowerCase());
-          if (existing) {
-            existing.count += 1;
-          } else {
-            kwMap.set(clean.toLowerCase(), { text: clean, count: 1 });
-          }
+        if (!clean) return;
+        const lowerKey = clean.toLowerCase();
+        if (!kwMap.has(lowerKey)) {
+          kwMap.set(lowerKey, { text: clean, users: new Set() });
         }
+        kwMap.get(lowerKey).users.add(ownerId);
       });
     });
 
     const allKeywords = Array.from(kwMap.values())
+      .map(item => ({ text: item.text, count: item.users.size }))
       .sort((a, b) => b.count - a.count);
 
     result.push({
