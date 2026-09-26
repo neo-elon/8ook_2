@@ -334,7 +334,12 @@ async function loadData() {
     fetchCommunityLikes();
     initCommunityLikesChannel();
   }
-  syncOhaBooksAladinMetadata();
+
+  try {
+    await syncOhaBooksAladinMetadata();
+  } catch (syncErr) {
+    console.warn('[Aladin Sync] loadData sync error:', syncErr);
+  }
   checkOhaImportPrompt();
 }
 function showDbSetupModal() {
@@ -6800,17 +6805,24 @@ async function loginWithGoogle() {
     redirectUrl += '/';
   }
 
-  toast('구글 로그인으로 연결 중...', 2500);
+  try {
+    toast('구글 로그인으로 연결 중...', 2500);
 
-  const { error } = await supabaseClient.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: redirectUrl
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectUrl
+      }
+    });
+    if (error) {
+      console.error('[Auth] signInWithOAuth error:', error);
+      toast(`로그인 오류: ${error.message || '연결에 실패했습니다'}`);
+    } else if (data && data.url) {
+      window.location.href = data.url;
     }
-  });
-  if (error) {
-    console.error('[Auth] signInWithOAuth error:', error);
-    toast(`로그인 오류: ${error.message || '연결에 실패했습니다'}`);
+  } catch (authErr) {
+    console.error('[Auth] signInWithOAuth exception:', authErr);
+    toast(`로그인 연결 실패: ${authErr.message || authErr}`);
   }
 }
 
@@ -7064,51 +7076,57 @@ async function executeOhaDataImport() {
   }
 }
 
-function syncOhaBooksAladinMetadata() {
-  const rawData = (typeof window !== 'undefined' && window.OHA_BOOKS_SCRAPED) || [];
-  if (!rawData || rawData.length === 0 || !Array.isArray(books) || books.length === 0) return;
+async function syncOhaBooksAladinMetadata() {
+  try {
+    const rawData = (typeof window !== 'undefined' && window.OHA_BOOKS_SCRAPED) || [];
+    if (!rawData || rawData.length === 0 || !Array.isArray(books) || books.length === 0) return;
 
-  const aladinMap = new Map();
-  rawData.forEach(b => {
-    if (b.title) {
-      aladinMap.set(b.title.trim().toLowerCase(), b);
-    }
-  });
+    const aladinMap = new Map();
+    rawData.forEach(b => {
+      if (b.title) {
+        aladinMap.set(b.title.trim().toLowerCase(), b);
+      }
+    });
 
-  let changed = false;
-  books.forEach(b => {
-    const key = (b.title || '').trim().toLowerCase();
-    const aladinBook = aladinMap.get(key);
-    if (aladinBook) {
-      // Check if cover is non-Aladin (e.g. shopping-phinf.pstatic.net) or spineCover missing
-      const isAladinCover = b.cover && b.cover.includes('image.aladin.co.kr');
-      if (!isAladinCover && aladinBook.cover && aladinBook.cover.includes('image.aladin.co.kr')) {
-        b.cover = aladinBook.cover;
-        changed = true;
+    let changed = false;
+    books.forEach(b => {
+      const key = (b.title || '').trim().toLowerCase();
+      const aladinBook = aladinMap.get(key);
+      if (aladinBook) {
+        // Check if cover is non-Aladin (e.g. shopping-phinf.pstatic.net) or spineCover missing
+        const isAladinCover = b.cover && b.cover.includes('image.aladin.co.kr');
+        if (!isAladinCover && aladinBook.cover && aladinBook.cover.includes('image.aladin.co.kr')) {
+          b.cover = aladinBook.cover;
+          changed = true;
+        }
+        if ((!b.spineCover || !b.spineCover.includes('image.aladin.co.kr')) && aladinBook.spineCover) {
+          b.spineCover = aladinBook.spineCover;
+          changed = true;
+        }
+        if (!b.pages && aladinBook.pages) {
+          b.pages = aladinBook.pages;
+          changed = true;
+        }
       }
-      if ((!b.spineCover || !b.spineCover.includes('image.aladin.co.kr')) && aladinBook.spineCover) {
-        b.spineCover = aladinBook.spineCover;
-        changed = true;
-      }
-      if (!b.pages && aladinBook.pages) {
-        b.pages = aladinBook.pages;
-        changed = true;
-      }
-    }
-  });
+    });
 
-  if (changed) {
-    saveData();
-    if (supabaseClient && currentUser && currentUser.id) {
-      const payload = books
-        .filter(b => (b.id && b.id.startsWith('notion_')) || aladinMap.has((b.title || '').trim().toLowerCase()))
-        .map(b => sanitizeBookForSupabase(b));
-      if (payload.length > 0) {
-        supabaseClient.from('books').upsert(payload, { onConflict: 'id' }).catch(err => {
-          console.warn('[Aladin Sync] Supabase sync error:', err);
-        });
+    if (changed) {
+      saveData();
+      if (supabaseClient && currentUser && currentUser.id) {
+        const payload = books
+          .filter(b => (b.id && b.id.startsWith('notion_')) || aladinMap.has((b.title || '').trim().toLowerCase()))
+          .map(b => sanitizeBookForSupabase(b));
+        if (payload.length > 0) {
+          try {
+            await supabaseClient.from('books').upsert(payload, { onConflict: 'id' });
+          } catch (err) {
+            console.warn('[Aladin Sync] Supabase sync error:', err);
+          }
+        }
       }
     }
+  } catch (syncErr) {
+    console.warn('[Aladin Sync] Metadata sync error:', syncErr);
   }
 }
 
