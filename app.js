@@ -7694,7 +7694,9 @@ async function fetchRemoteCommunityBooks() {
 function getBookGroupingKey(b) {
   if (!b || !b.title) return '';
   const parts = splitBookTitle(b);
-  const main = (parts && parts.main) ? parts.main : b.title;
+  let main = (parts && parts.main) ? parts.main : b.title;
+  // 에디션, 부제목, 판본 등 괄호 표기 제거하여 원 도서명 정규화
+  main = String(main).replace(/\s*\([^)]*\)/g, '').replace(/\s*<[^>]*>/g, '').replace(/\s*〈[^〉]*〉/g, '');
   return String(main).trim().toLowerCase().replace(/[\s\-_:·・《》〈〉()（）[\]'"]/g, '');
 }
 
@@ -7704,8 +7706,8 @@ function resolveCommunityBookOwner(b, source) {
 
   // 1. 도서 객체에 저장된 user_id 우선 확인
   const uid = b.user_id ? String(b.user_id) : '';
-  if (uid === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') return 'user_owner_neo';
   if (uid === '7396cf84-8b75-4617-a050-5ed974fcbe02') return 'user_owner_oha';
+  if (uid === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') return 'user_owner_neo';
   if (uid) return 'user_' + uid;
 
   // 2. 도서 ID 패턴(고유 UUID 포함 여부) 확인
@@ -7728,16 +7730,12 @@ function resolveCommunityBookOwner(b, source) {
       }
       return 'user_' + currentUser.id;
     }
-    // 비로그인 상태에서 notion_ 도서인 경우 (오하 완독 도서)
-    if (bid.startsWith('notion_2da8') || bid.startsWith('notion_2')) {
-      return 'user_owner_oha';
-    }
-    return 'user_local_guest';
   }
 
-  // 5. 오하 2025 완독 노션 도서 ID 패턴
-  if (bid.startsWith('notion_2da8') || bid.startsWith('notion_2')) {
-    return 'user_owner_oha';
+  // 5. 오하 완독 도서 데이터셋(window.OHA_BOOKS_SCRAPED)의 도서와 ID 또는 노션 ID 매칭
+  if (typeof window !== 'undefined' && Array.isArray(window.OHA_BOOKS_SCRAPED)) {
+    const isOhaBook = window.OHA_BOOKS_SCRAPED.some(ob => ob.id === bid || (ob.notionId && bid.includes(ob.notionId.replace(/-/g, '').slice(0, 24))));
+    if (isOhaBook) return 'user_owner_oha';
   }
 
   return 'remote_anon_' + (bid || 'unknown');
