@@ -2506,7 +2506,9 @@ async function saveBook() {
     author: document.getElementById('bk-author').value.trim(),
     pages: parseInt(document.getElementById('bk-pages').value) || 0,
     date: document.getElementById('bk-date').value,
-    sentence: document.getElementById('bk-sentence').value.trim(),
+    sentence: typeof sanitizeUnmatchedSmartQuotes === 'function'
+      ? sanitizeUnmatchedSmartQuotes(document.getElementById('bk-sentence').value.trim())
+      : document.getElementById('bk-sentence').value.trim(),
     cover: modalCover,
     spineCover: modalSpineCover,
     rating: currentRating,
@@ -4588,6 +4590,144 @@ function updateRecommendedHashtags(immediate = false) {
   }
 }
 
+/* ── Smart Quote Auto-Pairing for iOS / iPadOS & Web ── */
+let isAutoPairingQuote = false;
+
+function autoPairSmartQuotes(el, e) {
+  if (isAutoPairingQuote) return;
+  if (!el || typeof el.selectionStart !== 'number') return;
+  // 삭제 동작일 때는 건너뜀
+  if (e && e.inputType && !e.inputType.startsWith('insert')) return;
+
+  const cursor = el.selectionStart;
+  if (cursor < 1) return;
+
+  const val = el.value;
+  const lastChar = val[cursor - 1];
+
+  // 1) 큰따옴표 검사 (아이패드에서 입력된 '“' 또는 외장키보드 '"')
+  if (lastChar === '“' || lastChar === '"') {
+    const textBefore = val.slice(0, cursor - 1);
+    const prevChar = textBefore.length > 0 ? textBefore[textBefore.length - 1] : '';
+
+    // 직전문자가 존재하고 공백이나 여는 기호가 아닌 경우 (단어, 마침표, 물음표, 느낌표 등)
+    // 혹은 직전문자가 바로 여는 따옴표인 경우(연속 입력 시 빈 따옴표 쌍 “”)
+    const isClosingPosition = prevChar && (!/[\s\n\r\t(\[{<“‘"']/.test(prevChar) || prevChar === '“');
+
+    if (isClosingPosition) {
+      // 이전 텍스트 전체에서 열린 큰따옴표(“ 또는 직전 ") 개수 확인
+      let openCount = 0;
+      let closeCount = 0;
+      for (let i = 0; i < textBefore.length; i++) {
+        const c = textBefore[i];
+        if (c === '“') openCount++;
+        else if (c === '”') closeCount++;
+      }
+
+      // 열려있는 '“'가 닫히지 않은 상태이면 이번에 들어온 따옴표는 닫는 따옴표 '”'여야 함
+      if (openCount > closeCount) {
+        isAutoPairingQuote = true;
+        try {
+          // 되돌리기(Undo) 히스토리 보전을 위해 execCommand 우선 시도
+          el.setSelectionRange(cursor - 1, cursor);
+          const ok = document.execCommand ? document.execCommand('insertText', false, '”') : false;
+          if (!ok || el.value[cursor - 1] !== '”') {
+            el.value = val.slice(0, cursor - 1) + '”' + val.slice(cursor);
+            el.setSelectionRange(cursor, cursor);
+          }
+        } catch (err) {
+          el.value = val.slice(0, cursor - 1) + '”' + val.slice(cursor);
+          el.setSelectionRange(cursor, cursor);
+        } finally {
+          isAutoPairingQuote = false;
+        }
+        return;
+      }
+    }
+  }
+
+  // 2) 작은따옴표 검사 (아이패드에서 입력된 '‘' 또는 외장키보드 '\'')
+  if (lastChar === '‘' || lastChar === "'") {
+    const textBefore = val.slice(0, cursor - 1);
+    const prevChar = textBefore.length > 0 ? textBefore[textBefore.length - 1] : '';
+
+    const isClosingPosition = prevChar && (!/[\s\n\r\t(\[{<“‘"']/.test(prevChar) || prevChar === '‘');
+
+    if (isClosingPosition) {
+      let openCount = 0;
+      let closeCount = 0;
+      for (let i = 0; i < textBefore.length; i++) {
+        const c = textBefore[i];
+        if (c === '‘') openCount++;
+        else if (c === '’') closeCount++;
+      }
+
+      if (openCount > closeCount) {
+        isAutoPairingQuote = true;
+        try {
+          el.setSelectionRange(cursor - 1, cursor);
+          const ok = document.execCommand ? document.execCommand('insertText', false, '’') : false;
+          if (!ok || el.value[cursor - 1] !== '’') {
+            el.value = val.slice(0, cursor - 1) + '’' + val.slice(cursor);
+            el.setSelectionRange(cursor, cursor);
+          }
+        } catch (err) {
+          el.value = val.slice(0, cursor - 1) + '’' + val.slice(cursor);
+          el.setSelectionRange(cursor, cursor);
+        } finally {
+          isAutoPairingQuote = false;
+        }
+        return;
+      }
+    }
+  }
+}
+
+function sanitizeUnmatchedSmartQuotes(str) {
+  if (!str || typeof str !== 'string') return str;
+  // 단어 뒤의 잘못된 앞따옴표(“ 또는 ‘)를 올바른 뒤따옴표(” 또는 ’)로 자동 교정
+  let result = str.replace(/“([^“”\r\n]+)“/g, '“$1”');
+  result = result.replace(/‘([^‘’\r\n]+)‘/g, '‘$1’');
+  return result;
+}
+
+function wrapSelectedQuoteInScrap(openQ = '“', closeQ = '”') {
+  const el = document.getElementById('sc-text');
+  if (!el) return;
+  el.focus();
+  const start = el.selectionStart;
+  const end = el.selectionEnd;
+  const val = el.value;
+
+  if (start !== end) {
+    const selected = val.slice(start, end);
+    if (selected.startsWith(openQ) && selected.endsWith(closeQ) && selected.length >= 2) {
+      const unwrapped = selected.slice(1, -1);
+      el.value = val.slice(0, start) + unwrapped + val.slice(end);
+      el.setSelectionRange(start, start + unwrapped.length);
+    } else {
+      const wrapped = openQ + selected + closeQ;
+      el.value = val.slice(0, start) + wrapped + val.slice(end);
+      el.setSelectionRange(start, start + wrapped.length);
+    }
+  } else {
+    el.value = val.slice(0, start) + openQ + closeQ + val.slice(end);
+    el.setSelectionRange(start + 1, start + 1);
+  }
+  if (typeof updateRecommendedHashtags === 'function') {
+    updateRecommendedHashtags();
+  }
+}
+
+// 실시간 스마트 따옴표 자동 교정 이벤트 리스너 등록
+document.addEventListener('input', function (e) {
+  const target = e.target;
+  if (!target) return;
+  if (target.id === 'sc-text' || target.id === 'bk-sentence' || target.id === 'sc-memo' || (target.tagName === 'TEXTAREA')) {
+    autoPairSmartQuotes(target, e);
+  }
+}, { passive: true });
+
 async function openScrapModal(id) {
   if (supabaseClient && !currentUser) {
     toast('로그인이 필요합니다. 구글 로그인을 진행해주세요.');
@@ -4634,11 +4774,13 @@ async function saveScrap() {
   }
   const user = currentUser;
 
-  const text = document.getElementById('sc-text').value.trim();
+  const rawText = document.getElementById('sc-text').value.trim();
+  const text = sanitizeUnmatchedSmartQuotes(rawText);
   const rawPage = (document.getElementById('sc-page').value || '').trim();
   const parsedPage = parseInt(rawPage.replace(/^[^\d]*/, ''), 10);
   const page = isNaN(parsedPage) ? 0 : parsedPage;
-  const memo = document.getElementById('sc-memo').value.trim();
+  const rawMemo = document.getElementById('sc-memo').value.trim();
+  const memo = sanitizeUnmatchedSmartQuotes(rawMemo);
 
   if (!text) { toast('문장을 입력해주세요'); return; }
 
