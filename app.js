@@ -7738,6 +7738,18 @@ function formatCommunityBook(b) {
     }
   }
 
+  let kwList = [];
+  if (Array.isArray(b.keywords)) {
+    kwList = b.keywords;
+  } else if (typeof b.keywords === 'string' && b.keywords.trim()) {
+    kwList = b.keywords.split(',').map(s => s.trim());
+  } else if (Array.isArray(b.tags)) {
+    kwList = b.tags;
+  } else if (typeof b.tags === 'string' && b.tags.trim()) {
+    kwList = b.tags.split(',').map(s => s.trim());
+  }
+  kwList = kwList.map(k => String(k).replace(/^#/, '').trim()).filter(Boolean).slice(0, 3);
+
   return {
     id: b.id,
     title: titleParts.main || b.title,
@@ -7746,6 +7758,7 @@ function formatCommunityBook(b) {
     cover: b.cover || '',
     rating: userRating,
     review: userReview || null,
+    keywords: kwList,
     date: b.date || '',
     created_at: b.created_at || '',
     time: timeStr,
@@ -7840,6 +7853,11 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
     ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${Number(b.rating).toFixed(1)}</span></div>`
     : '';
 
+  const kwList = Array.isArray(b.keywords) ? b.keywords.slice(0, 3) : [];
+  const keywordsHtml = kwList.length > 0
+    ? `<div class="comm-book-keywords">${kwList.map(k => `<span class="comm-book-kw-tag" onclick="showDetail('${esc(bid)}')" title="#${esc(k)}">#${esc(k)}</span>`).join('')}</div>`
+    : '';
+
   const reviewHtml = (b.review && b.review.trim())
     ? `<div class="comm-book-review" title="${esc(b.review.trim())}">“${esc(b.review.trim())}”</div>`
     : '';
@@ -7858,6 +7876,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
         <div class="comm-book-title" onclick="showDetail('${esc(bid)}')" title="${esc(mainTitle)}">${esc(mainTitle)}</div>
         <div class="comm-book-author">${esc(b.author)}</div>
         ${ratingHtml}
+        ${keywordsHtml}
         ${reviewHtml}
         <div class="comm-book-meta">
           <span class="comm-book-time" title="${esc(b.timeTooltip || (b.date ? `완독일: ${b.date}` : (b.time || '')))}">${esc(b.time || '')}</span>
@@ -8174,6 +8193,11 @@ function getMostShelvedCommunityBooks() {
     const remoteSet = communityLikesMap.get(bid) || new Set();
     const likesCount = remoteSet.size;
 
+    let kwList = [];
+    if (Array.isArray(b.keywords)) kwList = b.keywords;
+    else if (typeof b.keywords === 'string') kwList = b.keywords.split(',');
+    kwList = kwList.map(k => String(k).replace(/^#/, '').trim()).filter(Boolean).slice(0, 3);
+
     result.push({
       id: b.id,
       title: mainTitle,
@@ -8182,6 +8206,7 @@ function getMostShelvedCommunityBooks() {
       cover: b.cover || '',
       rating: avgRating,
       ratingCount: ratingCount,
+      keywords: kwList,
       reviews: reviews,
       shelvedCount: count,
       likesCount: likesCount
@@ -8209,6 +8234,11 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
     ? `<div class="comm-book-rating" title="평균 별점 ${Number(b.rating).toFixed(1)}점">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">평균 ${Number(b.rating).toFixed(1)}</span></div>`
     : '';
 
+  const kwList = Array.isArray(b.keywords) ? b.keywords.slice(0, 3) : [];
+  const keywordsHtml = kwList.length > 0
+    ? `<div class="comm-book-keywords">${kwList.map(k => `<span class="comm-book-kw-tag" onclick="showDetail('${esc(bid)}')" title="#${esc(k)}">#${esc(k)}</span>`).join('')}</div>`
+    : '';
+
   const reviewsList = Array.isArray(b.reviews) ? b.reviews : (b.review ? [b.review] : []);
   const reviewsHtml = reviewsList.length > 0
     ? reviewsList.map(r => `<div class="comm-book-review" title="${esc(r)}">“${esc(r)}”</div>`).join('')
@@ -8229,6 +8259,7 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
         <div class="comm-book-title" onclick="showDetail('${esc(bid)}')" title="${esc(b.title)}">${esc(b.title)}</div>
         <div class="comm-book-author">${esc(b.author)}</div>
         ${ratingHtml}
+        ${keywordsHtml}
         ${reviewsHtml}
         <div class="comm-book-meta" style="justify-content: flex-end;">
           <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
