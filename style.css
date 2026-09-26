@@ -3250,6 +3250,33 @@
       border-color: rgba(187, 154, 247, 0.4);
       color: #fff;
     }
+    .comm-book-kw-tag.is-highlighted {
+      background: rgba(187, 154, 247, 0.18);
+      border-color: rgba(187, 154, 247, 0.45);
+      color: #f3e8ff;
+      font-weight: 600;
+      box-shadow: 0 1px 4px rgba(187, 154, 247, 0.12);
+    }
+    .comm-book-kw-tag.is-highlighted:hover {
+      background: rgba(187, 154, 247, 0.28);
+      border-color: rgba(187, 154, 247, 0.65);
+      box-shadow: 0 2px 8px rgba(187, 154, 247, 0.28);
+      color: #fff;
+    }
+    .comm-kw-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 700;
+      line-height: 1;
+      padding: 1px 4px;
+      margin-left: 3.5px;
+      border-radius: 6px;
+      background: var(--violet, #bb9af7);
+      color: #1a1625;
+      letter-spacing: 0;
+    }
     .comm-book-review {
       font-size: 11.5px;
       line-height: 1.5;

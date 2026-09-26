@@ -8193,10 +8193,32 @@ function getMostShelvedCommunityBooks() {
     const remoteSet = communityLikesMap.get(bid) || new Set();
     const likesCount = remoteSet.size;
 
-    let kwList = [];
-    if (Array.isArray(b.keywords)) kwList = b.keywords;
-    else if (typeof b.keywords === 'string') kwList = b.keywords.split(',');
-    kwList = kwList.map(k => String(k).replace(/^#/, '').trim()).filter(Boolean).slice(0, 3);
+    // 여러 독서가가 꼽은 모든 키워드 수집 (중복 제거 및 언급 빈도순 정렬)
+    const kwMap = new Map();
+    g.copies.forEach(copy => {
+      let rawKws = [];
+      if (Array.isArray(copy.keywords)) rawKws = copy.keywords;
+      else if (typeof copy.keywords === 'string' && copy.keywords.trim()) rawKws = copy.keywords.split(',');
+      else if (Array.isArray(copy.tags)) rawKws = copy.tags;
+      else if (typeof copy.tags === 'string' && copy.tags.trim()) rawKws = copy.tags.split(',');
+
+      const userKws = new Set();
+      rawKws.forEach(k => {
+        const clean = String(k).replace(/^#/, '').trim();
+        if (clean && !userKws.has(clean.toLowerCase())) {
+          userKws.add(clean.toLowerCase());
+          const existing = kwMap.get(clean.toLowerCase());
+          if (existing) {
+            existing.count += 1;
+          } else {
+            kwMap.set(clean.toLowerCase(), { text: clean, count: 1 });
+          }
+        }
+      });
+    });
+
+    const allKeywords = Array.from(kwMap.values())
+      .sort((a, b) => b.count - a.count);
 
     result.push({
       id: b.id,
@@ -8206,7 +8228,7 @@ function getMostShelvedCommunityBooks() {
       cover: b.cover || '',
       rating: avgRating,
       ratingCount: ratingCount,
-      keywords: kwList,
+      keywords: allKeywords,
       reviews: reviews,
       shelvedCount: count,
       likesCount: likesCount
@@ -8234,9 +8256,17 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
     ? `<div class="comm-book-rating" title="평균 별점 ${Number(b.rating).toFixed(1)}점">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">평균 ${Number(b.rating).toFixed(1)}</span></div>`
     : '';
 
-  const kwList = Array.isArray(b.keywords) ? b.keywords.slice(0, 3) : [];
+  const kwList = Array.isArray(b.keywords) ? b.keywords : [];
   const keywordsHtml = kwList.length > 0
-    ? `<div class="comm-book-keywords">${kwList.map(k => `<span class="comm-book-kw-tag" onclick="showDetail('${esc(bid)}')" title="#${esc(k)}">#${esc(k)}</span>`).join('')}</div>`
+    ? `<div class="comm-book-keywords">${kwList.map(item => {
+        const text = typeof item === 'object' ? item.text : String(item);
+        const count = typeof item === 'object' ? (item.count || 1) : 1;
+        const isMulti = count > 1;
+        const badgeHtml = isMulti ? `<span class="comm-kw-count">${count}</span>` : '';
+        const cls = isMulti ? 'comm-book-kw-tag is-highlighted' : 'comm-book-kw-tag';
+        const titleText = isMulti ? `#${text} (${count}명의 독서가가 함께 꼽은 키워드)` : `#${text}`;
+        return `<span class="${cls}" onclick="showDetail('${esc(bid)}')" title="${esc(titleText)}">#${esc(text)}${badgeHtml}</span>`;
+      }).join('')}</div>`
     : '';
 
   const reviewsList = Array.isArray(b.reviews) ? b.reviews : (b.review ? [b.review] : []);
