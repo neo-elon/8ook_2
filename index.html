@@ -584,7 +584,7 @@
           <button type="button" class="btn btn-ghost btn-sm" onclick="wrapSelectedQuoteInScrap('“','”')" style="padding:1px 7px; font-size:11px; height:20px; line-height:1; border-radius:4px; color:var(--lavender); border-color:rgba(187,154,247,0.3);" title="선택 영역 또는 커서 위치에 따옴표(“ ”) 입력">“ ” 따옴표</button>
         </div>
         <textarea class="fi" id="sc-text"
-          placeholder="기억하고 싶은 문장을 입력하세요..." rows="6" onblur="updateRecommendedHashtags()" onchange="updateRecommendedHashtags()" lang="ko"></textarea>
+          placeholder="기억하고 싶은 문장을 입력하세요..." rows="6" onblur="fixSmartQuotes(this); updateRecommendedHashtags()" onchange="fixSmartQuotes(this); updateRecommendedHashtags()" lang="ko"></textarea>
       </div>
       <div class="frow">
         <div class="fg">
