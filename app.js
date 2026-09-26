@@ -7679,10 +7679,11 @@ async function fetchRemoteCommunityBooks() {
       .from('books')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(100);
+      .limit(1000);
     if (!error && Array.isArray(data)) {
       remoteCommunityBooks = data;
       renderCommunityBooks();
+      renderCommunityPopularBooks();
       renderCommunityScraps();
     }
   } catch (e) {
@@ -7690,22 +7691,56 @@ async function fetchRemoteCommunityBooks() {
   }
 }
 
-// 파일 불러오기(Notion 가져오기 등) 및 기본 서재 데이터의 소유자를 단일 독서가로 정합성 있게 식별
+function getBookGroupingKey(b) {
+  if (!b || !b.title) return '';
+  const parts = splitBookTitle(b);
+  const main = (parts && parts.main) ? parts.main : b.title;
+  return String(main).trim().toLowerCase().replace(/[\s\-_:·・《》〈〉()（）[\]'"]/g, '');
+}
+
+// 파일 불러오기(Notion 가져오기 등) 및 각 서재 데이터의 소유자를 단일 독서가로 정합성 있게 식별
 function resolveCommunityBookOwner(b, source) {
   if (!b) return 'unknown_user';
-  // 파일 불러오기(Notion 가져오기)로 생성된 ID나 Neo 계정 고유 ID는 동일 인물로 통합
-  if (b.id && String(b.id).startsWith('notion_')) return 'user_owner_neo';
-  if (b.user_id === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') return 'user_owner_neo';
+
+  // 1. 도서 객체에 저장된 user_id 우선 확인
+  const uid = b.user_id ? String(b.user_id) : '';
+  if (uid === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') return 'user_owner_neo';
+  if (uid === '7396cf84-8b75-4617-a050-5ed974fcbe02') return 'user_owner_oha';
+  if (uid) return 'user_' + uid;
+
+  // 2. 도서 ID 패턴(고유 UUID 포함 여부) 확인
+  const bid = b.id ? String(b.id) : '';
+  if (bid.includes('7396cf84-8b75-4617-a050-5ed974fcbe02') || bid.includes('7396cf84')) return 'user_owner_oha';
+  if (bid.includes('1df9f1ae-d5bf-4076-bd1d-b3f32916b216') || bid.includes('1df9f1ae')) return 'user_owner_neo';
+
+  // 3. 데이터셋 소스별 기본 독서가 매핑
+  if (source === 'oha_dataset') return 'user_owner_oha';
   if (source === 'neo_dataset') return 'user_owner_neo';
 
+  // 4. 로컬 서재 도서인 경우 현재 로그인 사용자 기준 식별
   if (source === 'local') {
-    if (currentUser && currentUser.id && currentUser.id !== '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') {
-      return currentUser.id;
+    if (currentUser && currentUser.id) {
+      if (currentUser.id === '7396cf84-8b75-4617-a050-5ed974fcbe02' || (currentUser.email && currentUser.email.toLowerCase().includes('thejs2050'))) {
+        return 'user_owner_oha';
+      }
+      if (currentUser.id === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') {
+        return 'user_owner_neo';
+      }
+      return 'user_' + currentUser.id;
     }
-    return 'user_owner_neo';
+    // 비로그인 상태에서 notion_ 도서인 경우 (오하 완독 도서)
+    if (bid.startsWith('notion_2da8') || bid.startsWith('notion_2')) {
+      return 'user_owner_oha';
+    }
+    return 'user_local_guest';
   }
 
-  return b.user_id || ('remote_anon_' + (b.id || 'unknown'));
+  // 5. 오하 2025 완독 노션 도서 ID 패턴
+  if (bid.startsWith('notion_2da8') || bid.startsWith('notion_2')) {
+    return 'user_owner_oha';
+  }
+
+  return 'remote_anon_' + (bid || 'unknown');
 }
 
 function getAllCommunityBooks() {
@@ -7715,7 +7750,8 @@ function getAllCommunityBooks() {
   function processBook(b, source) {
     if (!b || isGuideBook(b) || !b.title || b.title === '__like__' || b.id?.startsWith('like_') || b.is_public === false) return;
     const ownerId = resolveCommunityBookOwner(b, source);
-    const normTitle = (b.title || '').trim().toLowerCase().replace(/[\s\-_:·・《》〈〉()]/g, '');
+    const normTitle = getBookGroupingKey(b);
+    if (!normTitle) return;
     const userTitleKey = ownerId + '::' + normTitle;
 
     // 파일 불러오기 및 기본 데이터셋 간 동일 사용자의 중복 도서는 1건으로 통합
@@ -7723,7 +7759,7 @@ function getAllCommunityBooks() {
       if (map.has(b.id)) return;
       const existingKey = Array.from(map.keys()).find(k => {
         const eb = map.get(k);
-        return eb && normTitle === (eb.title || '').trim().toLowerCase().replace(/[\s\-_:·・《》〈〉()]/g, '');
+        return eb && normTitle === getBookGroupingKey(eb);
       });
       if (existingKey) {
         const eb = map.get(existingKey);
@@ -7749,9 +7785,14 @@ function getAllCommunityBooks() {
     books.forEach(b => processBook(b, 'local'));
   }
 
-  // 3. Shared community dataset (window.NEO_BOOKS_131) from all users
+  // 3. Shared community dataset (window.NEO_BOOKS_131) from Neo
   if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
     window.NEO_BOOKS_131.forEach(b => processBook(b, 'neo_dataset'));
+  }
+
+  // 4. Scraped Notion dataset (window.OHA_BOOKS_SCRAPED) from Oha
+  if (typeof window !== 'undefined' && Array.isArray(window.OHA_BOOKS_SCRAPED)) {
+    window.OHA_BOOKS_SCRAPED.forEach(b => processBook(b, 'oha_dataset'));
   }
 
   return Array.from(map.values());
@@ -8278,7 +8319,7 @@ function getMostShelvedCommunityBooks() {
     if (strId && seenBookIds.has(strId)) return;
     if (strId) seenBookIds.add(strId);
 
-    const normTitle = (b.title || '').trim().toLowerCase().replace(/[\s\-_:·・《》〈〉()]/g, '');
+    const normTitle = getBookGroupingKey(b);
     if (!normTitle) return;
 
     if (!groups.has(normTitle)) {
@@ -8315,6 +8356,11 @@ function getMostShelvedCommunityBooks() {
   // 3. 기본 데이터셋 도서 (큐레이터 서재 도서)
   if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
     window.NEO_BOOKS_131.forEach(b => addToGroup(b, 'neo_dataset'));
+  }
+
+  // 4. 노션 완독 데이터셋 도서 (오하 독서가 완독 도서)
+  if (typeof window !== 'undefined' && Array.isArray(window.OHA_BOOKS_SCRAPED)) {
+    window.OHA_BOOKS_SCRAPED.forEach(b => addToGroup(b, 'oha_dataset'));
   }
 
   const result = [];
