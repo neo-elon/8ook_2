@@ -6518,6 +6518,7 @@ loadTagLearningModel();
 
   // Initialize / update the comprehensive "User Manual" book
   ensureUserGuideBook();
+  await syncOhaBooksAladinMetadata();
 
   renderGallery();
   updateSidebar();
@@ -7127,9 +7128,15 @@ async function syncOhaBooksAladinMetadata() {
       if (aladinBook) {
         // Check if cover is non-Aladin (e.g. shopping-phinf.pstatic.net) or spineCover missing
         const isAladinCover = b.cover && b.cover.includes('image.aladin.co.kr');
-        if (!isAladinCover && aladinBook.cover && aladinBook.cover.includes('image.aladin.co.kr')) {
+        const isProblemCover = !b.cover || b.cover.includes('pstatic.net') || b.cover.includes('shopping-phinf') || b.cover.includes('.png') || !b.cover.startsWith('http');
+        if ((!isAladinCover || isProblemCover) && aladinBook.cover && aladinBook.cover.includes('image.aladin.co.kr')) {
           b.cover = aladinBook.cover;
           changed = true;
+        } else if ((b.title || '').includes('블로그는 마술이다') || (aladinBook.title || '').includes('블로그는 마술이다')) {
+          if (b.cover && (b.cover.includes('.png') || !b.cover.startsWith('http'))) {
+            b.cover = '';
+            changed = true;
+          }
         }
         if ((!b.spineCover || !b.spineCover.includes('image.aladin.co.kr')) && aladinBook.spineCover) {
           b.spineCover = aladinBook.spineCover;
@@ -7144,6 +7151,8 @@ async function syncOhaBooksAladinMetadata() {
 
     if (changed) {
       saveData();
+      renderGallery();
+      updateSidebar();
       if (supabaseClient && currentUser && currentUser.id) {
         const payload = books
           .filter(b => (b.id && b.id.startsWith('notion_')) || aladinMap.has((b.title || '').trim().toLowerCase()))
