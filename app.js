@@ -334,6 +334,7 @@ async function loadData() {
     fetchCommunityLikes();
     initCommunityLikesChannel();
   }
+  syncOhaBooksAladinMetadata();
   checkOhaImportPrompt();
 }
 function showDbSetupModal() {
@@ -6959,13 +6960,13 @@ async function executeOhaDataImport() {
   const originalHtml = btn ? btn.innerHTML : '지금 가져오기';
   if (btn) {
     btn.disabled = true;
-    btn.innerHTML = '<span>가져오는 중...</span>';
+    btn.innerHTML = '<span>알라딘 정보로 가져오는 중...</span>';
   }
 
   try {
     const rawData = (typeof window !== 'undefined' && window.OHA_BOOKS_SCRAPED) || [];
     if (!rawData || rawData.length === 0) {
-      toast('가져올 노션 완독 도서 데이터가 없습니다.');
+      toast('가져올 완독 도서 데이터가 없습니다.');
       return;
     }
 
@@ -6998,9 +6999,50 @@ async function executeOhaDataImport() {
       }
     }
 
-    // 2. Merge into active memory & local storage
-    const existingIds = new Set(books.map(b => b.id));
-    const newItems = booksToImport.filter(b => !existingIds.has(b.id));
+    // 2. Merge into active memory & local storage (upsert existing books with fresh Aladin covers & spines)
+    const importMap = new Map();
+    booksToImport.forEach(b => {
+      importMap.set(b.id, b);
+      if (b.notionId) {
+        const key = 'notion_' + b.notionId.replace(/[^a-zA-Z0-9]/g, '').slice(0, 24);
+        importMap.set(key, b);
+      }
+      if (b.title) {
+        importMap.set(b.title.trim().toLowerCase(), b);
+      }
+    });
+
+    let updatedCount = 0;
+    const existingIds = new Set();
+    books = books.map(existingBook => {
+      existingIds.add(existingBook.id);
+      let fresh = importMap.get(existingBook.id);
+      if (!fresh && existingBook.id && existingBook.id.startsWith('notion_')) {
+        const key = existingBook.id.split('_').slice(0, 2).join('_');
+        fresh = importMap.get(key);
+      }
+      if (!fresh && existingBook.title) {
+        fresh = importMap.get(existingBook.title.trim().toLowerCase());
+      }
+
+      if (fresh) {
+        updatedCount++;
+        return {
+          ...existingBook,
+          cover: fresh.cover || existingBook.cover,
+          spineCover: (fresh.spineCover !== undefined && fresh.spineCover !== '') ? fresh.spineCover : existingBook.spineCover,
+          pages: fresh.pages || existingBook.pages
+        };
+      }
+      return existingBook;
+    });
+
+    const newItems = booksToImport.filter(b => {
+      if (existingIds.has(b.id)) return false;
+      const titleLower = (b.title || '').trim().toLowerCase();
+      return !books.some(eb => (eb.title || '').trim().toLowerCase() === titleLower);
+    });
+
     books = [...newItems, ...books];
     books.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
@@ -7009,7 +7051,8 @@ async function executeOhaDataImport() {
     renderGallery();
     updateSidebar();
 
-    toast(`🎉 2025년 완독 도서 ${newItems.length}권을 성공적으로 가져왔습니다!`, 4000);
+    const totalSynced = newItems.length + updatedCount;
+    toast(`🎉 2025년 완독 도서 ${totalSynced}권의 알라딘 표지 및 책등을 성공적으로 동기화했습니다!`, 4000);
   } catch (err) {
     console.error('[Oha Import] Execution failed:', err);
     toast('도서 데이터를 가져오는 중 오류가 발생했습니다.');
@@ -7017,6 +7060,54 @@ async function executeOhaDataImport() {
     if (btn) {
       btn.disabled = false;
       btn.innerHTML = originalHtml;
+    }
+  }
+}
+
+function syncOhaBooksAladinMetadata() {
+  const rawData = (typeof window !== 'undefined' && window.OHA_BOOKS_SCRAPED) || [];
+  if (!rawData || rawData.length === 0 || !Array.isArray(books) || books.length === 0) return;
+
+  const aladinMap = new Map();
+  rawData.forEach(b => {
+    if (b.title) {
+      aladinMap.set(b.title.trim().toLowerCase(), b);
+    }
+  });
+
+  let changed = false;
+  books.forEach(b => {
+    const key = (b.title || '').trim().toLowerCase();
+    const aladinBook = aladinMap.get(key);
+    if (aladinBook) {
+      // Check if cover is non-Aladin (e.g. shopping-phinf.pstatic.net) or spineCover missing
+      const isAladinCover = b.cover && b.cover.includes('image.aladin.co.kr');
+      if (!isAladinCover && aladinBook.cover && aladinBook.cover.includes('image.aladin.co.kr')) {
+        b.cover = aladinBook.cover;
+        changed = true;
+      }
+      if ((!b.spineCover || !b.spineCover.includes('image.aladin.co.kr')) && aladinBook.spineCover) {
+        b.spineCover = aladinBook.spineCover;
+        changed = true;
+      }
+      if (!b.pages && aladinBook.pages) {
+        b.pages = aladinBook.pages;
+        changed = true;
+      }
+    }
+  });
+
+  if (changed) {
+    saveData();
+    if (supabaseClient && currentUser && currentUser.id) {
+      const payload = books
+        .filter(b => (b.id && b.id.startsWith('notion_')) || aladinMap.has((b.title || '').trim().toLowerCase()))
+        .map(b => sanitizeBookForSupabase(b));
+      if (payload.length > 0) {
+        supabaseClient.from('books').upsert(payload, { onConflict: 'id' }).catch(err => {
+          console.warn('[Aladin Sync] Supabase sync error:', err);
+        });
+      }
     }
   }
 }

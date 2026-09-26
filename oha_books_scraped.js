@@ -1,4 +1,4 @@
-// Scraped 2025 books for thejs2050@gmail.com (오하) from Notion
+// Scraped 2025 books for thejs2050@gmail.com (오하) from Notion (Updated with Aladin covers & spines)
 window.OHA_BOOKS_SCRAPED = [
   {
     "id": "notion_2da8775ca0cb80318a09f7d469ab39da",
@@ -9,8 +9,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-12-30",
     "rating": 5,
     "sentence": "사실은 철학책",
-    "cover": "https://shopping-phinf.pstatic.net/main_5532526/55325267761.20250617094438.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/36612/28/cover500/k202030863_2.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/36612/28/Spine/k202030863_d.jpg",
     "keywords": [
       "2025완독",
       "12월"
@@ -35,8 +35,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-12-24",
     "rating": 5,
     "sentence": "",
-    "cover": "https://shopping-phinf.pstatic.net/main_3762087/37620878624.20251202085312.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/32489/85/cover500/k942935503_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/32489/85/Spine/k942935503_d.jpg",
     "keywords": [
       "2025완독",
       "12월"
@@ -61,8 +61,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-12-15",
     "rating": 5,
     "sentence": "굴뚝 마을의 푸펠 성공 비결",
-    "cover": "https://shopping-phinf.pstatic.net/main_5692681/56926813240.20250927071247.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/37297/57/cover500/k262031544_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/37297/57/Spine/k262031544_d.jpg",
     "keywords": [
       "2025완독",
       "12월"
@@ -87,8 +87,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-12-12",
     "rating": 5,
     "sentence": "",
-    "cover": "https://shopping-phinf.pstatic.net/main_3244029/32440290108.20241206071115.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/26794/65/cover500/8925588927_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/26794/65/Spine/8925588927_d.jpg",
     "keywords": [
       "2025완독",
       "12월"
@@ -113,8 +113,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-12-09",
     "rating": 5,
     "sentence": "",
-    "cover": "https://shopping-phinf.pstatic.net/main_5647097/56470974590.20250829092958.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/37086/58/cover500/k672030158_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/37086/58/Spine/k672030158_d.jpg",
     "keywords": [
       "2025완독",
       "12월"
@@ -139,8 +139,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-12-03",
     "rating": 5,
     "sentence": "성심당이 오래도록 사랑받는 이유",
-    "cover": "https://shopping-phinf.pstatic.net/main_5353373/53533737306.20250318085844.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/36045/72/cover500/k492037949_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/36045/72/Spine/k492037949_d.jpg",
     "keywords": [
       "2025완독",
       "12월"
@@ -165,8 +165,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-11-29",
     "rating": 5,
     "sentence": "미치게 친절했지만 진도는 잘 안나갔던 철학",
-    "cover": "https://shopping-phinf.pstatic.net/main_3246667/32466670594.20230906071046.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/19598/83/cover500/k902635423_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/19598/83/Spine/k902635423_d.jpg",
     "keywords": [
       "2025완독",
       "11월"
@@ -191,8 +191,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-11-29",
     "rating": 5,
     "sentence": "ETF 투자의 모든 것",
-    "cover": "https://shopping-phinf.pstatic.net/main_5601136/56011367863.20250730092049.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/36894/11/cover500/k322030913_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/36894/11/Spine/k322030913_d.jpg",
     "keywords": [
       "2025완독",
       "11월"
@@ -217,8 +217,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-11-24",
     "rating": 5,
     "sentence": "운과 실력의 방정식, 투자의 세계는 운? 실력?",
-    "cover": "https://shopping-phinf.pstatic.net/main_3244570/32445704711.20230928092018.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/20643/19/cover500/k022636061_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/20643/19/Spine/k022636061_d.jpg",
     "keywords": [
       "2025완독",
       "11월"
@@ -243,8 +243,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-11-06",
     "rating": 5,
     "sentence": "린치핀이 되거나, 고용하거나!",
-    "cover": "https://shopping-phinf.pstatic.net/main_5114180/51141809623.20241102071337.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/35110/1/cover500/k612934606_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/35110/1/Spine/k612934606_d.jpg",
     "keywords": [
       "2025완독",
       "11월"
@@ -269,8 +269,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-10-16",
     "rating": 5,
     "sentence": "",
-    "cover": "https://shopping-phinf.pstatic.net/main_5467207/54672072202.20250510091720.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/36387/54/cover500/k702039674_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/36387/54/Spine/k702039674_d.jpg",
     "keywords": [
       "2025완독",
       "10월"
@@ -295,7 +295,7 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-10-03",
     "rating": 5,
     "sentence": "",
-    "cover": "https://shopping-phinf.pstatic.net/main_3249692/32496923189.20230920071219.jpg?type=w300",
+    "cover": "https://image.aladin.co.kr/product/849/20/cover500/s762531311_1.jpg",
     "spineCover": "",
     "keywords": [
       "2025완독",
@@ -321,8 +321,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-09-26",
     "rating": 5,
     "sentence": "월든 호숫가의 데이비드 소로와 버몬트의 스콧 니어링",
-    "cover": "https://shopping-phinf.pstatic.net/main_3246693/32466939815.20230912083818.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/1284/8/cover500/8956605416_3.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/1284/8/Spine/8956605416_d.jpg",
     "keywords": [
       "2025완독",
       "9월"
@@ -347,8 +347,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-09-19",
     "rating": 5,
     "sentence": "내 연금은 내가 챙긴다",
-    "cover": "https://shopping-phinf.pstatic.net/main_5548208/55482086306.20250626091147.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/39410/64/cover500/k342139095_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/39410/64/Spine/k342139095_d.jpg",
     "keywords": [
       "2025완독",
       "9월"
@@ -399,8 +399,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-09-06",
     "rating": 5,
     "sentence": "저축이 전부다",
-    "cover": "https://shopping-phinf.pstatic.net/main_3246701/32467012122.20230919135352.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/38331/50/cover500/k192034444_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/38331/50/Spine/k192034444_d.jpg",
     "keywords": [
       "2025완독",
       "9월"
@@ -425,8 +425,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-08-31",
     "rating": 5,
     "sentence": "",
-    "cover": "https://shopping-phinf.pstatic.net/main_5472458/54724585752.20250513093440.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/36401/68/cover500/k042039783_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/36401/68/Spine/k042039783_d.jpg",
     "keywords": [
       "2025완독",
       "8월"
@@ -451,8 +451,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-08-31",
     "rating": 5,
     "sentence": "",
-    "cover": "https://shopping-phinf.pstatic.net/main_3245689/32456894396.20230815080409.jpg",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/38724/97/cover500/893567916x_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/38724/97/Spine/893567916x_d.jpg",
     "keywords": [
       "2025완독",
       "8월"
@@ -477,8 +477,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-08-21",
     "rating": 5,
     "sentence": "",
-    "cover": "https://shopping-phinf.pstatic.net/main_5540159/55401590712.20250621110430.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/36639/73/cover500/k282030989_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/36639/73/Spine/k282030989_d.jpg",
     "keywords": [
       "2025완독",
       "8월"
@@ -503,8 +503,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-08-08",
     "rating": 5,
     "sentence": "길 위에서 달리기를 통해 우리가 얻는 것들",
-    "cover": "https://shopping-phinf.pstatic.net/main_5079406/50794068618.20241013071129.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/34943/41/cover500/k762934568_2.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/34943/41/Spine/k762934568_d.jpg",
     "keywords": [
       "2025완독",
       "8월"
@@ -529,8 +529,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-07-18",
     "rating": 5,
     "sentence": "여러분은 자신만의 뾰족함이 있으신가요?",
-    "cover": "https://shopping-phinf.pstatic.net/main_3246352/32463527623.20230822102155.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/2030/62/cover500/8970415858_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/2030/62/Spine/8970415858_d.jpg",
     "keywords": [
       "2025완독",
       "7월"
@@ -555,8 +555,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-07-11",
     "rating": 5,
     "sentence": "혹시, 돈 얘기해도 될까요. 네 해주세요. 플리즈.",
-    "cover": "https://shopping-phinf.pstatic.net/main_5496910/54969106268.20250527094655.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/36485/17/cover500/k302039019_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/36485/17/Spine/k302039019_d.jpg",
     "keywords": [
       "2025완독",
       "7월"
@@ -581,8 +581,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-07-09",
     "rating": 5,
     "sentence": "한국주식 5차 파동, 나도 그 파동에 올라탈 수 있을까",
-    "cover": "https://shopping-phinf.pstatic.net/main_5507805/55078052963.20250603080259.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/36527/44/cover500/k522039629_3.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/36527/44/Spine/k522039629_d.jpg",
     "keywords": [
       "2025완독",
       "7월"
@@ -607,8 +607,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-07-07",
     "rating": 5,
     "sentence": "용인 고기리막국수의 성공비결",
-    "cover": "https://shopping-phinf.pstatic.net/main_3246724/32467241967.20230801120013.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/25655/8/cover500/k662735141_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/25655/8/Spine/k662735141_d.jpg",
     "keywords": [
       "2025완독",
       "7월"
@@ -633,8 +633,8 @@ window.OHA_BOOKS_SCRAPED = [
     "date": "2025-07-06",
     "rating": 5,
     "sentence": "글을 쓰고 싶게 하는 강원국의 책쓰기 수업",
-    "cover": "https://shopping-phinf.pstatic.net/main_5563899/55638995364.20250706073807.jpg?type=w300",
-    "spineCover": "",
+    "cover": "https://image.aladin.co.kr/product/36758/53/cover500/8990701627_1.jpg",
+    "spineCover": "https://image.aladin.co.kr/product/36758/53/Spine/8990701627_d.jpg",
     "keywords": [
       "2025완독",
       "7월"
