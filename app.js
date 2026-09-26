@@ -230,6 +230,7 @@ async function loadData() {
     books = localBooks;
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
+    await syncOhaBooksAladinMetadata();
     saveData();
     bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
@@ -320,6 +321,7 @@ async function loadData() {
 
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
+    await syncOhaBooksAladinMetadata();
     saveData();
     bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
@@ -329,6 +331,7 @@ async function loadData() {
     books = currentUser ? localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b)) : localBooks.filter(b => !isLikeRecord(b));
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
+    await syncOhaBooksAladinMetadata();
     saveData();
     bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
@@ -384,7 +387,14 @@ function esc(s) {
 }
 
 function getSafeImageUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  url = url.trim();
   if (!url) return '';
+
+  // Non-HTTP relative image paths (e.g., local filenames like "스크린샷 ...png")
+  if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('data:') && !url.startsWith('blob:') && !url.startsWith('/') && !url.startsWith('attachment:')) {
+    return '';
+  }
 
   // Prepend Notion origin to relative paths (e.g., /image/... or /images/...)
   if (url.startsWith('/')) {
@@ -410,6 +420,11 @@ function getSafeImageUrl(url) {
       const s3Url = `https://s3.us-west-2.amazonaws.com/secure.notion-static.com/${blockId}/${filename}`;
       url = `https://www.notion.so/image/${encodeURIComponent(s3Url)}?table=block&id=${blockId}&cache=v2`;
     }
+  }
+
+  // Handle pstatic.net/shopping-phinf blocked by browser tracking prevention (ERR_BLOCKED_BY_CLIENT)
+  if (url.includes('pstatic.net') || url.includes('shopping-phinf')) {
+    return '';
   }
 
   return url;
@@ -7082,16 +7097,33 @@ async function syncOhaBooksAladinMetadata() {
     if (!rawData || rawData.length === 0 || !Array.isArray(books) || books.length === 0) return;
 
     const aladinMap = new Map();
+    const normalize = (t) => (t || '').replace(/[\s\-_:：·,，\(\)]/g, '').toLowerCase();
     rawData.forEach(b => {
       if (b.title) {
         aladinMap.set(b.title.trim().toLowerCase(), b);
+        aladinMap.set(normalize(b.title), b);
+      }
+      if (b.notionId) {
+        const cleanNotion = b.notionId.replace(/[^a-zA-Z0-9]/g, '').slice(0, 24);
+        aladinMap.set('notion_' + cleanNotion, b);
+      }
+      if (b.id) {
+        aladinMap.set(b.id, b);
       }
     });
 
     let changed = false;
     books.forEach(b => {
       const key = (b.title || '').trim().toLowerCase();
-      const aladinBook = aladinMap.get(key);
+      const normKey = normalize(b.title);
+      let aladinBook = aladinMap.get(key) || aladinMap.get(normKey);
+      if (!aladinBook && b.id) {
+        aladinBook = aladinMap.get(b.id);
+        if (!aladinBook && b.id.startsWith('notion_')) {
+          const prefix = b.id.split('_').slice(0, 2).join('_');
+          aladinBook = aladinMap.get(prefix);
+        }
+      }
       if (aladinBook) {
         // Check if cover is non-Aladin (e.g. shopping-phinf.pstatic.net) or spineCover missing
         const isAladinCover = b.cover && b.cover.includes('image.aladin.co.kr');
