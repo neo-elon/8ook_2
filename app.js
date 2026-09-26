@@ -1714,13 +1714,13 @@ function createBookCardElement(book, i, isSpineMode) {
   const sentence = book.sentence
     ? `<div class="ov-sentence">${esc(book.sentence)}</div>` : '';
   const kingStarBadge = book.rating === 5
-    ? `<div class="king-star-badge wax-seal-badge" title="인생작 (별점 5점)">
+    ? `<div class="king-star-badge wax-seal-badge">
         <div class="wax-seal-core">
           <span class="wax-seal-num">5</span><span class="wax-seal-star">★</span>
         </div>
       </div>` : '';
   const spineWaxSeal = book.rating === 5
-    ? `<div class="spine-wax-seal" title="인생작 (별점 5점)">
+    ? `<div class="spine-wax-seal">
         <div class="wax-seal-core">
           <span class="wax-seal-num">5</span><span class="wax-seal-star">★</span>
         </div>
@@ -5000,7 +5000,7 @@ function renderScrapsArchive() {
         <div class="scrap-card-header">
           ${coverHtml}
           <div class="scrap-card-meta">
-            <div class="scrap-card-title" onclick="showDetail('${book.id}')" title="도서 상세 보기">${esc(bookMainTitle)}</div>
+            <div class="scrap-card-title" onclick="showDetail('${book.id}')">${esc(bookMainTitle)}</div>
             <div class="scrap-card-sub">
               <span>${esc(book.author || '저자 미상')}</span>
               ${scrap.page ? `<span>• p.${scrap.page}</span>` : ''}
@@ -8058,7 +8058,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
 
   const kwList = Array.isArray(b.keywords) ? b.keywords.slice(0, 3) : [];
   const keywordsHtml = kwList.length > 0
-    ? `<div class="comm-book-keywords">${kwList.map(k => `<span class="comm-book-kw-tag" onclick="showDetail('${esc(bid)}')" title="#${esc(k)}">#${esc(k)}</span>`).join('')}</div>`
+    ? `<div class="comm-book-keywords">${kwList.map(k => `<span class="comm-book-kw-tag" onclick="showDetail('${esc(bid)}')">#${esc(k)}</span>`).join('')}</div>`
     : '';
 
   const reviewHtml = (b.review && b.review.trim())
@@ -8076,13 +8076,13 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
     <div class="comm-book-card" id="comm-bk-${esc(bid)}">
       ${coverHtml}
       <div class="comm-book-info">
-        <div class="comm-book-title" onclick="showDetail('${esc(bid)}')" title="${esc(mainTitle)}">${esc(mainTitle)}</div>
+        <div class="comm-book-title" onclick="showDetail('${esc(bid)}')">${esc(mainTitle)}</div>
         <div class="comm-book-author">${esc(b.author)}</div>
         ${ratingHtml}
         ${keywordsHtml}
         ${reviewHtml}
         <div class="comm-book-meta">
-          <span class="comm-book-time" title="${esc(b.timeTooltip || (b.date ? `완독일: ${b.date}` : (b.time || '')))}">${esc(b.time || '')}</span>
+          <span class="comm-book-time">${esc(b.time || '')}</span>
           <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
             <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
           </button>
@@ -8460,7 +8460,7 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
     : `<div class="comm-book-cover-placeholder">8ook</div>`;
 
   const ratingHtml = (b.rating && Number(b.rating) > 0)
-    ? `<div class="comm-book-rating" title="평균 별점 ${Number(b.rating).toFixed(1)}점">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">평균 ${Number(b.rating).toFixed(1)}</span></div>`
+    ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">평균 ${Number(b.rating).toFixed(1)}</span></div>`
     : '';
 
   const kwList = Array.isArray(b.keywords) ? b.keywords : [];
@@ -8472,7 +8472,7 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
         const badgeHtml = isMulti ? `<span class="comm-kw-count">${count}</span>` : '';
         const cls = isMulti ? 'comm-book-kw-tag is-highlighted' : 'comm-book-kw-tag';
         const titleText = isMulti ? `#${text} (${count}명의 독서가가 함께 꼽은 키워드)` : `#${text}`;
-        return `<span class="${cls}" title="${esc(titleText)}">#${esc(text)}${badgeHtml}</span>`;
+        return `<span class="${cls}">#${esc(text)}${badgeHtml}</span>`;
       }).join('')}</div>`
     : '';
 
@@ -8493,7 +8493,7 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
       ${coverHtml}
       <div class="comm-book-info">
         <div class="comm-shelved-badge">🔖 ${b.shelvedCount}명의 선택</div>
-        <div class="comm-book-title" title="${esc(b.title)}">${esc(b.title)}</div>
+        <div class="comm-book-title">${esc(b.title)}</div>
         <div class="comm-book-author">${esc(b.author)}</div>
         ${ratingHtml}
         ${keywordsHtml}
@@ -8835,7 +8835,7 @@ function renderCommunityScraps() {
         <div class="comm-scrap-header">
           ${coverHtml}
           <div class="comm-scrap-meta">
-            <div class="comm-scrap-title" ${clickDetail} title="도서 상세 보기">${esc(mainTitle)}</div>
+            <div class="comm-scrap-title" ${clickDetail}>${esc(mainTitle)}</div>
             <div class="comm-scrap-sub">
               <span>${esc(s.author || '저자 미상')}</span>
               ${s.page ? `<span>• p.${s.page}</span>` : ''}
