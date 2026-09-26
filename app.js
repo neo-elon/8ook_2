@@ -4609,34 +4609,6 @@ function fixSmartQuotes(el) {
   }
 }
 
-function wrapSelectedQuoteInScrap(openQ = '“', closeQ = '”') {
-  const el = document.getElementById('sc-text');
-  if (!el) return;
-  el.focus();
-  const start = el.selectionStart;
-  const end = el.selectionEnd;
-  const val = el.value;
-
-  if (start !== end) {
-    const selected = val.slice(start, end);
-    if (selected.startsWith(openQ) && selected.endsWith(closeQ) && selected.length >= 2) {
-      const unwrapped = selected.slice(1, -1);
-      el.value = val.slice(0, start) + unwrapped + val.slice(end);
-      el.setSelectionRange(start, start + unwrapped.length);
-    } else {
-      const wrapped = openQ + selected + closeQ;
-      el.value = val.slice(0, start) + wrapped + val.slice(end);
-      el.setSelectionRange(start, start + wrapped.length);
-    }
-  } else {
-    el.value = val.slice(0, start) + openQ + closeQ + val.slice(end);
-    el.setSelectionRange(start + 1, start + 1);
-  }
-  if (typeof updateRecommendedHashtags === 'function') {
-    updateRecommendedHashtags();
-  }
-}
-
 // 안전한 blur 시점에 이벤트 위임으로 따옴표 교정 적용
 document.addEventListener('blur', function (e) {
   const target = e.target;
