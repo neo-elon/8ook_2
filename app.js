@@ -334,6 +334,7 @@ async function loadData() {
     fetchCommunityLikes();
     initCommunityLikesChannel();
   }
+  checkOhaImportPrompt();
 }
 function showDbSetupModal() {
   document.getElementById('db-sql-code').value = DB_SQL_SCRIPT;
@@ -6849,6 +6850,8 @@ function updateAuthUI(session) {
   const headerChip = document.getElementById('header-user-chip');
   const googleLoginBtn = document.getElementById('header-google-login-btn');
 
+  const ohaMenuItem = document.getElementById('oha-import-menu-item');
+
   if (session && session.user) {
     currentUser = session.user;
     if (loggedInDiv) loggedInDiv.style.display = 'block';
@@ -6859,6 +6862,9 @@ function updateAuthUI(session) {
     if (shortUsernameSpan) shortUsernameSpan.textContent = fullName.split(' ')[0] || fullName;
     if (headerChip) headerChip.style.display = 'inline-flex';
     if (googleLoginBtn) googleLoginBtn.style.display = 'none';
+
+    const isOhaUser = session.user.email && session.user.email.toLowerCase().trim() === 'thejs2050@gmail.com';
+    if (ohaMenuItem) ohaMenuItem.style.display = isOhaUser ? 'flex' : 'none';
   } else {
     currentUser = null;
     if (loggedInDiv) loggedInDiv.style.display = 'none';
@@ -6866,6 +6872,7 @@ function updateAuthUI(session) {
     if (usernameSpan) usernameSpan.textContent = '';
     if (headerChip) headerChip.style.display = 'none';
     if (googleLoginBtn) googleLoginBtn.style.display = 'inline-flex';
+    if (ohaMenuItem) ohaMenuItem.style.display = 'none';
   }
 }
 
@@ -6916,6 +6923,102 @@ if (supabaseClient) {
       });
     }
   });
+}
+
+/* ==============================================
+   OHA (thejs2050@gmail.com) NOTION IMPORT LOGIC
+============================================== */
+function checkOhaImportPrompt() {
+  if (!currentUser) return;
+  const email = (currentUser.email || '').toLowerCase().trim();
+  if (email !== 'thejs2050@gmail.com') return;
+
+  // Check if books already imported into current user's library
+  const alreadyImported = books.some(b => b.id && (b.id.includes('2da8775c') || (b.title === '편안함의 습격' && b.date === '2025-12-30')));
+  if (alreadyImported) {
+    console.log('[Oha Import] Books already present in user library.');
+    return;
+  }
+
+  // Avoid showing repeatedly in the same session
+  if (sessionStorage.getItem('oha_modal_shown_session')) return;
+  sessionStorage.setItem('oha_modal_shown_session', '1');
+
+  // Display prompt modal smoothly after view rendering
+  setTimeout(() => {
+    openModal('oha-import-modal');
+  }, 800);
+}
+
+async function executeOhaDataImport() {
+  if (!currentUser) {
+    toast('로그인이 필요합니다.');
+    return;
+  }
+  const btn = document.getElementById('oha-import-btn');
+  const originalHtml = btn ? btn.innerHTML : '지금 가져오기';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>가져오는 중...</span>';
+  }
+
+  try {
+    const rawData = (typeof window !== 'undefined' && window.OHA_BOOKS_SCRAPED) || [];
+    if (!rawData || rawData.length === 0) {
+      toast('가져올 노션 완독 도서 데이터가 없습니다.');
+      return;
+    }
+
+    // Format books with user's id
+    const booksToImport = rawData.map(b => {
+      const uniqueId = 'notion_' + (b.notionId || b.id || uid()).replace(/[^a-zA-Z0-9]/g, '').slice(0, 24) + '_' + currentUser.id;
+      return {
+        ...b,
+        id: uniqueId,
+        user_id: currentUser.id
+      };
+    });
+
+    // 1. Persist to Supabase if connected
+    if (supabaseClient && currentUser.id) {
+      const payload = booksToImport.map(b => sanitizeBookForSupabase(b));
+      let { error: syncError } = await supabaseClient
+        .from('books')
+        .upsert(payload, { onConflict: 'id' });
+
+      if (syncError && handleSupabaseSchemaError(syncError)) {
+        const safePayload = booksToImport.map(b => sanitizeBookForSupabase(b));
+        const res = await supabaseClient
+          .from('books')
+          .upsert(safePayload, { onConflict: 'id' });
+        syncError = res.error;
+      }
+      if (syncError) {
+        console.warn('[Oha Import] Supabase upsert error:', syncError);
+      }
+    }
+
+    // 2. Merge into active memory & local storage
+    const existingIds = new Set(books.map(b => b.id));
+    const newItems = booksToImport.filter(b => !existingIds.has(b.id));
+    books = [...newItems, ...books];
+    books.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+    saveData();
+    closeModal('oha-import-modal');
+    renderGallery();
+    updateSidebar();
+
+    toast(`🎉 2025년 완독 도서 ${newItems.length}권을 성공적으로 가져왔습니다!`, 4000);
+  } catch (err) {
+    console.error('[Oha Import] Execution failed:', err);
+    toast('도서 데이터를 가져오는 중 오류가 발생했습니다.');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
+  }
 }
 
 /* ==============================================

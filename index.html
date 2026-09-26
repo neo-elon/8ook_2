@@ -143,6 +143,14 @@
         </div>
       </button>
 
+      <button id="oha-import-menu-item" class="menu-nav-item" onclick="openModal('oha-import-modal'); closeAppMenu();" style="display:none;">
+        <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">★</span>
+        <div class="menu-nav-text">
+          <span class="menu-nav-title">노션 완독책장 가져오기</span>
+          <span class="menu-nav-desc">2025년 완독 도서 25권 복원</span>
+        </div>
+      </button>
+
       <button class="menu-nav-item" onclick="openUserGuide(); closeAppMenu();">
         <span class="menu-nav-icon" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:var(--lavender);">06</span>
         <div class="menu-nav-text">
@@ -808,7 +816,52 @@
   </div>
 </div>
 
+<!-- Notion Data Import Modal for thejs2050@gmail.com -->
+<div class="modal-bg" id="oha-import-modal" role="dialog" aria-modal="true" style="z-index: 2100;">
+  <div class="modal-box" style="max-width: 480px; text-align: left;">
+    <div class="modal-hdr">
+      <div class="modal-ttl" style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 20px;">📚</span> 이전 완독책장 데이터 가져오기
+      </div>
+      <button class="modal-x" onclick="closeModal('oha-import-modal')" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+      <div style="background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px;">
+        <div style="font-size: 15px; font-weight: 700; color: var(--text-100); margin-bottom: 6px;">
+          안녕하세요, 오하 님!
+        </div>
+        <p style="font-size: 13px; color: var(--text-200); line-height: 1.6; margin: 0;">
+          노션 완독책장에 기록해두셨던 <strong style="color:var(--text-100);">2025년 완독 도서 25권</strong>의 데이터(책 표지, 완독일, 서평 링크, 나만의 한 문장)를 준비해두었습니다. 지금 책장으로 가져오시겠습니까?
+        </p>
+      </div>
 
+      <div style="background: rgba(140, 98, 57, 0.06); border: 1px dashed rgba(140, 98, 57, 0.3); border-radius: var(--radius-md); padding: 14px;">
+        <div style="font-size: 12px; font-weight: 700; color: var(--text-200); margin-bottom: 8px; display:flex; justify-content:space-between;">
+          <span>가져올 완독 도서 내역</span>
+          <span style="color:var(--violet); font-weight:800;">총 25권</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; font-size: 12px; color: var(--text-300);">
+          <div>• 2025년 12월: <strong>6권</strong></div>
+          <div>• 2025년 11월: <strong>4권</strong></div>
+          <div>• 2025년 10월: <strong>2권</strong></div>
+          <div>• 2025년 9월: <strong>4권</strong></div>
+          <div>• 2025년 8월: <strong>4권</strong></div>
+          <div>• 2025년 7월: <strong>5권</strong></div>
+        </div>
+      </div>
+
+      <p style="font-size: 12px; color: var(--text-300); margin: 0; line-height: 1.5;">
+        ※ [지금 가져오기]를 누르시면 8ook 책장과 Supabase 클라우드에 즉시 동기화되어 이전 독서 기록을 한눈에 보실 수 있습니다.
+      </p>
+    </div>
+    <div class="modal-foot" style="display:flex; justify-content:flex-end; gap:8px;">
+      <button class="btn btn-ghost" onclick="closeModal('oha-import-modal')" style="font-size:13px;">나중에 하기</button>
+      <button class="btn btn-primary" id="oha-import-btn" onclick="executeOhaDataImport()" style="font-size:13px; font-weight:700; background:linear-gradient(135deg, #a855f7, #6366f1); border:none; color:#fff; padding:8px 18px; border-radius:var(--radius-md); display:flex; align-items:center; gap:6px;">
+        <span>지금 가져오기</span>
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- Supabase JS -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -818,6 +871,8 @@
 <script src="https://cdn.jsdelivr.net/npm/zxing-wasm@latest/dist/iife/reader/index.js"></script>
 <!-- All Users Community Dataset -->
 <script src="neo_books_131.js" defer></script>
+<!-- Scraped Notion Dataset for thejs2050@gmail.com (오하) -->
+<script src="oha_books_scraped.js" defer></script>
 
   <script src="app.js?v=20260918_tag_learning_v78" defer></script>
 </body>
