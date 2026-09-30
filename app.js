@@ -207,6 +207,11 @@ function isCommentRecord(book) {
   return book.title === '__comment__' || (typeof book.id === 'string' && book.id.startsWith('cmt_'));
 }
 
+function isProfileRecord(book) {
+  if (!book) return false;
+  return book.title === '__profile__' || (typeof book.id === 'string' && book.id.startsWith('prof_'));
+}
+
 function isGuideBook(book) {
   if (!book) return false;
   return book.id === '8ook_user_guide' ||
@@ -295,10 +300,10 @@ function saveData() {
   try {
     if (currentUser) {
       // 로그인 사용자 로컬 저장소 (오하 본인은 자신의 전체 서재 저장, 타인은 가이드북/좋아요 제외)
-      const userBooks = books.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isOhaImportedBook(b));
+      const userBooks = books.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b) && !isOhaImportedBook(b));
       localStorage.setItem(`rj_books_${currentUser.id}`, JSON.stringify(userBooks));
     } else {
-      const guestBooks = books.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isOhaImportedBook(b));
+      const guestBooks = books.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b) && !isOhaImportedBook(b));
       localStorage.setItem('rj_books', JSON.stringify(guestBooks));
     }
   } catch (e) { }
@@ -314,7 +319,7 @@ async function loadData() {
   } catch (e) { }
 
   // 1. 로컬 저장소에서 가이드북, 좋아요 레코드, 오하 가져오기 도서 제외
-  localBooks = localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isOhaImportedBook(b));
+  localBooks = localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b) && !isOhaImportedBook(b));
 
   // 로컬 스토리지에 남아있던 오하 도서 즉시 청소
   try {
@@ -399,7 +404,7 @@ async function loadData() {
     }
 
     const rawRemoteBooks = data || [];
-    const remoteBooks = rawRemoteBooks.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isOhaImportedBook(b));
+    const remoteBooks = rawRemoteBooks.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b) && !isOhaImportedBook(b));
     if (remoteBooks.length > 0 && 'spineCover' in remoteBooks[0]) {
       dbSupportsSpineCover = true;
     }
@@ -410,7 +415,7 @@ async function loadData() {
     if (guestBooksStr) {
       try { guestBooks = JSON.parse(guestBooksStr); } catch (e) { }
     }
-    const userGuestBooks = guestBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isOhaImportedBook(b));
+    const userGuestBooks = guestBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b) && !isOhaImportedBook(b));
 
     if (remoteBooks.length === 0 && userGuestBooks.length > 0) {
       const booksToUpload = userGuestBooks.map(b => {
@@ -567,7 +572,7 @@ async function loadData() {
     initCommunityLikesChannel();
   } catch (e) {
     console.error('Supabase load error, using local storage backup:', e);
-    books = (currentUser ? localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b)) : localBooks.filter(b => !isLikeRecord(b) && !isCommentRecord(b))).filter(b => !isOhaImportedBook(b));
+    books = (currentUser ? localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b)) : localBooks.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b))).filter(b => !isOhaImportedBook(b));
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
@@ -7520,7 +7525,11 @@ function syncNicknameUI() {
   }
 }
 
-function openNicknameModal() {
+function openNicknameModal(event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
   syncNicknameUI();
   const inputEl = document.getElementById('nick-modal-input');
   const hintEl = document.getElementById('nick-modal-hint');
@@ -7628,6 +7637,356 @@ async function submitNicknameChange() {
   if (typeof renderCommunityBooks === 'function') renderCommunityBooks();
   if (typeof renderCommunityScraps === 'function') renderCommunityScraps();
 }
+
+/* ==============================================
+   USER PROFILE & 3 REPRESENTATIVE BOOKS (프로필 & 나를 나타내는 책 3권)
+============================================== */
+let currentProfileTarget = null; // { nickname, userId, isMe }
+let currentEditingRepSlot = null; // 0, 1, 2
+const communityRepBooksMap = new Map(); // nickname -> [book1, book2, book3]
+
+function getUserRepBooksStorageKey(nickname, userId) {
+  const normNick = String(nickname || '').trim().replace(/^@/, '');
+  return '8ook_rep_books_' + (userId || normNick);
+}
+
+function getUserRepBooks(nickname, userId) {
+  const normNick = String(nickname || '').trim().replace(/^@/, '');
+  const isMe = (currentUser && userId === currentUser.id) || normNick === getUserNickname();
+
+  // 1. Try local storage
+  try {
+    const key = getUserRepBooksStorageKey(normNick, userId);
+    const raw = localStorage.getItem(key);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.slice(0, 3);
+      }
+    }
+  } catch (e) {}
+
+  // 2. Try in-memory community map
+  if (communityRepBooksMap.has(normNick)) {
+    return communityRepBooksMap.get(normNick).slice(0, 3);
+  }
+  if (userId && communityRepBooksMap.has(userId)) {
+    return communityRepBooksMap.get(userId).slice(0, 3);
+  }
+
+  // 3. Fallback: generate default 3 books from the user's library
+  let candidateBooks = [];
+  if (isMe) {
+    candidateBooks = (Array.isArray(books) ? books : []).filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
+  } else {
+    const all = getAllCommunityBooks();
+    candidateBooks = all.filter(b => {
+      const bNick = b.nickname || (b._ownerId && resolveCommunityBookOwner(b, b._source));
+      return bNick === normNick || b.user_id === userId;
+    });
+  }
+
+  // Prioritize books with cover image and high rating
+  const sorted = [...candidateBooks].sort((a, b) => {
+    const aHasCover = (a.cover && !a.cover.includes('data:image/svg')) ? 1 : 0;
+    const bHasCover = (b.cover && !b.cover.includes('data:image/svg')) ? 1 : 0;
+    if (bHasCover !== aHasCover) return bHasCover - aHasCover;
+    return (parseFloat(b.rating) || 0) - (parseFloat(a.rating) || 0);
+  });
+
+  const repList = sorted.slice(0, 3).map(b => ({
+    id: b.id,
+    title: b.title,
+    cover: b.cover || '',
+    author: b.author || ''
+  }));
+
+  // Cache for future lookups
+  communityRepBooksMap.set(normNick, repList);
+  if (userId) communityRepBooksMap.set(userId, repList);
+  if (isMe && repList.length > 0) {
+    try {
+      localStorage.setItem(getUserRepBooksStorageKey(normNick, userId), JSON.stringify(repList));
+    } catch (e) {}
+  }
+
+  return repList;
+}
+
+function openUserProfileCard(rawNickname, rawUserId, event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  const cleanNick = String(rawNickname || '').trim().replace(/^@/, '');
+  if (!cleanNick) return;
+
+  const myNick = getUserNickname();
+  const isMe = cleanNick === myNick || (currentUser && rawUserId === currentUser.id);
+  const userId = isMe && currentUser ? currentUser.id : rawUserId;
+
+  currentProfileTarget = { nickname: cleanNick, userId, isMe };
+
+  // Set modal texts
+  const nickEl = document.getElementById('prof-card-nick');
+  if (nickEl) nickEl.textContent = '@' + cleanNick;
+
+  const myBadgeEl = document.getElementById('prof-card-my-badge');
+  if (myBadgeEl) myBadgeEl.style.display = isMe ? 'inline-block' : 'none';
+
+  const subtitleEl = document.getElementById('prof-card-subtitle');
+  if (subtitleEl) subtitleEl.textContent = isMe ? '나의 독서 프로필' : '8ook 북클럽 독서가';
+
+  const titleEl = document.getElementById('prof-card-modal-title');
+  if (titleEl) titleEl.textContent = isMe ? '나의 독서 프로필' : `${cleanNick}님의 프로필`;
+
+  const editHintEl = document.getElementById('prof-rep-edit-hint');
+  if (editHintEl) editHintEl.style.display = isMe ? 'inline-block' : 'none';
+
+  const editBtn = document.getElementById('prof-card-edit-btn');
+  if (editBtn) editBtn.style.display = isMe ? 'inline-block' : 'none';
+
+  // Calculate statistics
+  let userBooks = [];
+  let userScrapsCount = 0;
+  if (isMe) {
+    userBooks = (Array.isArray(books) ? books : []).filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
+    userBooks.forEach(b => {
+      if (b.scraps && Array.isArray(b.scraps)) userScrapsCount += b.scraps.length;
+    });
+  } else {
+    const all = getAllCommunityBooks();
+    userBooks = all.filter(b => {
+      const bNick = b.nickname || (b._ownerId && resolveCommunityBookOwner(b, b._source));
+      return bNick === cleanNick || b.user_id === userId;
+    });
+    userBooks.forEach(b => {
+      if (b.scraps && Array.isArray(b.scraps)) userScrapsCount += b.scraps.length;
+    });
+  }
+
+  const booksCountEl = document.getElementById('prof-stat-books-count');
+  if (booksCountEl) booksCountEl.textContent = String(userBooks.length) + '권';
+
+  const scrapsCountEl = document.getElementById('prof-stat-scraps-count');
+  if (scrapsCountEl) scrapsCountEl.textContent = String(userScrapsCount) + '개';
+
+  // Render 3 Representative Books
+  renderProfileRepBooksGrid();
+
+  // Close picker if open
+  closeProfileBookPicker();
+
+  openModal('user-profile-modal');
+}
+
+function renderProfileRepBooksGrid() {
+  const container = document.getElementById('prof-rep-books-grid');
+  if (!container || !currentProfileTarget) return;
+
+  const { nickname, userId, isMe } = currentProfileTarget;
+  const repList = getUserRepBooks(nickname, userId);
+
+  let html = '';
+  for (let i = 0; i < 3; i++) {
+    const b = repList[i];
+    if (b && b.title) {
+      const coverUrl = b.cover || '';
+      const hasCover = coverUrl && !coverUrl.includes('data:image/svg');
+      const clickAction = isMe ? `onclick="openProfileBookPicker(${i})"` : `onclick="handleProfileBookClick('${esc(b.id)}')"` ;
+      const cursorTitle = isMe ? '클릭하여 책 변경' : `${esc(b.title)} 상세보기`;
+
+      html += `
+        <div class="profile-rep-slot" ${clickAction} title="${cursorTitle}">
+          <span class="profile-rep-slot-badge">${i + 1}</span>
+          <div class="profile-rep-cover-wrap">
+            ${hasCover
+              ? `<img src="${esc(coverUrl)}" class="profile-rep-cover-img" alt="${esc(b.title)}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'80\\' height=\\'120\\' viewBox=\\'0 0 80 120\\'><rect width=\\'80\\' height=\\'120\\' fill=\\'%23e8ded5\\'/><text x=\\'50%\\' y=\\'50%\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' fill=\\'%238c6239\\' font-size=\\'11\\' font-weight=\\'bold\\'>8ook</text></svg>';">`
+              : `<div class="profile-rep-slot-empty"><span class="profile-rep-slot-empty-icon">📖</span><span class="profile-rep-slot-empty-text">8ook</span></div>`
+            }
+            ${isMe ? `<div class="profile-rep-slot-edit-overlay"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 변경</div>` : ''}
+          </div>
+          <div class="profile-rep-slot-title">${esc(b.title)}</div>
+        </div>
+      `;
+    } else {
+      // Empty slot
+      const clickAction = isMe ? `onclick="openProfileBookPicker(${i})"` : '';
+      const cursorTitle = isMe ? '클릭하여 대표 책 추가' : '등록된 책 없음';
+      html += `
+        <div class="profile-rep-slot" ${clickAction} title="${cursorTitle}">
+          <span class="profile-rep-slot-badge">${i + 1}</span>
+          <div class="profile-rep-cover-wrap profile-rep-slot-empty">
+            <span class="profile-rep-slot-empty-icon">${isMe ? '+' : '📖'}</span>
+            <span class="profile-rep-slot-empty-text">${isMe ? '책 선택' : '미등록'}</span>
+          </div>
+          <div class="profile-rep-slot-title" style="color:var(--text-400); font-weight:normal;">${isMe ? '대표 책 등록' : '-'}</div>
+        </div>
+      `;
+    }
+  }
+  container.innerHTML = html;
+}
+
+function handleProfileBookClick(bookId) {
+  if (!bookId) return;
+  closeModal('user-profile-modal');
+  if (typeof showDetail === 'function') {
+    showDetail(bookId);
+  }
+}
+
+function startEditProfileRepBooks() {
+  openProfileBookPicker(0);
+}
+
+function openProfileBookPicker(slotIndex) {
+  if (!currentProfileTarget || !currentProfileTarget.isMe) return;
+  currentEditingRepSlot = slotIndex;
+
+  const wrap = document.getElementById('prof-book-picker-wrap');
+  if (!wrap) return;
+  wrap.style.display = 'block';
+
+  const titleEl = document.getElementById('prof-picker-slot-title');
+  if (titleEl) titleEl.textContent = `${slotIndex + 1}번 대표 책 선택`;
+
+  const searchInput = document.getElementById('prof-picker-search-input');
+  if (searchInput) {
+    searchInput.value = '';
+    searchInput.focus();
+  }
+
+  filterProfileBookPicker();
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeProfileBookPicker() {
+  currentEditingRepSlot = null;
+  const wrap = document.getElementById('prof-book-picker-wrap');
+  if (wrap) wrap.style.display = 'none';
+}
+
+function filterProfileBookPicker() {
+  const listEl = document.getElementById('prof-picker-list');
+  if (!listEl) return;
+
+  const searchInput = document.getElementById('prof-picker-search-input');
+  const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+
+  const userBooks = (Array.isArray(books) ? books : []).filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
+
+  const filtered = userBooks.filter(b => {
+    if (!query) return true;
+    const t = (b.title || '').toLowerCase();
+    const a = (b.author || '').toLowerCase();
+    return t.includes(query) || a.includes(query);
+  });
+
+  if (filtered.length === 0) {
+    listEl.innerHTML = `<div style="padding:16px; text-align:center; font-size:12px; color:var(--text-400);">검색 결과가 없습니다.</div>`;
+    return;
+  }
+
+  listEl.innerHTML = filtered.map(b => {
+    const coverUrl = b.cover || '';
+    const hasCover = coverUrl && !coverUrl.includes('data:image/svg');
+    return `
+      <div class="profile-picker-item" onclick="selectRepBookForSlot(${currentEditingRepSlot}, '${esc(b.id)}')">
+        ${hasCover
+          ? `<img src="${esc(coverUrl)}" class="profile-picker-thumb" referrerpolicy="no-referrer" alt="" onerror="this.style.display='none';">`
+          : `<div class="profile-picker-thumb" style="display:flex; align-items:center; justify-content:center; background:rgba(140,98,57,0.1); font-size:9px; color:var(--text-400);">8ook</div>`
+        }
+        <div class="profile-picker-item-info">
+          <span class="profile-picker-item-title">${esc(b.title)}</span>
+          <span class="profile-picker-item-author">${esc(b.author || '저자 미상')} ${b.rating ? `• ★${b.rating}` : ''}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function selectRepBookForSlot(slotIndex, bookId) {
+  if (slotIndex === null || slotIndex === undefined) slotIndex = 0;
+  if (!currentProfileTarget || !currentProfileTarget.isMe) return;
+
+  const b = (Array.isArray(books) ? books : []).find(item => item.id === bookId);
+  if (!b) return;
+
+  const { nickname, userId } = currentProfileTarget;
+  const repList = getUserRepBooks(nickname, userId);
+
+  repList[slotIndex] = {
+    id: b.id,
+    title: b.title,
+    cover: b.cover || '',
+    author: b.author || ''
+  };
+
+  // 1. Save locally
+  const key = getUserRepBooksStorageKey(nickname, userId);
+  try {
+    localStorage.setItem(key, JSON.stringify(repList));
+  } catch (e) {}
+  communityRepBooksMap.set(nickname, repList);
+  if (userId) communityRepBooksMap.set(userId, repList);
+
+  // 2. Update UI
+  renderProfileRepBooksGrid();
+  closeProfileBookPicker();
+  toast(`"${b.title}" 이(가) ${slotIndex + 1}번 대표 도서로 등록되었습니다 📚`);
+
+  // 3. Sync to Supabase Cloud
+  if (currentUser && supabaseClient) {
+    try {
+      await supabaseClient.auth.updateUser({
+        data: { rep_books: repList }
+      });
+
+      await supabaseClient.from('books').upsert({
+        id: 'prof_' + currentUser.id,
+        user_id: currentUser.id,
+        title: '__profile__',
+        author: nickname,
+        sentence: JSON.stringify(repList),
+        keywords: [nickname],
+        created_at: new Date().toISOString(),
+        is_public: true
+      });
+    } catch (err) {
+      console.warn('[Profile Sync] Error:', err);
+    }
+  }
+}
+
+async function fetchCommunityProfiles() {
+  if (!supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient
+      .from('books')
+      .select('id, user_id, author, sentence, keywords')
+      .eq('title', '__profile__');
+
+    if (!error && Array.isArray(data)) {
+      data.forEach(row => {
+        if (!row.author || !row.sentence) return;
+        try {
+          const parsed = JSON.parse(row.sentence);
+          if (Array.isArray(parsed)) {
+            communityRepBooksMap.set(row.author, parsed);
+            if (row.user_id) {
+              communityRepBooksMap.set(row.user_id, parsed);
+            }
+          }
+        } catch (e) {}
+      });
+    }
+  } catch (e) {
+    console.warn('Failed to fetch community profiles:', e);
+  }
+}
+
+window.openUserProfileCard = openUserProfileCard;
 
 // 일관된 6자리 닉네임 매핑 함수
 function hashStringToNickname(str) {
@@ -7931,7 +8290,7 @@ function getAllCommunityBooks() {
 
   function processBook(b, source) {
     // 실제 등록 사용자가 없는 원격 테스트/더미 도서 제외 (오하의 직접 입력 도서와 노션 가져오기 도서는 모두 단일 서재로 통합)
-    if (!b || isGuideBook(b) || !b.title || isLikeRecord(b) || isCommentRecord(b) || b.is_public === false || (source === 'remote' && !b.user_id)) return;
+    if (!b || isGuideBook(b) || !b.title || isLikeRecord(b) || isCommentRecord(b) || isProfileRecord(b) || b.is_public === false || (source === 'remote' && !b.user_id)) return;
     const ownerId = resolveCommunityBookOwner(b, source);
     const normTitle = getBookGroupingKey(b);
     if (!normTitle) return;
@@ -8036,7 +8395,8 @@ async function showCommunity(pushHistory = true) {
   await Promise.all([
     fetchRemoteCommunityBooks(),
     fetchCommunityLikes(),
-    fetchCommunityComments()
+    fetchCommunityComments(),
+    fetchCommunityProfiles()
   ]);
   initCommunityLikesChannel();
   initCommunityCommentsChannel();
@@ -8285,7 +8645,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
         ${coverHtml}
         <div class="comm-book-info">
           <div class="comm-book-user-bar">
-            <span class="comm-book-user"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span></span>
+            <span class="comm-book-user" onclick="openUserProfileCard('${esc(ownerNick)}', '${esc(b.user_id || b._ownerId || '')}', event)" style="cursor: pointer;" title="${esc(ownerNick)}님의 프로필 보기"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span></span>
             ${isMe ? '<span class="comm-my-badge">나</span>' : ''}
           </div>
           <div class="comm-book-title" onclick="showDetail('${esc(bid)}')">${esc(mainTitle)}</div>
@@ -8813,7 +9173,7 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
   const readersHtml = (Array.isArray(b.readers) && b.readers.length > 0)
     ? `<div class="comm-book-user-bar comm-popular-user-bar">
         ${b.readers.map(r => `
-          <span class="comm-book-user"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(r.nickname)}</span>${r.isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>
+          <span class="comm-book-user" onclick="openUserProfileCard('${esc(r.nickname)}', '${esc(r.userId || '')}', event)" style="cursor: pointer;" title="${esc(r.nickname)}님의 프로필 보기"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(r.nickname)}</span>${r.isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>
         `).join('')}
       </div>`
     : `<div class="comm-shelved-badge">🔖 ${b.shelvedCount}명의 선택</div>`;
@@ -9199,7 +9559,7 @@ function renderCommentsListHtml(bookId, comments) {
             <div class="comm-reply-item${isMyReply ? ' my-comment' : ''}" id="cmt-item-${esc(r.id)}">
               <div class="comm-comment-meta-row">
                 <span class="comm-reply-branch">↳</span>
-                <span class="comm-comment-author"><span class="comm-user-at">@</span>${esc(r.nickname || '독서가')}</span>
+                <span class="comm-comment-author" onclick="openUserProfileCard('${esc(r.nickname || '독서가')}', '${esc(r.userId || '')}', event)" style="cursor: pointer;" title="${esc(r.nickname || '독서가')}님의 프로필 보기"><span class="comm-user-at">@</span>${esc(r.nickname || '독서가')}</span>
                 ${isMyReply ? '<span class="comm-my-badge" style="font-size:9px; padding:1px 4.5px; line-height:1.2;">나</span>' : ''}
                 <span class="comm-comment-time">${esc(formatTimeAgo(r.createdAt))}</span>
                 <button type="button" class="comm-reply-toggle-btn" onclick="toggleReplyInput('${esc(c.id)}', '${esc(bookId)}', '${esc(r.nickname)}')" title="답글 달기">답글</button>
@@ -9217,7 +9577,7 @@ function renderCommentsListHtml(bookId, comments) {
     return `
       <div class="comm-comment-item${isMyComment ? ' my-comment' : ''}" id="cmt-item-${esc(c.id)}">
         <div class="comm-comment-meta-row">
-          <span class="comm-comment-author"><span class="comm-user-at">@</span>${esc(c.nickname || '독서가')}</span>
+          <span class="comm-comment-author" onclick="openUserProfileCard('${esc(c.nickname || '독서가')}', '${esc(c.userId || '')}', event)" style="cursor: pointer;" title="${esc(c.nickname || '독서가')}님의 프로필 보기"><span class="comm-user-at">@</span>${esc(c.nickname || '독서가')}</span>
           ${isMyComment ? '<span class="comm-my-badge" style="font-size:9px; padding:1px 4.5px; line-height:1.2;">나</span>' : ''}
           <span class="comm-comment-time">${esc(formatTimeAgo(c.createdAt))}</span>
           <button type="button" class="comm-reply-toggle-btn" onclick="toggleReplyInput('${esc(c.id)}', '${esc(bookId)}', '${esc(c.nickname)}')" title="답글 달기">답글</button>
@@ -9670,7 +10030,7 @@ function renderCommunityScraps() {
           ${coverHtml}
           <div class="comm-scrap-meta">
             <div class="comm-scrap-user-bar">
-              <span class="comm-scrap-owner-wrap"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span>${isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>
+              <span class="comm-scrap-owner-wrap" onclick="openUserProfileCard('${esc(ownerNick)}', '${esc(s.user_id || s._ownerId || '')}', event)" style="cursor: pointer;" title="${esc(ownerNick)}님의 프로필 보기"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span>${isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>
               ${s.time ? `<span class="comm-scrap-time">• ${esc(s.time)}</span>` : ''}
             </div>
             <div class="comm-scrap-title" ${clickDetail}>${esc(mainTitle)}</div>

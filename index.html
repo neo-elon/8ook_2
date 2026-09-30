@@ -314,10 +314,10 @@
 
         <!-- Bookclub User Profile Bar -->
         <div class="comm-user-profile-bar">
-          <div class="comm-my-profile-chip" onclick="openNicknameModal()" title="북클럽 닉네임 설정/변경">
+          <div class="comm-my-profile-chip" onclick="openUserProfileCard(getUserNickname(), (currentUser ? currentUser.id : null), event)" title="내 독서 프로필 보기">
             <span class="comm-profile-avatar">📖</span>
             <span class="comm-profile-nick"><span class="comm-profile-at">@</span><strong id="comm-my-nickname-display">...</strong></span>
-            <span class="comm-profile-edit-btn" id="comm-profile-change-btn">변경</span>
+            <span class="comm-profile-edit-btn" id="comm-profile-change-btn" onclick="openNicknameModal(event)">변경</span>
           </div>
         </div>
 
@@ -887,6 +887,79 @@
   </div>
 </div>
 
+<!-- ==================== USER PROFILE MODAL ==================== -->
+<div class="modal-bg" id="user-profile-modal" role="dialog" aria-modal="true" style="z-index: 2060;">
+  <div class="modal-box profile-card-box" style="max-width: 440px;">
+    <div class="modal-hdr profile-card-hdr">
+      <div class="modal-ttl" id="prof-card-modal-title">독서가 프로필</div>
+      <button class="modal-x" onclick="closeModal('user-profile-modal')" aria-label="닫기">×</button>
+    </div>
+    
+    <div class="modal-body profile-card-body">
+      <!-- User Profile Header Section -->
+      <div class="profile-card-user-info">
+        <div class="profile-card-avatar">📖</div>
+        <div class="profile-card-names">
+          <div class="profile-card-nick-row">
+            <span class="profile-card-nick" id="prof-card-nick">@neo_elon</span>
+            <span class="comm-my-badge" id="prof-card-my-badge" style="display:none;">나</span>
+          </div>
+          <div class="profile-card-subtitle" id="prof-card-subtitle">8ook 북클럽 독서가</div>
+        </div>
+      </div>
+
+      <!-- 3 Representative Books Section -->
+      <div class="profile-rep-books-section">
+        <div class="profile-rep-books-hdr">
+          <div class="profile-rep-books-title">
+            <span>나를 나타내는 책 3권</span>
+            <span id="prof-rep-edit-hint" class="profile-rep-edit-hint" style="display:none;">표지를 눌러 변경</span>
+          </div>
+          <span class="profile-rep-books-desc">독서 취향과 가치관을 보여주는 대표 도서</span>
+        </div>
+
+        <!-- 3 Book Covers Grid -->
+        <div class="profile-rep-books-grid" id="prof-rep-books-grid">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Book Selector Dropdown / Search Sub-panel (Only for 'My' profile when editing) -->
+      <div class="profile-book-picker-wrap" id="prof-book-picker-wrap" style="display:none;">
+        <div class="profile-picker-hdr">
+          <span id="prof-picker-slot-title">1번 대표 책 선택</span>
+          <button type="button" class="profile-picker-close-btn" onclick="closeProfileBookPicker()">✕ 닫기</button>
+        </div>
+        <div class="profile-picker-search-box">
+          <input type="text" id="prof-picker-search-input" class="fi" placeholder="내 서재 책 검색..." oninput="filterProfileBookPicker()" />
+        </div>
+        <div class="profile-picker-list" id="prof-picker-list">
+          <!-- Dynamically populated from user's books -->
+        </div>
+      </div>
+
+      <!-- Profile Stats Summary -->
+      <div class="profile-card-stats-row" id="prof-card-stats-row">
+        <div class="profile-stat-box">
+          <span class="profile-stat-val" id="prof-stat-books-count">-</span>
+          <span class="profile-stat-lbl">기록한 책</span>
+        </div>
+        <div class="profile-stat-box">
+          <span class="profile-stat-val" id="prof-stat-scraps-count">-</span>
+          <span class="profile-stat-lbl">남긴 문장</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-foot profile-card-foot">
+      <button class="btn btn-ghost" onclick="closeModal('user-profile-modal')">닫기</button>
+      <button class="btn btn-primary" id="prof-card-edit-btn" style="display:none;" onclick="startEditProfileRepBooks()">
+        대표 책 선택
+      </button>
+    </div>
+  </div>
+</div>
+
 
 
 <!-- Supabase JS -->
@@ -896,8 +969,8 @@
 <!-- Next-Gen WebAssembly Barcode Engine (ZXing-C++ compiled to WASM) -->
 <script src="https://cdn.jsdelivr.net/npm/zxing-wasm@latest/dist/iife/reader/index.js"></script>
 <!-- All Users Community Dataset -->
-<script src="neo_books_131.js?v=20261001_header_nick_v13" defer></script>
+<script src="neo_books_131.js?v=20261001_rep_books_v14" defer></script>
 
-  <script src="app.js?v=20261001_header_nick_v13" defer></script>
+  <script src="app.js?v=20261001_rep_books_v14" defer></script>
 </body>
 </html>

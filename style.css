@@ -5898,3 +5898,327 @@ body.large-text-mode .comm-my-badge {
 body.large-text-mode .nickname-curr-val {
   font-size: 17px !important;
 }
+
+/* ── 독서가 프로필 카드 (User Profile Card) ── */
+.profile-card-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-lg, 16px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
+  overflow: hidden;
+}
+.profile-card-hdr {
+  border-bottom: 1px solid var(--border);
+  padding: 14px 18px;
+}
+.profile-card-body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.profile-card-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(140, 98, 57, 0.05);
+  border: 1px solid rgba(140, 98, 57, 0.14);
+  border-radius: 12px;
+}
+body.dark-mode .profile-card-user-info {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.profile-card-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(140, 98, 57, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.profile-card-names {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.profile-card-nick-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.profile-card-nick {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-100);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.3px;
+}
+.profile-card-subtitle {
+  font-size: 11.5px;
+  color: var(--text-400);
+}
+
+/* 나를 나타내는 책 3권 섹션 */
+.profile-rep-books-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.profile-rep-books-hdr {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.profile-rep-books-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-100);
+}
+.profile-rep-edit-hint {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--terracotta);
+}
+.profile-rep-books-desc {
+  font-size: 11px;
+  color: var(--text-400);
+}
+
+/* 3권 표지 그리드 */
+.profile-rep-books-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.profile-rep-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.2s var(--ease);
+}
+.profile-rep-slot:hover {
+  transform: translateY(-3px);
+}
+.profile-rep-cover-wrap {
+  width: 100%;
+  aspect-ratio: 1 / 1.45;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  background: rgba(140, 98, 57, 0.06);
+  border: 1px solid rgba(140, 98, 57, 0.16);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s var(--ease);
+}
+.profile-rep-slot:hover .profile-rep-cover-wrap {
+  border-color: var(--violet);
+  box-shadow: 0 6px 16px rgba(140, 98, 57, 0.2);
+}
+.profile-rep-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.profile-rep-slot-empty {
+  border: 1.5px dashed rgba(140, 98, 57, 0.3);
+  background: rgba(140, 98, 57, 0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--text-400);
+}
+.profile-rep-slot-empty-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+.profile-rep-slot-empty-text {
+  font-size: 10px;
+  font-weight: 600;
+}
+.profile-rep-slot-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-200);
+  text-align: center;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+.profile-rep-slot-badge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: rgba(30, 25, 20, 0.75);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  z-index: 2;
+}
+.profile-rep-slot-edit-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  gap: 3px;
+  border-radius: 5px;
+}
+.profile-rep-slot:hover .profile-rep-slot-edit-overlay {
+  opacity: 1;
+}
+
+/* 책 선택 피커 (Book Picker) */
+.profile-book-picker-wrap {
+  border-top: 1px dashed var(--border);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: bubblePop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.profile-picker-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-100);
+}
+.profile-picker-close-btn {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: var(--text-400);
+  cursor: pointer;
+  padding: 2px 4px;
+}
+.profile-picker-close-btn:hover {
+  color: #ef4444;
+}
+.profile-picker-search-box input {
+  height: 32px;
+  font-size: 11.5px;
+  padding: 0 10px;
+}
+.profile-picker-list {
+  max-height: 180px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 4px;
+}
+.profile-picker-list::-webkit-scrollbar {
+  width: 4px;
+}
+.profile-picker-list::-webkit-scrollbar-thumb {
+  background: rgba(140, 98, 57, 0.2);
+  border-radius: 4px;
+}
+.profile-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  transition: all 0.15s;
+}
+.profile-picker-item:hover {
+  background: var(--glass-hover);
+  border-color: var(--violet);
+  transform: translateX(2px);
+}
+.profile-picker-thumb {
+  width: 26px;
+  height: 38px;
+  border-radius: 3px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.profile-picker-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+.profile-picker-item-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-100);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.profile-picker-item-author {
+  font-size: 10px;
+  color: var(--text-400);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 통계 행 */
+.profile-card-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.profile-stat-box {
+  background: rgba(140, 98, 57, 0.04);
+  border: 1px solid rgba(140, 98, 57, 0.1);
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+body.dark-mode .profile-stat-box {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.profile-stat-val {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--terracotta);
+}
+.profile-stat-lbl {
+  font-size: 10px;
+  color: var(--text-400);
+}
+
