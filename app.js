@@ -8664,7 +8664,7 @@ function renderCommunityScraps() {
 
   const myId = getClientLikeId();
 
-  container.innerHTML = list.map((s, idx) => {
+  const renderCard = (s, idx) => {
     const sid = String(s.id);
     const remoteSet = communityLikesMap.get(sid) || new Set();
     const isLiked = (currentUser && remoteSet.has(currentUser.id)) || remoteSet.has(myId) || !!storedLikes[sid];
@@ -8695,7 +8695,7 @@ function renderCommunityScraps() {
       : `<div class="comm-scrap-cover-placeholder" ${clickDetail}>8ook</div>`;
 
     return `
-      <div class="comm-scrap-card" id="csc-${esc(sid)}">
+      <div class="comm-scrap-card" id="csc-${esc(sid)}" style="order:${idx};">
         <div class="comm-scrap-header">
           ${coverHtml}
           <div class="comm-scrap-meta">
@@ -8726,7 +8726,22 @@ function renderCommunityScraps() {
         </div>
       </div>
     `;
-  }).join('');
+  };
+
+  if (list.length <= 1) {
+    container.innerHTML = list.map((s, idx) => renderCard(s, idx)).join('');
+  } else {
+    const col0 = [];
+    const col1 = [];
+    list.forEach((s, idx) => {
+      if (idx % 2 === 0) col0.push(renderCard(s, idx));
+      else col1.push(renderCard(s, idx));
+    });
+    container.innerHTML = `
+      <div class="comm-scraps-col">${col0.join('')}</div>
+      <div class="comm-scraps-col">${col1.join('')}</div>
+    `;
+  }
 }
 
 function copyCommunityQuote(text, bookTitle, author, page) {
