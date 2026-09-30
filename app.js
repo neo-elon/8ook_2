@@ -341,13 +341,13 @@ async function loadData() {
           if (typeof nb.rating === 'number' && nb.rating > 0 && eb.rating !== nb.rating) {
             eb.rating = nb.rating;
           }
-          if (nb.sentence && (!eb.sentence || (nb.sentence.length > eb.sentence.length && eb.sentence.length < 10))) {
+          if (nb.sentence && (!eb.sentence || (nb.sentence !== eb.sentence && nb.sentence.length > eb.sentence.length))) {
             eb.sentence = nb.sentence;
           }
           if (Array.isArray(nb.keywords) && nb.keywords.length > 0 && (!eb.keywords || eb.keywords.length === 0)) {
             eb.keywords = nb.keywords;
           }
-          if (Array.isArray(nb.scraps) && nb.scraps.length > 0 && (!eb.scraps || eb.scraps.length === 0)) {
+          if (Array.isArray(nb.scraps) && nb.scraps.length > 0 && (!eb.scraps || eb.scraps.length < nb.scraps.length)) {
             eb.scraps = nb.scraps;
           }
         }
@@ -480,7 +480,7 @@ async function loadData() {
             ratingUpdated++;
             updated = true;
           }
-          if (nb.sentence && (!eb.sentence || (nb.sentence.length > eb.sentence.length && eb.sentence.length < 10))) {
+          if (nb.sentence && (!eb.sentence || (nb.sentence !== eb.sentence && nb.sentence.length > eb.sentence.length))) {
             eb.sentence = nb.sentence;
             updated = true;
           }
@@ -488,7 +488,7 @@ async function loadData() {
             eb.keywords = nb.keywords;
             updated = true;
           }
-          if (Array.isArray(nb.scraps) && nb.scraps.length > 0 && (!eb.scraps || eb.scraps.length === 0)) {
+          if (Array.isArray(nb.scraps) && nb.scraps.length > 0 && (!eb.scraps || eb.scraps.length < nb.scraps.length)) {
             eb.scraps = nb.scraps;
             updated = true;
           }

@@ -1870,7 +1870,29 @@
     "cover": "https://image.aladin.co.kr/product/2908/55/cover500/8998791064_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxf7rt1lb",
+        "text": "섭종된 캐릭터들에게도 미래는 있을까",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-12-22T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx9ua2hzm",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223702203496",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223702203496",
+        "at": "2024-12-22T00:00:00.000Z"
+      }
+    ],
     "seq": 107,
     "year": 2024,
     "created_at": "2026-09-07T07:53:41.707Z"
@@ -1886,7 +1908,18 @@
     "cover": "https://image.aladin.co.kr/product/17663/73/cover500/k492534510_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxpz40zr9",
+        "text": "가장 중요한 규칙은 빠른 기록(Rapid Logging)이다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-12-21T00:00:00.000Z"
+      }
+    ],
     "seq": 105,
     "year": 2024,
     "created_at": "2026-09-07T07:53:41.138Z"
@@ -1902,7 +1935,29 @@
     "cover": "https://image.aladin.co.kr/product/25/65/cover500/s242933053_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx58g68b0",
+        "text": "기다림 그 자체 가 우리 인생일까",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-12-21T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxrhqslzm",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223701338777",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223701338777",
+        "at": "2024-12-21T00:00:00.000Z"
+      }
+    ],
     "seq": 106,
     "year": 2024,
     "created_at": "2026-09-07T07:53:41.386Z"
@@ -1920,7 +1975,29 @@
     "keywords": [
       "현금흐름"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx7qsbh2h",
+        "text": "비트코인을 이해하기 위한 핵심 키워드는 탈중앙화",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-12-20T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxwwqz7el",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223700400208",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223700400208",
+        "at": "2024-12-20T00:00:00.000Z"
+      }
+    ],
     "seq": 104,
     "year": 2024,
     "created_at": "2026-09-07T07:53:40.794Z"
@@ -1938,7 +2015,29 @@
     "keywords": [
       "자기계발"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxd1whdcp",
+        "text": "다장르, 다독이 필요하다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-12-18T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxxiii2c1",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223697869055",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223697869055",
+        "at": "2024-12-18T00:00:00.000Z"
+      }
+    ],
     "seq": 103,
     "year": 2024,
     "created_at": "2026-09-07T07:53:40.509Z"
@@ -1956,7 +2055,29 @@
     "keywords": [
       "에세이"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxn464tp5",
+        "text": "현대사회의 필수 능력은 고독력",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-12-14T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxtmttj61",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223693521100",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223693521100",
+        "at": "2024-12-14T00:00:00.000Z"
+      }
+    ],
     "seq": 102,
     "year": 2024,
     "created_at": "2026-09-07T07:53:40.208Z"
@@ -1974,7 +2095,29 @@
     "keywords": [
       "자기계발"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxkjf2t3j",
+        "text": "잘 짜여진 계획보다 더 성공에 가까워지는 비결은 즉시 실행하고, 빠르게 실패해가며 방향을 수정해나가는 것",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-12-12T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxx2ly2y8",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223690427058",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223690427058",
+        "at": "2024-12-12T00:00:00.000Z"
+      }
+    ],
     "seq": 101,
     "year": 2024,
     "created_at": "2026-09-07T07:53:39.961Z"
@@ -1992,7 +2135,29 @@
     "keywords": [
       "자기계발"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxu3ovecl",
+        "text": "F의 투자법",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-12-09T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx5x9lk0e",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223687760643",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223687760643",
+        "at": "2024-12-09T00:00:00.000Z"
+      }
+    ],
     "seq": 100,
     "year": 2024,
     "created_at": "2026-09-07T07:53:39.619Z"
@@ -2010,7 +2175,29 @@
     "keywords": [
       "자기계발"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx83ouq5m",
+        "text": "인생의 주인공이 되지 말고 작가가 되어라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-12-08T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx5gho9aj",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223686576282",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223686576282",
+        "at": "2024-12-08T00:00:00.000Z"
+      }
+    ],
     "seq": 99,
     "year": 2024,
     "created_at": "2026-09-07T07:53:39.266Z"
@@ -2028,7 +2215,29 @@
     "keywords": [
       "자기계발"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxig9jhwi",
+        "text": "내가 좋아하는 것을 열심히 하다보면 그것을 잘하게 되고, 그렇게 전문가로 인정받게 되면 그게 바로 브랜딩",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-12-05T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx8uqr1bw",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223683843721",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223683843721",
+        "at": "2024-12-05T00:00:00.000Z"
+      }
+    ],
     "seq": 98,
     "year": 2024,
     "created_at": "2026-09-07T07:53:38.955Z"
@@ -2047,7 +2256,29 @@
       "에세이",
       "인문"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxp6uj6dr",
+        "text": "노력을 진정으로 인정하고 보상해주는 사회가 건강한 사회",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-11-28T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxajbgm6g",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223676259475",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223676259475",
+        "at": "2024-11-28T00:00:00.000Z"
+      }
+    ],
     "seq": 97,
     "year": 2024,
     "created_at": "2026-09-07T07:53:38.607Z"
@@ -2065,7 +2296,29 @@
     "keywords": [
       "소설"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxpwkt0za",
+        "text": "두 종족을 모두 구한 우주영웅의 동기가 그저 모질지 못해서였다고?ㅋㅋㅋ",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-11-16T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxyk3kqog",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223662786858",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223662786858",
+        "at": "2024-11-16T00:00:00.000Z"
+      }
+    ],
     "seq": 96,
     "year": 2024,
     "created_at": "2026-09-07T07:53:38.259Z"
@@ -2084,7 +2337,29 @@
       "고전",
       "소설"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxtn2ihny",
+        "text": "아버지와 아들의 관계를 평생의 숙제가 아닐까",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-11-09T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxbb99lc5",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223653723863",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223653723863",
+        "at": "2024-11-09T00:00:00.000Z"
+      }
+    ],
     "seq": 95,
     "year": 2024,
     "created_at": "2026-09-07T07:53:37.977Z"
@@ -2103,7 +2378,29 @@
       "고전",
       "소설"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxxic4tln",
+        "text": "주변의 소음에 흔들리지 않는 비결",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-10-30T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxw9s6oke",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223639836066",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223639836066",
+        "at": "2024-10-30T00:00:00.000Z"
+      }
+    ],
     "seq": 89,
     "year": 2024,
     "created_at": "2026-09-07T07:53:36.231Z"
@@ -2121,7 +2418,29 @@
     "keywords": [
       "에세이"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx9frub9d",
+        "text": "씨앗을 계속해서 뿌려두는 노력이 있어야 운도 따라붙는다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-10-30T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxifxrxco",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223643611743",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223643611743",
+        "at": "2024-10-30T00:00:00.000Z"
+      }
+    ],
     "seq": 90,
     "year": 2024,
     "created_at": "2026-09-07T07:53:36.517Z"
@@ -2210,7 +2529,29 @@
     "keywords": [
       "에세이"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx4bgw0zp",
+        "text": "정치적인 글쓰기를 예술의 경지로 끌어올린 작가",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-10-25T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxyn8om1b",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223632863923",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223632863923",
+        "at": "2024-10-25T00:00:00.000Z"
+      }
+    ],
     "seq": 88,
     "year": 2024,
     "created_at": "2026-09-07T07:53:35.914Z"
@@ -2228,7 +2569,29 @@
     "keywords": [
       "소설"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxl34fxh8",
+        "text": "타인에 대한 폭력성에 대해 이야기하는 가장 비폭력적인 작가",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-10-14T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx6rvhqs6",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223618602338",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223618602338",
+        "at": "2024-10-14T00:00:00.000Z"
+      }
+    ],
     "seq": 87,
     "year": 2024,
     "created_at": "2026-09-07T07:53:35.624Z"
@@ -2247,7 +2610,29 @@
       "고전",
       "소설"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxpjvy1do",
+        "text": "인생을 온전히 사는 방법",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-10-04T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxzf97kr5",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223606774128",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223606774128",
+        "at": "2024-10-04T00:00:00.000Z"
+      }
+    ],
     "seq": 86,
     "year": 2024,
     "created_at": "2026-09-07T07:53:35.368Z"
@@ -2265,7 +2650,29 @@
     "keywords": [
       "자기계발"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxvt0zur2",
+        "text": "인생의 주도권을 확립하는 방법",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-09-24T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxt8n01f7",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223587877045",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223587877045",
+        "at": "2024-09-24T00:00:00.000Z"
+      }
+    ],
     "seq": 85,
     "year": 2024,
     "created_at": "2026-09-07T07:53:35.061Z"
@@ -2284,7 +2691,29 @@
       "고전",
       "소설"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6irkrm0",
+        "text": "권력을 잡은 이의 부패는 필연적인가",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-09-19T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx476865n",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223587429658",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223587429658",
+        "at": "2024-09-19T00:00:00.000Z"
+      }
+    ],
     "seq": 84,
     "year": 2024,
     "created_at": "2026-09-07T07:53:34.778Z"
@@ -2303,7 +2732,29 @@
       "고전",
       "에세이"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxoldzbj3",
+        "text": "인간에게 진리란 자신을 인간으로 만들어주는 것, 바로 그것이다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-09-17T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxt6tmijk",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223586256972",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223586256972",
+        "at": "2024-09-17T00:00:00.000Z"
+      }
+    ],
     "seq": 83,
     "year": 2024,
     "created_at": "2026-09-07T07:53:34.476Z"
@@ -2321,7 +2772,29 @@
     "keywords": [
       "자기계발"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxd3yqbxi",
+        "text": "내 인생의 주인공이 되는 방법",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-09-06T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx0u2bv4m",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223575146690",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223575146690",
+        "at": "2024-09-06T00:00:00.000Z"
+      }
+    ],
     "seq": 82,
     "year": 2024,
     "created_at": "2026-09-07T07:53:34.111Z"
@@ -2340,7 +2813,29 @@
       "고전",
       "소설"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxktq7uxg",
+        "text": "자신의 양심에 맞게 행동하는 것이 진정한 의미의 정의",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-08-14T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxpx2hbqc",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223547740394",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223547740394",
+        "at": "2024-08-14T00:00:00.000Z"
+      }
+    ],
     "seq": 81,
     "year": 2024,
     "created_at": "2026-09-07T07:53:33.822Z"
@@ -2358,7 +2853,29 @@
     "keywords": [
       "경매"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx15xyxs6",
+        "text": "경매 교과서",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-08-12T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx684gj39",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223544629463",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223544629463",
+        "at": "2024-08-12T00:00:00.000Z"
+      }
+    ],
     "seq": 80,
     "year": 2024,
     "created_at": "2026-09-07T07:53:33.453Z"
@@ -2376,7 +2893,29 @@
     "keywords": [
       "경매"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxwo90inn",
+        "text": "사회초년생을 위한 부동산개론",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-08-06T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxsi19lgq",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223538740045",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223538740045",
+        "at": "2024-08-06T00:00:00.000Z"
+      }
+    ],
     "seq": 79,
     "year": 2024,
     "created_at": "2026-09-07T07:53:33.098Z"
@@ -2394,7 +2933,29 @@
     "keywords": [
       "소설"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxy0a5j6h",
+        "text": "열심히 펼치다 갑자기 마무리",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-07-25T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxbtzp65q",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223525130221",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223525130221",
+        "at": "2024-07-25T00:00:00.000Z"
+      }
+    ],
     "seq": 78,
     "year": 2024,
     "created_at": "2026-09-07T07:53:32.757Z"
@@ -2412,7 +2973,29 @@
     "keywords": [
       "자기계발"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx2q608hq",
+        "text": "현재의 행복을 유예하지 말자",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-07-22T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxryacmbt",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223522025471",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223522025471",
+        "at": "2024-07-22T00:00:00.000Z"
+      }
+    ],
     "seq": 77,
     "year": 2024,
     "created_at": "2026-09-07T07:53:32.511Z"
@@ -2430,7 +3013,29 @@
     "keywords": [
       "자기계발"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx3zt2kci",
+        "text": "질문하기의 힘",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-07-02T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxoawprry",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223498378382",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223498378382",
+        "at": "2024-07-02T00:00:00.000Z"
+      }
+    ],
     "seq": 76,
     "year": 2024,
     "created_at": "2026-09-07T07:53:32.222Z"
@@ -2448,7 +3053,29 @@
     "keywords": [
       "자기계발"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxs7f7kd9",
+        "text": "바꿀 수 없는 것 말고 바꿀 수 있는 것에 집중하는 지혜",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-06-27T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxaq6dbex",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223493164892",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223493164892",
+        "at": "2024-06-27T00:00:00.000Z"
+      }
+    ],
     "seq": 75,
     "year": 2024,
     "created_at": "2026-09-07T07:53:31.894Z"
@@ -2464,7 +3091,29 @@
     "cover": "https://image.aladin.co.kr/product/31516/35/cover500/k632832533_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxfd8egjg",
+        "text": "한 권으로 끝내는 청약 당첨 전략의 모든 것",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-06-26T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxf3bn1rt",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223491354871",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223491354871",
+        "at": "2024-06-26T00:00:00.000Z"
+      }
+    ],
     "seq": 74,
     "year": 2024,
     "created_at": "2026-09-07T07:53:31.583Z"
@@ -2480,7 +3129,29 @@
     "cover": "https://image.aladin.co.kr/product/33837/73/cover500/k642930998_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx3t0i3lf",
+        "text": "당첨, 운이 아닌 전략이다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-06-20T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxsi6uk2h",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223486121408",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223486121408",
+        "at": "2024-06-20T00:00:00.000Z"
+      }
+    ],
     "seq": 73,
     "year": 2024,
     "created_at": "2026-09-07T07:53:31.264Z"
@@ -2496,7 +3167,18 @@
     "cover": "https://image.aladin.co.kr/product/26898/60/cover500/8925588978_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxq9ey82d",
+        "text": "내향인들을 위한 바이블",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-06-15T00:00:00.000Z"
+      }
+    ],
     "seq": 72,
     "year": 2024,
     "created_at": "2026-09-07T07:53:30.943Z"
@@ -2512,7 +3194,19 @@
     "cover": "https://image.aladin.co.kr/product/37683/85/cover500/k862032346_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxa95c8ls",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223474081063",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223474081063",
+        "at": "2024-06-09T00:00:00.000Z"
+      }
+    ],
     "seq": 71,
     "year": 2024,
     "created_at": "2026-09-07T07:53:30.636Z"
@@ -2528,7 +3222,29 @@
     "cover": "https://image.aladin.co.kr/product/31443/73/cover500/k222832410_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxfl3owgq",
+        "text": "책에는 사실 정답이 없다. 나의 해답이 있을 뿐",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-05-29T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx499fo50",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223461366182",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223461366182",
+        "at": "2024-05-29T00:00:00.000Z"
+      }
+    ],
     "seq": 70,
     "year": 2024,
     "created_at": "2026-09-07T07:53:30.354Z"
@@ -2546,7 +3262,29 @@
     "keywords": [
       "자기계발"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxaccjvrc",
+        "text": "행복은 돈으로 빚어낸 그릇이 아니지만 불행은 돈으로 빚어진 그릇이 맞다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-05-19T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxgcymj2y",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223451907701",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223451907701",
+        "at": "2024-05-19T00:00:00.000Z"
+      }
+    ],
     "seq": 69,
     "year": 2024,
     "created_at": "2026-09-07T07:53:30.038Z"
@@ -2598,7 +3336,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxvejiit2",
+        "text": "부자되는 방법은 이미 이 곳에 있었다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-05-12T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx3utt2ec",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223447515763",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223447515763",
+        "at": "2024-05-12T00:00:00.000Z"
+      }
+    ],
     "seq": 66,
     "year": 2024,
     "created_at": "2026-09-07T07:53:29.126Z"
@@ -2614,7 +3374,29 @@
     "cover": "https://image.aladin.co.kr/product/30832/87/cover500/k372831274_2.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxwdpkku5",
+        "text": "서울 부동산학 개론",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-05-09T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxr2ll8xr",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223439903178",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223439903178",
+        "at": "2024-05-09T00:00:00.000Z"
+      }
+    ],
     "seq": 65,
     "year": 2024,
     "created_at": "2026-09-07T07:53:28.841Z"
@@ -2630,7 +3412,29 @@
     "cover": "https://image.aladin.co.kr/product/37138/17/cover500/8963222284_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxjpbjyum",
+        "text": "우주 하나쯤 품고 있는 내향인들 이야기",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-05-05T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxq1wc57e",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223437457664",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223437457664",
+        "at": "2024-05-05T00:00:00.000Z"
+      }
+    ],
     "seq": 64,
     "year": 2024,
     "created_at": "2026-09-07T07:53:28.527Z"
@@ -2684,7 +3488,29 @@
     "keywords": [
       "자기계발"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx4x9z5ce",
+        "text": "다시 배우기를 하지 않는다면 그건 살지 않겠다는 뜻이다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-04-30T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxqul1ige",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223432266875",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223432266875",
+        "at": "2024-04-30T00:00:00.000Z"
+      }
+    ],
     "seq": 60,
     "year": 2024,
     "created_at": "2026-09-07T07:53:27.363Z"
@@ -2714,13 +3540,35 @@
     "pages": 0,
     "date": "2024-04-29",
     "rating": 5,
-    "sentence": "",
+    "sentence": "좋은 물건을 찾아내는 눈은 굳건한 투자원칙에서 나온다",
     "cover": "https://image.aladin.co.kr/product/29282/44/cover500/k042837907_1.jpg",
     "spineCover": "",
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx3dl4mqn",
+        "text": "좋은 물건을 찾아내는 눈은 굳건한 투자원칙에서 나온다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-04-29T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxc6rrjvj",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223353806964",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223353806964",
+        "at": "2024-04-29T00:00:00.000Z"
+      }
+    ],
     "seq": 57,
     "year": 2024,
     "created_at": "2026-09-07T07:53:26.433Z"
@@ -2732,13 +3580,35 @@
     "pages": 0,
     "date": "2024-04-29",
     "rating": 5,
-    "sentence": "",
+    "sentence": "우리의 투자는 현재진행형이어야 한다",
     "cover": "https://image.aladin.co.kr/product/26626/24/cover500/k162739230_1.jpg",
     "spineCover": "",
     "keywords": [
       "재재"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxcbzx825",
+        "text": "우리의 투자는 현재진행형이어야 한다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-04-29T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx76w6vef",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223319732559",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223319732559",
+        "at": "2024-04-29T00:00:00.000Z"
+      }
+    ],
     "seq": 58,
     "year": 2024,
     "created_at": "2026-09-07T07:53:26.844Z"
@@ -2750,13 +3620,35 @@
     "pages": 0,
     "date": "2024-04-29",
     "rating": 5,
-    "sentence": "",
+    "sentence": "잃지 않는 투자, 그거 어떻게 하는건데?",
     "cover": "https://image.aladin.co.kr/product/32450/85/cover500/k242935390_1.jpg",
     "spineCover": "",
     "keywords": [
       "재재"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxujk87iu",
+        "text": "잃지 않는 투자, 그거 어떻게 하는건데?",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-04-29T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxgkwbml9",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223316133374",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223316133374",
+        "at": "2024-04-29T00:00:00.000Z"
+      }
+    ],
     "seq": 59,
     "year": 2024,
     "created_at": "2026-09-07T07:53:27.056Z"
@@ -2774,7 +3666,19 @@
     "keywords": [
       "갭투자"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx39rwp9q",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223428030859",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223428030859",
+        "at": "2024-04-28T00:00:00.000Z"
+      }
+    ],
     "seq": 56,
     "year": 2024,
     "created_at": "2026-09-07T07:53:26.088Z"
@@ -2792,7 +3696,19 @@
     "keywords": [
       "현금흐름"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxg0536dt",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223427444171",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223427444171",
+        "at": "2024-04-27T00:00:00.000Z"
+      }
+    ],
     "seq": 55,
     "year": 2024,
     "created_at": "2026-09-07T07:53:25.818Z"
@@ -2810,7 +3726,19 @@
     "keywords": [
       "현금흐름"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx2qq0lhy",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223427239633",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223427239633",
+        "at": "2024-04-26T00:00:00.000Z"
+      }
+    ],
     "seq": 54,
     "year": 2024,
     "created_at": "2026-09-07T07:53:25.438Z"
@@ -2828,7 +3756,19 @@
     "keywords": [
       "현금흐름"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxpp7hkh9",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223426761592",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223426761592",
+        "at": "2024-04-25T00:00:00.000Z"
+      }
+    ],
     "seq": 53,
     "year": 2024,
     "created_at": "2026-09-07T07:53:24.929Z"
@@ -2846,7 +3786,29 @@
     "keywords": [
       "재재"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxwhcxxsv",
+        "text": "당신의 돈은 누구도 대신 지켜주지 않는다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-04-22T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxmevy0fr",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223423504804",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223423504804",
+        "at": "2024-04-22T00:00:00.000Z"
+      }
+    ],
     "seq": 52,
     "year": 2024,
     "created_at": "2026-09-07T07:53:24.620Z"
@@ -2864,7 +3826,29 @@
     "keywords": [
       "재재"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxvalsx6w",
+        "text": "날카롭게 벼리기위한 버리기",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-04-20T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxe5gb3zy",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223421838390",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223421838390",
+        "at": "2024-04-20T00:00:00.000Z"
+      }
+    ],
     "seq": 51,
     "year": 2024,
     "created_at": "2026-09-07T07:53:24.271Z"
@@ -2882,7 +3866,29 @@
     "keywords": [
       "재재"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx9323nzm",
+        "text": "초기 재개발은 어떻게 투자하는거야?",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-04-12T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx48ny77x",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223413885048",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223413885048",
+        "at": "2024-04-12T00:00:00.000Z"
+      }
+    ],
     "seq": 50,
     "year": 2024,
     "created_at": "2026-09-07T07:53:23.981Z"
@@ -2900,7 +3906,29 @@
     "keywords": [
       "마인드셋"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx9t4q04b",
+        "text": "인류 역사상 가장 성공한 기업은 이곳",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-04-11T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxnfqxxfu",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223412615001",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223412615001",
+        "at": "2024-04-11T00:00:00.000Z"
+      }
+    ],
     "seq": 49,
     "year": 2024,
     "created_at": "2026-09-07T07:53:23.668Z"
@@ -2918,7 +3946,29 @@
     "keywords": [
       "마인드셋"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxs4q15re",
+        "text": "지금, 미래의 내가 되어 현재의 나를 바꿔라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-04-08T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxgqn3inu",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223409863255",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223409863255",
+        "at": "2024-04-08T00:00:00.000Z"
+      }
+    ],
     "seq": 48,
     "year": 2024,
     "created_at": "2026-09-07T07:53:23.307Z"
@@ -2936,7 +3986,29 @@
     "keywords": [
       "갭투자"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx0fc35w2",
+        "text": "영업사원의 마음가짐으로 현장에 나가자",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-04-06T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxq3ya45r",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223407643794",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223407643794",
+        "at": "2024-04-06T00:00:00.000Z"
+      }
+    ],
     "seq": 47,
     "year": 2024,
     "created_at": "2026-09-07T07:53:22.970Z"
@@ -2954,7 +4026,29 @@
     "keywords": [
       "마인드셋"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxn3i1gao",
+        "text": "자본주의 세상에서는 생산자의 뇌로 바꿔야 살아남는다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-04-03T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxwyaf85q",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223404888150",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223404888150",
+        "at": "2024-04-03T00:00:00.000Z"
+      }
+    ],
     "seq": 46,
     "year": 2024,
     "created_at": "2026-09-07T07:53:22.687Z"
@@ -2972,7 +4066,29 @@
     "keywords": [
       "경매"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxo0ykwz9",
+        "text": "지뢰를 피해 부자되는 경매방법",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-04-02T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx4erf535",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223403860120",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223403860120",
+        "at": "2024-04-02T00:00:00.000Z"
+      }
+    ],
     "seq": 45,
     "year": 2024,
     "created_at": "2026-09-07T07:53:22.395Z"
@@ -2990,7 +4106,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx4lylpg2",
+        "text": "초양극화 시대의 효과적인 재테크전략",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-31T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx7r7zr4m",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223401326231",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223401326231",
+        "at": "2024-03-31T00:00:00.000Z"
+      }
+    ],
     "seq": 44,
     "year": 2024,
     "created_at": "2026-09-07T07:53:22.122Z"
@@ -3008,7 +4146,29 @@
     "keywords": [
       "토지"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxvqagb6n",
+        "text": "토지 투자 어렵지 않아요",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-27T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx9fhq5um",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223397402508",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223397402508",
+        "at": "2024-03-27T00:00:00.000Z"
+      }
+    ],
     "seq": 43,
     "year": 2024,
     "created_at": "2026-09-07T07:53:21.721Z"
@@ -3026,7 +4186,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxq5hd7ny",
+        "text": "부동산을 주식처럼 분석하기",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-24T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxgkgs6lo",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223396391701",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223396391701",
+        "at": "2024-03-24T00:00:00.000Z"
+      }
+    ],
     "seq": 42,
     "year": 2024,
     "created_at": "2026-09-07T07:53:21.387Z"
@@ -3042,7 +4224,29 @@
     "cover": "https://image.aladin.co.kr/product/10603/67/cover500/8965962099_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxitanoi1",
+        "text": "열망-성공-실패라는 인생의 세 단계에서 에고는 어떻게 우리를 끌어내리는가",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-22T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxgfkqtsh",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223392273543",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223392273543",
+        "at": "2024-03-22T00:00:00.000Z"
+      }
+    ],
     "seq": 41,
     "year": 2024,
     "created_at": "2026-09-07T07:53:21.093Z"
@@ -3060,7 +4264,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxh4a3xws",
+        "text": "문제는 공급량(뿐만)이 아니다. 매크로를 봐라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-21T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxs08bx2f",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223390730007",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223390730007",
+        "at": "2024-03-21T00:00:00.000Z"
+      }
+    ],
     "seq": 40,
     "year": 2024,
     "created_at": "2026-09-07T07:53:20.764Z"
@@ -3078,7 +4304,29 @@
     "keywords": [
       "마인드셋"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx96o7ybx",
+        "text": "부자로 가는 길은 근접전이다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-20T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxknfjb78",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223390098659",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223390098659",
+        "at": "2024-03-20T00:00:00.000Z"
+      }
+    ],
     "seq": 39,
     "year": 2024,
     "created_at": "2026-09-07T07:53:20.496Z"
@@ -3096,7 +4344,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxv8akf7g",
+        "text": "부동산 투자자로 거듭난 제네시스박의 부린이 탈출기",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-19T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx1zl6hti",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223388816747",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223388816747",
+        "at": "2024-03-19T00:00:00.000Z"
+      }
+    ],
     "seq": 38,
     "year": 2024,
     "created_at": "2026-09-07T07:53:20.223Z"
@@ -3114,7 +4384,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxee6gzau",
+        "text": "다가올 초양극화 시대에 어떻게 대비해야 하는가",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-14T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxurcue7a",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223383775636",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223383775636",
+        "at": "2024-03-14T00:00:00.000Z"
+      }
+    ],
     "seq": 37,
     "year": 2024,
     "created_at": "2026-09-07T07:53:19.887Z"
@@ -3132,7 +4424,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxwoj3mtw",
+        "text": "분야별 고수들의 2024년 부동산에 대한 통찰",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-13T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxr9q0lo3",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223382581484",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223382581484",
+        "at": "2024-03-13T00:00:00.000Z"
+      }
+    ],
     "seq": 36,
     "year": 2024,
     "created_at": "2026-09-07T07:53:19.613Z"
@@ -3150,7 +4464,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxgkuqidd",
+        "text": "한국 부동산의 미래는 이것을 봐야",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-12T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxzwlgolr",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223380442932",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223380442932",
+        "at": "2024-03-12T00:00:00.000Z"
+      }
+    ],
     "seq": 35,
     "year": 2024,
     "created_at": "2026-09-07T07:53:19.108Z"
@@ -3168,7 +4504,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx3hek0ru",
+        "text": "대한민국 아파트값의 역사에서 배워야할 것",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-11T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx33l1p0z",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223380320549",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223380320549",
+        "at": "2024-03-11T00:00:00.000Z"
+      }
+    ],
     "seq": 34,
     "year": 2024,
     "created_at": "2026-09-07T07:53:18.777Z"
@@ -3186,7 +4544,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx2709vzs",
+        "text": "나만의 강남을 찾는 감각",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-09T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxregv4bv",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223378442377",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223378442377",
+        "at": "2024-03-09T00:00:00.000Z"
+      }
+    ],
     "seq": 33,
     "year": 2024,
     "created_at": "2026-09-07T07:53:18.452Z"
@@ -3204,7 +4584,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxdms3q1x",
+        "text": "갭벌리기와 갭메우기 완벽 이해",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-07T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxsnegb7f",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223376619898",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223376619898",
+        "at": "2024-03-07T00:00:00.000Z"
+      }
+    ],
     "seq": 32,
     "year": 2024,
     "created_at": "2026-09-07T07:53:18.159Z"
@@ -3222,7 +4624,29 @@
     "keywords": [
       "현금흐름"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx3e8m7yc",
+        "text": "나도 하정우처럼 스타벅스 건물주 되고 싶다면",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-06T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxiqmu956",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223374764166",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223374764166",
+        "at": "2024-03-06T00:00:00.000Z"
+      }
+    ],
     "seq": 31,
     "year": 2024,
     "created_at": "2026-09-07T07:53:17.851Z"
@@ -3240,7 +4664,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxr8b6t6w",
+        "text": "부동산 투자는 정답이 없는 선택의 연속",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-05T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxl7r9yxt",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223373259887",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223373259887",
+        "at": "2024-03-05T00:00:00.000Z"
+      }
+    ],
     "seq": 29,
     "year": 2024,
     "created_at": "2026-09-07T07:53:17.097Z"
@@ -3258,7 +4704,29 @@
     "keywords": [
       "마인드셋"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxlsp6z76",
+        "text": "수많은 책을 보고도 부자가 되지 못한 이유는",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-03-05T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxo7xgumo",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223373975967",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223373975967",
+        "at": "2024-03-05T00:00:00.000Z"
+      }
+    ],
     "seq": 30,
     "year": 2024,
     "created_at": "2026-09-07T07:53:17.409Z"
@@ -3276,7 +4744,29 @@
     "keywords": [
       "갭투자"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx3hzfsiw",
+        "text": "월급쟁이를 위한 부자 시스템 구축법",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-02-29T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxtr3qqrx",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223368028183",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223368028183",
+        "at": "2024-02-29T00:00:00.000Z"
+      }
+    ],
     "seq": 28,
     "year": 2024,
     "created_at": "2026-09-07T07:53:16.816Z"
@@ -3294,7 +4784,29 @@
     "keywords": [
       "마인드셋"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx1e17hjr",
+        "text": "평범하게 부자가 되는 유일한 길",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-02-28T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx51bl8l1",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223367051832",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223367051832",
+        "at": "2024-02-28T00:00:00.000Z"
+      }
+    ],
     "seq": 27,
     "year": 2024,
     "created_at": "2026-09-07T07:53:16.509Z"
@@ -3312,7 +4824,29 @@
     "keywords": [
       "현금흐름"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxwqcm6i2",
+        "text": "원칙으로 관리하는 임대사업",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-02-27T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxfqjo9kq",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223366671254",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223366671254",
+        "at": "2024-02-27T00:00:00.000Z"
+      }
+    ],
     "seq": 26,
     "year": 2024,
     "created_at": "2026-09-07T07:53:16.215Z"
@@ -3328,7 +4862,29 @@
     "cover": "https://image.aladin.co.kr/product/30968/67/cover500/k792831206_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx9we1anx",
+        "text": "탐구는 심오하게, 결론은 명료하게",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-02-26T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxnuokuzw",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223365863606",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223365863606",
+        "at": "2024-02-26T00:00:00.000Z"
+      }
+    ],
     "seq": 25,
     "year": 2024,
     "created_at": "2026-09-07T07:53:15.908Z"
@@ -3346,7 +4902,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxn98dny3",
+        "text": "목표에서 행복을 찾지 말고 행복해질 목표를 찾아라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-02-20T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxfi6slib",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223359727913",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223359727913",
+        "at": "2024-02-20T00:00:00.000Z"
+      }
+    ],
     "seq": 24,
     "year": 2024,
     "created_at": "2026-09-07T07:53:15.362Z"
@@ -3364,7 +4942,29 @@
     "keywords": [
       "마인드셋"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxw1oy7u7",
+        "text": "투자는 마인드가 95%, 기술이 5%",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-02-19T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx28hydab",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223358536532",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223358536532",
+        "at": "2024-02-19T00:00:00.000Z"
+      }
+    ],
     "seq": 23,
     "year": 2024,
     "created_at": "2026-09-07T07:53:15.068Z"
@@ -3382,7 +4982,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxr537h2d",
+        "text": "부동산 투자 일반",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-02-17T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxvfpwvp9",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223356499909",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223356499909",
+        "at": "2024-02-17T00:00:00.000Z"
+      }
+    ],
     "seq": 22,
     "year": 2024,
     "created_at": "2026-09-07T07:53:14.787Z"
@@ -3398,7 +5020,29 @@
     "cover": "https://image.aladin.co.kr/product/32875/63/cover500/k562936112_2.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx3l313bi",
+        "text": "매일매일 자신의 베스트를 다해야 하는 이유",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-02-14T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxx3vr8rp",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223354423301",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223354423301",
+        "at": "2024-02-14T00:00:00.000Z"
+      }
+    ],
     "seq": 20,
     "year": 2024,
     "created_at": "2026-09-07T07:53:14.145Z"
@@ -3416,7 +5060,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx7b3vqrs",
+        "text": "좋은 물건을 찾아내는 눈은 굳건한 투자원칙에서 나온다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-02-14T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxzqlb2t8",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223353806964",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223353806964",
+        "at": "2024-02-14T00:00:00.000Z"
+      }
+    ],
     "seq": 21,
     "year": 2024,
     "created_at": "2026-09-07T07:53:14.443Z"
@@ -3434,7 +5100,19 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx7der5h7",
+        "text": "독서 후기 링크: https://blog.naver.com/checknfeel/223354554814",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/checknfeel/223354554814",
+        "at": "2024-02-11T00:00:00.000Z"
+      }
+    ],
     "seq": 18,
     "year": 2024,
     "created_at": "2026-09-07T07:53:13.480Z"
@@ -3450,7 +5128,19 @@
     "cover": "https://image.aladin.co.kr/product/19999/22/cover500/s842635656_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxkpfnw61",
+        "text": "독서 후기 링크: https://blog.naver.com/checknfeel/223350705914",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/checknfeel/223350705914",
+        "at": "2024-02-11T00:00:00.000Z"
+      }
+    ],
     "seq": 19,
     "year": 2024,
     "created_at": "2026-09-07T07:53:13.772Z"
@@ -3468,7 +5158,19 @@
     "keywords": [
       "갭투자"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx992r1pg",
+        "text": "독서 후기 링크: https://blog.naver.com/checknfeel/223347641491",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/checknfeel/223347641491",
+        "at": "2024-02-08T00:00:00.000Z"
+      }
+    ],
     "seq": 17,
     "year": 2024,
     "created_at": "2026-09-07T07:53:13.159Z"
@@ -3486,7 +5188,29 @@
     "keywords": [
       "갭투자"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxhb9mkw8",
+        "text": "잃지 않는 투자 위에 잃을 게 없는 투자가 있다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-02-07T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxnejm3e0",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223347496269",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223347496269",
+        "at": "2024-02-07T00:00:00.000Z"
+      }
+    ],
     "seq": 16,
     "year": 2024,
     "created_at": "2026-09-07T07:53:12.799Z"
@@ -3504,7 +5228,29 @@
     "keywords": [
       "마인드셋"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxl7mzah2",
+        "text": "가장 무서운 지옥은 견딜만한 지옥이다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-02-05T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx8wtokjn",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223346396084",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223346396084",
+        "at": "2024-02-05T00:00:00.000Z"
+      }
+    ],
     "seq": 15,
     "year": 2024,
     "created_at": "2026-09-07T07:53:12.483Z"
@@ -3520,7 +5266,19 @@
     "cover": "https://image.aladin.co.kr/product/22693/84/cover500/8958077468_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxzeqrlcm",
+        "text": "독서 후기 링크: https://blog.naver.com/checknfeel/223342918391",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/checknfeel/223342918391",
+        "at": "2024-02-03T00:00:00.000Z"
+      }
+    ],
     "seq": 13,
     "year": 2024,
     "created_at": "2026-09-07T07:53:11.929Z"
@@ -3538,7 +5296,29 @@
     "keywords": [
       "갭투자"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx19a85hv",
+        "text": "전세 레버리지를 통한 다주택자 시스템 구축",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-02-03T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxrt7k51g",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223343476003",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223343476003",
+        "at": "2024-02-03T00:00:00.000Z"
+      }
+    ],
     "seq": 14,
     "year": 2024,
     "created_at": "2026-09-07T07:53:12.220Z"
@@ -3588,7 +5368,29 @@
     "keywords": [
       "마인드셋"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx1an9qjs",
+        "text": "잠들기 전 가야할 길이 있다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-01-27T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx864oqbu",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223335720078",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223335720078",
+        "at": "2024-01-27T00:00:00.000Z"
+      }
+    ],
     "seq": 10,
     "year": 2024,
     "created_at": "2026-09-07T07:53:10.902Z"
@@ -3606,7 +5408,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxqrofche",
+        "text": "집을 살 수 있는 완벽한 때란 없다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-01-25T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxq1o3grt",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223333949267",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223333949267",
+        "at": "2024-01-25T00:00:00.000Z"
+      }
+    ],
     "seq": 9,
     "year": 2024,
     "created_at": "2026-09-07T07:53:10.245Z"
@@ -3622,7 +5446,29 @@
     "cover": "https://image.aladin.co.kr/product/31884/93/cover500/k372833535_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxskixl2b",
+        "text": "질문의 세상으로 넘어가는 법",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-01-20T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxh8ikmrm",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223328757769",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223328757769",
+        "at": "2024-01-20T00:00:00.000Z"
+      }
+    ],
     "seq": 8,
     "year": 2024,
     "created_at": "2026-09-07T07:53:09.878Z"
@@ -3638,7 +5484,29 @@
     "cover": "https://image.aladin.co.kr/product/29857/51/cover500/k202838025_2.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxn6k3wxe",
+        "text": "봉준호의 할리우드 SF신작 미키17의 원작소설",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-01-15T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxgocsosd",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223323257774",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223323257774",
+        "at": "2024-01-15T00:00:00.000Z"
+      }
+    ],
     "seq": 7,
     "year": 2024,
     "created_at": "2026-09-07T07:53:09.584Z"
@@ -3656,7 +5524,29 @@
     "keywords": [
       "부동산전반"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx67gctti",
+        "text": "전세가를 올리는 건 투기꾼이 아니라 (비싼 전세가를 받아들이는) 세입자다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-01-13T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx1mj6f7g",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223324479589",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223324479589",
+        "at": "2024-01-13T00:00:00.000Z"
+      }
+    ],
     "seq": 6,
     "year": 2024,
     "created_at": "2026-09-07T07:53:09.316Z"
@@ -3674,7 +5564,29 @@
     "keywords": [
       "갭투자"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxc4df5av",
+        "text": "우리의 투자는 현재진행형이어야 한다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-01-11T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxk0zm97z",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223319732559",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223319732559",
+        "at": "2024-01-11T00:00:00.000Z"
+      }
+    ],
     "seq": 5,
     "year": 2024,
     "created_at": "2026-09-07T07:53:08.985Z"
@@ -3690,7 +5602,29 @@
     "cover": "https://image.aladin.co.kr/product/33148/24/cover500/k862937037_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx1nurgfd",
+        "text": "가이드북도 없이 우주여행 가시려구요?",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-01-06T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxpwpq0ua",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223314768219",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223314768219",
+        "at": "2024-01-06T00:00:00.000Z"
+      }
+    ],
     "seq": 4,
     "year": 2024,
     "created_at": "2026-09-07T07:53:08.666Z"
@@ -3708,7 +5642,29 @@
     "keywords": [
       "갭투자"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxj5w9aca",
+        "text": "잃지 않는 투자, 그거 어떻게 하는건데?",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-01-05T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxmvsz3db",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223316133374",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223316133374",
+        "at": "2024-01-05T00:00:00.000Z"
+      }
+    ],
     "seq": 3,
     "year": 2024,
     "created_at": "2026-09-07T07:53:08.284Z"
@@ -3726,7 +5682,29 @@
     "keywords": [
       "토지"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxdam2w68",
+        "text": "상상력과 창의력으로 돈 버는 토지투자",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-01-03T00:00:00.000Z"
+      },
+      {
+        "id": "mtqx5ch0ww1",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223312181909",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223312181909",
+        "at": "2024-01-03T00:00:00.000Z"
+      }
+    ],
     "seq": 2,
     "year": 2024,
     "created_at": "2026-09-07T07:53:07.993Z"
@@ -3744,7 +5722,29 @@
     "keywords": [
       "재재"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqxsoxcsrm",
+        "text": "재재의 시간은 거꾸로 흐른다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2024-01-01T00:00:00.000Z"
+      },
+      {
+        "id": "mtqxrkubwh3",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223309599363",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223309599363",
+        "at": "2024-01-01T00:00:00.000Z"
+      }
+    ],
     "seq": 1,
     "year": 2024,
     "created_at": "2026-09-07T07:53:07.647Z"
@@ -3835,7 +5835,18 @@
     "cover": "https://image.aladin.co.kr/product/32355/30/cover500/s882937331_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx74qvo627i",
+        "text": "본체와 그림자란 원래 표리일체입니다. 본채와 그림자는 상황에 따라 역할을 맞바꾸기도 합니다. 그럼으로써 사람은 역경을 뛰어넘어 삶을 이어갈 수 있는 것이랍니다. 무언가를 흉내내는 일고, 무언가인 척하는 일도 때로는 중요할지 모릅니다. 걱정하실 것 없습니다. 누가 뭐래도 지금 이곳에 있는 당신이, 당신 자신이니까요.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:38.503Z"
+      }
+    ],
     "seq": 124,
     "created_at": "2026-09-07T07:29:38.503Z"
   },
@@ -3899,7 +5910,39 @@
       "잘하는 것",
       "‘나의 사상 최고’를 향한 노력"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx749tqlymn",
+        "text": "‘좋아하는 것’을 ‘잘하는 것’으로 만드는 부단한 노력이 일류를 만든다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:37.889Z"
+      },
+      {
+        "id": "mtqx749tzc0z9",
+        "text": "취미의 영역에서 천직의 영역으로 어떻게 갈 수 있을지 고민해보자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:37.889Z"
+      },
+      {
+        "id": "mtqx749tp4vj9",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223292005011",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223292005011",
+        "at": "2026-09-07T07:29:37.889Z"
+      }
+    ],
     "seq": 122,
     "created_at": "2026-09-07T07:29:37.889Z"
   },
@@ -3933,7 +5976,39 @@
       "생산수단",
       "소상인"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx73pgdw0x1",
+        "text": "‘각자의 생산수단’을 통해 양질의 상품을 판매하는 ‘소상인’이 되어라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:37.156Z"
+      },
+      {
+        "id": "mtqx73pgamcp5",
+        "text": "나만의 생산수단은 무엇일지 고민해보자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:37.156Z"
+      },
+      {
+        "id": "mtqx73pgfp4c3",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223290920102",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223290920102",
+        "at": "2026-09-07T07:29:37.156Z"
+      }
+    ],
     "seq": 120,
     "created_at": "2026-09-07T07:29:37.156Z"
   },
@@ -3948,7 +6023,18 @@
     "cover": "https://image.aladin.co.kr/product/30370/64/cover500/s122834213_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx73f6n1v40",
+        "text": "사람은 변화를 싫어하는 게 아니라 누군가에 의해 변화를 요구받는 게 싫은 거라는 말을 들은 적이 있다. 그래서 바뀔 것을 요구하기보다는 기다려주며 넌지시 도와야 했다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:36.786Z"
+      }
+    ],
     "seq": 119,
     "created_at": "2026-09-07T07:29:36.786Z"
   },
@@ -4027,7 +6113,39 @@
       "준비",
       "에너지"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx72eadhw5d",
+        "text": "타고난 기질을 바꾸려 하지 말고 준비를 철저히 해 실력있는 내향인으로서 성공의 길을 가라.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:35.458Z"
+      },
+      {
+        "id": "mtqx72eaub04d",
+        "text": "철저한 준비시간과 휴식시간을 스스로 부여해 최고의 커리어를 쌓아가자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:35.458Z"
+      },
+      {
+        "id": "mtqx72eaop0zy",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223285196332",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223285196332",
+        "at": "2026-09-07T07:29:35.458Z"
+      }
+    ],
     "seq": 115,
     "created_at": "2026-09-07T07:29:35.458Z"
   },
@@ -4046,7 +6164,39 @@
       "자기화",
       "계획과 지속"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx713o21lrm",
+        "text": "인생에서 핵심을 찾아 내 것으로 만들며 지속적으로 성장하라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:33.780Z"
+      },
+      {
+        "id": "mtqx713oxw2gs",
+        "text": "한달플래너를 구체적으로 발전시켜보자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:33.780Z"
+      },
+      {
+        "id": "mtqx713o4v01d",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223289528034",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223289528034",
+        "at": "2026-09-07T07:29:33.780Z"
+      }
+    ],
     "seq": 113,
     "created_at": "2026-09-07T07:29:33.780Z"
   },
@@ -4065,7 +6215,28 @@
       "틈과 간격",
       "작은 실패"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx70t0lmrv2",
+        "text": "내가 쓴 글이 나를 돌봐준다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:33.396Z"
+      },
+      {
+        "id": "mtqx70t149p7v",
+        "text": "글을 쓰며 ‘작은 실패’를 계속해서 경험하자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:33.397Z"
+      }
+    ],
     "seq": 112,
     "created_at": "2026-09-07T07:29:33.397Z"
   },
@@ -4080,7 +6251,18 @@
     "cover": "https://image.aladin.co.kr/product/33710/34/cover500/894912355x_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx70inmafnt",
+        "text": "&quot;모든 게 색깔이 없다는 건 진짜로 잘못된 일이예요. 모든 게 똑같으니까 선택할 게 아무것도 없잖아요! 아침에 일어나 옷을 입을 때 제가 옷을 고르고 싶어요! 파란 옷을 입을까, 빨간 옷을 입을까 하고 말이에요.&quot;\n&quot;중요한 건 '선택' 그 자체란 말이지?&quot;",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:33.023Z"
+      }
+    ],
     "seq": 111,
     "created_at": "2026-09-07T07:29:33.023Z"
   },
@@ -4095,7 +6277,18 @@
     "cover": "https://image.aladin.co.kr/product/29/21/cover500/s172933259_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6zop09rms",
+        "text": "줄기를 잘라 낸 나무는 뿌리 근처에서 다시 새로운 싹이 움터 나온다.(중략) 뿌리에서 움튼 새싹은 하루가 다르게 무럭무럭 자라나지만, 그것은 단지 겉으로 보여지는 생명에 불과할 뿐, 결코 다시 나무가 되지는 않는다. 한스 기벤라트도 그랬다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:31.945Z"
+      }
+    ],
     "seq": 110,
     "created_at": "2026-09-07T07:29:31.945Z"
   },
@@ -4129,7 +6322,28 @@
       "알고리즘",
       "놀이의 박탈"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6yw3ez9y8",
+        "text": "집중력 저하의 근본적인 문제는 사회에 있다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:30.915Z"
+      },
+      {
+        "id": "mtqx6yw37tv2r",
+        "text": "그래도 내가 할 수 있는 작은 것(꾸준한 독서)부터 해 나가자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:30.915Z"
+      }
+    ],
     "seq": 107,
     "created_at": "2026-09-07T07:29:30.915Z"
   },
@@ -4148,7 +6362,39 @@
       "많이 보는 것이 중요하다",
       "인생은 한 권의 책이다"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6z5quqozp",
+        "text": "경제의 흐름을 읽는 독서를 해라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:31.262Z"
+      },
+      {
+        "id": "mtqx6z5qebgfy",
+        "text": "다양한 분야와 다양한 시대의 경제서를 읽어 저변을 넓히자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:31.262Z"
+      },
+      {
+        "id": "mtqx6z5qli1bm",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223277568735",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223277568735",
+        "at": "2026-09-07T07:29:31.262Z"
+      }
+    ],
     "seq": 108,
     "created_at": "2026-09-07T07:29:31.262Z"
   },
@@ -4167,7 +6413,39 @@
       "사회적 무관심",
       "효율적인 자원 관리"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6yc8dkcsr",
+        "text": "재산과 소득은 다르다. 소득명세서상 부자가 되지 말고 대차대조표상 부자가 되어라.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:30.200Z"
+      },
+      {
+        "id": "mtqx6yc8foxoq",
+        "text": "대차대조표상 부자가 되기 위해 재무점검을 다시 해 보자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:30.200Z"
+      },
+      {
+        "id": "mtqx6yc810m94",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223274478033",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223274478033",
+        "at": "2026-09-07T07:29:30.200Z"
+      }
+    ],
     "seq": 105,
     "created_at": "2026-09-07T07:29:30.200Z"
   },
@@ -4186,7 +6464,39 @@
       "웅덩이 효과",
       "최고보다 최선"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6ym9mpvhz",
+        "text": "부동산에 만능투자법이란 존재하지 않는다. 항상 시장을 주시하고 상황에 맞는 투자법을 고민하라.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:30.561Z"
+      },
+      {
+        "id": "mtqx6ym92fzxb",
+        "text": "시장을 바라보는 루틴을 만들고, 투자법이 통하는 시기가 올 때까지 현장에서 아는 지역을 넓혀나가자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:30.561Z"
+      },
+      {
+        "id": "mtqx6ym9apavl",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223274104909",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223274104909",
+        "at": "2026-09-07T07:29:30.561Z"
+      }
+    ],
     "seq": 106,
     "created_at": "2026-09-07T07:29:30.561Z"
   },
@@ -4212,11 +6522,23 @@
     "pages": 0,
     "date": "2023-11-17",
     "rating": 5,
-    "sentence": "",
+    "sentence": "-",
     "cover": "https://image.aladin.co.kr/product/32787/2/cover500/k622936493_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6xjf2giyi",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223276791476",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223276791476",
+        "at": "2026-09-07T07:29:29.163Z"
+      }
+    ],
     "seq": 102,
     "created_at": "2026-09-07T07:29:29.163Z"
   },
@@ -4227,11 +6549,23 @@
     "pages": 0,
     "date": "2023-11-17",
     "rating": 5,
-    "sentence": "",
+    "sentence": "-",
     "cover": "https://image.aladin.co.kr/product/32071/3/cover500/k932834995_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6xtd541e8",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223267797745",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223267797745",
+        "at": "2026-09-07T07:29:29.521Z"
+      }
+    ],
     "seq": 103,
     "created_at": "2026-09-07T07:29:29.521Z"
   },
@@ -4280,7 +6614,28 @@
       "위기를 기회로",
       "경험만큼 강한 기억은 없다"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6wr0equav",
+        "text": "인생의 장애물은 독서로 극복하고, 찾아온 위기를 기회로 삼을 지혜를 찾아라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:28.140Z"
+      },
+      {
+        "id": "mtqx6wr0ovtq7",
+        "text": "위기가 오면 운명을 바꿀 기회가 찾아왔다고 생각하자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:28.140Z"
+      }
+    ],
     "seq": 99,
     "created_at": "2026-09-07T07:29:28.140Z"
   },
@@ -4314,7 +6669,39 @@
       "성공은 의무다",
       "두려움은 그 일을 지금 하라는 신호"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6wa8tp2tj",
+        "text": "어떤 일이 두렵게 느껴진다면, 그 일을 지금 즉시 하라는 신호다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:27.536Z"
+      },
+      {
+        "id": "mtqx6wa8tsbq5",
+        "text": "두려운 일부터 하자. 준비는 필요없다.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:27.536Z"
+      },
+      {
+        "id": "mtqx6wa8u1pgq",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223256345327",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223256345327",
+        "at": "2026-09-07T07:29:27.536Z"
+      }
+    ],
     "seq": 97,
     "created_at": "2026-09-07T07:29:27.536Z"
   },
@@ -4333,7 +6720,39 @@
       "반사 체계",
       "숙고 체계"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6w11lgkhc",
+        "text": "나의 의지에 따른 합리적인 선택인지, 클루지에 의해 선택되어진 것인지 고민해야 한다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:27.205Z"
+      },
+      {
+        "id": "mtqx6w11ew58e",
+        "text": "숙고 체계를 작동하기 위한 나만의 장치(시스템)을 만들자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:27.205Z"
+      },
+      {
+        "id": "mtqx6w11fo32n",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223251932856",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223251932856",
+        "at": "2026-09-07T07:29:27.205Z"
+      }
+    ],
     "seq": 96,
     "created_at": "2026-09-07T07:29:27.205Z"
   },
@@ -4393,7 +6812,18 @@
     "cover": "https://image.aladin.co.kr/product/26/0/cover500/s452139198_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6v29yg56j",
+        "text": "줄기를 잘라 낸 나무는 뿌리 근처에서 다시 새로운 싹이 움터 나온다.(중략) 뿌리에서 움튼 새싹은 하루가 다르게 무럭무럭 자라나지만, 그것은 단지 겉으로 보여지는 생명에 불과할 뿐, 결코 다시 나무가 되지는 않는다. 한스 기벤라트도 그랬다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:25.953Z"
+      }
+    ],
     "seq": 92,
     "created_at": "2026-09-07T07:29:25.953Z"
   },
@@ -4412,7 +6842,39 @@
       "자기만의 미니멀리즘",
       "존재하는 시간"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6uu78wrew",
+        "text": "진정한 미니멀리즘은 무조건 비우는 것이 아닌, 내 가치관에 부합하는 삶을 살아내기 위해 공간을 만드는 것",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:25.663Z"
+      },
+      {
+        "id": "mtqx6uu7q1qqy",
+        "text": "내 가치관, 내가 좋아하는 것, 나에게 맞는 것이 뭔지 늘 잊지 말자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:25.663Z"
+      },
+      {
+        "id": "mtqx6uu7qu9u9",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223255867858",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223255867858",
+        "at": "2026-09-07T07:29:25.663Z"
+      }
+    ],
     "seq": 91,
     "created_at": "2026-09-07T07:29:25.663Z"
   },
@@ -4431,7 +6893,39 @@
       "환금성",
       "리스플릿과 공매도"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6ujrnj1gu",
+        "text": "절대 잃지 않는 투자, 돈으로 돈을 사는 외화투자를 하라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:25.287Z"
+      },
+      {
+        "id": "mtqx6ujrkj9ur",
+        "text": "엔화부터 시작해보자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:25.287Z"
+      },
+      {
+        "id": "mtqx6ujrpw3ad",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223242715010",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223242715010",
+        "at": "2026-09-07T07:29:25.287Z"
+      }
+    ],
     "seq": 90,
     "created_at": "2026-09-07T07:29:25.287Z"
   },
@@ -4480,7 +6974,39 @@
       "시도",
       "진인사대천명"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6tmiys9mu",
+        "text": "어떻게 하는지 알아서 시작하는 것이 아니다, 어떻게 하는지 알기 위해 시작해라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:24.090Z"
+      },
+      {
+        "id": "mtqx6tmi18768",
+        "text": "일단 시도하자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:24.090Z"
+      },
+      {
+        "id": "mtqx6tmihqr1s",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223230911316",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223230911316",
+        "at": "2026-09-07T07:29:24.090Z"
+      }
+    ],
     "seq": 86,
     "created_at": "2026-09-07T07:29:24.090Z"
   },
@@ -4499,7 +7025,39 @@
       "금리",
       "유동성"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6tv9mhsv1",
+        "text": "공급이 다가 아니다. 금리(유동성)도 봐야 한다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:24.405Z"
+      },
+      {
+        "id": "mtqx6tv98na76",
+        "text": "지금 내가 할 수 있는 투자가 무엇인지 고민하자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:24.405Z"
+      },
+      {
+        "id": "mtqx6tv9zrnhv",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223227147777",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223227147777",
+        "at": "2026-09-07T07:29:24.405Z"
+      }
+    ],
     "seq": 87,
     "created_at": "2026-09-07T07:29:24.405Z"
   },
@@ -4533,7 +7091,39 @@
       "세븐스플릿",
       "복리효과"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6tew4gnyc",
+        "text": "0.5% 수익률을 끊임없이 뭉쳐 복리매직을 누려라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:23.816Z"
+      },
+      {
+        "id": "mtqx6tewim2io",
+        "text": "외화투자도 접해보자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:23.816Z"
+      },
+      {
+        "id": "mtqx6tewsb39a",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223230110458",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223230110458",
+        "at": "2026-09-07T07:29:23.816Z"
+      }
+    ],
     "seq": 85,
     "created_at": "2026-09-07T07:29:23.816Z"
   },
@@ -4582,7 +7172,28 @@
       "공부는 발로",
       "5년간 꾸준히"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6swydurlu",
+        "text": "남이 만든 시스템이 아닌, 내가 만들어 나가는 부자 되는 시스템을 찾아라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:23.170Z"
+      },
+      {
+        "id": "mtqx6swy02irh",
+        "text": "당장의 성과가 없다고 그만두지 말고 5년간 꾸준히 하자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:23.170Z"
+      }
+    ],
     "seq": 83,
     "created_at": "2026-09-07T07:29:23.170Z"
   },
@@ -4616,7 +7227,39 @@
       "상황프레임",
       "반복프레임"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6rzerxzg7",
+        "text": "상위 수준의 프레임으로 오늘과 내일을 살아가야 한다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:21.962Z"
+      },
+      {
+        "id": "mtqx6rzea5wpl",
+        "text": "왜 이 일을 하는지 늘 생각하면서 하루하루를 즐겁게 살자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:21.962Z"
+      },
+      {
+        "id": "mtqx6rze9n4uz",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223229804209",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223229804209",
+        "at": "2026-09-07T07:29:21.962Z"
+      }
+    ],
     "seq": 79,
     "created_at": "2026-09-07T07:29:21.962Z"
   },
@@ -4635,7 +7278,39 @@
       "유난스러움",
       "기특함"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6rqycf1w5",
+        "text": "스스로 기특했던 순간들이 모여 나의 자존감이 된다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:21.658Z"
+      },
+      {
+        "id": "mtqx6rqyj9laf",
+        "text": "나의 기특했던 행동들을 기억하여 내면에 든든히 쌓아두자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:21.658Z"
+      },
+      {
+        "id": "mtqx6rqyau0fm",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223205225373",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223205225373",
+        "at": "2026-09-07T07:29:21.658Z"
+      }
+    ],
     "seq": 78,
     "created_at": "2026-09-07T07:29:21.658Z"
   },
@@ -4654,7 +7329,39 @@
       "시간을 지배하라",
       "OK로는 부족하다 Best 파트너가 되어라"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6rj0ijo8z",
+        "text": "성공하기 위해서는 먼저 시간을 지배해라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:21.372Z"
+      },
+      {
+        "id": "mtqx6rj0iv47o",
+        "text": "나의 계획관리를 되돌아보자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:21.372Z"
+      },
+      {
+        "id": "mtqx6rj01ni1l",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223195065651",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223195065651",
+        "at": "2026-09-07T07:29:21.372Z"
+      }
+    ],
     "seq": 77,
     "created_at": "2026-09-07T07:29:21.372Z"
   },
@@ -4688,7 +7395,39 @@
       "가난은 부끄러운 것",
       "가난의 대물림은 습관의 대물림"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6qznyb85e",
+        "text": "‘가난은 불편한 것 뿐’이라는 말은 거짓말이다. 가난은 부끄러운 것이고 그 때문에 슬픈 것이다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:20.675Z"
+      },
+      {
+        "id": "mtqx6qzn4ya4e",
+        "text": "방향성은 맞다. 최후의 승자가 되기 위한 루틴을 따르자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:20.675Z"
+      },
+      {
+        "id": "mtqx6qzniomhu",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223187733857",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223187733857",
+        "at": "2026-09-07T07:29:20.675Z"
+      }
+    ],
     "seq": 75,
     "created_at": "2026-09-07T07:29:20.675Z"
   },
@@ -4722,7 +7461,39 @@
       "투자는 5년을 보는 것",
       "서울"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6qjku6fgl",
+        "text": "의지하지 마라. 결국 내가 깨닫고 내가 바뀌어야 한다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:20.096Z"
+      },
+      {
+        "id": "mtqx6qjkt10k0",
+        "text": "매주 KB시계열 분석, 매달 재정상황 파악하자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:20.096Z"
+      },
+      {
+        "id": "mtqx6qjk225p0",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223184477780",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223184477780",
+        "at": "2026-09-07T07:29:20.096Z"
+      }
+    ],
     "seq": 74,
     "created_at": "2026-09-07T07:29:20.096Z"
   },
@@ -4756,7 +7527,39 @@
       "현실인식",
       "가사란 곧 ‘듣고 부르는 글’"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6ple3mz0k",
+        "text": "간절함과 현실인식은 비례해야 한다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:18.866Z"
+      },
+      {
+        "id": "mtqx6pleaa341",
+        "text": "나의 간절함이 현실과 동떨어진 무모함이 아닌지 늘 경계하자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:18.866Z"
+      },
+      {
+        "id": "mtqx6pletu67u",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223183168690",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223183168690",
+        "at": "2026-09-07T07:29:18.866Z"
+      }
+    ],
     "seq": 71,
     "created_at": "2026-09-07T07:29:18.866Z"
   },
@@ -4775,7 +7578,39 @@
       "투자 5원칙",
       "독서와 글쓰기"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6p3wp3xbx",
+        "text": "투자는 남에게 의지하지 말고 본인의 자립심에 근거한 판단으로 하라.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:18.236Z"
+      },
+      {
+        "id": "mtqx6p3wlbfdo",
+        "text": "스스로 준비가 되었다는 확신이 들 때까지 공부하자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:18.236Z"
+      },
+      {
+        "id": "mtqx6p3wtqit0",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223181199717",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223181199717",
+        "at": "2026-09-07T07:29:18.236Z"
+      }
+    ],
     "seq": 69,
     "created_at": "2026-09-07T07:29:18.236Z"
   },
@@ -4790,7 +7625,18 @@
     "cover": "https://image.aladin.co.kr/product/5142/86/cover500/8932916934_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6pceq4905",
+        "text": "인생에서 필요한 건 그것뿐이야. 항상 스스로 대단한 사람이라고 생각하는 거지.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:18.542Z"
+      }
+    ],
     "seq": 70,
     "created_at": "2026-09-07T07:29:18.543Z"
   },
@@ -4809,7 +7655,39 @@
       "고민만큼 책이 보인다",
       "고전은 세상의 메커니즘을 알려주고 베스트셀러는 동시대 사람들의 고민을 알려준다"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6otsdlp6u",
+        "text": "‘있어보이려고’ 시작한 독서가 ‘있는 사람’으로 만들어주더라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:17.872Z"
+      },
+      {
+        "id": "mtqx6otsg61ou",
+        "text": "고전읽기는 만화와 함께 읽으며 시작해보자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:17.872Z"
+      },
+      {
+        "id": "mtqx6ots6dvmv",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223180912252",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223180912252",
+        "at": "2026-09-07T07:29:17.872Z"
+      }
+    ],
     "seq": 68,
     "created_at": "2026-09-07T07:29:17.872Z"
   },
@@ -4828,7 +7706,39 @@
       "현실에 이미 내포되어 있는 미래",
       "단편쓰기는 곧 스케일 훈련"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6okfont2s",
+        "text": "아이디어를 찾고, 꾸준히 글을 쓰는 루틴을 가져라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:17.535Z"
+      },
+      {
+        "id": "mtqx6okf7rd55",
+        "text": "단편을 꾸준히 써보자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:17.535Z"
+      },
+      {
+        "id": "mtqx6okfh1f78",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223178598802",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223178598802",
+        "at": "2026-09-07T07:29:17.535Z"
+      }
+    ],
     "seq": 67,
     "created_at": "2026-09-07T07:29:17.535Z"
   },
@@ -4843,7 +7753,18 @@
     "cover": "https://image.aladin.co.kr/product/5100/19/cover500/8925554992_3.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6o0kenrxd",
+        "text": "넌 무엇을 바랬나",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:16.820Z"
+      }
+    ],
     "seq": 65,
     "created_at": "2026-09-07T07:29:16.820Z"
   },
@@ -4907,7 +7828,39 @@
       "엉망진창의 힘",
       "독서의 3단계 : 낙타-사자-어린아이(from 니체)"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6n8h6i3fx",
+        "text": "진짜 나로 살기 위해 책을 읽어라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:15.809Z"
+      },
+      {
+        "id": "mtqx6n8hc4kfo",
+        "text": "배고픈 사자처럼 읽어나가되 조급해하지 않음으로써 다음단계로 넘어갈 준비를 하자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:15.809Z"
+      },
+      {
+        "id": "mtqx6n8homg4p",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223185093577",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223185093577",
+        "at": "2026-09-07T07:29:15.809Z"
+      }
+    ],
     "seq": 62,
     "created_at": "2026-09-07T07:29:15.809Z"
   },
@@ -4926,7 +7879,39 @@
       "책과 여행",
       "환대의 순환"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6mzgryr9r",
+        "text": "모든 여행은 끝나고 한참의 시간이 지난 후에야 그것이 무엇이었는지, 그것이 어떻게 내 인생을 바꾸었는지 알게 된다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:15.484Z"
+      },
+      {
+        "id": "mtqx6mzgo0gld",
+        "text": "준만큼 받는 관계보다 누군가에게 준 환대가 돌고 돌아 다시 나에게로 오는 ‘환대의 순환’을 기억하자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:15.484Z"
+      },
+      {
+        "id": "mtqx6mzgaf1q8",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223142430544",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223142430544",
+        "at": "2026-09-07T07:29:15.484Z"
+      }
+    ],
     "seq": 61,
     "created_at": "2026-09-07T07:29:15.484Z"
   },
@@ -4945,7 +7930,39 @@
       "사랑의 언어",
       "의미있는 존재"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6mquydpsn",
+        "text": "사랑은 누군가를 위해 하는 것이지 나를 위해서 하는 것이 아니다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:15.174Z"
+      },
+      {
+        "id": "mtqx6mquqqwa9",
+        "text": "배우자의 사랑의 언어는 무엇일지 유심히 파악해보자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:15.174Z"
+      },
+      {
+        "id": "mtqx6mqupfr6l",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223135704203",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223135704203",
+        "at": "2026-09-07T07:29:15.174Z"
+      }
+    ],
     "seq": 60,
     "created_at": "2026-09-07T07:29:15.174Z"
   },
@@ -4964,7 +7981,39 @@
       "판단기준은 ‘내가 정말 하고 싶은가’",
       "그렇지 않아도 뭐 상관없는 거 아닌가?"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6mgrn3f8c",
+        "text": "모든 선택의 기로에서의 판단 기준은 ‘내가 정말 하고 싶은가’였다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:14.811Z"
+      },
+      {
+        "id": "mtqx6mgrj6kwa",
+        "text": "하고 싶은 걸 해라",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:14.811Z"
+      },
+      {
+        "id": "mtqx6mgr6sbpc",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223135720255",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223135720255",
+        "at": "2026-09-07T07:29:14.811Z"
+      }
+    ],
     "seq": 59,
     "created_at": "2026-09-07T07:29:14.811Z"
   },
@@ -4983,7 +8032,39 @@
       "각자의 우주",
       "잠시 멈췄대도 다 괜찮다"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6m6nw1j5e",
+        "text": "뭐라도 되려면, 뭐라도 해야 한다고, 그리고 뭐라도 하면, 뭐라도 된다고.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:14.447Z"
+      },
+      {
+        "id": "mtqx6m6nvc9sc",
+        "text": "글을 쓰자. 뭐라도 되겠지",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:14.447Z"
+      },
+      {
+        "id": "mtqx6m6nfigxe",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223132796608",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223132796608",
+        "at": "2026-09-07T07:29:14.447Z"
+      }
+    ],
     "seq": 58,
     "created_at": "2026-09-07T07:29:14.447Z"
   },
@@ -5002,7 +8083,39 @@
       "심리",
       "때를 사는 것"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6lfylzof1",
+        "text": "아파트 투자에서 입지보다 더 중요한 것이 사이클이다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:13.486Z"
+      },
+      {
+        "id": "mtqx6lfy9eiw9",
+        "text": "사이클을 파악하는 공부를 해 보자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:13.486Z"
+      },
+      {
+        "id": "mtqx6lfyh963p",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223132151138",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223132151138",
+        "at": "2026-09-07T07:29:13.486Z"
+      }
+    ],
     "seq": 57,
     "created_at": "2026-09-07T07:29:13.486Z"
   },
@@ -5021,7 +8134,39 @@
       "본질",
       "현재"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6l740jpc4",
+        "text": "돈오점수. 갑작스럽게 깨닫고 점차적으로 수행해나가라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:13.168Z"
+      },
+      {
+        "id": "mtqx6l74yd77k",
+        "text": "나만의 무기를 찾아 꾸준히 갈고 닦자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:13.168Z"
+      },
+      {
+        "id": "mtqx6l74giutt",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223130600609",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223130600609",
+        "at": "2026-09-07T07:29:13.168Z"
+      }
+    ],
     "seq": 56,
     "created_at": "2026-09-07T07:29:13.168Z"
   },
@@ -5040,7 +8185,39 @@
       "투자는 결국 인생관의 문제",
       "재능은 버티기"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6kg567i3b",
+        "text": "투자공부는 결국 인생을 어떻게 살아나갈지에 대한 공부다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:12.197Z"
+      },
+      {
+        "id": "mtqx6kg5wzsyz",
+        "text": "아무것도 안 하고 있으면서 '버티고 있다'고 착각하지 말자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:12.197Z"
+      },
+      {
+        "id": "mtqx6kg5yrc3c",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223130495350",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223130495350",
+        "at": "2026-09-07T07:29:12.197Z"
+      }
+    ],
     "seq": 55,
     "created_at": "2026-09-07T07:29:12.197Z"
   },
@@ -5051,11 +8228,22 @@
     "pages": 0,
     "date": "2023-06-11",
     "rating": 5,
-    "sentence": "",
+    "sentence": "책을 쓴 조종사 중 가장 성공한 인물",
     "cover": "https://image.aladin.co.kr/product/15284/49/cover500/8954651860_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6k7sdiln6",
+        "text": "책을 쓴 조종사 중 가장 성공한 인물",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:11.896Z"
+      }
+    ],
     "seq": 54,
     "created_at": "2026-09-07T07:29:11.896Z"
   },
@@ -5074,7 +8262,39 @@
       "단점을 찾아라",
       "행동하라"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6jzljh5qq",
+        "text": "100번 읽는 것보다 30번 강의가 낫고, 30번 강의보다 1번 투자경험이 낫다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:11.601Z"
+      },
+      {
+        "id": "mtqx6jzlyx0az",
+        "text": "나의 현장루틴을 재점검하자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:11.601Z"
+      },
+      {
+        "id": "mtqx6jzlp5my5",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223129278328",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223129278328",
+        "at": "2026-09-07T07:29:11.601Z"
+      }
+    ],
     "seq": 53,
     "created_at": "2026-09-07T07:29:11.601Z"
   },
@@ -5093,7 +8313,39 @@
       "관계",
       "소통"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6jfcayzln",
+        "text": "행복은 길 위에 있지 않다. 길 자체가 행복이다. 내 옆의 사람들과 마음을 나누어라.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:10.872Z"
+      },
+      {
+        "id": "mtqx6jfcheuvd",
+        "text": "인생의 원대한 목표도 좋지만 그 목표를 세울 수 있게 해준 가족을 우선순위에서 내리지 말자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:10.872Z"
+      },
+      {
+        "id": "mtqx6jfcdb7vd",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223123609990",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223123609990",
+        "at": "2026-09-07T07:29:10.872Z"
+      }
+    ],
     "seq": 51,
     "created_at": "2026-09-07T07:29:10.872Z"
   },
@@ -5110,7 +8362,39 @@
     "keywords": [
       "3권 참조"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6j6zg2e0t",
+        "text": "3권 참조",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:10.571Z"
+      },
+      {
+        "id": "mtqx6j6z9ixex",
+        "text": "3권 참조",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:10.571Z"
+      },
+      {
+        "id": "mtqx6j6zexvnw",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223130495350",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223130495350",
+        "at": "2026-09-07T07:29:10.571Z"
+      }
+    ],
     "seq": 50,
     "created_at": "2026-09-07T07:29:10.571Z"
   },
@@ -5129,7 +8413,39 @@
       "올바른 습관",
       "생산자의 팀"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6iyn8uxoj",
+        "text": "목표란 ‘부자’ 그 자체가 아닌 ‘부자가 될 수 있는 사람’이 되는 것",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:10.271Z"
+      },
+      {
+        "id": "mtqx6iyns126x",
+        "text": "습관을 가다듬자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:10.271Z"
+      },
+      {
+        "id": "mtqx6iynxszrp",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223121653458",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223121653458",
+        "at": "2026-09-07T07:29:10.271Z"
+      }
+    ],
     "seq": 49,
     "created_at": "2026-09-07T07:29:10.271Z"
   },
@@ -5148,7 +8464,39 @@
       "단문",
       "글에 맞는 삶"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6ioyhid9l",
+        "text": "살면서 얻는 감정과 생각이 내면에 쌓여 넘치면 글이 된다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:09.922Z"
+      },
+      {
+        "id": "mtqx6ioyvy7q4",
+        "text": "많이 읽고 많이 쌓아서 많이 나누자. 꾸준히 글을 쓰자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:09.922Z"
+      },
+      {
+        "id": "mtqx6ioymv0h2",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223118988557",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223118988557",
+        "at": "2026-09-07T07:29:09.922Z"
+      }
+    ],
     "seq": 48,
     "created_at": "2026-09-07T07:29:09.922Z"
   },
@@ -5167,7 +8515,39 @@
       "글쓰기",
       "조급함"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6if6pzsje",
+        "text": "성과를 내는 날을 그렇지 못한 날보다 많이 만들면 된다. 그 뿐이다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:09.570Z"
+      },
+      {
+        "id": "mtqx6if6383vs",
+        "text": "성과를 만들어내는 날의 비중을 늘려가자. 그거면 된다.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:09.570Z"
+      },
+      {
+        "id": "mtqx6if663qpi",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223117041003",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223117041003",
+        "at": "2026-09-07T07:29:09.571Z"
+      }
+    ],
     "seq": 47,
     "created_at": "2026-09-07T07:29:09.571Z"
   },
@@ -5186,7 +8566,39 @@
       "집중독서",
       "3년간 1000권"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6hl5n6due",
+        "text": "3년간 1000권의 집중독서를 통해 임계점을 돌파하라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:08.489Z"
+      },
+      {
+        "id": "mtqx6hl5stpu7",
+        "text": "1년 100권을 넘어 후반기에 100권을 읽어보자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:08.489Z"
+      },
+      {
+        "id": "mtqx6hl52ijdu",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223114695968",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223114695968",
+        "at": "2026-09-07T07:29:08.489Z"
+      }
+    ],
     "seq": 44,
     "created_at": "2026-09-07T07:29:08.489Z"
   },
@@ -5205,7 +8617,39 @@
       "게으르기 위해 부지런하자",
       "학교성적이 곧 인생의 성공순위가 아니다"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6htz720iv",
+        "text": "책이 만드는 기적은 바로 인간을 바꾸는 것이다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:08.807Z"
+      },
+      {
+        "id": "mtqx6htzyjtx5",
+        "text": "성공할 때까지 글을 쓰자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:08.807Z"
+      },
+      {
+        "id": "mtqx6htzrr5xp",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223114777564",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223114777564",
+        "at": "2026-09-07T07:29:08.807Z"
+      }
+    ],
     "seq": 45,
     "created_at": "2026-09-07T07:29:08.807Z"
   },
@@ -5224,7 +8668,39 @@
       "집은 바로 부모",
       "동등한 위치에서의 대화"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6i3lafzpp",
+        "text": "대드는 것은 잘 크고 있다는 증거다. 오히려 순종적인 것을 걱정하라.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:09.153Z"
+      },
+      {
+        "id": "mtqx6i3l08gaf",
+        "text": "적당한 거리를 두고 스스로 시행착오를 거치며 성장하게 두자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:09.153Z"
+      },
+      {
+        "id": "mtqx6i3lwqdsl",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223115997228",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223115997228",
+        "at": "2026-09-07T07:29:09.153Z"
+      }
+    ],
     "seq": 46,
     "created_at": "2026-09-07T07:29:09.153Z"
   },
@@ -5243,7 +8719,39 @@
       "자신감",
       "꺼지지 않는 열정"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6hco853dl",
+        "text": "내가 진정으로 열정을 불태울 일을 찾아 나서는 것이 부를 이끌고 성공을 가져온다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:08.184Z"
+      },
+      {
+        "id": "mtqx6hcosx1rp",
+        "text": "성공경험을 기록하는 ‘성공일기’를 쓰자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:08.184Z"
+      },
+      {
+        "id": "mtqx6hcorrmb0",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223113402613",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223113402613",
+        "at": "2026-09-07T07:29:08.184Z"
+      }
+    ],
     "seq": 43,
     "created_at": "2026-09-07T07:29:08.184Z"
   },
@@ -5262,7 +8770,39 @@
       "역행보살",
       "그냥 해!"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6h371lilg",
+        "text": "살면서 가슴을 두근대게 하는 일을 만나는 기회가 그렇게 흔하지는 않아. 하고 싶은 일이 있으면 하고 살아.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:07.843Z"
+      },
+      {
+        "id": "mtqx6h37rc370",
+        "text": "할까 말까 고민할 시간에 그냥 하자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:07.843Z"
+      },
+      {
+        "id": "mtqx6h37xx4o8",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223108487970",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223108487970",
+        "at": "2026-09-07T07:29:07.843Z"
+      }
+    ],
     "seq": 42,
     "created_at": "2026-09-07T07:29:07.843Z"
   },
@@ -5281,7 +8821,39 @@
       "독서",
       "쓰기"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6gvmdt207",
+        "text": "비범한 삶이라 기록하는 게 아니라 매일 기록하니까 비범한 삶이 된다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:07.570Z"
+      },
+      {
+        "id": "mtqx6gvmict4j",
+        "text": "매일 글을 쓰고 기록을 남기자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:07.570Z"
+      },
+      {
+        "id": "mtqx6gvml2l3q",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223105948227",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223105948227",
+        "at": "2026-09-07T07:29:07.570Z"
+      }
+    ],
     "seq": 41,
     "created_at": "2026-09-07T07:29:07.570Z"
   },
@@ -5300,7 +8872,39 @@
       "오늘 행복하라",
       "책 책 책"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6gf4xfl3t",
+        "text": "내가 진정 하고 싶고, 행복한 일을 찾아서 해라. 그래 바로 그거.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:06.976Z"
+      },
+      {
+        "id": "mtqx6gf4xusar",
+        "text": "책을 쓰자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:06.976Z"
+      },
+      {
+        "id": "mtqx6gf4rc3a1",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223104924616",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223104924616",
+        "at": "2026-09-07T07:29:06.976Z"
+      }
+    ],
     "seq": 39,
     "created_at": "2026-09-07T07:29:06.976Z"
   },
@@ -5319,7 +8923,39 @@
       "꼼꼼한 견적서",
       "최종 결정은 집주인이 하는 것"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6gmu29jjf",
+        "text": "부동산의 입지를 바꿀 수는 없지만, 가치를 바꿀 수 있는 것이 인테리어다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:07.254Z"
+      },
+      {
+        "id": "mtqx6gmur3dv6",
+        "text": "인테리어 사례들도 가끔 찾아보며 심미안을 기르자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:07.254Z"
+      },
+      {
+        "id": "mtqx6gmuvbpw8",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223103842896",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223103842896",
+        "at": "2026-09-07T07:29:07.254Z"
+      }
+    ],
     "seq": 40,
     "created_at": "2026-09-07T07:29:07.254Z"
   },
@@ -5334,7 +8970,18 @@
     "cover": "https://image.aladin.co.kr/product/6419/59/cover500/8937463369_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6fvq7gdnv",
+        "text": "연애소설일 줄이야. 백여년 전 프랑스의 복잡한 인간관계는 깊이 공감하기 쉽지 않았으나 작가 본인의 히스토리를 알고 나니 약간의 연민이..",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:06.278Z"
+      }
+    ],
     "seq": 37,
     "created_at": "2026-09-07T07:29:06.278Z"
   },
@@ -5353,7 +9000,39 @@
       "경험",
       "재미"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6g3v8ici9",
+        "text": "재미를 찾아라. 그게 일을 끝까지 하게 해 준다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:06.571Z"
+      },
+      {
+        "id": "mtqx6g3vxpvgv",
+        "text": "내가 하고 있는 일에서 재미를 찾자. 지금은 책읽고 글쓰고 나누는 일이다.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:06.571Z"
+      },
+      {
+        "id": "mtqx6g3vc3e7j",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223103044959",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223103044959",
+        "at": "2026-09-07T07:29:06.571Z"
+      }
+    ],
     "seq": 38,
     "created_at": "2026-09-07T07:29:06.571Z"
   },
@@ -5372,7 +9051,39 @@
       "나의 하루를 대하는 자세",
       "나만의 한 단어"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6fbt45nwo",
+        "text": "‘나의 하루를 지내는 자세’와 ‘나의 일생을 대하는 자세’가 똑같다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:05.561Z"
+      },
+      {
+        "id": "mtqx6fbt0x3r7",
+        "text": "내 인생과 성취를 표현해 줄 나만의 한 단어(One Word)를 찾아보자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:05.561Z"
+      },
+      {
+        "id": "mtqx6fbtck1v1",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223098398922",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223098398922",
+        "at": "2026-09-07T07:29:05.561Z"
+      }
+    ],
     "seq": 35,
     "created_at": "2026-09-07T07:29:05.561Z"
   },
@@ -5391,7 +9102,39 @@
       "시간도 관리보다 정리",
       "새로운 사람을 만나라"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6fmjdewnp",
+        "text": "세상에 정리를 못하는 사람은 없다. 정리를 안하는 사람만 있을 뿐",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:05.947Z"
+      },
+      {
+        "id": "mtqx6fmjh2r30",
+        "text": "매일 조금씩 정리하는 습관",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:05.947Z"
+      },
+      {
+        "id": "mtqx6fmjk4wnc",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223099273826",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223099273826",
+        "at": "2026-09-07T07:29:05.947Z"
+      }
+    ],
     "seq": 36,
     "created_at": "2026-09-07T07:29:05.947Z"
   },
@@ -5425,7 +9168,39 @@
       "저축",
       "부모의 체력"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6ebl78v2m",
+        "text": "엄마(부모)의 역할은 매니저가 아닌 환경구성가다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:04.257Z"
+      },
+      {
+        "id": "mtqx6eblsj6by",
+        "text": "육아서(교육서)도 틈틈히 읽자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:04.257Z"
+      },
+      {
+        "id": "mtqx6eblxtn32",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223092262158",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223092262158",
+        "at": "2026-09-07T07:29:04.257Z"
+      }
+    ],
     "seq": 31,
     "created_at": "2026-09-07T07:29:04.257Z"
   },
@@ -5444,7 +9219,39 @@
       "당신은 무엇이 되고 싶습니까?",
       "일단 가보자고!"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6etpuur4d",
+        "text": "갑각류가 진정한 성장을 이뤄내는 시기는 가장 약해져 있는 바로 그 순간이다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:04.909Z"
+      },
+      {
+        "id": "mtqx6etq9rg57",
+        "text": "‘가보자고!’ 정신을 모토로 삼자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:04.910Z"
+      },
+      {
+        "id": "mtqx6etqvalmf",
+        "text": "독서 후기 링크: https://blog.naver.com/neo_elon/223094957712",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://blog.naver.com/neo_elon/223094957712",
+        "at": "2026-09-07T07:29:04.910Z"
+      }
+    ],
     "seq": 33,
     "created_at": "2026-09-07T07:29:04.910Z"
   },
@@ -5477,7 +9284,39 @@
       "부부관계는 파트너십이고",
       "부모의 태도는 아이들의 기본값. 나만의 인생 해석집. 꾸준함 자체가 콘텐츠이자 브랜드"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6dvj44vx7",
+        "text": "마흔은 결과의 단계가 아니라 과정의 단계이므로 나 자신에게 꾸준히 투자하고 성장해내야 한다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:03.679Z"
+      },
+      {
+        "id": "mtqx6dvj7qp4w",
+        "text": "나의 꿈과 가족을 위해 꾸준히 공부하고 성장하자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:03.679Z"
+      },
+      {
+        "id": "mtqx6dvj6tqx8",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/8879139",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/8879139",
+        "at": "2026-09-07T07:29:03.679Z"
+      }
+    ],
     "seq": 29,
     "created_at": "2026-09-07T07:29:03.679Z"
   },
@@ -5511,7 +9350,39 @@
       "해결책",
       "충만한 삶"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6dfvfqxkm",
+        "text": "인내심을 갖고 버티는자가 승리한다. 문제가 생기면 걱정할 것이 아니라 해결책을 찾아라. 그리하여 충만한 삶을 자신에게 선물하라.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:03.115Z"
+      },
+      {
+        "id": "mtqx6dfvla89v",
+        "text": "‘투자자의 루틴’이 시스템이 될 때까지 버티면서 오늘의 배낭(원씽)을 하나씩만 매일매일 옮기자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:03.115Z"
+      },
+      {
+        "id": "mtqx6dfv5k27t",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/8217766",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/8217766",
+        "at": "2026-09-07T07:29:03.115Z"
+      }
+    ],
     "seq": 27,
     "created_at": "2026-09-07T07:29:03.115Z"
   },
@@ -5569,11 +9440,22 @@
     "pages": 0,
     "date": "2023-03-31",
     "rating": 3,
-    "sentence": "",
+    "sentence": "챗GPT에 대한 원리와 인류의 미래에 대해 논할 줄 알았는데 깊이가 깊지는 않음",
     "cover": "https://image.aladin.co.kr/product/31105/45/cover500/8962624842_3.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6ceuwy2oh",
+        "text": "챗GPT에 대한 원리와 인류의 미래에 대해 논할 줄 알았는데 깊이가 깊지는 않음",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:01.782Z"
+      }
+    ],
     "seq": 23,
     "created_at": "2026-09-07T07:29:01.782Z"
   },
@@ -5588,7 +9470,18 @@
     "cover": "https://image.aladin.co.kr/product/9546/33/cover500/8957821120_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6bwwmq7m4",
+        "text": "좋은 집은 없다, 다만 좋은 가격만 있을 뿐. 나쁜 집은 없다, 나쁜 가격만 있을 뿐.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:01.136Z"
+      }
+    ],
     "seq": 21,
     "created_at": "2026-09-07T07:29:01.136Z"
   },
@@ -5599,11 +9492,22 @@
     "pages": 0,
     "date": "2023-03-29",
     "rating": 4,
-    "sentence": "",
+    "sentence": "다시 읽었지만 여전히 대단히 흥미롭지는 않음ㅋㅋ 다시 읽지는 말자",
     "cover": "https://image.aladin.co.kr/product/53/29/cover500/s092137816_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6c541m9wn",
+        "text": "다시 읽었지만 여전히 대단히 흥미롭지는 않음ㅋㅋ 다시 읽지는 말자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:01.432Z"
+      }
+    ],
     "seq": 22,
     "created_at": "2026-09-07T07:29:01.432Z"
   },
@@ -5622,7 +9526,28 @@
       "불확정성 원리",
       "관측"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6b6sdqz0t",
+        "text": "Shut up and Calculate",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:00.196Z"
+      },
+      {
+        "id": "mtqx6b6s6igje",
+        "text": "책을 읽기 전까진 내가 이해할수 있음과 이해할수 없음이 공존하는 상태였지만 책을 읽음으로써 난 이해할수 없음이 결정되었다.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:00.196Z"
+      }
+    ],
     "seq": 18,
     "created_at": "2026-09-07T07:29:00.196Z"
   },
@@ -5641,7 +9566,28 @@
       "원칙을 칼처럼 적용하라",
       "머리가 아닌 발로 벌어라"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6bev9owll",
+        "text": "머리로 시작해 발로 끝낸다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:00.487Z"
+      },
+      {
+        "id": "mtqx6bevh7rhq",
+        "text": "투자공부는 발로 하자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:00.487Z"
+      }
+    ],
     "seq": 19,
     "created_at": "2026-09-07T07:29:00.487Z"
   },
@@ -5660,7 +9606,28 @@
       "안 쓰는 것이 부자되는 출발점이다",
       "행복한 부자가 되라"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6bob6k3yt",
+        "text": "누구나 부자가 될 수 있다. 그러나 누구나 부자가 되지는 않는다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:29:00.827Z"
+      },
+      {
+        "id": "mtqx6bobep39h",
+        "text": "안 쓰고 모으며 발로 뛰는 공부를 해서 기회를 붙잡자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:29:00.827Z"
+      }
+    ],
     "seq": 20,
     "created_at": "2026-09-07T07:29:00.827Z"
   },
@@ -5679,7 +9646,39 @@
       "밤잠을 설치지 않게 하는 ‘적당한 투자전략’",
       "‘나를 사랑해줬으면 하는 사람들이 나를 사랑하는 것’이 진정한 성공"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6ay24al7w",
+        "text": "오래 살아남아, 작게 지고 크게 이기는 것이 성공적인 투자다",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:59.882Z"
+      },
+      {
+        "id": "mtqx6ay2ku7pq",
+        "text": "주변에 휘둘리다 성급한 투자로 크게 잃지 말고 부자의 그릇을 충분히 키우자. 저축이 처음이자 끝이다.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:28:59.882Z"
+      },
+      {
+        "id": "mtqx6ay2r0i3l",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/8528159",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/8528159",
+        "at": "2026-09-07T07:28:59.882Z"
+      }
+    ],
     "seq": 17,
     "created_at": "2026-09-07T07:28:59.882Z"
   },
@@ -5694,7 +9693,29 @@
     "cover": "https://image.aladin.co.kr/product/30721/2/cover500/k112830246_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6ao68z01w",
+        "text": "그것들 모두가 단 하나의 고유 상태로 수축함으로써, 무수히 많은 가능성 중 단 하나만이 실제로 '일어나는'겁니다. 물론 그 다음에는 그것들 모두가 또다시 확산하기 시작합니다만..",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:59.526Z"
+      },
+      {
+        "id": "mtqx6ao6kmcav",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/8528618",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/8528618",
+        "at": "2026-09-07T07:28:59.526Z"
+      }
+    ],
     "seq": 16,
     "created_at": "2026-09-07T07:28:59.526Z"
   },
@@ -5709,7 +9730,18 @@
     "cover": "https://image.aladin.co.kr/product/14710/22/cover500/8965706343_1.jpg",
     "spineCover": "",
     "keywords": [],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6ag4nkoa2",
+        "text": "항상 '더 힘든 목표'를 지속적으로 세우는 것. 이것이 도파민 강화학습 사이클을 작동시키는 비결이자 인생의 성공법칙이다. 이번 목표를 이루었다면 즉시 다음 목표를 세워라. 현재에 만족하면 도파민은 더 이상 나오지 않는다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:59.236Z"
+      }
+    ],
     "seq": 15,
     "created_at": "2026-09-07T07:28:59.236Z"
   },
@@ -5729,7 +9761,39 @@
       "도덕성",
       "관계성). 자존감의 유망한 대안은 ‘자기연민’"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6a7pqh9uq",
+        "text": "후회는 부정적인 것이 아니라 앞으로 더 나은 결정을 하도록 도와주는 긍정적인 것(복기)이다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:58.933Z"
+      },
+      {
+        "id": "mtqx6a7ptksx8",
+        "text": "‘지나간 일에는 후회하지 않아’라고 하지 말고 후회(복기)의 과정을 통해 꾸준히 성장하자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:28:58.933Z"
+      },
+      {
+        "id": "mtqx6a7p236xz",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/8404647",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/8404647",
+        "at": "2026-09-07T07:28:58.933Z"
+      }
+    ],
     "seq": 14,
     "created_at": "2026-09-07T07:28:58.933Z"
   },
@@ -5748,7 +9812,39 @@
       "핵심 결과지표(KR)",
       "자신감 점수"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx69xupg91f",
+        "text": "목표(O)는 위대하게 정성적으로, 핵심결과지표(KR)는 달성하지 못할까봐 살짝 초조할 정도의 정량적으로.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:58.578Z"
+      },
+      {
+        "id": "mtqx69xu12o8z",
+        "text": "이번달부터 O-KR을 적용하기 위해 노션으로 양식을 만들어보자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:28:58.578Z"
+      },
+      {
+        "id": "mtqx69xunbnoy",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/8327858",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/8327858",
+        "at": "2026-09-07T07:28:58.578Z"
+      }
+    ],
     "seq": 13,
     "created_at": "2026-09-07T07:28:58.578Z"
   },
@@ -5767,7 +9863,39 @@
       "책",
       "성장"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx69o57336x",
+        "text": "성공하기 위해서는 기본기에 많은 시간을 할애하여 나를 넘어서는 성장을 하고, 책을 통해 진리를 얻어야 한다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:58.229Z"
+      },
+      {
+        "id": "mtqx69o5xmvqn",
+        "text": "꾸준히 책을 읽고 꾸준히 성장하자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:28:58.229Z"
+      },
+      {
+        "id": "mtqx69o5tcryj",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/8405629",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/8405629",
+        "at": "2026-09-07T07:28:58.229Z"
+      }
+    ],
     "seq": 12,
     "created_at": "2026-09-07T07:28:58.229Z"
   },
@@ -5784,7 +9912,39 @@
     "keywords": [
       "‘무기력’은 어떠한 사건으로 인한 결과다. 과잉보호는 무기력으로 가는 티켓이다. 과잉열망으로 인한 무기력은 부모가 같이 상담을 받아야 한다"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx69fl63tou",
+        "text": "‘무기력’은 게으름과 다르다. 과잉보호가 무기력으로 이어지는 케이스가 많다. 과잉열망으로 인한 무기력은 아이가 변해도 자꾸 주변에서 흔들어댄다. 부모가 상담을 받아야 한다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:57.921Z"
+      },
+      {
+        "id": "mtqx69flr09wh",
+        "text": "잔소리를 끊자. 단숨에.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:28:57.921Z"
+      },
+      {
+        "id": "mtqx69flvnwm1",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/8225545",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/8225545",
+        "at": "2026-09-07T07:28:57.921Z"
+      }
+    ],
     "seq": 11,
     "created_at": "2026-09-07T07:28:57.921Z"
   },
@@ -5803,7 +9963,39 @@
       "걱정이 아니라 해결책",
       "충만한 삶"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx697kcjfeg",
+        "text": "인내심을 갖고 버티는자가 승리한다. 문제가 생기면 걱정할 것이 아니라 해결책을 찾아라. 그리하여 충만한 삶을 자신에게 선물하라.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:57.632Z"
+      },
+      {
+        "id": "mtqx697kh790h",
+        "text": "‘투자자의 루틴’이 시스템이 될 때까지 버티면서 오늘의 배낭(원씽)을 하나씩만 매일매일 옮기자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:28:57.632Z"
+      },
+      {
+        "id": "mtqx697k5rjgz",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/8217766",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/8217766",
+        "at": "2026-09-07T07:28:57.632Z"
+      }
+    ],
     "seq": 10,
     "created_at": "2026-09-07T07:28:57.632Z"
   },
@@ -5822,7 +10014,39 @@
       "선한 영향력",
       "변곡점"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx68xzbhjct",
+        "text": "성공은 성공하겠다는 결심에서부터 시작이다. 인연을 소중히하고 많이 나눠주어야 내 주변이 선한 사람들로 가득할 것이다. 포기하고 싶을때가 가장 변곡점과 가까울 때다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:57.287Z"
+      },
+      {
+        "id": "mtqx68xzxrpu8",
+        "text": "내 인생의 목표인 선한 부자가 되기 위해 인연을 소중히하고 먼저 베풀자. 그것이 내 자존감을 살리는 길이고 내 품위를 올리는 길이다.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:28:57.287Z"
+      },
+      {
+        "id": "mtqx68xz2s1ey",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/8092136",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/8092136",
+        "at": "2026-09-07T07:28:57.287Z"
+      }
+    ],
     "seq": 9,
     "created_at": "2026-09-07T07:28:57.287Z"
   },
@@ -5841,7 +10065,39 @@
       "생각의뿌리",
       "시각화"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx68pdx2k3a",
+        "text": "원대한 목표를 세우고 잠재의식에 각인하기 위해 시각화를 활용하라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:56.977Z"
+      },
+      {
+        "id": "mtqx68pdv7i4j",
+        "text": "아침마다 하는 시각화를 그림 한 장으로 끝내지 말고 영화처럼 생생하게 만들자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:28:56.977Z"
+      },
+      {
+        "id": "mtqx68pdp115d",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/7964931",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/7964931",
+        "at": "2026-09-07T07:28:56.977Z"
+      }
+    ],
     "seq": 8,
     "created_at": "2026-09-07T07:28:56.977Z"
   },
@@ -5852,7 +10108,7 @@
     "pages": 0,
     "date": "2023-01-10",
     "rating": 4,
-    "sentence": "",
+    "sentence": "-",
     "cover": "https://image.aladin.co.kr/product/30169/22/cover500/8959897094_3.jpg",
     "spineCover": "",
     "keywords": [
@@ -5879,7 +10135,39 @@
       "시간관리",
       "나만의 표준"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx6863tcqwq",
+        "text": "자기경영을 통해 높은 성과를 얻으려면 시간관리가 기본이며 나만의 표준화된 문서(형식지)가 필요하다. 그 방법으로 필자는 바인더를 제시한다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:56.283Z"
+      },
+      {
+        "id": "mtqx6863a6bc5",
+        "text": "노션 목실감시 발전시켜보자. 지금은 복기 부분이 약하다. 독서도 원페이지 정리로 심플하게 관리할 방법을 찾자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:28:56.283Z"
+      },
+      {
+        "id": "mtqx6863y8j2b",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/7825262",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/7825262",
+        "at": "2026-09-07T07:28:56.283Z"
+      }
+    ],
     "seq": 6,
     "created_at": "2026-09-07T07:28:56.283Z"
   },
@@ -5898,7 +10186,39 @@
       "성공일기",
       "반드시 투자해야 한다"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx67xu99b54",
+        "text": "자본주의 경제체제에서 투자는 선택이 아니라 필수다. 돈을 꾸준히 모아 황금알을 낳는 거위에 투자하라.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:55.986Z"
+      },
+      {
+        "id": "mtqx67xuo5ubj",
+        "text": "쓰고 있는 감사일기에 성공한 것에 대한 감사도 추가하자. 아이들에게도 꼭 읽으라고 권해주자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:28:55.986Z"
+      },
+      {
+        "id": "mtqx67xui0rg7",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/7752740",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/7752740",
+        "at": "2026-09-07T07:28:55.986Z"
+      }
+    ],
     "seq": 5,
     "created_at": "2026-09-07T07:28:55.986Z"
   },
@@ -5917,7 +10237,39 @@
       "절실히 원하는 목표",
       "돈을 벌어 시간을 사라"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx67gyf736n",
+        "text": "말에는 힘이 있다. 절실히 원하는 목표를 매일 생각하고 말하면 힘이 실린다. 그렇게 돈을 벌어 시간을 사라.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:55.378Z"
+      },
+      {
+        "id": "mtqx67gy52o59",
+        "text": "아침마다 미라클모닝 루틴을 하며 시각화하는 목표를 조금씩 더 구체화시켜 나가자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:28:55.378Z"
+      },
+      {
+        "id": "mtqx67gydfwvy",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/7751697",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/7751697",
+        "at": "2026-09-07T07:28:55.378Z"
+      }
+    ],
     "seq": 3,
     "created_at": "2026-09-07T07:28:55.378Z"
   },
@@ -5936,7 +10288,39 @@
       "더 높은 목표와 혹독한 훈련",
       "끝끝내 이기는 야구"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx67pf1lkf2",
+        "text": "더 높은 목표를 세우고 혹독한 과정을 견뎌내며 끊임없는 복기를 하자. 그 과정이 있어야 지지 않는 야구, 잃지 않는 투자를 할 수 있다.",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:55.683Z"
+      },
+      {
+        "id": "mtqx67pf13uoe",
+        "text": "혹독한 과정은 목표를 향해 가는 길에서 반드시 필요하다. 이겨내자.",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:28:55.683Z"
+      },
+      {
+        "id": "mtqx67pfhi98y",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/7751865",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/7751865",
+        "at": "2026-09-07T07:28:55.683Z"
+      }
+    ],
     "seq": 4,
     "created_at": "2026-09-07T07:28:55.683Z"
   },
@@ -5955,7 +10339,39 @@
       "꿈",
       "인격"
     ],
-    "scraps": [],
+    "scraps": [
+      {
+        "id": "mtqx678l30en3",
+        "text": "인격을 바탕으로, 자기만의 놓치고 싶지 않은 꿈을 향해 열정을 다하라",
+        "page": null,
+        "memo": "One Message (핵심 깨달음)",
+        "tags": [
+          "OneMessage"
+        ],
+        "at": "2026-09-07T07:28:55.077Z"
+      },
+      {
+        "id": "mtqx678l2ifij",
+        "text": "차분히 심사숙고하는 나만의 스타일을 믿고 열정을 다하자",
+        "page": null,
+        "memo": "One Action (실천 계획)",
+        "tags": [
+          "OneAction"
+        ],
+        "at": "2026-09-07T07:28:55.077Z"
+      },
+      {
+        "id": "mtqx678lr2rve",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/7731925",
+        "page": null,
+        "memo": "독서후기 원문",
+        "tags": [
+          "후기링크"
+        ],
+        "link": "https://cafe.naver.com/wecando7/7731925",
+        "at": "2026-09-07T07:28:55.077Z"
+      }
+    ],
     "seq": 2,
     "created_at": "2026-09-07T07:28:55.077Z"
   },
@@ -5976,35 +10392,35 @@
     ],
     "scraps": [
       {
-        "at": "2026-09-07T07:28:54.746Z",
         "id": "mtqx66zeh0l26",
-        "memo": "One Message (핵심 깨달음)",
+        "text": "긴 투자공부 기간에서 살아남는 방법은 의지력을 가지고 악으로 깡으로 버티는 것이 아니라, 의지력이 없어도 투자를 이어나갈 수 있는 시스템(습관/루틴)을 구축하는 것이다.",
         "page": null,
+        "memo": "One Message (핵심 깨달음)",
         "tags": [
           "OneMessage"
         ],
-        "text": "긴 투자공부 기간에서 살아남는 방법은 의지력을 가지고 악으로 깡으로 버티는 것이 아니라, 의지력이 없어도 투자를 이어나갈 수 있는 시스템(습관/루틴)을 구축하는 것이다."
+        "at": "2026-09-07T07:28:54.746Z"
       },
       {
-        "at": "2026-09-07T07:28:54.747Z",
         "id": "mtqx66zfohmzx",
-        "memo": "One Action (실천 계획)",
+        "text": "하루 루틴은 잘 유지되고 있다. 1월부터는 한달 임장 루틴도 잘 잡아보자.",
         "page": null,
+        "memo": "One Action (실천 계획)",
         "tags": [
           "OneAction"
         ],
-        "text": "하루 루틴은 잘 유지되고 있다. 1월부터는 한달 임장 루틴도 잘 잡아보자."
+        "at": "2026-09-07T07:28:54.747Z"
       },
       {
-        "at": "2026-09-07T07:28:54.747Z",
         "id": "mtqx66zfjn9co",
-        "link": "https://cafe.naver.com/wecando7/7721115",
-        "memo": "독서후기 원문",
+        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/7721115",
         "page": null,
+        "memo": "독서후기 원문",
         "tags": [
           "후기링크"
         ],
-        "text": "독서 후기 링크: https://cafe.naver.com/wecando7/7721115"
+        "link": "https://cafe.naver.com/wecando7/7721115",
+        "at": "2026-09-07T07:28:54.747Z"
       }
     ],
     "seq": 1,
