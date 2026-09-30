@@ -230,7 +230,6 @@ async function loadData() {
     books = localBooks;
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
-    await syncOhaBooksAladinMetadata();
     saveData();
     bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
@@ -321,7 +320,6 @@ async function loadData() {
 
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
-    await syncOhaBooksAladinMetadata();
     saveData();
     bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
@@ -331,19 +329,11 @@ async function loadData() {
     books = currentUser ? localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b)) : localBooks.filter(b => !isLikeRecord(b));
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
-    await syncOhaBooksAladinMetadata();
     saveData();
     bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
     initCommunityLikesChannel();
   }
-
-  try {
-    await syncOhaBooksAladinMetadata();
-  } catch (syncErr) {
-    console.warn('[Aladin Sync] loadData sync error:', syncErr);
-  }
-  checkOhaImportPrompt();
 }
 function showDbSetupModal() {
   document.getElementById('db-sql-code').value = DB_SQL_SCRIPT;
@@ -6518,7 +6508,6 @@ loadTagLearningModel();
 
   // Initialize / update the comprehensive "User Manual" book
   ensureUserGuideBook();
-  await syncOhaBooksAladinMetadata();
 
   renderGallery();
   updateSidebar();
@@ -6879,8 +6868,6 @@ function updateAuthUI(session) {
   const headerChip = document.getElementById('header-user-chip');
   const googleLoginBtn = document.getElementById('header-google-login-btn');
 
-  const ohaMenuItem = document.getElementById('oha-import-menu-item');
-
   if (session && session.user) {
     currentUser = session.user;
     if (loggedInDiv) loggedInDiv.style.display = 'block';
@@ -6891,9 +6878,6 @@ function updateAuthUI(session) {
     if (shortUsernameSpan) shortUsernameSpan.textContent = fullName.split(' ')[0] || fullName;
     if (headerChip) headerChip.style.display = 'inline-flex';
     if (googleLoginBtn) googleLoginBtn.style.display = 'none';
-
-    const isOhaUser = session.user.email && session.user.email.toLowerCase().trim() === 'thejs2050@gmail.com';
-    if (ohaMenuItem) ohaMenuItem.style.display = isOhaUser ? 'flex' : 'none';
   } else {
     currentUser = null;
     if (loggedInDiv) loggedInDiv.style.display = 'none';
@@ -6901,7 +6885,6 @@ function updateAuthUI(session) {
     if (usernameSpan) usernameSpan.textContent = '';
     if (headerChip) headerChip.style.display = 'none';
     if (googleLoginBtn) googleLoginBtn.style.display = 'inline-flex';
-    if (ohaMenuItem) ohaMenuItem.style.display = 'none';
   }
 }
 
@@ -6952,223 +6935,6 @@ if (supabaseClient) {
       });
     }
   });
-}
-
-/* ==============================================
-   OHA (thejs2050@gmail.com) NOTION IMPORT LOGIC
-============================================== */
-function checkOhaImportPrompt() {
-  if (!currentUser) return;
-  const email = (currentUser.email || '').toLowerCase().trim();
-  if (email !== 'thejs2050@gmail.com') return;
-
-  // Check if books already imported into current user's library
-  const alreadyImported = books.some(b => b.id && (b.id.includes('2da8775c') || (b.title === '편안함의 습격' && b.date === '2025-12-30')));
-  if (alreadyImported) {
-    console.log('[Oha Import] Books already present in user library.');
-    return;
-  }
-
-  // Avoid showing repeatedly in the same session
-  if (sessionStorage.getItem('oha_modal_shown_session')) return;
-  sessionStorage.setItem('oha_modal_shown_session', '1');
-
-  // Display prompt modal smoothly after view rendering
-  setTimeout(() => {
-    openModal('oha-import-modal');
-  }, 800);
-}
-
-async function executeOhaDataImport() {
-  if (!currentUser) {
-    toast('로그인이 필요합니다.');
-    return;
-  }
-  const btn = document.getElementById('oha-import-btn');
-  const originalHtml = btn ? btn.innerHTML : '지금 가져오기';
-  if (btn) {
-    btn.disabled = true;
-    btn.innerHTML = '<span>알라딘 정보로 가져오는 중...</span>';
-  }
-
-  try {
-    const rawData = (typeof window !== 'undefined' && window.OHA_BOOKS_SCRAPED) || [];
-    if (!rawData || rawData.length === 0) {
-      toast('가져올 완독 도서 데이터가 없습니다.');
-      return;
-    }
-
-    // Format books with user's id
-    const booksToImport = rawData.map(b => {
-      const uniqueId = 'notion_' + (b.notionId || b.id || uid()).replace(/[^a-zA-Z0-9]/g, '').slice(0, 24) + '_' + currentUser.id;
-      return {
-        ...b,
-        id: uniqueId,
-        user_id: currentUser.id
-      };
-    });
-
-    // 1. Persist to Supabase if connected
-    if (supabaseClient && currentUser.id) {
-      const payload = booksToImport.map(b => sanitizeBookForSupabase(b));
-      let { error: syncError } = await supabaseClient
-        .from('books')
-        .upsert(payload, { onConflict: 'id' });
-
-      if (syncError && handleSupabaseSchemaError(syncError)) {
-        const safePayload = booksToImport.map(b => sanitizeBookForSupabase(b));
-        const res = await supabaseClient
-          .from('books')
-          .upsert(safePayload, { onConflict: 'id' });
-        syncError = res.error;
-      }
-      if (syncError) {
-        console.warn('[Oha Import] Supabase upsert error:', syncError);
-      }
-    }
-
-    // 2. Merge into active memory & local storage (upsert existing books with fresh Aladin covers & spines)
-    const importMap = new Map();
-    booksToImport.forEach(b => {
-      importMap.set(b.id, b);
-      if (b.notionId) {
-        const key = 'notion_' + b.notionId.replace(/[^a-zA-Z0-9]/g, '').slice(0, 24);
-        importMap.set(key, b);
-      }
-      if (b.title) {
-        importMap.set(b.title.trim().toLowerCase(), b);
-      }
-    });
-
-    let updatedCount = 0;
-    const existingIds = new Set();
-    books = books.map(existingBook => {
-      existingIds.add(existingBook.id);
-      let fresh = importMap.get(existingBook.id);
-      if (!fresh && existingBook.id && existingBook.id.startsWith('notion_')) {
-        const key = existingBook.id.split('_').slice(0, 2).join('_');
-        fresh = importMap.get(key);
-      }
-      if (!fresh && existingBook.title) {
-        fresh = importMap.get(existingBook.title.trim().toLowerCase());
-      }
-
-      if (fresh) {
-        updatedCount++;
-        return {
-          ...existingBook,
-          cover: fresh.cover || existingBook.cover,
-          spineCover: (fresh.spineCover !== undefined && fresh.spineCover !== '') ? fresh.spineCover : existingBook.spineCover,
-          pages: fresh.pages || existingBook.pages
-        };
-      }
-      return existingBook;
-    });
-
-    const newItems = booksToImport.filter(b => {
-      if (existingIds.has(b.id)) return false;
-      const titleLower = (b.title || '').trim().toLowerCase();
-      return !books.some(eb => (eb.title || '').trim().toLowerCase() === titleLower);
-    });
-
-    books = [...newItems, ...books];
-    books.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-
-    saveData();
-    closeModal('oha-import-modal');
-    renderGallery();
-    updateSidebar();
-
-    const totalSynced = newItems.length + updatedCount;
-    toast(`🎉 2025년 완독 도서 ${totalSynced}권의 알라딘 표지 및 책등을 성공적으로 동기화했습니다!`, 4000);
-  } catch (err) {
-    console.error('[Oha Import] Execution failed:', err);
-    toast('도서 데이터를 가져오는 중 오류가 발생했습니다.');
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = originalHtml;
-    }
-  }
-}
-
-async function syncOhaBooksAladinMetadata() {
-  try {
-    const rawData = (typeof window !== 'undefined' && window.OHA_BOOKS_SCRAPED) || [];
-    if (!rawData || rawData.length === 0 || !Array.isArray(books) || books.length === 0) return;
-
-    const aladinMap = new Map();
-    const normalize = (t) => (t || '').replace(/[\s\-_:：·,，\(\)]/g, '').toLowerCase();
-    rawData.forEach(b => {
-      if (b.title) {
-        aladinMap.set(b.title.trim().toLowerCase(), b);
-        aladinMap.set(normalize(b.title), b);
-      }
-      if (b.notionId) {
-        const cleanNotion = b.notionId.replace(/[^a-zA-Z0-9]/g, '').slice(0, 24);
-        aladinMap.set('notion_' + cleanNotion, b);
-      }
-      if (b.id) {
-        aladinMap.set(b.id, b);
-      }
-    });
-
-    let changed = false;
-    books.forEach(b => {
-      const key = (b.title || '').trim().toLowerCase();
-      const normKey = normalize(b.title);
-      let aladinBook = aladinMap.get(key) || aladinMap.get(normKey);
-      if (!aladinBook && b.id) {
-        aladinBook = aladinMap.get(b.id);
-        if (!aladinBook && b.id.startsWith('notion_')) {
-          const prefix = b.id.split('_').slice(0, 2).join('_');
-          aladinBook = aladinMap.get(prefix);
-        }
-      }
-      if (aladinBook) {
-        // Check if cover is non-Aladin (e.g. shopping-phinf.pstatic.net) or spineCover missing
-        const isAladinCover = b.cover && b.cover.includes('image.aladin.co.kr');
-        const isProblemCover = !b.cover || b.cover.includes('pstatic.net') || b.cover.includes('shopping-phinf') || b.cover.includes('.png') || !b.cover.startsWith('http');
-        if ((!isAladinCover || isProblemCover) && aladinBook.cover && aladinBook.cover.includes('image.aladin.co.kr')) {
-          b.cover = aladinBook.cover;
-          changed = true;
-        } else if ((b.title || '').includes('블로그는 마술이다') || (aladinBook.title || '').includes('블로그는 마술이다')) {
-          if (b.cover && (b.cover.includes('.png') || !b.cover.startsWith('http'))) {
-            b.cover = '';
-            changed = true;
-          }
-        }
-        if ((!b.spineCover || !b.spineCover.includes('image.aladin.co.kr')) && aladinBook.spineCover) {
-          b.spineCover = aladinBook.spineCover;
-          changed = true;
-        }
-        if (!b.pages && aladinBook.pages) {
-          b.pages = aladinBook.pages;
-          changed = true;
-        }
-      }
-    });
-
-    if (changed) {
-      saveData();
-      renderGallery();
-      updateSidebar();
-      if (supabaseClient && currentUser && currentUser.id) {
-        const payload = books
-          .filter(b => (b.id && b.id.startsWith('notion_')) || aladinMap.has((b.title || '').trim().toLowerCase()))
-          .map(b => sanitizeBookForSupabase(b));
-        if (payload.length > 0) {
-          try {
-            await supabaseClient.from('books').upsert(payload, { onConflict: 'id' });
-          } catch (err) {
-            console.warn('[Aladin Sync] Supabase sync error:', err);
-          }
-        }
-      }
-    }
-  } catch (syncErr) {
-    console.warn('[Aladin Sync] Metadata sync error:', syncErr);
-  }
 }
 
 /* ==============================================
@@ -7773,12 +7539,6 @@ function resolveCommunityBookOwner(b, source) {
     }
   }
 
-  // 5. 오하 완독 도서 데이터셋(window.OHA_BOOKS_SCRAPED)의 도서와 ID 또는 노션 ID 매칭
-  if (typeof window !== 'undefined' && Array.isArray(window.OHA_BOOKS_SCRAPED)) {
-    const isOhaBook = window.OHA_BOOKS_SCRAPED.some(ob => ob.id === bid || (ob.notionId && bid.includes(ob.notionId.replace(/-/g, '').slice(0, 24))));
-    if (isOhaBook) return 'user_owner_oha';
-  }
-
   return 'remote_anon_' + (bid || 'unknown');
 }
 
@@ -7836,54 +7596,6 @@ function getAllCommunityBooks() {
   // 3. Shared community dataset (window.NEO_BOOKS_131) from Neo
   if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
     window.NEO_BOOKS_131.forEach(b => processBook(b, 'neo_dataset'));
-  }
-
-  // 4. Scraped Notion dataset (window.OHA_BOOKS_SCRAPED) from Oha
-  if (typeof window !== 'undefined' && Array.isArray(window.OHA_BOOKS_SCRAPED)) {
-    window.OHA_BOOKS_SCRAPED.forEach(b => processBook(b, 'oha_dataset'));
-  }
-
-  // Enrich all community books with official Aladin metadata from OHA_BOOKS_SCRAPED
-  if (typeof window !== 'undefined' && Array.isArray(window.OHA_BOOKS_SCRAPED)) {
-    const ohaMap = new Map();
-    const normalize = (t) => (t || '').replace(/[\s\-_:：·,，\(\)]/g, '').toLowerCase();
-    window.OHA_BOOKS_SCRAPED.forEach(ob => {
-      if (ob.title) {
-        ohaMap.set(ob.title.trim().toLowerCase(), ob);
-        ohaMap.set(normalize(ob.title), ob);
-      }
-      if (ob.notionId) {
-        const cleanNotion = ob.notionId.replace(/[^a-zA-Z0-9]/g, '').slice(0, 24);
-        ohaMap.set('notion_' + cleanNotion, ob);
-      }
-      if (ob.id) {
-        ohaMap.set(ob.id, ob);
-      }
-    });
-
-    map.forEach((b) => {
-      const titleKey = (b.title || '').trim().toLowerCase();
-      const normKey = normalize(b.title);
-      let ob = ohaMap.get(titleKey) || ohaMap.get(normKey);
-      if (!ob && b.id) {
-        ob = ohaMap.get(b.id);
-        if (!ob && b.id.startsWith('notion_')) {
-          const prefix = b.id.split('_').slice(0, 2).join('_');
-          ob = ohaMap.get(prefix);
-        }
-      }
-      if (ob) {
-        if (ob.cover && ob.cover.includes('image.aladin.co.kr') && (!b.cover || !b.cover.includes('image.aladin.co.kr'))) {
-          b.cover = ob.cover;
-        }
-        if (ob.spineCover && ob.spineCover.includes('image.aladin.co.kr') && (!b.spineCover || !b.spineCover.includes('image.aladin.co.kr'))) {
-          b.spineCover = ob.spineCover;
-        }
-        if (!b.pages && ob.pages) {
-          b.pages = ob.pages;
-        }
-      }
-    });
   }
 
   return Array.from(map.values());
@@ -8449,11 +8161,6 @@ function getMostShelvedCommunityBooks() {
     window.NEO_BOOKS_131.forEach(b => addToGroup(b, 'neo_dataset'));
   }
 
-  // 4. 노션 완독 데이터셋 도서 (오하 독서가 완독 도서)
-  if (typeof window !== 'undefined' && Array.isArray(window.OHA_BOOKS_SCRAPED)) {
-    window.OHA_BOOKS_SCRAPED.forEach(b => addToGroup(b, 'oha_dataset'));
-  }
-
   const result = [];
   groups.forEach((g) => {
     // 한 사람이 여러 번 꽂은 것은 1회로 합산 -> 서로 다른 독서가(서재) 수만 카운트
@@ -8922,10 +8629,6 @@ function renderCommunityScraps() {
     if (!coverUrl) {
       const normalize = (t) => (t || '').replace(/[\s\-_:：·,，\(\)]/g, '').toLowerCase();
       const normTitle = normalize(mainTitle);
-      if (typeof window !== 'undefined' && Array.isArray(window.OHA_BOOKS_SCRAPED)) {
-        const ob = window.OHA_BOOKS_SCRAPED.find(b => (normTitle && normalize(b.title) === normTitle) || (b.id === s.bookId));
-        if (ob && ob.cover) coverUrl = getSafeImageUrl(ob.cover);
-      }
       if (!coverUrl && typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
         const nb = window.NEO_BOOKS_131.find(b => (normTitle && normalize(b.title) === normTitle) || (b.id === s.bookId));
         if (nb && nb.cover) coverUrl = getSafeImageUrl(nb.cover);
