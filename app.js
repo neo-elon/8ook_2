@@ -7175,7 +7175,7 @@ function getUserNickname() {
 
   if (!nick) {
     if (currentUser && isOhaUser(currentUser)) {
-      nick = 'reader_oha';
+      nick = hashStringToNickname('user_owner_oha');
     } else {
       nick = generateDefaultNickname();
     }
@@ -7427,12 +7427,9 @@ function getCommunityItemOwnerNickname(item, source = '') {
     return { nickname: item.nickname.trim().toLowerCase(), isMe: false };
   }
 
-  // 큐레이터 및 특별 독서가
+  // 큐레이터
   if (ownerId === 'user_owner_neo' || effSource === 'neo_dataset' || String(item.user_id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') {
     return { nickname: 'curator_neo', isMe: false };
-  }
-  if (ownerId === 'user_owner_oha' || effSource === 'oha_dataset' || String(item.user_id) === '7396cf84-8b75-4617-a050-5ed974fcbe02') {
-    return { nickname: 'reader_oha', isMe: false };
   }
 
   // 그 외: '독서가 1인당 1닉네임' 완전 일치를 위해 오직 정규화된 ownerId만을 시드로 사용!
