@@ -176,6 +176,9 @@ let remoteCommunityBooks = [];
 let communityLikesMap = new Map();
 let commLikesChannel = null;
 let localLikeBroadcast = null;
+let communityCommentsMap = new Map(); // bookId -> [ { id, bookId, userId, nickname, text, createdAt } ]
+let commCommentsChannel = null;
+let localCommentBroadcast = null;
 let currentCommunityTab = 'books';
 let communityBooksLimit = 9;
 let communityPopularBooksLimit = 9;
@@ -197,6 +200,11 @@ let currentAladinQuery = '';
 function isLikeRecord(book) {
   if (!book) return false;
   return book.title === '__like__' || (typeof book.id === 'string' && book.id.startsWith('like_'));
+}
+
+function isCommentRecord(book) {
+  if (!book) return false;
+  return book.title === '__comment__' || (typeof book.id === 'string' && book.id.startsWith('cmt_'));
 }
 
 function isGuideBook(book) {
@@ -287,16 +295,17 @@ function saveData() {
   try {
     if (currentUser) {
       // 로그인 사용자 로컬 저장소 (오하 본인은 자신의 전체 서재 저장, 타인은 가이드북/좋아요 제외)
-      const userBooks = books.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isOhaImportedBook(b));
+      const userBooks = books.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isOhaImportedBook(b));
       localStorage.setItem(`rj_books_${currentUser.id}`, JSON.stringify(userBooks));
     } else {
-      const guestBooks = books.filter(b => !isLikeRecord(b) && !isOhaImportedBook(b));
+      const guestBooks = books.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isOhaImportedBook(b));
       localStorage.setItem('rj_books', JSON.stringify(guestBooks));
     }
   } catch (e) { }
 }
 
 async function loadData() {
+  loadCommunityCommentsFromStorage();
   let localBooks = [];
   try {
     const key = currentUser ? `rj_books_${currentUser.id}` : 'rj_books';
@@ -305,7 +314,7 @@ async function loadData() {
   } catch (e) { }
 
   // 1. 로컬 저장소에서 가이드북, 좋아요 레코드, 오하 가져오기 도서 제외
-  localBooks = localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isOhaImportedBook(b));
+  localBooks = localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isOhaImportedBook(b));
 
   // 로컬 스토리지에 남아있던 오하 도서 즉시 청소
   try {
@@ -390,7 +399,7 @@ async function loadData() {
     }
 
     const rawRemoteBooks = data || [];
-    const remoteBooks = rawRemoteBooks.filter(b => !isLikeRecord(b) && !isOhaImportedBook(b));
+    const remoteBooks = rawRemoteBooks.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isOhaImportedBook(b));
     if (remoteBooks.length > 0 && 'spineCover' in remoteBooks[0]) {
       dbSupportsSpineCover = true;
     }
@@ -401,7 +410,7 @@ async function loadData() {
     if (guestBooksStr) {
       try { guestBooks = JSON.parse(guestBooksStr); } catch (e) { }
     }
-    const userGuestBooks = guestBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isOhaImportedBook(b));
+    const userGuestBooks = guestBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isOhaImportedBook(b));
 
     if (remoteBooks.length === 0 && userGuestBooks.length > 0) {
       const booksToUpload = userGuestBooks.map(b => {
@@ -558,7 +567,7 @@ async function loadData() {
     initCommunityLikesChannel();
   } catch (e) {
     console.error('Supabase load error, using local storage backup:', e);
-    books = (currentUser ? localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b)) : localBooks.filter(b => !isLikeRecord(b))).filter(b => !isOhaImportedBook(b));
+    books = (currentUser ? localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b)) : localBooks.filter(b => !isLikeRecord(b) && !isCommentRecord(b))).filter(b => !isOhaImportedBook(b));
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
@@ -7938,7 +7947,7 @@ function getAllCommunityBooks() {
 
   function processBook(b, source) {
     // 실제 등록 사용자가 없는 원격 테스트/더미 도서 제외 (오하의 직접 입력 도서와 노션 가져오기 도서는 모두 단일 서재로 통합)
-    if (!b || isGuideBook(b) || !b.title || b.title === '__like__' || b.id?.startsWith('like_') || b.is_public === false || (source === 'remote' && !b.user_id)) return;
+    if (!b || isGuideBook(b) || !b.title || isLikeRecord(b) || isCommentRecord(b) || b.is_public === false || (source === 'remote' && !b.user_id)) return;
     const ownerId = resolveCommunityBookOwner(b, source);
     const normTitle = getBookGroupingKey(b);
     if (!normTitle) return;
@@ -8039,12 +8048,14 @@ async function showCommunity(pushHistory = true) {
   renderCommunityScraps();
   switchCommunityTab(currentCommunityTab);
 
-  // 최신 Supabase 원격 도서 및 좋아요 데이터 비동기 페치 및 동기화 렌더링
+  // 최신 Supabase 원격 도서, 좋아요 및 말풍선 댓글 데이터 비동기 페치 및 동기화 렌더링
   await Promise.all([
     fetchRemoteCommunityBooks(),
-    fetchCommunityLikes()
+    fetchCommunityLikes(),
+    fetchCommunityComments()
   ]);
   initCommunityLikesChannel();
+  initCommunityCommentsChannel();
 }
 
 function switchCommunityTab(tab) {
@@ -8281,6 +8292,9 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
   const ownerNick = ownerInfo.nickname;
   const isMe = ownerInfo.isMe;
 
+  const comments = getBookComments(bid);
+  const commentCount = comments.length;
+
   return `
     <div class="comm-book-card" id="comm-bk-${esc(bid)}">
       <div class="comm-book-header">
@@ -8301,9 +8315,27 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
       ${reviewHtml}
       <div class="comm-book-meta">
         <span class="comm-book-time">${esc(b.time || '')}</span>
-        <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
-          <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
-        </button>
+        <div class="comm-book-meta-right">
+          <button type="button" class="comm-book-comment-btn" onclick="toggleBookCommentsSection('${esc(bid)}', event)" title="말풍선 댓글 보기 및 작성">
+            <span class="comm-comment-icon">💬</span> <span id="comm-cmt-cnt-${esc(bid)}">${commentCount}</span>
+          </button>
+          <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
+            <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
+          </button>
+        </div>
+      </div>
+      <div class="comm-book-comments-sec" id="comm-cmts-sec-${esc(bid)}">
+        <div class="comm-comments-list" id="comm-cmts-list-${esc(bid)}">
+          ${renderCommentsListHtml(bid, comments)}
+        </div>
+        <div class="comm-comment-form">
+          <div class="comm-comment-input-box">
+            <input type="text" class="comm-comment-input" id="comm-cmt-input-${esc(bid)}" placeholder="말풍선 댓글 남기기..." maxlength="200" onkeydown="handleCommentKeyDown(event, '${esc(bid)}')" />
+            <button type="button" class="comm-comment-submit-btn" onclick="submitBookComment('${esc(bid)}')" title="댓글 등록">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -8350,6 +8382,12 @@ function estimateCommunityCardHeight(b, isPopular = false) {
     if (Array.isArray(b.keywords) && b.keywords.length > 0) h += 32;
     if (b.review) {
       h += 24 + Math.ceil(String(b.review).length / 22) * 20;
+    }
+    const cmts = getBookComments(b.id);
+    if (cmts.length > 0) {
+      h += 42 + Math.min(cmts.length, 3) * 52;
+    } else {
+      h += 50;
     }
   }
   return h;
@@ -9055,6 +9093,327 @@ async function toggleCommunityBookLike(id, btnEl, event) {
         toast('로그인하시면 다른 기기에서도 좋아요가 영구 보존됩니다.');
       }
     }, 1200);
+  }
+}
+
+/* ==============================================
+   COMMUNITY BOOK COMMENTS (말풍선 댓글)
+============================================== */
+const DEFAULT_COMMUNITY_COMMENTS = {
+  'neo_2025_001': [
+    {
+      id: 'cmt_seed_1',
+      bookId: 'neo_2025_001',
+      userId: 'user_owner_oha',
+      nickname: 'oha',
+      text: '완독 축하드려요! 저도 이 책 읽어보고 싶었는데 평점과 한 줄 평 보고 바로 장바구니에 담았습니다 :)',
+      createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString()
+    }
+  ],
+  'neo_2025_002': [
+    {
+      id: 'cmt_seed_2',
+      bookId: 'neo_2025_002',
+      userId: 'user_owner_neo',
+      nickname: 'neo_elon',
+      text: '생각할 거리가 정말 많은 책이었습니다. 꼭 읽어보시길 추천해요!',
+      createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString()
+    }
+  ]
+};
+
+function loadCommunityCommentsFromStorage() {
+  try {
+    const raw = localStorage.getItem('8ook_community_comments');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed === 'object' && parsed !== null) {
+        communityCommentsMap.clear();
+        Object.entries(parsed).forEach(([bid, list]) => {
+          if (Array.isArray(list)) {
+            communityCommentsMap.set(String(bid), list);
+          }
+        });
+        return;
+      }
+    }
+  } catch (e) {}
+
+  // Initialize with seed comments if empty
+  communityCommentsMap.clear();
+  Object.entries(DEFAULT_COMMUNITY_COMMENTS).forEach(([bid, list]) => {
+    communityCommentsMap.set(String(bid), [...list]);
+  });
+  saveCommunityCommentsToStorage();
+}
+
+function saveCommunityCommentsToStorage() {
+  try {
+    const obj = {};
+    communityCommentsMap.forEach((list, bid) => {
+      if (Array.isArray(list) && list.length > 0) {
+        obj[bid] = list;
+      }
+    });
+    localStorage.setItem('8ook_community_comments', JSON.stringify(obj));
+  } catch (e) {}
+}
+
+function getBookComments(bookId) {
+  const strId = String(bookId);
+  return communityCommentsMap.get(strId) || [];
+}
+
+function renderCommentsListHtml(bookId, comments) {
+  if (!comments || comments.length === 0) {
+    return `<div class="comm-comment-empty-hint">💭 첫 번째 말풍선 댓글을 남겨보세요!</div>`;
+  }
+  const myId = getClientLikeId();
+  const currentNick = getUserNickname();
+
+  return comments.map(c => {
+    const isMyComment = (currentUser && c.userId === currentUser.id) || c.userId === myId || (c.nickname && c.nickname === currentNick);
+    return `
+      <div class="comm-comment-item${isMyComment ? ' my-comment' : ''}" id="cmt-item-${esc(c.id)}">
+        <div class="comm-comment-meta-row">
+          <span class="comm-comment-author"><span class="comm-user-at">@</span>${esc(c.nickname || '독서가')}</span>
+          ${isMyComment ? '<span class="comm-my-badge" style="font-size:9px; padding:1px 4.5px; line-height:1.2;">나</span>' : ''}
+          <span class="comm-comment-time">${esc(formatTimeAgo(c.createdAt))}</span>
+          ${isMyComment ? `<button type="button" class="comm-comment-delete-btn" onclick="deleteBookComment('${esc(c.id)}', '${esc(bookId)}', event)" title="댓글 삭제">✕</button>` : ''}
+        </div>
+        <div class="comm-comment-bubble">
+          ${esc(c.text)}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function submitBookComment(bookId) {
+  const strId = String(bookId);
+  const input = document.getElementById('comm-cmt-input-' + strId);
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) {
+    toast('댓글 내용을 입력해주세요.');
+    input.focus();
+    return;
+  }
+  if (text.length > 200) {
+    toast('댓글은 최대 200자까지 작성할 수 있습니다.');
+    return;
+  }
+
+  const nick = getUserNickname();
+  const myId = getClientLikeId();
+  const cmtId = 'cmt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+  const newCmt = {
+    id: cmtId,
+    bookId: strId,
+    userId: currentUser ? currentUser.id : myId,
+    nickname: nick,
+    text: text,
+    createdAt: new Date().toISOString()
+  };
+
+  if (!communityCommentsMap.has(strId)) {
+    communityCommentsMap.set(strId, []);
+  }
+  communityCommentsMap.get(strId).push(newCmt);
+  saveCommunityCommentsToStorage();
+
+  input.value = '';
+  updateBookCommentsUI(strId);
+  toast('말풍선 댓글이 등록되었습니다 💬');
+
+  broadcastCommentUpdate('add', newCmt);
+
+  if (currentUser && supabaseClient) {
+    try {
+      await supabaseClient.from('books').insert({
+        id: cmtId,
+        user_id: currentUser.id,
+        title: '__comment__',
+        author: strId,
+        sentence: text,
+        keywords: [nick],
+        created_at: newCmt.createdAt,
+        is_public: true
+      });
+    } catch (err) {
+      console.warn('[Comment Sync] Supabase insert error:', err);
+    }
+  }
+}
+
+async function deleteBookComment(commentId, bookId, event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  const strId = String(bookId);
+  const strCmtId = String(commentId);
+  if (!confirm('이 말풍선 댓글을 삭제하시겠습니까?')) return;
+
+  if (communityCommentsMap.has(strId)) {
+    const list = communityCommentsMap.get(strId);
+    communityCommentsMap.set(strId, list.filter(c => c.id !== strCmtId));
+    saveCommunityCommentsToStorage();
+    updateBookCommentsUI(strId);
+    toast('댓글이 삭제되었습니다.');
+  }
+
+  broadcastCommentUpdate('delete', { id: strCmtId, bookId: strId });
+
+  if (currentUser && supabaseClient) {
+    try {
+      await supabaseClient.from('books').delete().eq('id', strCmtId).eq('user_id', currentUser.id);
+    } catch (err) {
+      console.warn('[Comment Sync] Supabase delete error:', err);
+    }
+  }
+}
+
+function handleCommentKeyDown(event, bookId) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    submitBookComment(bookId);
+  }
+}
+
+function toggleBookCommentsSection(bookId, event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  const strId = String(bookId);
+  const sec = document.getElementById('comm-cmts-sec-' + strId);
+  if (!sec) return;
+  sec.classList.toggle('collapsed');
+  if (!sec.classList.contains('collapsed')) {
+    const input = document.getElementById('comm-cmt-input-' + strId);
+    if (input) input.focus();
+  }
+}
+
+function updateBookCommentsUI(bookId) {
+  const strId = String(bookId);
+  const comments = getBookComments(strId);
+  const listEl = document.getElementById('comm-cmts-list-' + strId);
+  if (listEl) {
+    listEl.innerHTML = renderCommentsListHtml(strId, comments);
+    listEl.scrollTop = listEl.scrollHeight;
+  }
+  const cntEl = document.getElementById('comm-cmt-cnt-' + strId);
+  if (cntEl) {
+    cntEl.textContent = String(comments.length);
+  }
+}
+
+async function fetchCommunityComments() {
+  if (!supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient
+      .from('books')
+      .select('id, user_id, author, sentence, keywords, created_at')
+      .eq('title', '__comment__')
+      .order('created_at', { ascending: true });
+
+    if (!error && Array.isArray(data)) {
+      data.forEach(row => {
+        const bookId = String(row.author);
+        if (!bookId) return;
+        if (!communityCommentsMap.has(bookId)) {
+          communityCommentsMap.set(bookId, []);
+        }
+        const list = communityCommentsMap.get(bookId);
+        if (!list.some(c => c.id === row.id)) {
+          const nick = (Array.isArray(row.keywords) && row.keywords[0]) || '독서가';
+          list.push({
+            id: row.id,
+            bookId: bookId,
+            userId: row.user_id,
+            nickname: nick,
+            text: row.sentence || '',
+            createdAt: row.created_at
+          });
+        }
+      });
+      saveCommunityCommentsToStorage();
+      if (currentCommunityTab === 'books') {
+        communityCommentsMap.forEach((_, bid) => {
+          updateBookCommentsUI(bid);
+        });
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to fetch community comments:', e);
+  }
+}
+
+function initCommunityCommentsChannel() {
+  if (typeof BroadcastChannel !== 'undefined' && !localCommentBroadcast) {
+    try {
+      localCommentBroadcast = new BroadcastChannel('8ook_comments_channel');
+      localCommentBroadcast.onmessage = (event) => {
+        if (event && event.data) {
+          applyIncomingCommentUpdate(event.data);
+        }
+      };
+    } catch (e) {}
+  }
+
+  if (!supabaseClient || commCommentsChannel) return;
+  try {
+    commCommentsChannel = supabaseClient.channel('comm_comments_broadcast')
+      .on('broadcast', { event: 'comment_update' }, (payload) => {
+        if (payload && payload.payload) {
+          applyIncomingCommentUpdate(payload.payload);
+        }
+      })
+      .subscribe();
+  } catch (e) {
+    console.warn('Realtime comment channel error:', e);
+  }
+}
+
+function broadcastCommentUpdate(action, commentData) {
+  const payload = { action, comment: commentData };
+  if (localCommentBroadcast) {
+    try { localCommentBroadcast.postMessage(payload); } catch (e) {}
+  }
+  if (commCommentsChannel) {
+    try {
+      commCommentsChannel.send({
+        type: 'broadcast',
+        event: 'comment_update',
+        payload: payload
+      });
+    } catch (e) {}
+  }
+}
+
+function applyIncomingCommentUpdate(payload) {
+  if (!payload || !payload.comment) return;
+  const { action, comment } = payload;
+  const bookId = String(comment.bookId);
+
+  if (!communityCommentsMap.has(bookId)) {
+    communityCommentsMap.set(bookId, []);
+  }
+  const list = communityCommentsMap.get(bookId);
+
+  if (action === 'add') {
+    if (!list.some(c => c.id === comment.id)) {
+      list.push(comment);
+      saveCommunityCommentsToStorage();
+      updateBookCommentsUI(bookId);
+    }
+  } else if (action === 'delete') {
+    const nextList = list.filter(c => c.id !== comment.id);
+    communityCommentsMap.set(bookId, nextList);
+    saveCommunityCommentsToStorage();
+    updateBookCommentsUI(bookId);
   }
 }
 

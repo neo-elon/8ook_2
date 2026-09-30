@@ -3708,6 +3708,244 @@
       font-weight: 600;
     }
 
+    /* ── 새로 추가된 책 말풍선 댓글 (Speech Bubble Comments) ── */
+    .comm-book-meta-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .comm-book-comment-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 11px;
+      color: var(--text-300);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s var(--ease);
+      line-height: 1;
+    }
+    .comm-book-comment-btn:hover {
+      background: var(--glass-hover);
+      border-color: var(--border-accent);
+      color: var(--text-100);
+    }
+    .comm-book-comment-btn .comm-comment-icon {
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .comm-book-comments-sec {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      transition: all 0.2s var(--ease);
+    }
+    .comm-book-comments-sec.collapsed {
+      display: none;
+    }
+
+    .comm-comments-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 3px;
+    }
+    .comm-comments-list::-webkit-scrollbar {
+      width: 4px;
+    }
+    .comm-comments-list::-webkit-scrollbar-thumb {
+      background: rgba(140, 98, 57, 0.2);
+      border-radius: 4px;
+    }
+
+    /* 말풍선 아이템 */
+    .comm-comment-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5px;
+      animation: bubblePop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes bubblePop {
+      0% {
+        opacity: 0;
+        transform: translateY(3px) scale(0.98);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .comm-comment-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10.5px;
+      line-height: 1.2;
+    }
+    .comm-comment-author {
+      font-weight: 700;
+      color: var(--text-200);
+      display: inline-flex;
+      align-items: center;
+      gap: 1px;
+      font-size: 11px;
+    }
+    .comm-comment-author .comm-user-at {
+      color: var(--lavender);
+      font-size: 10px;
+    }
+    .comm-comment-time {
+      font-size: 9.5px;
+      color: var(--text-400);
+    }
+    .comm-comment-delete-btn {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: var(--text-400);
+      font-size: 10px;
+      cursor: pointer;
+      padding: 0 3px;
+      line-height: 1;
+      opacity: 0.6;
+      transition: opacity 0.15s, color 0.15s;
+    }
+    .comm-comment-delete-btn:hover {
+      opacity: 1;
+      color: #ef4444;
+    }
+
+    /* 실제 말풍선 박스 (Speech Bubble) */
+    .comm-comment-bubble {
+      position: relative;
+      background: rgba(140, 98, 57, 0.05);
+      border: 1px solid rgba(140, 98, 57, 0.16);
+      border-radius: 4px 12px 12px 12px; /* 좌상단 꼬리표 포인트 */
+      padding: 7px 10px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text-100);
+      word-break: break-word;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+    .comm-comment-bubble::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: 7px;
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-bottom: 5px solid rgba(140, 98, 57, 0.18);
+    }
+    .comm-comment-bubble::after {
+      content: '';
+      position: absolute;
+      top: -3.5px;
+      left: 8px;
+      width: 0;
+      height: 0;
+      border-left: 3px solid transparent;
+      border-right: 3px solid transparent;
+      border-bottom: 4px solid var(--bg-surface, #ffffff);
+    }
+
+    body.dark-mode .comm-comment-bubble {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    body.dark-mode .comm-comment-bubble::before {
+      border-bottom-color: rgba(255, 255, 255, 0.14);
+    }
+    body.dark-mode .comm-comment-bubble::after {
+      border-bottom-color: #242220;
+    }
+
+    /* 내가 작성한 말풍선 */
+    .comm-comment-item.my-comment .comm-comment-bubble {
+      background: rgba(140, 98, 57, 0.09);
+      border-color: rgba(140, 98, 57, 0.28);
+    }
+    body.dark-mode .comm-comment-item.my-comment .comm-comment-bubble {
+      background: rgba(184, 154, 122, 0.12);
+      border-color: rgba(184, 154, 122, 0.3);
+    }
+
+    /* 댓글 입력 폼 */
+    .comm-comment-form {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 2px;
+    }
+    .comm-comment-input-box {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .comm-comment-input {
+      width: 100%;
+      height: 29px;
+      padding: 0 28px 0 9px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--glass);
+      font-size: 11.5px;
+      color: var(--text-100);
+      outline: none;
+      transition: all 0.2s;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+    .comm-comment-input:focus {
+      border-color: var(--border-accent);
+      background: var(--bg-surface);
+      box-shadow: 0 0 0 2px rgba(140, 98, 57, 0.1);
+    }
+    .comm-comment-submit-btn {
+      position: absolute;
+      right: 3px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: none;
+      background: var(--lavender, #8c6239);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.15s, background-color 0.15s;
+    }
+    .comm-comment-submit-btn:hover {
+      background: var(--violet, #5a3512);
+      transform: translateY(-50%) scale(1.08);
+    }
+    .comm-comment-submit-btn:active {
+      transform: translateY(-50%) scale(0.92);
+    }
+    .comm-comment-empty-hint {
+      font-size: 11px;
+      color: var(--text-400);
+      padding: 2px 4px;
+      font-style: italic;
+    }
+
     /* ── 함께 읽은 책 카드 (상세 이동 비활성화) ── */
     .comm-popular-book-card .comm-book-cover {
       cursor: default;
