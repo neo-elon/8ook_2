@@ -5997,8 +5997,10 @@ body.dark-mode .profile-card-user-info {
 /* 3권 표지 그리드 */
 .profile-rep-books-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
 }
 .profile-rep-slot {
   position: relative;
@@ -6006,8 +6008,11 @@ body.dark-mode .profile-card-user-info {
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  min-width: 0;
+  width: 100%;
   cursor: pointer;
   transition: transform 0.2s var(--ease);
+  box-sizing: border-box;
 }
 .profile-rep-slot:hover {
   transform: translateY(-3px);
@@ -6025,6 +6030,7 @@ body.dark-mode .profile-card-user-info {
   align-items: center;
   justify-content: center;
   transition: all 0.2s var(--ease);
+  box-sizing: border-box;
 }
 .profile-rep-slot:hover .profile-rep-cover-wrap {
   border-color: var(--violet);
@@ -6060,10 +6066,14 @@ body.dark-mode .profile-card-user-info {
   color: var(--text-200);
   text-align: center;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   line-height: 1.3;
+  display: block;
+  box-sizing: border-box;
 }
 .profile-rep-slot-badge {
   position: absolute;

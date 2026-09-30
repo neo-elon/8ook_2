@@ -7689,7 +7689,7 @@ function renderProfileRepBooksGrid() {
             }
             ${isMe ? `<div class="profile-rep-slot-edit-overlay"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 변경</div>` : ''}
           </div>
-          <div class="profile-rep-slot-title">${esc(b.title)}</div>
+          <div class="profile-rep-slot-title" title="${esc(b.title)}">${esc(b.title)}</div>
         </div>
       `;
     } else {
