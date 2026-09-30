@@ -3332,7 +3332,7 @@
       font-weight: 600;
     }
 
-    /* ── 많이 꽂힌 책 카드 (상세 이동 비활성화) ── */
+    /* ── 함께 읽은 책 카드 (상세 이동 비활성화) ── */
     .comm-popular-book-card .comm-book-cover {
       cursor: default;
     }

@@ -8494,7 +8494,7 @@ function updateCommunityPopularTrigger(currentCount, totalCount) {
   } else if (totalCount > 9) {
     triggerEl.style.display = 'block';
     triggerEl.innerHTML = `
-      <div class="comm-all-loaded-text">모든 꽂힌 도서를 불러왔습니다 (${totalCount}권)</div>
+      <div class="comm-all-loaded-text">함께 읽은 도서를 모두 불러왔습니다 (${totalCount}권)</div>
     `;
   } else {
     triggerEl.style.display = 'none';
@@ -8513,8 +8513,8 @@ function renderCommunityPopularBooks() {
   if (list.length === 0) {
     container.innerHTML = `
       <div style="width: 100%; padding: 60px 20px; text-align: center; color: var(--text-300); font-size: 13.5px;">
-        <div style="font-weight: 600; color: var(--text-200); margin-bottom: 4px;">아직 여러 서재에 꽂힌 도서가 없습니다.</div>
-        <div style="font-size: 12px; color: var(--text-400);">여러 서재에 공통으로 책이 등록되면 이곳에 모입니다.</div>
+        <div style="font-weight: 600; color: var(--text-200); margin-bottom: 4px;">아직 함께 읽은 도서가 없습니다.</div>
+        <div style="font-size: 12px; color: var(--text-400);">2명 이상의 독서가가 함께 읽은 책이 이곳에 모입니다.</div>
       </div>
     `;
     const triggerEl = document.getElementById('comm-popular-load-trigger');
