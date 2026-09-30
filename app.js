@@ -8291,7 +8291,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
       <div class="comm-book-meta">
         <span class="comm-book-time">${esc(b.time || '')}</span>
         <div class="comm-book-meta-right">
-          <button type="button" class="comm-book-comment-btn" onclick="toggleBookCommentsSection('${esc(bid)}', event)" title="말풍선 댓글 보기 및 작성">
+          <button type="button" class="comm-book-comment-btn" id="comm-cmt-toggle-btn-${esc(bid)}" onclick="toggleBookCommentsSection('${esc(bid)}', event)" title="말풍선 댓글 보기 및 작성">
             <span class="comm-comment-icon">💬</span> <span id="comm-cmt-cnt-${esc(bid)}">${commentCount}</span>
           </button>
           <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
@@ -8299,7 +8299,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
           </button>
         </div>
       </div>
-      <div class="comm-book-comments-sec" id="comm-cmts-sec-${esc(bid)}">
+      <div class="comm-book-comments-sec collapsed" id="comm-cmts-sec-${esc(bid)}">
         <div class="comm-comments-list" id="comm-cmts-list-${esc(bid)}">
           ${renderCommentsListHtml(bid, comments)}
         </div>
@@ -9083,6 +9083,15 @@ const DEFAULT_COMMUNITY_COMMENTS = {
       nickname: 'oha',
       text: '완독 축하드려요! 저도 이 책 읽어보고 싶었는데 평점과 한 줄 평 보고 바로 장바구니에 담았습니다 :)',
       createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString()
+    },
+    {
+      id: 'cmt_seed_reply_1',
+      bookId: 'neo_2025_001',
+      parentId: 'cmt_seed_1',
+      userId: 'user_owner_neo',
+      nickname: 'neo_elon',
+      text: '감사합니다 @oha님! 읽으시면 분명 마음에 드실 거예요.',
+      createdAt: new Date(Date.now() - 1000 * 60 * 20).toISOString()
     }
   ],
   'neo_2025_002': [
@@ -9146,22 +9155,170 @@ function renderCommentsListHtml(bookId, comments) {
   const myId = getClientLikeId();
   const currentNick = getUserNickname();
 
-  return comments.map(c => {
+  // Separate root comments and child replies
+  const roots = [];
+  const repliesMap = new Map();
+
+  comments.forEach(c => {
+    if (c.parentId) {
+      if (!repliesMap.has(c.parentId)) {
+        repliesMap.set(c.parentId, []);
+      }
+      repliesMap.get(c.parentId).push(c);
+    } else {
+      roots.push(c);
+    }
+  });
+
+  // Keep orphaned replies visible
+  repliesMap.forEach((repList, pId) => {
+    if (!comments.some(c => c.id === pId)) {
+      roots.push(...repList);
+      repliesMap.delete(pId);
+    }
+  });
+
+  return roots.map(c => {
     const isMyComment = (currentUser && c.userId === currentUser.id) || c.userId === myId || (c.nickname && c.nickname === currentNick);
+    const childReplies = repliesMap.get(c.id) || [];
+
+    const repliesHtml = childReplies.length > 0 ? `
+      <div class="comm-replies-thread">
+        ${childReplies.map(r => {
+          const isMyReply = (currentUser && r.userId === currentUser.id) || r.userId === myId || (r.nickname && r.nickname === currentNick);
+          return `
+            <div class="comm-reply-item${isMyReply ? ' my-comment' : ''}" id="cmt-item-${esc(r.id)}">
+              <div class="comm-comment-meta-row">
+                <span class="comm-reply-branch">↳</span>
+                <span class="comm-comment-author"><span class="comm-user-at">@</span>${esc(r.nickname || '독서가')}</span>
+                ${isMyReply ? '<span class="comm-my-badge" style="font-size:9px; padding:1px 4.5px; line-height:1.2;">나</span>' : ''}
+                <span class="comm-comment-time">${esc(formatTimeAgo(r.createdAt))}</span>
+                <button type="button" class="comm-reply-toggle-btn" onclick="toggleReplyInput('${esc(c.id)}', '${esc(bookId)}', '${esc(r.nickname)}')" title="답글 달기">답글</button>
+                ${isMyReply ? `<button type="button" class="comm-comment-delete-btn" onclick="deleteBookComment('${esc(r.id)}', '${esc(bookId)}', event)" title="댓글 삭제">✕</button>` : ''}
+              </div>
+              <div class="comm-comment-bubble comm-reply-bubble">
+                ${esc(r.text)}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    ` : '';
+
     return `
       <div class="comm-comment-item${isMyComment ? ' my-comment' : ''}" id="cmt-item-${esc(c.id)}">
         <div class="comm-comment-meta-row">
           <span class="comm-comment-author"><span class="comm-user-at">@</span>${esc(c.nickname || '독서가')}</span>
           ${isMyComment ? '<span class="comm-my-badge" style="font-size:9px; padding:1px 4.5px; line-height:1.2;">나</span>' : ''}
           <span class="comm-comment-time">${esc(formatTimeAgo(c.createdAt))}</span>
+          <button type="button" class="comm-reply-toggle-btn" onclick="toggleReplyInput('${esc(c.id)}', '${esc(bookId)}', '${esc(c.nickname)}')" title="답글 달기">답글</button>
           ${isMyComment ? `<button type="button" class="comm-comment-delete-btn" onclick="deleteBookComment('${esc(c.id)}', '${esc(bookId)}', event)" title="댓글 삭제">✕</button>` : ''}
         </div>
         <div class="comm-comment-bubble">
           ${esc(c.text)}
         </div>
+        ${repliesHtml}
+        <div class="comm-reply-form" id="comm-reply-form-${esc(c.id)}" style="display: none;">
+          <div class="comm-reply-input-box">
+            <span class="comm-reply-to-tag" id="comm-reply-to-tag-${esc(c.id)}">@${esc(c.nickname)}</span>
+            <input type="text" class="comm-reply-input" id="comm-reply-input-${esc(c.id)}" placeholder="답글을 남겨보세요..." maxlength="200" onkeydown="handleReplyKeyDown(event, '${esc(c.id)}', '${esc(bookId)}')" />
+            <button type="button" class="comm-comment-submit-btn" onclick="submitBookReply('${esc(c.id)}', '${esc(bookId)}')" title="답글 등록">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+            <button type="button" class="comm-reply-cancel-btn" onclick="toggleReplyInput('${esc(c.id)}', '${esc(bookId)}')" title="취소">✕</button>
+          </div>
+        </div>
       </div>
     `;
   }).join('');
+}
+
+function toggleReplyInput(parentId, bookId, targetNick) {
+  const formEl = document.getElementById('comm-reply-form-' + parentId);
+  if (!formEl) return;
+  const isCurrentlyVisible = formEl.style.display !== 'none' && formEl.style.display !== '';
+  if (isCurrentlyVisible && (!targetNick || formEl.dataset.targetNick === targetNick)) {
+    formEl.style.display = 'none';
+    return;
+  }
+  formEl.style.display = 'block';
+  formEl.dataset.targetNick = targetNick || '';
+  const tagEl = document.getElementById('comm-reply-to-tag-' + parentId);
+  if (tagEl && targetNick) {
+    tagEl.textContent = '@' + targetNick;
+  }
+  const inputEl = document.getElementById('comm-reply-input-' + parentId);
+  if (inputEl) {
+    inputEl.focus();
+  }
+}
+
+function handleReplyKeyDown(event, parentId, bookId) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    submitBookReply(parentId, bookId);
+  } else if (event.key === 'Escape') {
+    toggleReplyInput(parentId, bookId);
+  }
+}
+
+async function submitBookReply(parentId, bookId) {
+  const strId = String(bookId);
+  const strParentId = String(parentId);
+  const input = document.getElementById('comm-reply-input-' + strParentId);
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) {
+    toast('답글 내용을 입력해주세요.');
+    input.focus();
+    return;
+  }
+  if (text.length > 200) {
+    toast('답글은 최대 200자까지 작성할 수 있습니다.');
+    return;
+  }
+
+  const nick = getUserNickname();
+  const myId = getClientLikeId();
+  const replyId = 'cmt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+  const newReply = {
+    id: replyId,
+    bookId: strId,
+    parentId: strParentId,
+    userId: currentUser ? currentUser.id : myId,
+    nickname: nick,
+    text: text,
+    createdAt: new Date().toISOString()
+  };
+
+  if (!communityCommentsMap.has(strId)) {
+    communityCommentsMap.set(strId, []);
+  }
+  communityCommentsMap.get(strId).push(newReply);
+  saveCommunityCommentsToStorage();
+
+  input.value = '';
+  updateBookCommentsUI(strId);
+  toast('답글이 등록되었습니다 💬');
+
+  broadcastCommentUpdate('add', newReply);
+
+  if (currentUser && supabaseClient) {
+    try {
+      await supabaseClient.from('books').insert({
+        id: replyId,
+        user_id: currentUser.id,
+        title: '__comment__',
+        author: strId,
+        sentence: text,
+        keywords: [nick, strParentId],
+        created_at: newReply.createdAt,
+        is_public: true
+      });
+    } catch (err) {
+      console.warn('[Reply Sync] Supabase insert error:', err);
+    }
+  }
 }
 
 async function submitBookComment(bookId) {
@@ -9228,11 +9385,19 @@ async function deleteBookComment(commentId, bookId, event) {
   }
   const strId = String(bookId);
   const strCmtId = String(commentId);
-  if (!confirm('이 말풍선 댓글을 삭제하시겠습니까?')) return;
+  if (!confirm('이 댓글을 삭제하시겠습니까?')) return;
 
   if (communityCommentsMap.has(strId)) {
     const list = communityCommentsMap.get(strId);
-    communityCommentsMap.set(strId, list.filter(c => c.id !== strCmtId));
+    // Delete this comment and its child replies (if any)
+    const toDeleteIds = [strCmtId];
+    list.forEach(c => {
+      if (c.parentId === strCmtId) {
+        toDeleteIds.push(c.id);
+      }
+    });
+    const nextList = list.filter(c => !toDeleteIds.includes(c.id));
+    communityCommentsMap.set(strId, nextList);
     saveCommunityCommentsToStorage();
     updateBookCommentsUI(strId);
     toast('댓글이 삭제되었습니다.');
@@ -9265,7 +9430,12 @@ function toggleBookCommentsSection(bookId, event) {
   const sec = document.getElementById('comm-cmts-sec-' + strId);
   if (!sec) return;
   sec.classList.toggle('collapsed');
-  if (!sec.classList.contains('collapsed')) {
+  const isCollapsed = sec.classList.contains('collapsed');
+  const btn = document.getElementById('comm-cmt-toggle-btn-' + strId);
+  if (btn) {
+    btn.classList.toggle('active', !isCollapsed);
+  }
+  if (!isCollapsed) {
     const input = document.getElementById('comm-cmt-input-' + strId);
     if (input) input.focus();
   }
@@ -9304,9 +9474,11 @@ async function fetchCommunityComments() {
         const list = communityCommentsMap.get(bookId);
         if (!list.some(c => c.id === row.id)) {
           const nick = (Array.isArray(row.keywords) && row.keywords[0]) || '독서가';
+          const parentId = (Array.isArray(row.keywords) && row.keywords[1]) || null;
           list.push({
             id: row.id,
             bookId: bookId,
+            parentId: parentId,
             userId: row.user_id,
             nickname: nick,
             text: row.sentence || '',
@@ -9363,7 +9535,7 @@ function applyIncomingCommentUpdate(payload) {
       updateBookCommentsUI(bookId);
     }
   } else if (action === 'delete') {
-    const nextList = list.filter(c => c.id !== comment.id);
+    const nextList = list.filter(c => c.id !== comment.id && c.parentId !== comment.id);
     communityCommentsMap.set(bookId, nextList);
     saveCommunityCommentsToStorage();
     updateBookCommentsUI(bookId);

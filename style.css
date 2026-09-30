@@ -3733,6 +3733,17 @@
       border-color: var(--border-accent);
       color: var(--text-100);
     }
+    .comm-book-comment-btn.active {
+      background: rgba(140, 98, 57, 0.12);
+      border-color: var(--terracotta);
+      color: var(--terracotta);
+      font-weight: 600;
+    }
+    body.dark-mode .comm-book-comment-btn.active {
+      background: rgba(184, 154, 122, 0.18);
+      border-color: var(--lavender);
+      color: #dfcfbc;
+    }
     .comm-book-comment-btn .comm-comment-icon {
       font-size: 11px;
       line-height: 1;
@@ -3755,7 +3766,7 @@
       display: flex;
       flex-direction: column;
       gap: 7px;
-      max-height: 200px;
+      max-height: 240px;
       overflow-y: auto;
       padding-right: 3px;
     }
@@ -3807,6 +3818,22 @@
     .comm-comment-time {
       font-size: 9.5px;
       color: var(--text-400);
+    }
+    .comm-reply-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-400);
+      font-size: 10px;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      border-radius: 3px;
+      transition: all 0.15s;
+    }
+    .comm-reply-toggle-btn:hover {
+      color: var(--terracotta);
+      background: rgba(140, 98, 57, 0.08);
+      text-decoration: underline;
     }
     .comm-comment-delete-btn {
       margin-left: auto;
@@ -3873,13 +3900,129 @@
     }
 
     /* 내가 작성한 말풍선 */
-    .comm-comment-item.my-comment .comm-comment-bubble {
+    .comm-comment-item.my-comment > .comm-comment-bubble {
       background: rgba(140, 98, 57, 0.09);
       border-color: rgba(140, 98, 57, 0.28);
     }
-    body.dark-mode .comm-comment-item.my-comment .comm-comment-bubble {
+    body.dark-mode .comm-comment-item.my-comment > .comm-comment-bubble {
       background: rgba(184, 154, 122, 0.12);
       border-color: rgba(184, 154, 122, 0.3);
+    }
+
+    /* ── 대댓글 (Replies Thread) ── */
+    .comm-replies-thread {
+      margin-left: 14px;
+      padding-left: 10px;
+      border-left: 2px solid rgba(140, 98, 57, 0.18);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    body.dark-mode .comm-replies-thread {
+      border-left-color: rgba(255, 255, 255, 0.15);
+    }
+    .comm-reply-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5px;
+      animation: bubblePop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .comm-reply-branch {
+      font-size: 11px;
+      color: var(--lavender, #8c6239);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .comm-reply-bubble {
+      font-size: 11.5px;
+      padding: 6px 9px;
+      background: rgba(140, 98, 57, 0.035);
+      border-radius: 4px 10px 10px 10px;
+    }
+    body.dark-mode .comm-reply-bubble {
+      background: rgba(255, 255, 255, 0.035);
+    }
+    .comm-reply-item.my-comment .comm-reply-bubble {
+      background: rgba(140, 98, 57, 0.08);
+      border-color: rgba(140, 98, 57, 0.25);
+    }
+    body.dark-mode .comm-reply-item.my-comment .comm-reply-bubble {
+      background: rgba(184, 154, 122, 0.1);
+      border-color: rgba(184, 154, 122, 0.25);
+    }
+
+    /* 인라인 대댓글 작성 폼 */
+    .comm-reply-form {
+      margin-left: 14px;
+      margin-top: 4px;
+      animation: bubblePop 0.18s ease-out;
+    }
+    .comm-reply-input-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .comm-reply-to-tag {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--terracotta);
+      background: rgba(140, 98, 57, 0.12);
+      padding: 2px 6px;
+      border-radius: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    body.dark-mode .comm-reply-to-tag {
+      background: rgba(184, 154, 122, 0.2);
+      color: #dfcfbc;
+    }
+    .comm-reply-input {
+      flex: 1;
+      height: 27px;
+      padding: 0 46px 0 8px;
+      border-radius: 13px;
+      border: 1px solid var(--border);
+      background: var(--glass);
+      font-size: 11px;
+      color: var(--text-100);
+      outline: none;
+      transition: all 0.2s;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+    .comm-reply-input:focus {
+      border-color: var(--border-accent);
+      background: var(--bg-surface);
+      box-shadow: 0 0 0 2px rgba(140, 98, 57, 0.1);
+    }
+    .comm-reply-input-box .comm-comment-submit-btn {
+      right: 22px;
+      width: 20px;
+      height: 20px;
+    }
+    .comm-reply-cancel-btn {
+      position: absolute;
+      right: 3px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-400);
+      font-size: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s, background-color 0.15s;
+    }
+    .comm-reply-cancel-btn:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
     }
 
     /* 댓글 입력 폼 */
