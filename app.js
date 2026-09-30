@@ -330,13 +330,26 @@ async function loadData() {
 
   if (!supabaseClient || !currentUser) {
     books = localBooks.filter(b => !isOhaImportedBook(b));
-    // 게스트 모드: window.NEO_BOOKS_131의 신규 도서 및 책등(spineCover) 자동 보충
+    // 게스트 모드: window.NEO_BOOKS_131의 신규 도서, 책등(spineCover) 및 복원된 별점/감상평/스크랩 자동 동기화
     if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
       window.NEO_BOOKS_131.forEach(nb => {
-        if (!nb.spineCover) return;
         const eb = books.find(b => (b.id === nb.id) || (b.title && b.title.trim().toLowerCase() === nb.title.trim().toLowerCase() && (b.date || '').substring(0, 4) === (nb.date || '').substring(0, 4)));
-        if (eb && (!eb.spineCover || eb.spineCover !== nb.spineCover)) {
-          eb.spineCover = nb.spineCover;
+        if (eb) {
+          if (nb.spineCover && (!eb.spineCover || eb.spineCover !== nb.spineCover)) {
+            eb.spineCover = nb.spineCover;
+          }
+          if (typeof nb.rating === 'number' && nb.rating > 0 && eb.rating !== nb.rating) {
+            eb.rating = nb.rating;
+          }
+          if (nb.sentence && (!eb.sentence || (nb.sentence.length > eb.sentence.length && eb.sentence.length < 10))) {
+            eb.sentence = nb.sentence;
+          }
+          if (Array.isArray(nb.keywords) && nb.keywords.length > 0 && (!eb.keywords || eb.keywords.length === 0)) {
+            eb.keywords = nb.keywords;
+          }
+          if (Array.isArray(nb.scraps) && nb.scraps.length > 0 && (!eb.scraps || eb.scraps.length === 0)) {
+            eb.scraps = nb.scraps;
+          }
         }
       });
       const existingKeys = new Set(books.map(b => `${(b.date || '').substring(0, 7)}_${(b.title || '').trim().toLowerCase()}`));
@@ -445,18 +458,41 @@ async function loadData() {
 
     books = books.filter(b => !isOhaImportedBook(b));
 
-    // 네오 본인 계정이거나 네오 서재를 사용하는 계정: window.NEO_BOOKS_131(2025 도서 96권 및 책등 포함) 자동 병합 및 Supabase upsert
+    // 네오 본인 계정이거나 네오 서재를 사용하는 계정: window.NEO_BOOKS_131(2025 도서 96권 및 복원된 별점/감상평/책등 포함) 자동 병합 및 Supabase upsert
     const isNeoLibraryUser = isNeoUser(currentUser) || books.some(b => b.id && String(b.id).startsWith('mtqy'));
     if (isNeoLibraryUser && typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
       let spineUpdated = 0;
+      let ratingUpdated = 0;
       const updatedSpineBooks = [];
       window.NEO_BOOKS_131.forEach(nb => {
-        if (!nb.spineCover) return;
         const eb = books.find(b => (b.id === nb.id) || (b.title && b.title.trim().toLowerCase() === nb.title.trim().toLowerCase() && (b.date || '').substring(0, 4) === (nb.date || '').substring(0, 4)));
-        if (eb && (!eb.spineCover || eb.spineCover !== nb.spineCover)) {
-          eb.spineCover = nb.spineCover;
-          spineUpdated++;
-          updatedSpineBooks.push(eb);
+        if (eb) {
+          let updated = false;
+          if (nb.spineCover && (!eb.spineCover || eb.spineCover !== nb.spineCover)) {
+            eb.spineCover = nb.spineCover;
+            spineUpdated++;
+            updated = true;
+          }
+          if (typeof nb.rating === 'number' && nb.rating > 0 && eb.rating !== nb.rating) {
+            eb.rating = nb.rating;
+            ratingUpdated++;
+            updated = true;
+          }
+          if (nb.sentence && (!eb.sentence || (nb.sentence.length > eb.sentence.length && eb.sentence.length < 10))) {
+            eb.sentence = nb.sentence;
+            updated = true;
+          }
+          if (Array.isArray(nb.keywords) && nb.keywords.length > 0 && (!eb.keywords || eb.keywords.length === 0)) {
+            eb.keywords = nb.keywords;
+            updated = true;
+          }
+          if (Array.isArray(nb.scraps) && nb.scraps.length > 0 && (!eb.scraps || eb.scraps.length === 0)) {
+            eb.scraps = nb.scraps;
+            updated = true;
+          }
+          if (updated) {
+            updatedSpineBooks.push(eb);
+          }
         }
       });
 
@@ -488,8 +524,12 @@ async function loadData() {
         }
       }
 
-      if (missing.length > 0 || spineUpdated > 0) {
-        toast(`서재 동기화 완료: ${missing.length > 0 ? `새 도서 ${missing.length}권, ` : ''}책등 이미지 ${spineUpdated}권 반영!`, 3500);
+      if (missing.length > 0 || spineUpdated > 0 || ratingUpdated > 0) {
+        const parts = [];
+        if (missing.length > 0) parts.push(`새 도서 ${missing.length}권`);
+        if (spineUpdated > 0) parts.push(`책등 ${spineUpdated}권`);
+        if (ratingUpdated > 0) parts.push(`별점/정보 ${ratingUpdated}권 복원`);
+        toast(`서재 동기화 완료: ${parts.join(', ')} 반영!`, 3500);
       }
     }
 
