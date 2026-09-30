@@ -246,6 +246,7 @@ function isNeoUser(user) {
   const uid = user.id ? String(user.id) : '';
   const email = (user.email || '').toLowerCase();
   return uid === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216' ||
+    uid === 'f2432e6e-0481-4e8e-a516-213bd12434f9' ||
     email.includes('parkyangkyu') ||
     email.includes('neo_elon') ||
     email.includes('neo');
@@ -7623,9 +7624,10 @@ function getCommunityItemOwnerNickname(item, source = '') {
   // 내가 작성한 도서인지 판별
   const isMine = (effSource === 'local') ||
                  (ownerId === 'user_local') ||
-                 (currentUser && item.user_id && String(item.user_id) === String(currentUser.id)) ||
+                 (ownerId === 'user_owner_neo') ||
+                 (currentUser && item.user_id && (String(item.user_id) === String(currentUser.id) || String(item.user_id) === 'f2432e6e-0481-4e8e-a516-213bd12434f9' || String(item.user_id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216')) ||
                  (currentUser && currentUser.id && ownerId === ('user_' + currentUser.id)) ||
-                 (currentUser && String(currentUser.id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216' && (ownerId === 'user_owner_neo' || effSource === 'neo_dataset')) ||
+                 (currentUser && isNeoUser(currentUser) && (ownerId === 'user_owner_neo' || effSource === 'neo_dataset')) ||
                  (item.id && Array.isArray(books) && books.some(b => String(b.id) === String(item.id)));
 
   if (isMine) {
@@ -7641,8 +7643,9 @@ function getCommunityItemOwnerNickname(item, source = '') {
   }
 
   // 큐레이터 (Neo의 데이터셋/도서) -> curator_neo 대신 di31om으로 완전 통합
-  if (ownerId === 'user_owner_neo' || effSource === 'neo_dataset' || String(item.user_id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') {
-    return { nickname: 'di31om', isMe: !!(currentUser && String(currentUser.id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') };
+  if (ownerId === 'user_owner_neo' || effSource === 'neo_dataset' || String(item.user_id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216' || String(item.user_id) === 'f2432e6e-0481-4e8e-a516-213bd12434f9') {
+    const isNeo = currentUser && isNeoUser(currentUser);
+    return { nickname: isNeo ? getUserNickname() : 'di31om', isMe: !!isNeo };
   }
 
   // 그 외: '독서가 1인당 1닉네임' 완전 일치를 위해 오직 정규화된 ownerId만을 시드로 사용!
@@ -7842,7 +7845,12 @@ async function fetchRemoteCommunityBooks() {
       .order('created_at', { ascending: false })
       .limit(1000);
     if (!error && Array.isArray(data)) {
-      remoteCommunityBooks = data;
+      remoteCommunityBooks = data.map(b => {
+        if (b.user_id === 'f2432e6e-0481-4e8e-a516-213bd12434f9') {
+          return { ...b, user_id: '1df9f1ae-d5bf-4076-bd1d-b3f32916b216' };
+        }
+        return b;
+      });
       renderCommunityBooks();
       renderCommunityPopularBooks();
       renderCommunityScraps();
@@ -7870,13 +7878,13 @@ function resolveCommunityBookOwner(b, source) {
   const uid = b.user_id ? String(b.user_id) : '';
   const email = (b.user_email || (b.user && b.user.email) || '').toLowerCase();
   if (uid === '7396cf84-8b75-4617-a050-5ed974fcbe02' || email.includes('thejs2050')) return 'user_owner_oha';
-  if (uid === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') return 'user_owner_neo';
+  if (uid === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216' || uid === 'f2432e6e-0481-4e8e-a516-213bd12434f9') return 'user_owner_neo';
   if (uid) return 'user_' + uid;
 
   // 2. 도서 ID 패턴(고유 UUID 포함 여부) 확인
   const bid = b.id ? String(b.id) : '';
   if (bid.includes('7396cf84-8b75-4617-a050-5ed974fcbe02') || bid.includes('7396cf84')) return 'user_owner_oha';
-  if (bid.includes('1df9f1ae-d5bf-4076-bd1d-b3f32916b216') || bid.includes('1df9f1ae')) return 'user_owner_neo';
+  if (bid.includes('1df9f1ae-d5bf-4076-bd1d-b3f32916b216') || bid.includes('1df9f1ae') || bid.startsWith('mqds3vy')) return 'user_owner_neo';
 
   // 3. 데이터셋 소스별 기본 독서가 매핑
   const effSource = source || b._source || '';
