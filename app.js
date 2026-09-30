@@ -8153,6 +8153,44 @@ function getCommunityColumnCount() {
   return 3;
 }
 
+// 카드의 텍스트 길이 및 내용에 따른 추정 높이 계산
+function estimateCommunityCardHeight(b, isPopular = false) {
+  let h = 260; // 기본 표지 + 제목 + 여백
+  if (isPopular) {
+    if (Array.isArray(b.keywords) && b.keywords.length > 0) h += 32;
+    if (Array.isArray(b.reviews)) {
+      b.reviews.forEach(r => {
+        h += 24 + Math.ceil(String(r).length / 22) * 20;
+      });
+    }
+  } else {
+    if (Array.isArray(b.keywords) && b.keywords.length > 0) h += 32;
+    if (b.review) {
+      h += 24 + Math.ceil(String(b.review).length / 22) * 20;
+    }
+  }
+  return h;
+}
+
+// y값(컬럼 높이) 기준으로 가장 낮은 컬럼을 찾아주는 진정한 Masonry 헬퍼
+function getShortestColumn(colEls, colHeights) {
+  if (!colEls || colEls.length === 0) return null;
+  let minCol = colEls[0];
+  let minHeight = Infinity;
+  let minIdx = 0;
+
+  for (let i = 0; i < colEls.length; i++) {
+    const domH = colEls[i].offsetHeight || 0;
+    const currentH = domH > 0 ? domH : (colHeights ? (colHeights[i] || 0) : 0);
+    if (currentH < minHeight) {
+      minHeight = currentH;
+      minCol = colEls[i];
+      minIdx = i;
+    }
+  }
+  return { col: minCol, index: minIdx };
+}
+
 function renderCommunityBooks() {
   const container = document.getElementById('comm-books-grid');
   if (!container) return;
@@ -8198,11 +8236,16 @@ function renderCommunityBooks() {
   ).join('');
 
   const colEls = container.querySelectorAll('.comm-books-col');
+  const colHeights = Array.from({ length: numCols }, () => 0);
 
-  list.forEach((b, idx) => {
-    const colIdx = idx % numCols;
-    if (colEls[colIdx]) {
-      colEls[colIdx].insertAdjacentHTML('beforeend', buildCommunityBookCardHtml(b, storedBookLikes, myId));
+  // 세로 갯수가 아닌 y값(누적 높이)이 가장 낮은 컬럼에 순차 배치!
+  list.forEach((b) => {
+    const cardHtml = buildCommunityBookCardHtml(b, storedBookLikes, myId);
+    const target = getShortestColumn(colEls, colHeights);
+    if (target && target.col) {
+      target.col.insertAdjacentHTML('beforeend', cardHtml);
+      const estH = estimateCommunityCardHeight(b, false);
+      colHeights[target.index] = Math.max(target.col.offsetHeight || 0, colHeights[target.index] + estH);
     }
   });
 
@@ -8238,13 +8281,17 @@ function loadMoreCommunityBooks() {
     isCommunityBooksLoading = false;
     return;
   }
-  const numCols = colEls.length;
 
-  nextBatch.forEach((b, idx) => {
-    const globalIdx = prevLimit + idx;
-    const colIdx = globalIdx % numCols;
-    if (colEls[colIdx]) {
-      colEls[colIdx].insertAdjacentHTML('beforeend', buildCommunityBookCardHtml(b, storedBookLikes, myId));
+  const colHeights = Array.from(colEls).map(c => c.offsetHeight || 0);
+
+  // 추가 로드 시에도 y값(높이)이 가장 낮은 컬럼에 순차 배치!
+  nextBatch.forEach((b) => {
+    const cardHtml = buildCommunityBookCardHtml(b, storedBookLikes, myId);
+    const target = getShortestColumn(colEls, colHeights);
+    if (target && target.col) {
+      target.col.insertAdjacentHTML('beforeend', cardHtml);
+      const estH = estimateCommunityCardHeight(b, false);
+      colHeights[target.index] = Math.max(target.col.offsetHeight || 0, colHeights[target.index] + estH);
     }
   });
 
@@ -8590,11 +8637,16 @@ function renderCommunityPopularBooks() {
   ).join('');
 
   const colEls = container.querySelectorAll('.comm-books-col');
+  const colHeights = Array.from({ length: numCols }, () => 0);
 
-  list.forEach((b, idx) => {
-    const colIdx = idx % numCols;
-    if (colEls[colIdx]) {
-      colEls[colIdx].insertAdjacentHTML('beforeend', buildCommunityPopularBookCardHtml(b, storedBookLikes, myId));
+  // 긴 카드가 있어도 세로 갯수가 아닌 y값(누적 높이)이 가장 낮은 컬럼에 순차 배치!
+  list.forEach((b) => {
+    const cardHtml = buildCommunityPopularBookCardHtml(b, storedBookLikes, myId);
+    const target = getShortestColumn(colEls, colHeights);
+    if (target && target.col) {
+      target.col.insertAdjacentHTML('beforeend', cardHtml);
+      const estH = estimateCommunityCardHeight(b, true);
+      colHeights[target.index] = Math.max(target.col.offsetHeight || 0, colHeights[target.index] + estH);
     }
   });
 
@@ -8630,13 +8682,17 @@ function loadMoreCommunityPopularBooks() {
     isCommunityPopularLoading = false;
     return;
   }
-  const numCols = colEls.length;
 
-  nextBatch.forEach((b, idx) => {
-    const globalIdx = prevLimit + idx;
-    const colIdx = globalIdx % numCols;
-    if (colEls[colIdx]) {
-      colEls[colIdx].insertAdjacentHTML('beforeend', buildCommunityPopularBookCardHtml(b, storedBookLikes, myId));
+  const colHeights = Array.from(colEls).map(c => c.offsetHeight || 0);
+
+  // 추가 로드 시에도 y값(높이)이 가장 낮은 컬럼에 순차 배치!
+  nextBatch.forEach((b) => {
+    const cardHtml = buildCommunityPopularBookCardHtml(b, storedBookLikes, myId);
+    const target = getShortestColumn(colEls, colHeights);
+    if (target && target.col) {
+      target.col.insertAdjacentHTML('beforeend', cardHtml);
+      const estH = estimateCommunityCardHeight(b, true);
+      colHeights[target.index] = Math.max(target.col.offsetHeight || 0, colHeights[target.index] + estH);
     }
   });
 
@@ -8907,16 +8963,23 @@ function renderCommunityScraps() {
   if (list.length <= 1) {
     container.innerHTML = list.map((s, idx) => renderCard(s, idx)).join('');
   } else {
-    const col0 = [];
-    const col1 = [];
-    list.forEach((s, idx) => {
-      if (idx % 2 === 0) col0.push(renderCard(s, idx));
-      else col1.push(renderCard(s, idx));
-    });
     container.innerHTML = `
-      <div class="comm-scraps-col">${col0.join('')}</div>
-      <div class="comm-scraps-col">${col1.join('')}</div>
+      <div class="comm-scraps-col" data-col="0"></div>
+      <div class="comm-scraps-col" data-col="1"></div>
     `;
+    const colEls = container.querySelectorAll('.comm-scraps-col');
+    const colHeights = [0, 0];
+
+    // 문장 길이 편차에 따라 세로 갯수가 아닌 y값(누적 높이)이 낮은 열에 순차 배치!
+    list.forEach((s, idx) => {
+      const cardHtml = renderCard(s, idx);
+      const target = getShortestColumn(colEls, colHeights);
+      if (target && target.col) {
+        target.col.insertAdjacentHTML('beforeend', cardHtml);
+        const estH = 150 + Math.ceil(String(s.text || '').length / 28) * 22 + (s.memo ? Math.ceil(String(s.memo).length / 28) * 18 : 0);
+        colHeights[target.index] = Math.max(target.col.offsetHeight || 0, colHeights[target.index] + estH);
+      }
+    });
   }
 }
 
