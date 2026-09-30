@@ -463,9 +463,11 @@ async function loadData() {
     if (isNeoLibraryUser && typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
       let spineUpdated = 0;
       let ratingUpdated = 0;
-      const updatedSpineBooks = [];
+      const updatedBooksMap = new Map();
+
       window.NEO_BOOKS_131.forEach(nb => {
-        const eb = books.find(b => (b.id === nb.id) || (b.title && b.title.trim().toLowerCase() === nb.title.trim().toLowerCase() && (b.date || '').substring(0, 4) === (nb.date || '').substring(0, 4)));
+        // ID 우선 매칭, 없으면 제목+연도 매칭
+        const eb = books.find(b => b.id === nb.id) || books.find(b => b.title && b.title.trim().toLowerCase() === nb.title.trim().toLowerCase() && (b.date || '').substring(0, 4) === (nb.date || '').substring(0, 4));
         if (eb) {
           let updated = false;
           if (nb.spineCover && (!eb.spineCover || eb.spineCover !== nb.spineCover)) {
@@ -490,8 +492,8 @@ async function loadData() {
             eb.scraps = nb.scraps;
             updated = true;
           }
-          if (updated) {
-            updatedSpineBooks.push(eb);
+          if (updated && eb.id) {
+            updatedBooksMap.set(eb.id, eb);
           }
         }
       });
@@ -507,19 +509,26 @@ async function loadData() {
           ...b,
           user_id: currentUser.id
         }));
-        books = [...newItems, ...books];
+        newItems.forEach(b => {
+          if (!books.some(existing => existing.id === b.id)) {
+            books.push(b);
+          }
+          if (b.id) {
+            updatedBooksMap.set(b.id, b);
+          }
+        });
         books.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-        newItems.forEach(b => updatedSpineBooks.push(b));
       }
 
-      // Supabase에 비동기 청크 업로드 (신규 도서 + 책등 갱신 도서)
-      if (supabaseClient && updatedSpineBooks.length > 0) {
-        const payload = updatedSpineBooks.map(b => sanitizeBookForSupabase(b));
+      // Supabase에 비동기 청크 업로드 (중복 ID 완전 배제 보장)
+      const uniqueBooksToUpsert = Array.from(updatedBooksMap.values());
+      if (supabaseClient && uniqueBooksToUpsert.length > 0) {
+        const payload = uniqueBooksToUpsert.map(b => sanitizeBookForSupabase(b));
         for (let i = 0; i < payload.length; i += 50) {
           const chunk = payload.slice(i, i + 50);
           supabaseClient.from('books').upsert(chunk, { onConflict: 'id' }).then(({ error }) => {
             if (error) console.error('[Sync] Supabase upsert error:', error);
-            else console.log('[Sync] Successfully synced chunk to Supabase');
+            else console.log(`[Sync] Successfully synced chunk (${chunk.length} books) to Supabase`);
           });
         }
       }
@@ -9454,14 +9463,14 @@ window.syncNeoBooks = async function() {
     return;
   }
   let spineUpdated = 0;
-  const toUpsert = [];
+  const toUpsertMap = new Map();
   window.NEO_BOOKS_131.forEach(nb => {
-    const eb = books.find(b => (b.id === nb.id) || (b.title && b.title.trim().toLowerCase() === nb.title.trim().toLowerCase() && (b.date || '').substring(0, 4) === (nb.date || '').substring(0, 4)));
+    const eb = books.find(b => b.id === nb.id) || books.find(b => b.title && b.title.trim().toLowerCase() === nb.title.trim().toLowerCase() && (b.date || '').substring(0, 4) === (nb.date || '').substring(0, 4));
     if (eb) {
       if (nb.spineCover && eb.spineCover !== nb.spineCover) {
         eb.spineCover = nb.spineCover;
         spineUpdated++;
-        toUpsert.push(eb);
+        if (eb.id) toUpsertMap.set(eb.id, eb);
       }
     }
   });
@@ -9477,16 +9486,21 @@ window.syncNeoBooks = async function() {
       ...b,
       user_id: currentUser ? currentUser.id : undefined
     }));
-    books = [...newItems, ...books];
+    newItems.forEach(b => {
+      if (!books.some(existing => existing.id === b.id)) {
+        books.push(b);
+      }
+      if (b.id) toUpsertMap.set(b.id, b);
+    });
     books.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-    newItems.forEach(b => toUpsert.push(b));
   }
 
   saveData();
   renderGallery();
 
-  if (currentUser && supabaseClient && toUpsert.length > 0) {
-    const payload = toUpsert.map(b => sanitizeBookForSupabase(b));
+  const uniqueToUpsert = Array.from(toUpsertMap.values());
+  if (currentUser && supabaseClient && uniqueToUpsert.length > 0) {
+    const payload = uniqueToUpsert.map(b => sanitizeBookForSupabase(b));
     for (let i = 0; i < payload.length; i += 50) {
       const chunk = payload.slice(i, i + 50);
       await supabaseClient.from('books').upsert(chunk, { onConflict: 'id' });
