@@ -7133,6 +7133,9 @@ if (supabaseClient) {
       loadData().then(() => {
         renderGallery();
         updateSidebar();
+        syncNicknameUI();
+        if (typeof renderCommunityBooks === 'function') renderCommunityBooks();
+        if (typeof renderCommunityScraps === 'function') renderCommunityScraps();
       });
     }
   });
@@ -7163,38 +7166,86 @@ function generateDefaultNickname() {
   return res;
 }
 
+// 구글 계정 고유의 결정적 6자리 기본 닉네임 생성
+function getDefaultNicknameForUser(user) {
+  if (!user) return generateDefaultNickname();
+  if (isOhaUser(user)) return hashStringToNickname('user_owner_oha');
+  // Neo 사용자 또는 사용자가 설정했던 닉네임 di31om 유지
+  if (user.id === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') return 'di31om';
+  return hashStringToNickname('user_' + user.id);
+}
+
 function getUserNickname() {
-  let nick = '';
+  // 1. 구글 계정으로 로그인한 상태인 경우:
+  if (currentUser && currentUser.id) {
+    // 1-1. Supabase 클라우드 auth user_metadata에 저장된 변경 닉네임 최우선 적용
+    if (currentUser.user_metadata && currentUser.user_metadata.nickname) {
+      const cloudNick = String(currentUser.user_metadata.nickname).trim().toLowerCase();
+      if (cloudNick) {
+        try { localStorage.setItem(`rj_user_nickname_${currentUser.id}`, cloudNick); } catch (e) {}
+        return cloudNick;
+      }
+    }
+
+    // 1-2. 현재 로그인 계정 전용 로컬 저장소 확인
+    try {
+      const accountNick = localStorage.getItem(`rj_user_nickname_${currentUser.id}`);
+      if (accountNick && accountNick.trim()) return accountNick.trim().toLowerCase();
+    } catch (e) {}
+
+    // 1-3. 기존 기기에서 설정했던 레거시 닉네임 중 유저가 직접 수정한 닉네임(di31om 등) 마이그레이션
+    try {
+      const legacyNick = localStorage.getItem('rj_user_nickname');
+      if (legacyNick && legacyNick.trim()) {
+        const clean = legacyNick.trim().toLowerCase();
+        if (clean === 'di31om' || (getNicknameChangeCount() > 0 && !clean.match(/^[a-z0-9]{6}$/))) {
+          localStorage.setItem(`rj_user_nickname_${currentUser.id}`, clean);
+          return clean;
+        }
+      }
+    } catch (e) {}
+
+    // 1-4. 최초 랜덤 부여: 구글 계정당 오직 하나로 통일된 결정적 6자리 닉네임 부여
+    const defaultNick = getDefaultNicknameForUser(currentUser);
+    try {
+      localStorage.setItem(`rj_user_nickname_${currentUser.id}`, defaultNick);
+    } catch (e) {}
+    return defaultNick;
+  }
+
+  // 2. 비로그인(게스트) 상태인 경우:
+  let guestNick = '';
   try {
-    nick = localStorage.getItem('rj_user_nickname') || '';
+    guestNick = localStorage.getItem('rj_guest_nickname') || localStorage.getItem('rj_user_nickname') || '';
   } catch (e) {}
 
-  if (!nick && currentUser && currentUser.user_metadata && currentUser.user_metadata.nickname) {
-    nick = currentUser.user_metadata.nickname;
-  }
-
-  if (!nick) {
-    if (currentUser && isOhaUser(currentUser)) {
-      nick = hashStringToNickname('user_owner_oha');
-    } else {
-      nick = generateDefaultNickname();
-    }
+  if (!guestNick) {
+    guestNick = generateDefaultNickname();
     try {
-      localStorage.setItem('rj_user_nickname', nick);
+      localStorage.setItem('rj_guest_nickname', guestNick);
     } catch (e) {}
   }
-  return nick.toLowerCase();
+  return guestNick.toLowerCase();
 }
 
 function getNicknameChangeCount() {
+  if (currentUser && currentUser.id) {
+    if (currentUser.user_metadata && currentUser.user_metadata.nickname_change_count !== undefined) {
+      const parsed = parseInt(currentUser.user_metadata.nickname_change_count, 10);
+      if (!isNaN(parsed) && parsed >= 0) return parsed;
+    }
+    try {
+      const raw = localStorage.getItem(`rj_nickname_change_count_${currentUser.id}`);
+      if (raw !== null) {
+        const parsed = parseInt(raw, 10);
+        if (!isNaN(parsed) && parsed >= 0) return parsed;
+      }
+    } catch (e) {}
+  }
   try {
     const raw = localStorage.getItem('rj_nickname_change_count');
     if (raw !== null) {
       const parsed = parseInt(raw, 10);
-      if (!isNaN(parsed) && parsed >= 0) return parsed;
-    }
-    if (currentUser && currentUser.user_metadata && currentUser.user_metadata.nickname_change_count !== undefined) {
-      const parsed = parseInt(currentUser.user_metadata.nickname_change_count, 10);
       if (!isNaN(parsed) && parsed >= 0) return parsed;
     }
   } catch (e) {}
@@ -7203,6 +7254,9 @@ function getNicknameChangeCount() {
 
 function setNicknameChangeCount(cnt) {
   try {
+    if (currentUser && currentUser.id) {
+      localStorage.setItem(`rj_nickname_change_count_${currentUser.id}`, String(cnt));
+    }
     localStorage.setItem('rj_nickname_change_count', String(cnt));
   } catch (e) {}
 }
@@ -7356,17 +7410,26 @@ async function submitNicknameChange() {
   const newCount = getNicknameChangeCount() + 1;
   setNicknameChangeCount(newCount);
   try {
+    if (currentUser && currentUser.id) {
+      localStorage.setItem(`rj_user_nickname_${currentUser.id}`, newNick);
+    }
     localStorage.setItem('rj_user_nickname', newNick);
   } catch (e) {}
 
   if (supabaseClient && currentUser) {
     try {
-      await supabaseClient.auth.updateUser({
+      const { data, error } = await supabaseClient.auth.updateUser({
         data: {
           nickname: newNick,
           nickname_change_count: newCount
         }
       });
+      if (!error && data && data.user) {
+        currentUser = data.user;
+      } else if (currentUser.user_metadata) {
+        currentUser.user_metadata.nickname = newNick;
+        currentUser.user_metadata.nickname_change_count = newCount;
+      }
     } catch (e) {
       console.warn('Failed to sync nickname to Supabase user_metadata:', e);
     }
