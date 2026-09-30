@@ -2215,28 +2215,34 @@ function createBookCardElement(book, i, isSpineMode) {
 }
 
 function cleanBookScraps(book) {
-  if (!book || !book.scraps || !Array.isArray(book.scraps) || book.scraps.length === 0) return;
+  if (!book || !book.scraps || !Array.isArray(book.scraps)) return false;
   const initialLen = book.scraps.length;
-  const targetSentence = (book.sentence || '').trim().toLowerCase();
 
-  book.scraps = book.scraps.filter(s => {
-    const sText = (s.text || '').trim().toLowerCase();
-    // 1. 나만의 한 문장(sentence)과 동일한 문장은 스크랩에서 제거
-    if (targetSentence && (sText === targetSentence || sText.replace(/\s+/g, '') === targetSentence.replace(/\s+/g, ''))) {
-      return false;
+  book.scraps = book.scraps.map((s, idx) => {
+    if (typeof s === 'string') {
+      const trimmed = s.trim();
+      if (!trimmed) return null;
+      return {
+        id: 'sc_' + (book.id || 'b') + '_' + idx + '_' + Math.random().toString(36).slice(2, 7),
+        text: trimmed,
+        page: null,
+        memo: '',
+        tags: []
+      };
     }
-    // 2. One Message / One Action / 원메시지 / 원액션 / 후기링크 관련 메모 및 태그인 경우 제거
-    const memo = (s.memo || '').toLowerCase();
-    const tags = (s.tags || []).map(t => String(t).toLowerCase());
-    if (memo.includes('one message') || memo.includes('원메시지') ||
-        memo.includes('one action') || memo.includes('원액션') || memo.includes('독서후기 원문') || memo.includes('후기 원문')) {
-      return false;
+    if (typeof s === 'object' && s !== null) {
+      const textVal = typeof s.text === 'string' ? s.text.trim() : (typeof s.quote === 'string' ? s.quote.trim() : '');
+      if (!textVal) return null;
+      return {
+        id: s.id || ('sc_' + (book.id || 'b') + '_' + idx + '_' + Math.random().toString(36).slice(2, 7)),
+        text: textVal,
+        page: (s.page !== undefined && s.page !== null && s.page !== '') ? Number(s.page) || s.page : null,
+        memo: typeof s.memo === 'string' ? s.memo : '',
+        tags: Array.isArray(s.tags) ? s.tags : (Array.isArray(s.keywords) ? s.keywords : [])
+      };
     }
-    if (tags.some(t => t.includes('onemessage') || t.includes('oneaction') || t.includes('후기링크') || t.includes('원메시지') || t.includes('원액션'))) {
-      return false;
-    }
-    return true;
-  });
+    return null;
+  }).filter(Boolean);
 
   return book.scraps.length !== initialLen;
 }
@@ -2382,27 +2388,37 @@ function buildScrapsHtml(book) {
   cleanBookScraps(book);
   if (!book.scraps || !book.scraps.length) return '';
   const isGuide = isGuideBook(book);
-  const sortedScraps = [...book.scraps].sort((a, b) => (a.page || 0) - (b.page || 0));
+  const sortedScraps = [...book.scraps].sort((a, b) => ((a && a.page) || 0) - ((b && b.page) || 0));
 
   const renderCard = (s, idx) => {
-    const tags = s.tags || s.keywords || [];
+    if (!s) return '';
+    const sText = typeof s === 'string' ? s : (s.text || s.quote || '');
+    if (!sText) return '';
+    const sId = (s && s.id) ? s.id : ('sc-' + (book.id || 'b') + '-' + idx);
+    const sMemo = (s && s.memo) || '';
+    const sPage = (s && s.page) || null;
+    const tags = (s && (s.tags || s.keywords)) || [];
     const tagsHtml = tags.length
       ? `<div class="scrap-tags-row" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">
            ${tags.map(t => `<span class="scrap-tag-chip" onclick="showScraps('${esc(t)}')" title="#${esc(t)} 해시태그 문장 모아보기">#${esc(t)}</span>`).join('')}
          </div>`
       : '';
+    const safeText = sText.replace(/'/g, "\\'");
+    const safeTitle = (book.title || '').replace(/'/g, "\\'");
+    const safeAuthor = (book.author || '').replace(/'/g, "\\'");
+
     return `
-    <div class="scrap-item" id="sc-${s.id}" style="order:${idx};">
-      <div class="scrap-quote">${esc(s.text)}</div>
-      ${s.memo ? `<div class="comm-scrap-memo-wrap"><div class="comm-scrap-memo">${esc(s.memo)}</div></div>` : ''}
+    <div class="scrap-item" id="${sId}" style="order:${idx};">
+      <div class="scrap-quote">${esc(sText)}</div>
+      ${sMemo ? `<div class="comm-scrap-memo-wrap"><div class="comm-scrap-memo">${esc(sMemo)}</div></div>` : ''}
       ${tagsHtml}
       <div class="scrap-foot" style="display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; width:100%; margin-top:4px;">
-        ${s.page ? `<span class="scrap-page">p.${s.page}</span>` : ''}
+        ${sPage ? `<span class="scrap-page">p.${sPage}</span>` : ''}
         <div class="scrap-actions" style="margin-left:auto; display:flex; gap:6px;">
-          <button class="btn btn-ghost btn-sm" onclick="copyScrapQuoteText('${esc(s.text.replace(/'/g, "\\'"))}', '${esc(book.title.replace(/'/g, "\\'"))}', '${esc((book.author || '').replace(/'/g, "\\'"))}')" style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;" title="문장 복사">복사</button>
+          <button class="btn btn-ghost btn-sm" onclick="copyScrapQuoteText('${esc(safeText)}', '${esc(safeTitle)}', '${esc(safeAuthor)}')" style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;" title="문장 복사">복사</button>
           ${isGuide ? '' : `
-          <button class="btn btn-ghost btn-sm" onclick="editScrap('${book.id}','${s.id}')" style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;">수정</button>
-          <button class="btn btn-danger btn-sm" onclick="doDeleteScrap('${book.id}','${s.id}')" style="padding:2px 6px; font-size:10px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:22px; line-height:1;">삭제</button>
+          <button class="btn btn-ghost btn-sm" onclick="editScrap('${book.id}','${sId}')" style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;">수정</button>
+          <button class="btn btn-danger btn-sm" onclick="doDeleteScrap('${book.id}','${sId}')" style="padding:2px 6px; font-size:10px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:22px; line-height:1;">삭제</button>
           `}
         </div>
       </div>
@@ -5360,7 +5376,7 @@ function renderScrapsArchive() {
             ${tagsHtml}
           </div>
           <div class="scrap-card-actions">
-            <button class="btn btn-ghost btn-sm" onclick="copyScrapQuoteText('${esc(scrap.text.replace(/'/g, "\\'"))}', '${esc(bookMainTitle.replace(/'/g, "\\'"))}', '${esc((book.author || '').replace(/'/g, "\\'"))}')" title="문장 복사" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">
+            <button class="btn btn-ghost btn-sm" onclick="copyScrapQuoteText('${esc((scrap.text || '').replace(/'/g, "\\'"))}', '${esc((bookMainTitle || '').replace(/'/g, "\\'"))}', '${esc((book.author || '').replace(/'/g, "\\'"))}')" title="문장 복사" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">
               복사
             </button>
             <button class="btn btn-ghost btn-sm" onclick="openInlineScrapMemo('${book.id}','${scrap.id}')" title="이 문장에 내 생각 추가" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px; color:var(--violet);">
@@ -9167,7 +9183,7 @@ function renderCommunityScraps() {
           </div>
         </div>
 
-        <div class="comm-scrap-text">${esc(s.text)}</div>
+        <div class="comm-scrap-text">${esc(s.text || '')}</div>
         ${s.memo ? `<div class="comm-scrap-memo-wrap"><div class="comm-scrap-memo">${esc(s.memo)}</div></div>` : ''}
 
         <div class="comm-scrap-footer">
@@ -9175,7 +9191,7 @@ function renderCommunityScraps() {
             ${tagsHtml}
           </div>
           <div class="comm-scrap-actions">
-            <button class="comm-scrap-btn" onclick="copyCommunityQuote('${esc(s.text.replace(/'/g, "\\'"))}', '${esc(mainTitle.replace(/'/g, "\\'"))}', '${esc((s.author || '').replace(/'/g, "\\'"))}', '${s.page || ''}')" title="문장 복사">
+            <button class="comm-scrap-btn" onclick="copyCommunityQuote('${esc((s.text || '').replace(/'/g, "\\'"))}', '${esc((mainTitle || '').replace(/'/g, "\\'"))}', '${esc((s.author || '').replace(/'/g, "\\'"))}', '${s.page || ''}')" title="문장 복사">
               복사
             </button>
             <button type="button" class="comm-scrap-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(sid)}" onclick="toggleCommunityLike('${esc(sid)}', this, event)" title="좋아요">
