@@ -7612,6 +7612,7 @@ async function fetchRemoteCommunityBooks() {
     const { data, error } = await supabaseClient
       .from('books')
       .select('*')
+      .not('user_id', 'is', null)
       .order('created_at', { ascending: false })
       .limit(1000);
     if (!error && Array.isArray(data)) {
@@ -7680,7 +7681,8 @@ function getAllCommunityBooks() {
   const seenUserTitle = new Set();
 
   function processBook(b, source) {
-    if (!b || isGuideBook(b) || isOhaImportedBook(b) || !b.title || b.title === '__like__' || b.id?.startsWith('like_') || b.is_public === false) return;
+    // 실제 등록 사용자가 없는 원격 테스트/더미 도서 제외
+    if (!b || isGuideBook(b) || isOhaImportedBook(b) || !b.title || b.title === '__like__' || b.id?.startsWith('like_') || b.is_public === false || (source === 'remote' && !b.user_id)) return;
     const ownerId = resolveCommunityBookOwner(b, source);
     const normTitle = getBookGroupingKey(b);
     if (!normTitle) return;
@@ -8258,7 +8260,7 @@ function getMostShelvedCommunityBooks() {
   const seenBookIds = new Set();
 
   function addToGroup(b, source) {
-    if (!b || isGuideBook(b) || !b.title || b.title === '__like__' || b.id?.startsWith('like_') || b.is_public === false) return;
+    if (!b || isGuideBook(b) || !b.title || b.title === '__like__' || b.id?.startsWith('like_') || b.is_public === false || (source === 'remote' && !b.user_id)) return;
     const strId = b.id ? String(b.id) : null;
     if (strId && seenBookIds.has(strId)) return;
     if (strId) seenBookIds.add(strId);
