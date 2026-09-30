@@ -219,34 +219,6 @@ function isGuideBook(book) {
     (typeof book.author === 'string' && book.author.includes('8ook 제작팀'));
 }
 
-const OHA_25_TITLES = new Set([
-  '편안함의 습격',
-  '돈, 뜨겁게 사랑하고 차갑게 다루어라',
-  '혁명의 팡파르',
-  '슈퍼팬',
-  '스테이블코인 전쟁 2026년 경제전망',
-  '우리가 사랑한 빵집 성심당',
-  '미치게 친절한 철학',
-  'ETF 투자의 모든 것',
-  '운과 실력의 성공 방정식',
-  '린치핀',
-  '내게 남은 스물다섯 번의 계절',
-  '삶의 정도',
-  '월든',
-  '박곰희 연금 부자 수업',
-  '블로그는 마술이다',
-  '돈의 심리학',
-  'Being (my)self',
-  '예루살렘의 아이히만',
-  '세계 경제 지각 변동',
-  '길 위의 뇌',
-  '다시 그림이다',
-  '혹시, 돈 얘기해도 될까요?',
-  '한국 주식 5차 파동',
-  '작은 가게에서 진심을 배우다',
-  '강원국의 책쓰기 수업'
-]);
-
 function isOhaUser(user) {
   if (!user) return false;
   const uid = user.id ? String(user.id) : '';
@@ -265,45 +237,14 @@ function isNeoUser(user) {
     email.includes('neo');
 }
 
-function isOhaImportedBook(book) {
-  if (!book) return false;
-  // 오하 본인 계정(thejs2050@gmail.com)에서는 자신의 가져오기 도서도 온전한 서재 도서로 유지
-  if (currentUser && isOhaUser(currentUser)) return false;
-
-  // 네오(Neo) 본인 계정이거나 네오 도서 데이터셋(neo_, mtqy 접두사)은 절대 오하 도서로 오인하지 않음
-  if (currentUser && isNeoUser(currentUser)) return false;
-  const bid = String(book.id || '');
-  if (bid.startsWith('neo_') || bid.startsWith('mtqy')) return false;
-  if (book._source === 'neo_dataset' || book.source === 'neo_dataset') return false;
-
-  if (bid.startsWith('notion_')) return true;
-  if (bid.includes('2608775c') || bid.includes('2da8775c') || bid.includes('2378775c') || bid.includes('2308775c') || bid.includes('22b8775c')) {
-    return true;
-  }
-  if (Array.isArray(book.scraps)) {
-    const hasOhaScrap = book.scraps.some(s =>
-      (s.text && (s.text.includes('blog.naver.com/zzine315') || s.text.includes('zzine315'))) ||
-      (s.memo && s.memo.includes('노션 완독책장'))
-    );
-    if (hasOhaScrap) return true;
-  }
-  const title = (book.title || '').trim();
-  if (OHA_25_TITLES.has(title)) {
-    if (Array.isArray(book.keywords) && book.keywords.includes('2025완독')) return true;
-    if (book.notionId) return true;
-    if (book.date && book.date.startsWith('2025-')) return true;
-  }
-  return false;
-}
-
 function saveData() {
   try {
     if (currentUser) {
-      // 로그인 사용자 로컬 저장소 (오하 본인은 자신의 전체 서재 저장, 타인은 가이드북/좋아요 제외)
-      const userBooks = books.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b) && !isOhaImportedBook(b));
+      // 로그인 사용자 로컬 저장소 (가이드북/좋아요/댓글/프로필 레코드 제외)
+      const userBooks = books.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
       localStorage.setItem(`rj_books_${currentUser.id}`, JSON.stringify(userBooks));
     } else {
-      const guestBooks = books.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b) && !isOhaImportedBook(b));
+      const guestBooks = books.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
       localStorage.setItem('rj_books', JSON.stringify(guestBooks));
     }
   } catch (e) { }
@@ -318,33 +259,13 @@ async function loadData() {
     if (d) localBooks = JSON.parse(d);
   } catch (e) { }
 
-  // 1. 로컬 저장소에서 가이드북, 좋아요 레코드, 오하 가져오기 도서 제외
-  localBooks = localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b) && !isOhaImportedBook(b));
+  // 1. 로컬 저장소에서 가이드북, 좋아요 레코드 등 제외
+  localBooks = localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
 
-  // 로컬 스토리지에 남아있던 오하 도서 즉시 청소
-  try {
-    const mainGuestKey = 'rj_books';
-    const guestData = localStorage.getItem(mainGuestKey);
-    if (guestData) {
-      const parsed = JSON.parse(guestData);
-      if (Array.isArray(parsed) && parsed.some(b => isOhaImportedBook(b))) {
-        localStorage.setItem(mainGuestKey, JSON.stringify(parsed.filter(b => !isOhaImportedBook(b))));
-      }
-    }
-    if (currentUser) {
-      const userKey = `rj_books_${currentUser.id}`;
-      const userData = localStorage.getItem(userKey);
-      if (userData) {
-        const parsed = JSON.parse(userData);
-        if (Array.isArray(parsed) && parsed.some(b => isOhaImportedBook(b))) {
-          localStorage.setItem(userKey, JSON.stringify(parsed.filter(b => !isOhaImportedBook(b))));
-        }
-      }
-    }
-  } catch (e) { }
+
 
   if (!supabaseClient || !currentUser) {
-    books = localBooks.filter(b => !isOhaImportedBook(b));
+    books = localBooks;
     // 게스트 모드: 로컬 서재가 비어있는 최초 방문자일 때만 기본 정적 데이터셋 로드
     if (books.length === 0 && typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131) && window.NEO_BOOKS_131.length > 0) {
       books = JSON.parse(JSON.stringify(window.NEO_BOOKS_131));
@@ -373,18 +294,18 @@ async function loadData() {
     }
 
     const rawRemoteBooks = data || [];
-    const remoteBooks = rawRemoteBooks.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b) && !isOhaImportedBook(b));
+    const remoteBooks = rawRemoteBooks.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
     if (remoteBooks.length > 0 && 'spineCover' in remoteBooks[0]) {
       dbSupportsSpineCover = true;
     }
 
-    // Migration: If Supabase is empty but we have local guest books, upload them to Supabase (이용 가이드북 및 오하 도서 제외)
+    // Migration: If Supabase is empty but we have local guest books, upload them to Supabase
     const guestBooksStr = localStorage.getItem('rj_books');
     let guestBooks = [];
     if (guestBooksStr) {
       try { guestBooks = JSON.parse(guestBooksStr); } catch (e) { }
     }
-    const userGuestBooks = guestBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b) && !isOhaImportedBook(b));
+    const userGuestBooks = guestBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
 
     if (remoteBooks.length === 0 && userGuestBooks.length > 0) {
       const booksToUpload = userGuestBooks.map(b => {
@@ -413,21 +334,7 @@ async function loadData() {
       books = remoteBooks;
     }
 
-    // 1. 오하가 아닌 다른 유저의 계정에 오하 도서가 잘못 들어가 있다면 정리 (오하 본인 계정은 온전히 보존)
-    if (!isOhaUser(currentUser)) {
-      const ohaBooksInRemote = rawRemoteBooks.filter(b => isOhaImportedBook(b));
-      if (ohaBooksInRemote.length > 0) {
-        const ohaIdsToDelete = ohaBooksInRemote.map(b => b.id);
-        books = books.filter(b => !isOhaImportedBook(b));
-        if (supabaseClient && currentUser && currentUser.id) {
-          supabaseClient.from('books').delete().in('id', ohaIdsToDelete).eq('user_id', currentUser.id).then(() => {
-            console.log('[Cleanup] Cleaned up oha imported books from Supabase:', ohaIdsToDelete.length);
-          }).catch(err => console.warn('[Cleanup] Oha books cleanup error:', err));
-        }
-      }
-    }
-
-    // 2. 로그인 계정인 경우 Supabase 또는 books 배열에 잘못 들어간 이용 가이드북이 있다면 완전 정리 (좋아요 레코드 제외)
+    // 로그인 계정인 경우 가이드북 정리
     if (currentUser) {
       const guideBooksInRemote = books.filter(b => isGuideBook(b));
       if (guideBooksInRemote.length > 0) {
@@ -443,7 +350,48 @@ async function loadData() {
       }
     }
 
-    books = books.filter(b => !isOhaImportedBook(b));
+    // 1회성 마이그레이션: 임시 계정(f2432e6e) 잔여 도서를 현재 계정으로 병합 후 삭제
+    if (isNeoUser(currentUser) && supabaseClient) {
+      const TEMP_UID = 'f2432e6e-0481-4e8e-a516-213bd12434f9';
+      const migrationDone = localStorage.getItem('_db_migration_temp_done_v2');
+      if (!migrationDone) {
+        try {
+          const { data: tempBooks } = await supabaseClient.from('books').select('*').eq('user_id', TEMP_UID);
+          if (tempBooks && tempBooks.length > 0) {
+            const existingTitles = new Set(books.map(b => (b.title || '').trim().toLowerCase()));
+            for (const tb of tempBooks) {
+              const tNorm = (tb.title || '').trim().toLowerCase();
+              if (!existingTitles.has(tNorm)) {
+                // 고유 도서: 현재 계정으로 이관
+                const { error: upErr } = await supabaseClient.from('books').update({ user_id: currentUser.id }).eq('id', tb.id).eq('user_id', TEMP_UID);
+                if (!upErr) {
+                  tb.user_id = currentUser.id;
+                  books.push(tb);
+                  existingTitles.add(tNorm);
+                  console.log('[Migration] Transferred:', tb.title);
+                }
+              } else {
+                // 중복 도서: 삭제
+                await supabaseClient.from('books').delete().eq('id', tb.id).eq('user_id', TEMP_UID);
+                console.log('[Migration] Deleted duplicate:', tb.title);
+              }
+            }
+            // null user_id 고아 레코드 정리
+            const { data: orphans } = await supabaseClient.from('books').select('id').is('user_id', null);
+            if (orphans && orphans.length > 0) {
+              for (const o of orphans) {
+                await supabaseClient.from('books').delete().eq('id', o.id).is('user_id', null);
+              }
+              console.log('[Migration] Cleaned', orphans.length, 'orphan records');
+            }
+            toast('서재 계정 통합 완료!', 2500);
+          }
+          localStorage.setItem('_db_migration_temp_done_v2', '1');
+        } catch (migErr) {
+          console.warn('[Migration] Error:', migErr);
+        }
+      }
+    }
 
     // Supabase 원격 DB가 단일 진실 공급원(SSOT)이므로 정적 데이터셋으로 사용자의 최신 수정/삭제 사항을 덮어쓰지 않음
 
@@ -455,7 +403,7 @@ async function loadData() {
     initCommunityLikesChannel();
   } catch (e) {
     console.error('Supabase load error, using local storage backup:', e);
-    books = (currentUser ? localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b)) : localBooks.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b))).filter(b => !isOhaImportedBook(b));
+    books = (currentUser ? localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b)) : localBooks.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b)));
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
@@ -1056,7 +1004,7 @@ function getShelfTotalPages(booksList) {
 }
 
 function renderGallery() {
-  if (Array.isArray(books)) books = books.filter(b => !isOhaImportedBook(b));
+
   const grid = document.getElementById('gallery-grid');
   const empty = document.getElementById('gallery-empty');
   grid.innerHTML = '';
@@ -4980,7 +4928,7 @@ async function doDeleteScrap(bookId, scrapId) {
    SCRAPS ARCHIVE & SEARCH VIEW
 ============================================== */
 function showScraps(filterTag = null, searchQuery = '', pushHistory = true) {
-  if (Array.isArray(books)) books = books.filter(b => !isOhaImportedBook(b));
+
   document.body.classList.remove('page-detail');
   closeAppMenu();
   document.getElementById('view-gallery').style.display = 'none';
@@ -5072,7 +5020,7 @@ function renderScrapsArchive() {
   const tagCounts = {};
   let totalScrapsCount = 0;
 
-  const sourceBooks = (currentUser ? books.filter(b => !isGuideBook(b)) : books).filter(b => !isOhaImportedBook(b));
+  const sourceBooks = currentUser ? books.filter(b => !isGuideBook(b)) : books;
   sourceBooks.forEach(book => {
     (book.scraps || []).forEach(scrap => {
       if (scrap.memo && scrap.memo.includes('노션 완독책장')) return;
