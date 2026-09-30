@@ -7237,7 +7237,10 @@ function updateAuthUI(session) {
     const metadata = session.user.user_metadata;
     const fullName = (metadata && metadata.full_name) || session.user.email || '사용자';
     if (usernameSpan) usernameSpan.textContent = fullName;
-    if (shortUsernameSpan) shortUsernameSpan.textContent = fullName.split(' ')[0] || fullName;
+    const currentNick = getUserNickname();
+    if (shortUsernameSpan) {
+      shortUsernameSpan.innerHTML = `<span class="header-user-at" style="color:var(--violet); font-weight:600; margin-right:1px;">@</span>${esc(currentNick)}`;
+    }
     if (headerChip) headerChip.style.display = 'inline-flex';
     if (googleLoginBtn) googleLoginBtn.style.display = 'none';
     syncNicknameUI();
@@ -7462,6 +7465,12 @@ function validateNickname(nick) {
 function syncNicknameUI() {
   const currentNick = getUserNickname();
   const left = getNicknameChangesLeft();
+
+  // 0. 최상단 헤더 칩 (@독서가 닉네임)
+  const shortUsernameSpan = document.getElementById('auth-username-short');
+  if (shortUsernameSpan) {
+    shortUsernameSpan.innerHTML = `<span class="header-user-at" style="color:var(--violet); font-weight:600; margin-right:1px;">@</span>${esc(currentNick)}`;
+  }
 
   // 1. 북클럽 헤더 칩
   const commNickDisplay = document.getElementById('comm-my-nickname-display');
