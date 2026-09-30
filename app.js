@@ -345,40 +345,9 @@ async function loadData() {
 
   if (!supabaseClient || !currentUser) {
     books = localBooks.filter(b => !isOhaImportedBook(b));
-    // 게스트 모드: window.NEO_BOOKS_131의 신규 도서, 책등(spineCover) 및 복원된 별점/감상평/스크랩 자동 동기화
-    if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
-      window.NEO_BOOKS_131.forEach(nb => {
-        const eb = books.find(b => (b.id === nb.id) || (b.title && b.title.trim().toLowerCase() === nb.title.trim().toLowerCase() && (b.date || '').substring(0, 4) === (nb.date || '').substring(0, 4)));
-        if (eb) {
-          if (nb.cover && (!eb.cover || eb.cover !== nb.cover || eb.cover.includes('pstatic.net'))) {
-            eb.cover = nb.cover;
-          }
-          if (nb.spineCover && (!eb.spineCover || eb.spineCover !== nb.spineCover)) {
-            eb.spineCover = nb.spineCover;
-          }
-          if (typeof nb.rating === 'number' && nb.rating > 0 && eb.rating !== nb.rating) {
-            eb.rating = nb.rating;
-          }
-          if (nb.sentence && (!eb.sentence || (nb.sentence !== eb.sentence && nb.sentence.length > eb.sentence.length))) {
-            eb.sentence = nb.sentence;
-          }
-          if (Array.isArray(nb.keywords) && nb.keywords.length > 0 && (!eb.keywords || eb.keywords.length === 0)) {
-            eb.keywords = nb.keywords;
-          }
-          if (Array.isArray(nb.scraps) && nb.scraps.length > 0 && (!eb.scraps || eb.scraps.length < nb.scraps.length)) {
-            eb.scraps = nb.scraps;
-          }
-        }
-      });
-      const existingKeys = new Set(books.map(b => `${(b.date || '').substring(0, 7)}_${(b.title || '').trim().toLowerCase()}`));
-      const missing = window.NEO_BOOKS_131.filter(b => {
-        const k = `${(b.date || '').substring(0, 7)}_${(b.title || '').trim().toLowerCase()}`;
-        return !existingKeys.has(k);
-      });
-      if (missing.length > 0) {
-        books = [...missing, ...books];
-        books.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-      }
+    // 게스트 모드: 로컬 서재가 비어있는 최초 방문자일 때만 기본 정적 데이터셋 로드
+    if (books.length === 0 && typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131) && window.NEO_BOOKS_131.length > 0) {
+      books = JSON.parse(JSON.stringify(window.NEO_BOOKS_131));
     }
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
@@ -476,93 +445,7 @@ async function loadData() {
 
     books = books.filter(b => !isOhaImportedBook(b));
 
-    // 네오 본인 계정이거나 네오 서재를 사용하는 계정: window.NEO_BOOKS_131(2025 도서 96권 및 복원된 별점/감상평/책등 포함) 자동 병합 및 Supabase upsert
-    const isNeoLibraryUser = isNeoUser(currentUser) || books.some(b => b.id && String(b.id).startsWith('mtqy'));
-    if (isNeoLibraryUser && typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
-      let spineUpdated = 0;
-      let ratingUpdated = 0;
-      const updatedBooksMap = new Map();
-
-      window.NEO_BOOKS_131.forEach(nb => {
-        // ID 우선 매칭, 없으면 제목+연도 매칭
-        const eb = books.find(b => b.id === nb.id) || books.find(b => b.title && b.title.trim().toLowerCase() === nb.title.trim().toLowerCase() && (b.date || '').substring(0, 4) === (nb.date || '').substring(0, 4));
-        if (eb) {
-          let updated = false;
-          if (nb.cover && (!eb.cover || eb.cover !== nb.cover || eb.cover.includes('pstatic.net'))) {
-            eb.cover = nb.cover;
-            updated = true;
-          }
-          if (nb.spineCover && (!eb.spineCover || eb.spineCover !== nb.spineCover)) {
-            eb.spineCover = nb.spineCover;
-            spineUpdated++;
-            updated = true;
-          }
-          if (typeof nb.rating === 'number' && nb.rating > 0 && eb.rating !== nb.rating) {
-            eb.rating = nb.rating;
-            ratingUpdated++;
-            updated = true;
-          }
-          if (nb.sentence && (!eb.sentence || (nb.sentence !== eb.sentence && nb.sentence.length > eb.sentence.length))) {
-            eb.sentence = nb.sentence;
-            updated = true;
-          }
-          if (Array.isArray(nb.keywords) && nb.keywords.length > 0 && (!eb.keywords || eb.keywords.length === 0)) {
-            eb.keywords = nb.keywords;
-            updated = true;
-          }
-          if (Array.isArray(nb.scraps) && nb.scraps.length > 0 && (!eb.scraps || eb.scraps.length < nb.scraps.length)) {
-            eb.scraps = nb.scraps;
-            updated = true;
-          }
-          if (updated && eb.id) {
-            updatedBooksMap.set(eb.id, eb);
-          }
-        }
-      });
-
-      const existingKeys = new Set(books.map(b => `${(b.date || '').substring(0, 7)}_${(b.title || '').trim().toLowerCase()}`));
-      const missing = window.NEO_BOOKS_131.filter(b => {
-        const k = `${(b.date || '').substring(0, 7)}_${(b.title || '').trim().toLowerCase()}`;
-        return !existingKeys.has(k);
-      });
-      if (missing.length > 0) {
-        console.log(`[Sync] Merging ${missing.length} new Neo books into library...`);
-        const newItems = missing.map(b => ({
-          ...b,
-          user_id: currentUser.id
-        }));
-        newItems.forEach(b => {
-          if (!books.some(existing => existing.id === b.id)) {
-            books.push(b);
-          }
-          if (b.id) {
-            updatedBooksMap.set(b.id, b);
-          }
-        });
-        books.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-      }
-
-      // Supabase에 비동기 청크 업로드 (중복 ID 완전 배제 보장)
-      const uniqueBooksToUpsert = Array.from(updatedBooksMap.values());
-      if (supabaseClient && uniqueBooksToUpsert.length > 0) {
-        const payload = uniqueBooksToUpsert.map(b => sanitizeBookForSupabase(b));
-        for (let i = 0; i < payload.length; i += 50) {
-          const chunk = payload.slice(i, i + 50);
-          supabaseClient.from('books').upsert(chunk, { onConflict: 'id' }).then(({ error }) => {
-            if (error) console.error('[Sync] Supabase upsert error:', error);
-            else console.log(`[Sync] Successfully synced chunk (${chunk.length} books) to Supabase`);
-          });
-        }
-      }
-
-      if (missing.length > 0 || spineUpdated > 0 || ratingUpdated > 0) {
-        const parts = [];
-        if (missing.length > 0) parts.push(`새 도서 ${missing.length}권`);
-        if (spineUpdated > 0) parts.push(`책등 ${spineUpdated}권`);
-        if (ratingUpdated > 0) parts.push(`별점/정보 ${ratingUpdated}권 복원`);
-        toast(`서재 동기화 완료: ${parts.join(', ')} 반영!`, 3500);
-      }
-    }
+    // Supabase 원격 DB가 단일 진실 공급원(SSOT)이므로 정적 데이터셋으로 사용자의 최신 수정/삭제 사항을 덮어쓰지 않음
 
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
