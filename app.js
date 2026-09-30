@@ -8500,6 +8500,18 @@ function getMostShelvedCommunityBooks() {
       .map(item => ({ text: item.text, count: item.users.size }))
       .sort((a, b) => b.count - a.count);
 
+    // 참여 독서가 닉네임 목록 수집 (중복 제거, 본인 우선 정렬)
+    const readers = [];
+    const seenReaders = new Set();
+    g.copies.forEach(copy => {
+      const info = getCommunityItemOwnerNickname(copy, copy._source);
+      if (info && info.nickname && !seenReaders.has(info.nickname)) {
+        seenReaders.add(info.nickname);
+        readers.push(info);
+      }
+    });
+    readers.sort((a, b) => (b.isMe ? 1 : 0) - (a.isMe ? 1 : 0));
+
     result.push({
       id: b.id,
       title: mainTitle,
@@ -8511,6 +8523,7 @@ function getMostShelvedCommunityBooks() {
       keywords: allKeywords,
       reviews: reviews,
       shelvedCount: count,
+      readers: readers,
       likesCount: likesCount
     });
   });
@@ -8554,6 +8567,19 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
     ? reviewsList.map(r => `<div class="comm-book-review">“${esc(r)}”</div>`).join('')
     : '';
 
+  const readersHtml = (Array.isArray(b.readers) && b.readers.length > 0)
+    ? `<div class="comm-popular-readers-wrap">
+        <span class="comm-popular-readers-icon" title="함께 읽은 독서가">🔖</span>
+        <div class="comm-popular-readers-list">
+          ${b.readers.map(r => `
+            <span class="comm-popular-reader-tag${r.isMe ? ' is-me' : ''}">
+              <span class="comm-user-at">@</span><span class="comm-user-name">${esc(r.nickname)}</span>${r.isMe ? '<span class="comm-my-badge">나</span>' : ''}
+            </span>
+          `).join('')}
+        </div>
+      </div>`
+    : `<div class="comm-shelved-badge">🔖 ${b.shelvedCount}명의 선택</div>`;
+
   const remoteSet = communityLikesMap.get(bid) || new Set();
   const isLiked = (currentUser && remoteSet.has(currentUser.id)) || remoteSet.has(myId) || !!storedBookLikes['bk_' + bid];
   let currentLikes = remoteSet.size;
@@ -8565,7 +8591,7 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
     <div class="comm-book-card comm-popular-book-card" id="comm-pop-${esc(bid)}">
       ${coverHtml}
       <div class="comm-book-info">
-        <div class="comm-shelved-badge">🔖 ${b.shelvedCount}명의 선택</div>
+        ${readersHtml}
         <div class="comm-book-title">${esc(b.title)}</div>
         <div class="comm-book-author">${esc(b.author)}</div>
         ${ratingHtml}

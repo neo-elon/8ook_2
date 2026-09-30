@@ -3651,7 +3651,7 @@
       letter-spacing: -0.2px;
     }
 
-    /* Shelved count badge for most popular books */
+    /* Shelved count badge & readers tags for most popular books */
     .comm-shelved-badge {
       display: inline-flex;
       align-items: center;
@@ -3666,6 +3666,51 @@
       width: fit-content;
       margin-bottom: 2px;
       letter-spacing: -0.2px;
+    }
+
+    .comm-popular-readers-wrap {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px 6px;
+      margin-bottom: 6px;
+      width: 100%;
+    }
+    .comm-popular-readers-icon {
+      font-size: 11px;
+      opacity: 0.85;
+      margin-right: -2px;
+    }
+    .comm-popular-readers-list {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+    }
+    .comm-popular-reader-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      background: rgba(140, 98, 57, 0.08);
+      border: 1px solid rgba(140, 98, 57, 0.24);
+      color: var(--violet);
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 1.5px 6.5px;
+      border-radius: 10px;
+      letter-spacing: -0.2px;
+      line-height: 1.35;
+    }
+    .comm-popular-reader-tag.is-me {
+      background: rgba(140, 98, 57, 0.16);
+      border-color: rgba(140, 98, 57, 0.42);
+      color: var(--primary-accent, #6d421d);
+      font-weight: 700;
+    }
+    .comm-popular-reader-tag .comm-my-badge {
+      margin-left: 2px;
+      font-size: 9px;
+      padding: 0 3px;
     }
 
     /* ── Scraps Stream (30 Quotes) ── */
@@ -5173,6 +5218,14 @@ body.large-text-mode .comm-shelved-badge {
   font-size: 13px !important;
   padding: 3px 9px !important;
   margin-bottom: 4px !important;
+}
+body.large-text-mode .comm-popular-reader-tag {
+  font-size: 13px !important;
+  padding: 3px 9px !important;
+}
+body.large-text-mode .comm-popular-reader-tag .comm-my-badge {
+  font-size: 11px !important;
+  padding: 1px 4.5px !important;
 }
 body.large-text-mode .comm-book-kw-tag {
   font-size: 13px !important;
