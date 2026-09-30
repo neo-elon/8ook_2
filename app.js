@@ -8115,23 +8115,25 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
 
   return `
     <div class="comm-book-card" id="comm-bk-${esc(bid)}">
-      ${coverHtml}
-      <div class="comm-book-info">
-        <div class="comm-book-user-bar">
-          <span class="comm-book-user"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span></span>
-          ${isMe ? '<span class="comm-my-badge">나</span>' : ''}
+      <div class="comm-book-header">
+        ${coverHtml}
+        <div class="comm-book-info">
+          <div class="comm-book-user-bar">
+            <span class="comm-book-user"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span></span>
+            ${isMe ? '<span class="comm-my-badge">나</span>' : ''}
+          </div>
+          <div class="comm-book-title" onclick="showDetail('${esc(bid)}')">${esc(mainTitle)}</div>
+          <div class="comm-book-author">${esc(b.author)}</div>
+          ${ratingHtml}
+          ${keywordsHtml}
         </div>
-        <div class="comm-book-title" onclick="showDetail('${esc(bid)}')">${esc(mainTitle)}</div>
-        <div class="comm-book-author">${esc(b.author)}</div>
-        ${ratingHtml}
-        ${keywordsHtml}
-        ${reviewHtml}
-        <div class="comm-book-meta">
-          <span class="comm-book-time">${esc(b.time || '')}</span>
-          <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
-            <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
-          </button>
-        </div>
+      </div>
+      ${reviewHtml}
+      <div class="comm-book-meta">
+        <span class="comm-book-time">${esc(b.time || '')}</span>
+        <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
+          <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
+        </button>
       </div>
     </div>
   `;
@@ -8608,9 +8610,9 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
           ? `<span class="comm-review-writer"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(nick)}</span>${isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>`
           : '';
         return `
-          <div class="comm-book-review has-writer">
+          <div class="comm-book-review-row">
             ${writerHtml}
-            <span class="comm-review-quote">“${esc(text)}”</span>
+            <div class="comm-book-review">“${esc(text)}”</div>
           </div>
         `;
       }).join('')
@@ -8633,19 +8635,21 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
 
   return `
     <div class="comm-book-card comm-popular-book-card" id="comm-pop-${esc(bid)}">
-      ${coverHtml}
-      <div class="comm-book-info">
-        ${readersHtml}
-        <div class="comm-book-title">${esc(b.title)}</div>
-        <div class="comm-book-author">${esc(b.author)}</div>
-        ${ratingHtml}
-        ${keywordsHtml}
-        ${reviewsHtml}
-        <div class="comm-book-meta" style="justify-content: flex-end;">
-          <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
-            <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
-          </button>
+      <div class="comm-book-header">
+        ${coverHtml}
+        <div class="comm-book-info">
+          ${readersHtml}
+          <div class="comm-book-title">${esc(b.title)}</div>
+          <div class="comm-book-author">${esc(b.author)}</div>
+          ${ratingHtml}
+          ${keywordsHtml}
         </div>
+      </div>
+      ${reviewsHtml}
+      <div class="comm-book-meta" style="justify-content: flex-end;">
+        <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
+          <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
+        </button>
       </div>
     </div>
   `;
