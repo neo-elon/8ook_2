@@ -171,6 +171,19 @@ let statsPeriod = 'all';
 let editingScrapId = null;
 let currentGalleryFilter = null;
 
+// Community State
+let remoteCommunityBooks = [];
+let communityLikesMap = new Map();
+let commLikesChannel = null;
+let localLikeBroadcast = null;
+let currentCommunityTab = 'books';
+let communityBooksLimit = 9;
+let communityPopularBooksLimit = 9;
+let isCommunityBooksLoading = false;
+let isCommunityPopularLoading = false;
+let communityBooksObserver = null;
+let communityPopularObserver = null;
+
 // Aladin
 let aladinSearchTimer = null;
 let aladinCallbackCounter = 0;
@@ -7084,6 +7097,9 @@ function closeAppMenu() {
   if (btn) btn.classList.remove('active');
 }
 
+window.toggleAppMenu = toggleAppMenu;
+window.closeAppMenu = closeAppMenu;
+
 // Close drawer on ESC key
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
@@ -7119,7 +7135,6 @@ let currentFeedRating = 5;
 /* ==============================================
    COMMUNITY LOGIC (Anonymous Books & Scraps)
    ============================================== */
-let currentCommunityTab = 'books';
 
 const SEED_COMMUNITY_BOOKS = [];
 
@@ -7514,11 +7529,6 @@ function getSafeTimestamp(val) {
   return isNaN(t) ? 0 : t;
 }
 
-let remoteCommunityBooks = [];
-let communityLikesMap = new Map();
-let commLikesChannel = null;
-let localLikeBroadcast = null;
-
 function getClientLikeId() {
   if (currentUser && currentUser.id) return currentUser.id;
   let cid = '';
@@ -7845,9 +7855,6 @@ function switchCommunityTab(tab) {
   }
 }
 
-let communityBooksLimit = 9;
-let isCommunityBooksLoading = false;
-let communityBooksObserver = null;
 const communityBooksSort = 'read';
 
 function updateCommunityBooksSortButtons() {
@@ -8279,10 +8286,6 @@ function initCommunityScroll() {
     window.addEventListener('resize', handleCommunityResize, { passive: true });
   }
 }
-
-let communityPopularBooksLimit = 9;
-let isCommunityPopularLoading = false;
-let communityPopularObserver = null;
 
 function getMostShelvedCommunityBooks() {
   const groups = new Map();
