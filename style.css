@@ -4746,3 +4746,174 @@ mark.search-highlight {
     margin-left: auto;
   }
 }
+
+/* ======================================
+   LARGE TEXT MODE (큰글자 모드)
+   ====================================== */
+.menu-toggle-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: var(--glass);
+  color: var(--text-300);
+  border: 1px solid var(--border);
+  letter-spacing: 0.5px;
+  transition: all 0.2s var(--ease);
+}
+.menu-toggle-badge.active {
+  background: var(--violet);
+  color: #ffffff;
+  border-color: var(--violet);
+  box-shadow: 0 2px 6px rgba(140, 98, 57, 0.25);
+}
+
+/* 1. 문장 보관함 (Scraps Archive) */
+body.large-text-mode .scrap-card-body {
+  font-size: 17.5px !important;
+  line-height: 1.8 !important;
+  letter-spacing: -0.3px;
+}
+body.large-text-mode .scrap-card-body::before,
+body.large-text-mode .scrap-card-body::after {
+  font-size: 21px !important;
+}
+body.large-text-mode .scrap-card-title {
+  font-size: 16.5px !important;
+  font-weight: 700;
+}
+body.large-text-mode .scrap-card-sub {
+  font-size: 13.5px !important;
+}
+body.large-text-mode .scrap-card-meta {
+  gap: 4px !important;
+}
+body.large-text-mode .comm-scrap-memo {
+  font-size: 15px !important;
+  line-height: 1.65 !important;
+}
+body.large-text-mode .scrap-tag-chip {
+  font-size: 13px !important;
+  padding: 4px 10px !important;
+}
+body.large-text-mode .scrap-filter-pill {
+  font-size: 14px !important;
+  padding: 6px 14px !important;
+}
+body.large-text-mode .scraps-hero-title {
+  font-size: 30px !important;
+}
+body.large-text-mode .scraps-hero-subtitle {
+  font-size: 14.5px !important;
+}
+body.large-text-mode .scraps-tab-btn {
+  font-size: 14px !important;
+  padding: 6px 14px !important;
+}
+body.large-text-mode .scraps-archive-input {
+  font-size: 15px !important;
+}
+
+/* 2. 북클럽 문장 스트림 (Community Scraps) */
+body.large-text-mode .comm-scrap-text {
+  font-size: 17.5px !important;
+  line-height: 1.8 !important;
+  letter-spacing: -0.3px;
+}
+body.large-text-mode .comm-scrap-text::before,
+body.large-text-mode .comm-scrap-text::after {
+  font-size: 21px !important;
+}
+body.large-text-mode .comm-scrap-title {
+  font-size: 16.5px !important;
+  font-weight: 700;
+}
+body.large-text-mode .comm-scrap-sub {
+  font-size: 13.5px !important;
+}
+body.large-text-mode .comm-scrap-tag {
+  font-size: 13px !important;
+  padding: 4px 10px !important;
+}
+body.large-text-mode .comm-book-title {
+  font-size: 15.5px !important;
+  font-weight: 700;
+}
+body.large-text-mode .comm-book-author {
+  font-size: 13.5px !important;
+}
+body.large-text-mode .comm-tab-btn {
+  font-size: 14.5px !important;
+  padding: 8px 18px !important;
+}
+
+/* 3. 도서 상세 뷰 (Book Detail View) */
+body.large-text-mode .detail-title {
+  font-size: 27px !important;
+  line-height: 1.35 !important;
+}
+body.large-text-mode .detail-author {
+  font-size: 16px !important;
+}
+body.large-text-mode .detail-field-txt {
+  font-size: 15.5px !important;
+  line-height: 1.7 !important;
+}
+body.large-text-mode .detail-sec-title {
+  font-size: 16.5px !important;
+}
+body.large-text-mode .scrap-quote {
+  font-size: 17.5px !important;
+  line-height: 1.8 !important;
+}
+body.large-text-mode .scrap-quote::before,
+body.large-text-mode .scrap-quote::after {
+  font-size: 21px !important;
+}
+body.large-text-mode .scrap-memo {
+  font-size: 15px !important;
+  line-height: 1.65 !important;
+}
+body.large-text-mode .scrap-page {
+  font-size: 13px !important;
+}
+body.large-text-mode .detail-chips .chip {
+  font-size: 13px !important;
+  padding: 4px 10px !important;
+}
+
+/* 4. 메인 책장 (Gallery View & Spine) */
+body.large-text-mode .book-card-title {
+  font-size: 15px !important;
+  font-weight: 700;
+}
+body.large-text-mode .book-card-author {
+  font-size: 12.5px !important;
+}
+body.large-text-mode .book-card-date {
+  font-size: 12px !important;
+}
+body.large-text-mode .shelf-group-header {
+  font-size: 16.5px !important;
+}
+body.large-text-mode .spine-item .spine-label,
+body.large-text-mode .book-spine-text {
+  font-size: 13.5px !important;
+  font-weight: 600;
+}
+
+/* 5. 메뉴 및 헤더 */
+body.large-text-mode .menu-nav-title {
+  font-size: 14.5px !important;
+}
+body.large-text-mode .menu-nav-desc {
+  font-size: 12px !important;
+}
+body.large-text-mode #view-label {
+  font-size: 13.5px !important;
+  padding: 5px 14px !important;
+}
+body.large-text-mode #random-quote-text {
+  font-size: 16.5px !important;
+  line-height: 1.75 !important;
+}

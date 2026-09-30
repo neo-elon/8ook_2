@@ -518,7 +518,7 @@ function toast(msg, dur = 2600) {
 }
 
 /* ==============================================
-   THEME (레퍼런스 톤 단일 테마 고정)
+   THEME (레퍼런스 톤 단일 테마 고정) & ACCESSIBILITY
 ============================================== */
 function loadTheme() {
   document.body.classList.remove('light-theme');
@@ -530,6 +530,48 @@ function toggleTheme() {
 
 function applyTheme() {
   document.body.classList.remove('light-theme');
+}
+
+/* ── 큰글자 모드 (가독성 향상 모드) ── */
+function loadLargeTextMode() {
+  const isLarge = localStorage.getItem('rj_large_text_mode') === 'true';
+  applyLargeTextMode(isLarge, false);
+}
+
+function applyLargeTextMode(enabled, showToast = false) {
+  if (enabled) {
+    document.body.classList.add('large-text-mode');
+  } else {
+    document.body.classList.remove('large-text-mode');
+  }
+
+  syncLargeTextUI();
+
+  if (showToast) {
+    toast(enabled ? '큰글자 모드를 켰습니다. (글씨가 크게 표시됩니다)' : '큰글자 모드를 껐습니다. (기본 크기로 복원)');
+  }
+}
+
+function syncLargeTextUI() {
+  const isLarge = document.body.classList.contains('large-text-mode');
+  const btn = document.getElementById('large-text-nav-btn');
+  if (btn) {
+    btn.setAttribute('aria-checked', isLarge ? 'true' : 'false');
+  }
+  const badge = document.getElementById('large-text-badge');
+  if (badge) {
+    badge.textContent = isLarge ? 'ON' : 'OFF';
+    badge.classList.toggle('active', isLarge);
+  }
+}
+
+function toggleLargeTextMode() {
+  const current = document.body.classList.contains('large-text-mode');
+  const next = !current;
+  try {
+    localStorage.setItem('rj_large_text_mode', next ? 'true' : 'false');
+  } catch (e) { }
+  applyLargeTextMode(next, true);
 }
 
 function getSpineWidth(pages) {
@@ -6530,6 +6572,7 @@ document.addEventListener('paste', handleSentencePaste, true);
    INIT
 ============================================= */
 loadTheme();
+loadLargeTextMode();
 loadTagLearningModel();
 (async () => {
   if (supabaseClient) {
@@ -7026,6 +7069,7 @@ function toggleAppMenu() {
     drawer.classList.add('open');
     if (backdrop) backdrop.classList.add('open');
     if (btn) btn.classList.add('active');
+    syncLargeTextUI();
   }
 }
 
