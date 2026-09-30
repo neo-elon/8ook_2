@@ -580,33 +580,17 @@
       background: var(--glass);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 16px;
-      margin-bottom: 24px;
+      padding: 12px 14px;
+      margin-bottom: 20px;
     }
     .menu-user-info {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-    }
-    .menu-user-details {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .menu-user-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(140, 98, 57, 0.12);
-      border: 1px solid var(--border-accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
+      gap: 8px;
     }
     .menu-user-name {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       color: var(--text-100);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -614,43 +598,52 @@
       display: flex;
       align-items: center;
       gap: 2px;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .menu-user-name .menu-nickname-at {
       color: var(--lavender);
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
     }
     .menu-user-sub {
-      font-size: 11.5px;
+      font-size: 11px;
       color: #10b981;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 4px;
-      font-weight: 500;
-      margin-top: 2px;
+      font-weight: 600;
+      flex-shrink: 0;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.22);
+      padding: 2px 7px;
+      border-radius: 12px;
+      line-height: 1.2;
     }
     .menu-sync-dot {
       display: inline-block;
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
       background-color: #10b981;
-      box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
     }
     .menu-user-actions {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-top: 14px;
+      margin-top: 10px;
     }
     .menu-user-actions .menu-auth-btn {
       flex: 1;
       width: auto;
-      padding: 8px 10px;
-      height: 36px;
+      padding: 6px 10px;
+      height: 32px;
       margin: 0;
       border-radius: var(--radius-sm);
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
