@@ -2967,8 +2967,274 @@
     .community-hero-subtitle {
       font-size: 13.5px;
       color: var(--text-300);
-      margin-bottom: 20px;
+      margin-bottom: 14px;
       word-break: keep-all;
+    }
+
+    /* ── Bookclub User Profile Bar & Instagram-Style Nickname ── */
+    .comm-user-profile-bar {
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+    .comm-my-profile-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--glass-card);
+      border: 1px solid var(--border-accent);
+      border-radius: 24px;
+      padding: 6px 14px 6px 10px;
+      cursor: pointer;
+      transition: all 0.25s var(--ease);
+      box-shadow: 0 2px 8px rgba(70, 50, 30, 0.05);
+      user-select: none;
+    }
+    .comm-my-profile-chip:hover {
+      background: var(--bg-surface);
+      border-color: var(--violet);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(140, 98, 57, 0.15);
+    }
+    .comm-profile-avatar {
+      font-size: 15px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      background: rgba(140, 98, 57, 0.1);
+      border-radius: 50%;
+    }
+    .comm-profile-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1px;
+    }
+    .comm-profile-title {
+      font-size: 10px;
+      color: var(--text-400);
+      font-weight: 500;
+      line-height: 1;
+    }
+    .comm-profile-nick {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-100);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      letter-spacing: -0.2px;
+      line-height: 1.2;
+    }
+    .comm-profile-at,
+    .comm-user-at,
+    .menu-nickname-at,
+    .nickname-at {
+      color: var(--violet);
+      font-weight: 600;
+      margin-right: 1px;
+    }
+    .comm-profile-edit-btn {
+      font-size: 11px;
+      font-weight: 600;
+      color: #ffffff;
+      background: var(--violet);
+      padding: 3px 9px;
+      border-radius: 12px;
+      line-height: 1;
+      transition: all 0.2s var(--ease);
+      margin-left: 2px;
+    }
+    .comm-profile-edit-btn.disabled {
+      background: var(--border);
+      color: var(--text-400);
+      cursor: default;
+    }
+
+    /* 사이드 메뉴 내 북클럽 닉네임 박스 */
+    .menu-nickname-box {
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+    .menu-nickname-box:hover {
+      background: var(--glass-hover);
+      border-color: var(--border-accent);
+    }
+    .menu-nickname-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .menu-nickname-label {
+      font-size: 10.5px;
+      color: var(--text-400);
+      font-weight: 500;
+    }
+    .menu-nickname-val {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-100);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .menu-nickname-badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--violet);
+      background: rgba(140, 98, 57, 0.1);
+      border: 1px solid rgba(140, 98, 57, 0.25);
+      padding: 3px 8px;
+      border-radius: 12px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .menu-nickname-badge.disabled {
+      background: rgba(0, 0, 0, 0.04);
+      color: var(--text-400);
+      border-color: transparent;
+    }
+
+    /* 도서 카드 및 스크랩 카드 내 닉네임 배지 */
+    .comm-book-user-bar {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 2px;
+    }
+    .comm-book-user,
+    .comm-scrap-owner-wrap {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--lavender, #8c6239);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      letter-spacing: -0.2px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .comm-user-name {
+      color: var(--text-200);
+      transition: color 0.15s ease;
+    }
+    .comm-my-badge {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #ffffff;
+      background: var(--violet);
+      padding: 1px 5px;
+      border-radius: 6px;
+      line-height: 1.2;
+      display: inline-flex;
+      align-items: center;
+      margin-left: 3px;
+    }
+
+    /* 닉네임 모달 */
+    .nickname-current-card {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nickname-curr-lbl {
+      font-size: 12px;
+      color: var(--text-300);
+    }
+    .nickname-curr-val {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-100);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .nickname-count-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--violet);
+      background: rgba(140, 98, 57, 0.1);
+      padding: 2px 7px;
+      border-radius: 10px;
+    }
+    .nickname-count-tag.depleted {
+      color: #e11d48;
+      background: rgba(225, 29, 72, 0.1);
+    }
+    .nickname-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    .nickname-input-prefix {
+      position: absolute;
+      left: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--violet);
+      pointer-events: none;
+    }
+    .nickname-input-field {
+      padding-left: 28px !important;
+      font-size: 14px !important;
+      font-weight: 600;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      letter-spacing: 0.2px;
+    }
+    .nickname-hint-msg {
+      font-size: 11.5px;
+      color: var(--text-400);
+      margin-top: 5px;
+      line-height: 1.4;
+      transition: color 0.2s ease;
+    }
+    .nickname-hint-msg.error {
+      color: #e11d48;
+      font-weight: 600;
+    }
+    .nickname-hint-msg.warn {
+      color: var(--amber, #d97706);
+      font-weight: 600;
+    }
+    .nickname-hint-msg.success {
+      color: #059669;
+      font-weight: 600;
+    }
+    .nickname-rule-box {
+      background: rgba(140, 98, 57, 0.05);
+      border: 1px solid rgba(140, 98, 57, 0.15);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+    }
+    .nickname-rule-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-200);
+      margin-bottom: 6px;
+    }
+    .nickname-rule-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 11.5px;
+      color: var(--text-300);
+      line-height: 1.6;
+    }
+    .nickname-rule-list code {
+      background: rgba(140, 98, 57, 0.12);
+      padding: 1px 4px;
+      border-radius: 3px;
+      color: var(--violet);
+      font-family: monospace;
     }
 
     /* ── Segmented Tab Switcher ── */
@@ -5019,4 +5285,24 @@ body.large-text-mode .stat-num {
 }
 body.large-text-mode .stat-label {
   font-size: 13px !important;
+}
+
+/* ── 7. 북클럽 닉네임 및 프로필 배지 ── */
+body.large-text-mode .comm-profile-title {
+  font-size: 11.5px !important;
+}
+body.large-text-mode .comm-profile-nick,
+body.large-text-mode .menu-nickname-val {
+  font-size: 15px !important;
+}
+body.large-text-mode .comm-book-user,
+body.large-text-mode .comm-scrap-owner-wrap {
+  font-size: 13px !important;
+}
+body.large-text-mode .comm-my-badge {
+  font-size: 10.5px !important;
+  padding: 1.5px 6px !important;
+}
+body.large-text-mode .nickname-curr-val {
+  font-size: 17px !important;
 }

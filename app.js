@@ -6695,6 +6695,7 @@ loadTagLearningModel();
 
   renderGallery();
   updateSidebar();
+  syncNicknameUI();
 
   // Initialize browser history state for seamless Back/Forward button navigation
   if (typeof window !== 'undefined' && window.history && window.history.replaceState && !window.history.state) {
@@ -7126,14 +7127,315 @@ if (supabaseClient) {
 }
 
 /* ==============================================
+   BOOKCLUB NICKNAME SYSTEM
+   - Default: Random 6-char (lowercase english + numbers)
+   - Max 3 changes allowed
+   - Instagram style: a-z, 0-9, _, . (3~20 chars)
+============================================== */
+const MAX_NICKNAME_CHANGES = 3;
+
+function generateDefaultNickname() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let res = '';
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const bytes = new Uint8Array(6);
+    crypto.getRandomValues(bytes);
+    for (let i = 0; i < 6; i++) {
+      res += chars[bytes[i] % chars.length];
+    }
+  } else {
+    for (let i = 0; i < 6; i++) {
+      res += chars[Math.floor(Math.random() * chars.length)];
+    }
+  }
+  return res;
+}
+
+function getUserNickname() {
+  let nick = '';
+  try {
+    nick = localStorage.getItem('rj_user_nickname') || '';
+  } catch (e) {}
+
+  if (!nick && currentUser && currentUser.user_metadata && currentUser.user_metadata.nickname) {
+    nick = currentUser.user_metadata.nickname;
+  }
+
+  if (!nick) {
+    nick = generateDefaultNickname();
+    try {
+      localStorage.setItem('rj_user_nickname', nick);
+    } catch (e) {}
+  }
+  return nick.toLowerCase();
+}
+
+function getNicknameChangeCount() {
+  try {
+    const raw = localStorage.getItem('rj_nickname_change_count');
+    if (raw !== null) {
+      const parsed = parseInt(raw, 10);
+      if (!isNaN(parsed) && parsed >= 0) return parsed;
+    }
+    if (currentUser && currentUser.user_metadata && currentUser.user_metadata.nickname_change_count !== undefined) {
+      const parsed = parseInt(currentUser.user_metadata.nickname_change_count, 10);
+      if (!isNaN(parsed) && parsed >= 0) return parsed;
+    }
+  } catch (e) {}
+  return 0;
+}
+
+function setNicknameChangeCount(cnt) {
+  try {
+    localStorage.setItem('rj_nickname_change_count', String(cnt));
+  } catch (e) {}
+}
+
+function getNicknameChangesLeft() {
+  const cnt = getNicknameChangeCount();
+  return Math.max(0, MAX_NICKNAME_CHANGES - cnt);
+}
+
+function validateNickname(nick) {
+  if (!nick) return { valid: false, message: '닉네임을 입력해주세요.' };
+  const clean = String(nick).trim().toLowerCase();
+  if (clean.length < 3) return { valid: false, message: '닉네임은 최소 3자 이상이어야 합니다.' };
+  if (clean.length > 20) return { valid: false, message: '닉네임은 최대 20자까지 가능합니다.' };
+  
+  if (!/^[a-z0-9._]+$/.test(clean)) {
+    return { valid: false, message: '영문 소문자, 숫자, 밑줄(_), 마침표(.)만 사용할 수 있습니다.' };
+  }
+  if (!/[a-z0-9]/.test(clean)) {
+    return { valid: false, message: '영문자 또는 숫자가 1자 이상 포함되어야 합니다.' };
+  }
+  if (clean.startsWith('.') || clean.endsWith('.')) {
+    return { valid: false, message: '마침표(.)로 시작하거나 끝날 수 없습니다.' };
+  }
+  if (clean.includes('..')) {
+    return { valid: false, message: '마침표(..)는 연속해서 사용할 수 없습니다.' };
+  }
+  return { valid: true, clean };
+}
+
+function syncNicknameUI() {
+  const currentNick = getUserNickname();
+  const left = getNicknameChangesLeft();
+
+  // 1. 북클럽 헤더 칩
+  const commNickDisplay = document.getElementById('comm-my-nickname-display');
+  if (commNickDisplay) commNickDisplay.textContent = currentNick;
+
+  const commChangeBtn = document.getElementById('comm-profile-change-btn');
+  if (commChangeBtn) {
+    commChangeBtn.textContent = left > 0 ? `변경 (${left}회)` : '변경 완료';
+    commChangeBtn.classList.toggle('disabled', left <= 0);
+  }
+
+  // 2. 사이드 메뉴(Drawer)
+  const menuNickDisplay = document.getElementById('menu-nickname-display');
+  if (menuNickDisplay) menuNickDisplay.textContent = currentNick;
+
+  const menuBadge = document.getElementById('menu-nickname-change-badge');
+  if (menuBadge) {
+    menuBadge.textContent = left > 0 ? `변경 (${left}회)` : '완료 (0회)';
+    menuBadge.classList.toggle('disabled', left <= 0);
+  }
+
+  // 3. 모달 내부
+  const modalCurrVal = document.getElementById('nick-modal-curr-val');
+  if (modalCurrVal) modalCurrVal.textContent = currentNick;
+
+  const modalCountTag = document.getElementById('nick-modal-change-count');
+  if (modalCountTag) {
+    modalCountTag.textContent = left > 0 ? `남은 변경 횟수: ${left}회` : '변경 횟수 소진 (0/3)';
+    modalCountTag.classList.toggle('depleted', left <= 0);
+  }
+
+  const saveBtn = document.getElementById('nick-modal-save-btn');
+  const inputEl = document.getElementById('nick-modal-input');
+  if (saveBtn) saveBtn.disabled = (left <= 0);
+  if (inputEl) {
+    if (left <= 0) {
+      inputEl.disabled = true;
+      inputEl.placeholder = '더 이상 변경할 수 없습니다 (3/3회 소진)';
+    } else {
+      inputEl.disabled = false;
+      inputEl.placeholder = '새 닉네임 입력 (3~20자)';
+    }
+  }
+}
+
+function openNicknameModal() {
+  syncNicknameUI();
+  const inputEl = document.getElementById('nick-modal-input');
+  const hintEl = document.getElementById('nick-modal-hint');
+  if (inputEl) {
+    inputEl.value = '';
+  }
+  if (hintEl) {
+    hintEl.textContent = '인스타그램처럼 영문 소문자, 숫자, 밑줄(_), 마침표(.)를 사용할 수 있습니다.';
+    hintEl.className = 'nickname-hint-msg';
+  }
+  openModal('nickname-modal');
+  setTimeout(() => {
+    if (inputEl && !inputEl.disabled) inputEl.focus();
+  }, 100);
+}
+
+function handleNicknameInputChange(el) {
+  if (!el) return;
+  // 소문자 및 허용 문자 변환
+  el.value = el.value.toLowerCase().replace(/[^a-z0-9._]/g, '');
+  const val = el.value;
+  const hintEl = document.getElementById('nick-modal-hint');
+  const saveBtn = document.getElementById('nick-modal-save-btn');
+  if (!hintEl) return;
+
+  if (!val) {
+    hintEl.textContent = '인스타그램처럼 영문 소문자, 숫자, 밑줄(_), 마침표(.)를 사용할 수 있습니다.';
+    hintEl.className = 'nickname-hint-msg';
+    if (saveBtn && getNicknameChangesLeft() > 0) saveBtn.disabled = false;
+    return;
+  }
+
+  const check = validateNickname(val);
+  if (!check.valid) {
+    hintEl.textContent = check.message;
+    hintEl.className = 'nickname-hint-msg error';
+  } else {
+    const current = getUserNickname();
+    if (check.clean === current) {
+      hintEl.textContent = '현재 사용 중인 닉네임과 동일합니다.';
+      hintEl.className = 'nickname-hint-msg warn';
+    } else {
+      hintEl.textContent = `사용 가능한 멋진 닉네임입니다! (@${check.clean})`;
+      hintEl.className = 'nickname-hint-msg success';
+    }
+  }
+}
+
+async function submitNicknameChange() {
+  const left = getNicknameChangesLeft();
+  if (left <= 0) {
+    toast('닉네임 변경 가능 횟수(최대 3회)를 모두 소진했습니다.');
+    return;
+  }
+
+  const inputEl = document.getElementById('nick-modal-input');
+  if (!inputEl) return;
+  const raw = inputEl.value;
+  const check = validateNickname(raw);
+  if (!check.valid) {
+    toast(check.message);
+    return;
+  }
+
+  const newNick = check.clean;
+  const currentNick = getUserNickname();
+  if (newNick === currentNick) {
+    toast('현재 닉네임과 동일합니다.');
+    return;
+  }
+
+  const newCount = getNicknameChangeCount() + 1;
+  setNicknameChangeCount(newCount);
+  try {
+    localStorage.setItem('rj_user_nickname', newNick);
+  } catch (e) {}
+
+  if (supabaseClient && currentUser) {
+    try {
+      await supabaseClient.auth.updateUser({
+        data: {
+          nickname: newNick,
+          nickname_change_count: newCount
+        }
+      });
+    } catch (e) {
+      console.warn('Failed to sync nickname to Supabase user_metadata:', e);
+    }
+  }
+
+  syncNicknameUI();
+  closeModal('nickname-modal');
+  toast(`북클럽 닉네임이 @${newNick} (으)로 변경되었습니다! (남은 변경: ${Math.max(0, MAX_NICKNAME_CHANGES - newCount)}회)`);
+
+  // 북클럽 피드 즉시 다시 렌더링하여 닉네임 갱신
+  if (typeof renderCommunityBooks === 'function') renderCommunityBooks();
+  if (typeof renderCommunityScraps === 'function') renderCommunityScraps();
+}
+
+// 일관된 6자리 닉네임 매핑 함수
+function hashStringToNickname(str) {
+  if (!str) return generateDefaultNickname();
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+  h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+  h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+  let combined = Math.abs(h1 ^ h2);
+  let res = '';
+  for (let i = 0; i < 6; i++) {
+    res += chars[combined % chars.length];
+    combined = Math.floor(combined / chars.length) ^ (h2 >>> (i * 4));
+    combined = Math.abs(combined);
+  }
+  return res.slice(0, 6);
+}
+
+function getCommunityItemOwnerNickname(item, source = '') {
+  if (!item) return { nickname: generateDefaultNickname(), isMe: false };
+
+  // 내가 작성한 도서인지 판별
+  const isMine = (source === 'local') ||
+                 (currentUser && item.user_id && String(item.user_id) === String(currentUser.id)) ||
+                 (item.id && Array.isArray(books) && books.some(b => String(b.id) === String(item.id)));
+
+  if (isMine) {
+    return { nickname: getUserNickname(), isMe: true };
+  }
+
+  if (item.nickname && typeof item.nickname === 'string' && item.nickname.trim()) {
+    return { nickname: item.nickname.trim().toLowerCase(), isMe: false };
+  }
+
+  // 큐레이터 및 특별 독서가
+  if (source === 'neo_dataset' || String(item.user_id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') {
+    return { nickname: 'curator_neo', isMe: false };
+  }
+  if (source === 'oha_dataset' || String(item.user_id) === '7396cf84-8b75-4617-a050-5ed974fcbe02') {
+    return { nickname: 'reader_oha', isMe: false };
+  }
+
+  // 그 외: 고유 식별자 기반 결정적 6자리 영문+숫자 닉네임 생성
+  const seed = item.user_id || item.id || item.author || (item.title ? (item.title + (item.time || '')) : '');
+  const nick = hashStringToNickname(String(seed));
+  return { nickname: nick, isMe: false };
+}
+
+window.openNicknameModal = openNicknameModal;
+window.submitNicknameChange = submitNicknameChange;
+window.handleNicknameInputChange = handleNicknameInputChange;
+window.getUserNickname = getUserNickname;
+window.getNicknameChangesLeft = getNicknameChangesLeft;
+window.validateNickname = validateNickname;
+window.syncNicknameUI = syncNicknameUI;
+
+/* ==============================================
    COMMUNITY JS LOGIC
    ============================================== */
-
 
 let currentFeedRating = 5;
 
 /* ==============================================
-   COMMUNITY LOGIC (Anonymous Books & Scraps)
+   COMMUNITY LOGIC (Books & Scraps)
    ============================================== */
 
 const SEED_COMMUNITY_BOOKS = [];
@@ -7792,6 +8094,7 @@ async function showCommunity(pushHistory = true) {
   const scrapsView = document.getElementById('view-scraps');
   if (scrapsView) scrapsView.classList.remove('show');
   document.getElementById('view-community').classList.add('show');
+  syncNicknameUI();
 
   const backBtn = document.getElementById('back-btn');
   if (backBtn) {
@@ -8056,10 +8359,18 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
     currentLikes += 1;
   }
 
+  const ownerInfo = getCommunityItemOwnerNickname(b, b._source);
+  const ownerNick = ownerInfo.nickname;
+  const isMe = ownerInfo.isMe;
+
   return `
     <div class="comm-book-card" id="comm-bk-${esc(bid)}">
       ${coverHtml}
       <div class="comm-book-info">
+        <div class="comm-book-user-bar">
+          <span class="comm-book-user"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span></span>
+          ${isMe ? '<span class="comm-my-badge">나</span>' : ''}
+        </div>
         <div class="comm-book-title" onclick="showDetail('${esc(bid)}')">${esc(mainTitle)}</div>
         <div class="comm-book-author">${esc(b.author)}</div>
         ${ratingHtml}
@@ -8817,6 +9128,10 @@ function renderCommunityScraps() {
       ? `<img class="comm-scrap-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" decoding="async" ${clickDetail} onerror="handleCommCoverError(this)">`
       : `<div class="comm-scrap-cover-placeholder" ${clickDetail}>8ook</div>`;
 
+    const ownerInfo = getCommunityItemOwnerNickname(s, s._source);
+    const ownerNick = ownerInfo.nickname;
+    const isMe = ownerInfo.isMe;
+
     return `
       <div class="comm-scrap-card" id="csc-${esc(sid)}" style="order:${idx};">
         <div class="comm-scrap-header">
@@ -8827,6 +9142,7 @@ function renderCommunityScraps() {
               <span>${esc(s.author || '저자 미상')}</span>
               ${s.page ? `<span>• p.${s.page}</span>` : ''}
               ${s.time ? `<span>• ${s.time}</span>` : ''}
+              <span class="comm-scrap-owner-wrap">• <span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span>${isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>
             </div>
           </div>
         </div>
