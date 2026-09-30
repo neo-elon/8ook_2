@@ -8956,12 +8956,14 @@ function renderCommunityScraps() {
         <div class="comm-scrap-header">
           ${coverHtml}
           <div class="comm-scrap-meta">
+            <div class="comm-scrap-user-bar">
+              <span class="comm-scrap-owner-wrap"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span>${isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>
+              ${s.time ? `<span class="comm-scrap-time">• ${esc(s.time)}</span>` : ''}
+            </div>
             <div class="comm-scrap-title" ${clickDetail}>${esc(mainTitle)}</div>
             <div class="comm-scrap-sub">
-              <span>${esc(s.author || '저자 미상')}</span>
-              ${s.page ? `<span>• p.${s.page}</span>` : ''}
-              ${s.time ? `<span>• ${s.time}</span>` : ''}
-              <span class="comm-scrap-owner-wrap">• <span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span>${isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>
+              <span class="comm-scrap-author">${esc(s.author || '저자 미상')}</span>
+              ${s.page ? `<span class="comm-scrap-page">• p.${esc(s.page)}</span>` : ''}
             </div>
           </div>
         </div>

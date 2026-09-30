@@ -3719,6 +3719,8 @@
       gap: 14px;
       align-items: flex-start;
       width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
     }
     .comm-scraps-col {
       flex: 1 1 0;
@@ -3726,12 +3728,17 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
+      max-width: 100%;
+      box-sizing: border-box;
     }
     @media (max-width: 768px) {
       .comm-scraps-stream {
         display: flex;
         flex-direction: column;
         gap: 14px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
       }
       .comm-scraps-col {
         display: contents;
@@ -3741,7 +3748,7 @@
       background: var(--bg-surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 18px 20px;
+      padding: 16px 18px;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -3749,6 +3756,11 @@
       box-shadow: var(--shadow-card);
       position: relative;
       margin-bottom: 0;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      min-width: 0;
+      overflow: hidden;
     }
     .comm-scrap-card:hover {
       border-color: var(--border-accent);
@@ -3759,6 +3771,9 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
     .comm-scrap-cover {
       width: 34px;
@@ -3795,7 +3810,24 @@
       min-width: 0;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 2.5px;
+      overflow: hidden;
+    }
+    .comm-scrap-user-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      line-height: 1.3;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .comm-scrap-time {
+      font-size: 11px;
+      color: var(--text-400);
+      flex-shrink: 0;
+      white-space: nowrap;
     }
     .comm-scrap-title {
       font-size: 13.5px;
@@ -3805,6 +3837,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      min-width: 0;
       transition: color 0.15s;
     }
     .comm-scrap-title:hover {
@@ -3815,10 +3848,10 @@
       color: var(--text-300);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      min-width: 0;
       white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
     }
     .comm-book-cover-placeholder {
       width: 74px;
@@ -3943,10 +3976,18 @@
       font-size: 11px;
       color: var(--text-300);
     }
-    .comm-scrap-author,
+    .comm-scrap-author {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+      flex: 0 1 auto;
+      color: var(--text-400);
+    }
     .comm-scrap-page {
       white-space: nowrap;
       color: var(--text-400);
+      flex-shrink: 0;
     }
     .comm-scrap-tags {
       display: inline-flex;
@@ -5147,6 +5188,16 @@ body.large-text-mode .comm-scrap-title {
 body.large-text-mode .scrap-card-sub,
 body.large-text-mode .comm-scrap-sub {
   font-size: 14px !important;
+}
+body.large-text-mode .comm-scrap-user-bar {
+  font-size: 13.5px !important;
+}
+body.large-text-mode .comm-scrap-time {
+  font-size: 12px !important;
+}
+body.large-text-mode .comm-scrap-author,
+body.large-text-mode .comm-scrap-page {
+  font-size: 13.5px !important;
 }
 body.large-text-mode .scrap-tag-chip,
 body.large-text-mode .comm-scrap-tag {
