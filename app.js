@@ -7898,6 +7898,7 @@ function formatCommunityBook(b) {
   kwList = kwList.map(k => String(k).replace(/^#/, '').trim()).filter(Boolean).slice(0, 3);
 
   return {
+    ...b,
     id: b.id,
     title: titleParts.main || b.title,
     subtitle: titleParts.sub || b.subtitle || '',
@@ -7909,7 +7910,11 @@ function formatCommunityBook(b) {
     date: b.date || '',
     created_at: b.created_at || '',
     time: timeStr,
-    timeTooltip: timeTooltip
+    timeTooltip: timeTooltip,
+    user_id: b.user_id,
+    _source: b._source,
+    _ownerId: b._ownerId || resolveCommunityBookOwner(b, b._source),
+    nickname: b.nickname
   };
 }
 
