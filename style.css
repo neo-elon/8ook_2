@@ -3911,37 +3911,48 @@
 
     /* ── 대댓글 (Replies Thread) ── */
     .comm-replies-thread {
-      margin-left: 14px;
+      margin-left: 20px; /* 원본 댓글과 확연히 구분되는 들여쓰기 */
       padding-left: 10px;
-      border-left: 2px solid rgba(140, 98, 57, 0.18);
+      border-left: 2px solid rgba(140, 98, 57, 0.22);
       display: flex;
       flex-direction: column;
       gap: 6px;
-      margin-top: 4px;
+      margin-top: 5px;
     }
     body.dark-mode .comm-replies-thread {
-      border-left-color: rgba(255, 255, 255, 0.15);
+      border-left-color: rgba(255, 255, 255, 0.18);
     }
     .comm-reply-item {
       display: flex;
       flex-direction: column;
-      gap: 2.5px;
+      gap: 2px;
       animation: bubblePop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .comm-reply-branch {
-      font-size: 11px;
-      color: var(--lavender, #8c6239);
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--terracotta, #b85d38);
       line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      margin-right: 2px;
     }
     .comm-reply-bubble {
       font-size: 11.5px;
-      padding: 6px 9px;
-      background: rgba(140, 98, 57, 0.035);
-      border-radius: 4px 10px 10px 10px;
+      padding: 6px 10px;
+      background: rgba(140, 98, 57, 0.045);
+      border: 1px solid rgba(140, 98, 57, 0.14);
+      border-radius: 8px;
+      box-shadow: none;
+    }
+    /* 대댓글은 상단 꼬리표를 제거하여 원본 댓글과 깔끔하게 계층 구분 */
+    .comm-reply-bubble::before,
+    .comm-reply-bubble::after {
+      display: none !important;
     }
     body.dark-mode .comm-reply-bubble {
-      background: rgba(255, 255, 255, 0.035);
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.1);
     }
     .comm-reply-item.my-comment .comm-reply-bubble {
       background: rgba(140, 98, 57, 0.08);
@@ -3954,8 +3965,8 @@
 
     /* 인라인 대댓글 작성 폼 */
     .comm-reply-form {
-      margin-left: 14px;
-      margin-top: 4px;
+      margin-left: 20px; /* 대댓글 목록과 일치하는 들여쓰기 */
+      margin-top: 5px;
       animation: bubblePop 0.18s ease-out;
     }
     .comm-reply-input-box {
