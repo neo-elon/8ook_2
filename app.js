@@ -8579,15 +8579,10 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
     : '';
 
   const readersHtml = (Array.isArray(b.readers) && b.readers.length > 0)
-    ? `<div class="comm-popular-readers-wrap">
-        <span class="comm-popular-readers-icon" title="함께 읽은 독서가">🔖</span>
-        <div class="comm-popular-readers-list">
-          ${b.readers.map(r => `
-            <span class="comm-popular-reader-tag${r.isMe ? ' is-me' : ''}">
-              <span class="comm-user-at">@</span><span class="comm-user-name">${esc(r.nickname)}</span>${r.isMe ? '<span class="comm-my-badge">나</span>' : ''}
-            </span>
-          `).join('')}
-        </div>
+    ? `<div class="comm-book-user-bar comm-popular-user-bar">
+        ${b.readers.map(r => `
+          <span class="comm-book-user"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(r.nickname)}</span>${r.isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>
+        `).join('')}
       </div>`
     : `<div class="comm-shelved-badge">🔖 ${b.shelvedCount}명의 선택</div>`;
 
