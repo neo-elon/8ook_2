@@ -358,11 +358,11 @@
 
         <!-- Segmented Tab / Action Bar -->
         <div class="scraps-tab-bar">
-          <button type="button" class="scraps-tab-btn active" id="scraps-tab-all-btn" onclick="clearScrapArchiveSearch(); filterScrapsByTag(null);" title="전체 문장 보기">
-            <span class="scraps-tab-label">전체 문장</span>
+          <button type="button" class="scraps-tab-btn active" id="scraps-tab-all-btn" onclick="setScrapsSortOrder('date'); clearScrapArchiveSearch(); filterScrapsByTag(null);" title="완독일 최신순 전체 문장 보기">
+            <span class="scraps-tab-label">완독일순</span>
             <span class="scraps-tab-count" id="scraps-total-count">0</span>
           </button>
-          <button type="button" class="scraps-tab-btn" onclick="reshuffleScraps()" title="문장 순서 랜덤 섞기">
+          <button type="button" class="scraps-tab-btn" id="scraps-tab-random-btn" onclick="reshuffleScraps()" title="문장 순서 랜덤 섞기">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 3 21 3 21 8"></polyline>
               <line x1="4" y1="20" x2="21" y2="3"></line>

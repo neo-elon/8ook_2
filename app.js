@@ -4168,6 +4168,7 @@ let currentScrapTags = [];
 let currentScrapFilterTag = null;
 let currentScrapSearchQuery = '';
 let scrapsShuffleOrder = {};
+let currentScrapSortOrder = 'date'; // 'date' (기본: 완독일 최신순) | 'random' (랜덤 섞기)
 
 function getScrapRandomOrder(scrapId) {
   if (scrapsShuffleOrder[scrapId] === undefined) {
@@ -4176,7 +4177,16 @@ function getScrapRandomOrder(scrapId) {
   return scrapsShuffleOrder[scrapId];
 }
 
+function setScrapsSortOrder(order) {
+  currentScrapSortOrder = order;
+  if (order === 'random') {
+    scrapsShuffleOrder = {};
+  }
+  renderScrapsArchive();
+}
+
 function reshuffleScraps() {
+  currentScrapSortOrder = 'random';
   scrapsShuffleOrder = {};
   renderScrapsArchive();
   toast('문장 순서를 새로 섞었습니다');
@@ -4813,7 +4823,7 @@ function showScraps(filterTag = null, searchQuery = '', pushHistory = true) {
 
   currentScrapFilterTag = filterTag ? filterTag.replace(/^#/, '').trim() : null;
   currentScrapSearchQuery = searchQuery ? searchQuery.trim() : '';
-  scrapsShuffleOrder = {}; // Always randomize order when entering scraps archive view
+  currentScrapSortOrder = 'date'; // 진입 시 기본 완독일순 정렬
 
   const searchInput = document.getElementById('scraps-archive-search-input');
   if (searchInput) {
@@ -4891,11 +4901,19 @@ function renderScrapsArchive() {
   }
 
   const allTabBtn = document.getElementById('scraps-tab-all-btn');
+  const randomTabBtn = document.getElementById('scraps-tab-random-btn');
   if (allTabBtn) {
-    if (!currentScrapFilterTag && !currentScrapSearchQuery) {
+    if (currentScrapSortOrder === 'date' && !currentScrapFilterTag && !currentScrapSearchQuery) {
       allTabBtn.classList.add('active');
     } else {
       allTabBtn.classList.remove('active');
+    }
+  }
+  if (randomTabBtn) {
+    if (currentScrapSortOrder === 'random') {
+      randomTabBtn.classList.add('active');
+    } else {
+      randomTabBtn.classList.remove('active');
     }
   }
 
@@ -4948,8 +4966,45 @@ function renderScrapsArchive() {
     });
   }
 
-  // Sort entirely in random order
-  filtered.sort((a, b) => getScrapRandomOrder(a.scrap.id) - getScrapRandomOrder(b.scrap.id));
+  // Sort items: 완독일(book.date) 최신순 또는 랜덤 섞기
+  if (currentScrapSortOrder === 'random') {
+    filtered.sort((a, b) => getScrapRandomOrder(a.scrap.id) - getScrapRandomOrder(b.scrap.id));
+  } else {
+    // 기본 정렬: 도서 완독일(book.date) 최신순 (내림차순)
+    filtered.sort((a, b) => {
+      const dateA = (a.book && a.book.date) ? a.book.date.trim() : '';
+      const dateB = (b.book && b.book.date) ? b.book.date.trim() : '';
+
+      // 완독일이 있는 책이 없는 책보다 우선
+      if (dateA && !dateB) return -1;
+      if (!dateA && dateB) return 1;
+
+      // 둘 다 완독일이 있으면 최신 완독일 우선 (내림차순)
+      if (dateA !== dateB) {
+        return dateB.localeCompare(dateA);
+      }
+
+      // 완독일이 같거나 둘 다 없는 경우:
+      // 1) 동일한 책인 경우: 페이지 번호 오름차순 -> 스크랩 등록 시각
+      if (a.book && b.book && a.book.id === b.book.id) {
+        const pageA = parseInt(a.scrap.page, 10);
+        const pageB = parseInt(b.scrap.page, 10);
+        if (!isNaN(pageA) && !isNaN(pageB) && pageA !== pageB) {
+          return pageA - pageB;
+        }
+        const timeA = a.scrap.at || a.scrap.created_at || '';
+        const timeB = b.scrap.at || b.scrap.created_at || '';
+        if (timeA !== timeB) return timeB.localeCompare(timeA);
+      }
+
+      // 2) 서로 다른 책인 경우 책 제목 가나다순
+      const titleA = (a.book && a.book.title) || '';
+      const titleB = (b.book && b.book.title) || '';
+      if (titleA !== titleB) return titleA.localeCompare(titleB);
+
+      return String(a.scrap.id || '').localeCompare(String(b.scrap.id || ''));
+    });
+  }
 
   if (filtered.length === 0) {
     listEl.innerHTML = '';
@@ -5008,8 +5063,8 @@ function renderScrapsArchive() {
             <div class="scrap-card-title" onclick="showDetail('${book.id}')">${esc(bookMainTitle)}</div>
             <div class="scrap-card-sub">
               <span>${esc(book.author || '저자 미상')}</span>
+              ${book.date ? `<span title="도서 완독일">• 완독 ${fmtDate(book.date)}</span>` : (scrap.at ? `<span>• ${fmtDate(scrap.at.slice(0, 10))}</span>` : '')}
               ${scrap.page ? `<span>• p.${scrap.page}</span>` : ''}
-              ${scrap.at ? `<span>• ${fmtDate(scrap.at.slice(0, 10))}</span>` : ''}
             </div>
           </div>
         </div>
