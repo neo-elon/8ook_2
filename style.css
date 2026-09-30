@@ -4863,31 +4863,140 @@ body.large-text-mode .scraps-archive-input {
   font-size: 15.5px !important;
 }
 
-/* ── 5. 메인 책장 도서 카드 및 오버레이 문장 ── */
-body.large-text-mode .book-card-title,
+/* ── 5. 도서 카드 (북클럽 도서 카드 & 메인 책장 도서 카드 전수 확대) ── */
+/* 5-1. 북클럽 도서 카드 (새로 추가된 책 & 함께 읽은 책) */
+body.large-text-mode .comm-book-card {
+  padding: 16px 14px !important;
+  gap: 14px !important;
+}
+body.large-text-mode .comm-book-cover,
+body.large-text-mode .comm-book-cover-placeholder {
+  width: 78px !important;
+  height: 112px !important;
+  min-width: 78px !important;
+}
 body.large-text-mode .comm-book-title {
-  font-size: 16px !important;
+  font-size: 17.5px !important;
   font-weight: 700 !important;
+  line-height: 1.4 !important;
 }
-body.large-text-mode .book-card-author,
-body.large-text-mode .comm-book-author {
+body.large-text-mode .comm-book-subtitle {
   font-size: 13.5px !important;
+  line-height: 1.35 !important;
 }
-body.large-text-mode .book-card-date {
+body.large-text-mode .comm-book-author {
+  font-size: 14.5px !important;
+}
+/* 핵심: 도서 카드 내 한 문장 서평 / 나만의 문장 - 문장카드 감상평 수준으로 시원하게 확대 */
+body.large-text-mode .comm-book-review {
+  font-size: 16.5px !important;
+  line-height: 1.75 !important;
+  padding: 9px 12px !important;
+  border-left-width: 3px !important;
+  margin-top: 6px !important;
+  font-style: normal !important;
+}
+body.large-text-mode .comm-book-rating {
+  font-size: 14px !important;
+  gap: 6px !important;
+}
+body.large-text-mode .comm-book-rating span {
+  font-size: 12px !important;
+}
+body.large-text-mode .comm-shelved-badge {
+  font-size: 13px !important;
+  padding: 3px 9px !important;
+  margin-bottom: 4px !important;
+}
+body.large-text-mode .comm-book-kw-tag {
+  font-size: 13px !important;
+  padding: 3px 9px !important;
+}
+body.large-text-mode .comm-kw-count {
+  font-size: 11px !important;
+  padding: 2px 5.5px !important;
+}
+body.large-text-mode .comm-book-time {
   font-size: 12.5px !important;
 }
-body.large-text-mode .shelf-group-header {
-  font-size: 17.5px !important;
+body.large-text-mode .comm-book-like-btn {
+  font-size: 13.5px !important;
+  padding: 3px 9px !important;
 }
+body.large-text-mode .comm-book-like-btn .comm-heart-icon {
+  font-size: 14px !important;
+}
+
+/* 5-2. 메인 책장 도서 카드 및 오버레이 */
+body.large-text-mode .book-card-title,
+body.large-text-mode .ov-main-title {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+}
+body.large-text-mode .ov-sub-title {
+  font-size: 13.5px !important;
+  line-height: 1.35 !important;
+}
+body.large-text-mode .book-card-author,
+body.large-text-mode .ov-author {
+  font-size: 14.5px !important;
+}
+body.large-text-mode .book-card-date {
+  font-size: 13px !important;
+}
+/* 핵심: 메인 책장 표지 호버 시 나타나는 나만의 한 문장 대폭 확대 */
 body.large-text-mode .book-hover-sentence,
 body.large-text-mode .ov-sentence {
+  font-size: 16.5px !important;
+  line-height: 1.75 !important;
+  -webkit-line-clamp: 4 !important;
+}
+body.large-text-mode .ov-stars {
   font-size: 15px !important;
-  line-height: 1.65 !important;
+  letter-spacing: 1.5px !important;
+}
+body.large-text-mode .ov-tap-guide {
+  font-size: 12.5px !important;
+}
+
+/* 5-3. 메인 책장 3D 책등 및 섹션 헤더 */
+body.large-text-mode .spine-title-modern {
+  font-size: 15px !important;
+  letter-spacing: 1.5px !important;
+  font-weight: 700 !important;
+}
+body.large-text-mode .spine-author-modern {
+  font-size: 11px !important;
+}
+body.large-text-mode .spine-paperback-badge {
+  font-size: 9.5px !important;
+}
+body.large-text-mode .month-tab-badge .month-num {
+  font-size: 16px !important;
+}
+body.large-text-mode .month-tab-badge .month-txt {
+  font-size: 10.5px !important;
+}
+body.large-text-mode .shelf-year-title {
+  font-size: 18.5px !important;
+  font-weight: 700 !important;
+}
+body.large-text-mode .shelf-year-count {
+  font-size: 14px !important;
+}
+body.large-text-mode .shelf-group-header {
+  font-size: 18px !important;
+  font-weight: 700 !important;
 }
 body.large-text-mode .spine-item .spine-label,
 body.large-text-mode .book-spine-text {
-  font-size: 14px !important;
+  font-size: 14.5px !important;
   font-weight: 600 !important;
+}
+body.large-text-mode .stars-shelf-banner,
+body.large-text-mode .filter-info-card {
+  font-size: 14.5px !important;
 }
 
 /* ── 6. 메뉴, 버튼 및 통계 뷰 ── */
