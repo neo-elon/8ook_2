@@ -193,14 +193,65 @@ function isGuideBook(book) {
     (typeof book.author === 'string' && book.author.includes('8ook 제작팀'));
 }
 
+const OHA_25_TITLES = new Set([
+  '편안함의 습격',
+  '돈, 뜨겁게 사랑하고 차갑게 다루어라',
+  '혁명의 팡파르',
+  '슈퍼팬',
+  '스테이블코인 전쟁 2026년 경제전망',
+  '우리가 사랑한 빵집 성심당',
+  '미치게 친절한 철학',
+  'ETF 투자의 모든 것',
+  '운과 실력의 성공 방정식',
+  '린치핀',
+  '내게 남은 스물다섯 번의 계절',
+  '삶의 정도',
+  '월든',
+  '박곰희 연금 부자 수업',
+  '블로그는 마술이다',
+  '돈의 심리학',
+  'Being (my)self',
+  '예루살렘의 아이히만',
+  '세계 경제 지각 변동',
+  '길 위의 뇌',
+  '다시 그림이다',
+  '혹시, 돈 얘기해도 될까요?',
+  '한국 주식 5차 파동',
+  '작은 가게에서 진심을 배우다',
+  '강원국의 책쓰기 수업'
+]);
+
+function isOhaImportedBook(book) {
+  if (!book) return false;
+  const bid = String(book.id || '');
+  if (bid.startsWith('notion_')) return true;
+  if (bid.includes('2608775c') || bid.includes('2da8775c') || bid.includes('2378775c') || bid.includes('2308775c') || bid.includes('22b8775c')) {
+    return true;
+  }
+  if (Array.isArray(book.scraps)) {
+    const hasOhaScrap = book.scraps.some(s =>
+      (s.text && (s.text.includes('blog.naver.com/zzine315') || s.text.includes('zzine315'))) ||
+      (s.memo && s.memo.includes('노션 완독책장'))
+    );
+    if (hasOhaScrap) return true;
+  }
+  const title = (book.title || '').trim();
+  if (OHA_25_TITLES.has(title)) {
+    if (Array.isArray(book.keywords) && book.keywords.includes('2025완독')) return true;
+    if (book.notionId) return true;
+    if (book.date && book.date.startsWith('2025-')) return true;
+  }
+  return false;
+}
+
 function saveData() {
   try {
     if (currentUser) {
-      // 로그인 사용자 로컬 저장소에는 이용 가이드북 및 좋아요 레코드를 저장하지 않음
-      const userBooks = books.filter(b => !isGuideBook(b) && !isLikeRecord(b));
+      // 로그인 사용자 로컬 저장소에는 이용 가이드북, 좋아요 레코드, 오하 가져오기 도서 제외
+      const userBooks = books.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isOhaImportedBook(b));
       localStorage.setItem(`rj_books_${currentUser.id}`, JSON.stringify(userBooks));
     } else {
-      const guestBooks = books.filter(b => !isLikeRecord(b));
+      const guestBooks = books.filter(b => !isLikeRecord(b) && !isOhaImportedBook(b));
       localStorage.setItem('rj_books', JSON.stringify(guestBooks));
     }
   } catch (e) { }
@@ -214,20 +265,33 @@ async function loadData() {
     if (d) localBooks = JSON.parse(d);
   } catch (e) { }
 
-  if (currentUser) {
-    localBooks = localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b)).map(b => {
-      if (b.id && b.id.startsWith('notion_') && !b.id.endsWith('_' + currentUser.id)) {
-        const pageIdPart = b.id.substring(7, 39);
-        return { ...b, id: 'notion_' + pageIdPart + '_' + currentUser.id };
+  // 1. 로컬 저장소에서 가이드북, 좋아요 레코드, 오하 가져오기 도서 제외
+  localBooks = localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isOhaImportedBook(b));
+
+  // 로컬 스토리지에 남아있던 오하 도서 즉시 청소
+  try {
+    const mainGuestKey = 'rj_books';
+    const guestData = localStorage.getItem(mainGuestKey);
+    if (guestData) {
+      const parsed = JSON.parse(guestData);
+      if (Array.isArray(parsed) && parsed.some(b => isOhaImportedBook(b))) {
+        localStorage.setItem(mainGuestKey, JSON.stringify(parsed.filter(b => !isOhaImportedBook(b))));
       }
-      return b;
-    });
-  } else {
-    localBooks = localBooks.filter(b => !isLikeRecord(b));
-  }
+    }
+    if (currentUser) {
+      const userKey = `rj_books_${currentUser.id}`;
+      const userData = localStorage.getItem(userKey);
+      if (userData) {
+        const parsed = JSON.parse(userData);
+        if (Array.isArray(parsed) && parsed.some(b => isOhaImportedBook(b))) {
+          localStorage.setItem(userKey, JSON.stringify(parsed.filter(b => !isOhaImportedBook(b))));
+        }
+      }
+    }
+  } catch (e) { }
 
   if (!supabaseClient || !currentUser) {
-    books = localBooks;
+    books = localBooks.filter(b => !isOhaImportedBook(b));
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
@@ -252,32 +316,23 @@ async function loadData() {
     }
 
     const rawRemoteBooks = data || [];
-    const remoteBooks = rawRemoteBooks.filter(b => !isLikeRecord(b));
+    const remoteBooks = rawRemoteBooks.filter(b => !isLikeRecord(b) && !isOhaImportedBook(b));
     if (remoteBooks.length > 0 && 'spineCover' in remoteBooks[0]) {
       dbSupportsSpineCover = true;
     }
 
-    // Migration: If Supabase is empty but we have local guest books, upload them to Supabase (이용 가이드북 제외)
+    // Migration: If Supabase is empty but we have local guest books, upload them to Supabase (이용 가이드북 및 오하 도서 제외)
     const guestBooksStr = localStorage.getItem('rj_books');
     let guestBooks = [];
     if (guestBooksStr) {
       try { guestBooks = JSON.parse(guestBooksStr); } catch (e) { }
     }
-    const userGuestBooks = guestBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b));
+    const userGuestBooks = guestBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isOhaImportedBook(b));
 
     if (remoteBooks.length === 0 && userGuestBooks.length > 0) {
       const booksToUpload = userGuestBooks.map(b => {
-        let newId = b.id;
-        if (b.id && b.id.startsWith('notion_')) {
-          const pageIdPart = b.id.substring(7, 39);
-          newId = 'notion_' + pageIdPart + '_' + currentUser.id;
-        } else {
-          newId = uid();
-        }
-        return { ...b, id: newId, user_id: currentUser.id };
+        return { ...b, id: uid(), user_id: currentUser.id };
       });
-      console.log('DEBUG: currentUser.id =', currentUser?.id);
-      console.log('DEBUG: booksToUpload =', JSON.stringify(booksToUpload.map(b => ({ id: b.id, title: b.title, user_id: b.user_id })), null, 2));
       const payloadToUpload = booksToUpload.map(b => sanitizeBookForSupabase(b));
       let { error: syncError } = await supabaseClient
         .from('books')
@@ -292,7 +347,6 @@ async function loadData() {
       if (!syncError) {
         books = booksToUpload;
         toast('기존 로컬 책장 데이터를 Supabase에 동기화했습니다.');
-        // Clear guest books so we don't sync them again next time
         try { localStorage.removeItem('rj_books'); } catch (e) { }
       } else {
         console.error('Failed to sync local books to Supabase:', syncError);
@@ -302,7 +356,19 @@ async function loadData() {
       books = remoteBooks;
     }
 
-    // 로그인 계정인 경우 Supabase 또는 books 배열에 잘못 들어간 이용 가이드북이 있다면 완전 정리 (좋아요 레코드 제외)
+    // 1. Supabase 또는 원격 도서 중 오하 가져오기 도서 25권이 있다면 즉시 완전 삭제 & 클라우드 영구 정리
+    const ohaBooksInRemote = rawRemoteBooks.filter(b => isOhaImportedBook(b));
+    if (ohaBooksInRemote.length > 0) {
+      const ohaIdsToDelete = ohaBooksInRemote.map(b => b.id);
+      books = books.filter(b => !isOhaImportedBook(b));
+      if (supabaseClient && currentUser && currentUser.id) {
+        supabaseClient.from('books').delete().in('id', ohaIdsToDelete).eq('user_id', currentUser.id).then(() => {
+          console.log('[Cleanup] Cleaned up oha imported books from Supabase:', ohaIdsToDelete.length);
+        }).catch(err => console.warn('[Cleanup] Oha books cleanup error:', err));
+      }
+    }
+
+    // 2. 로그인 계정인 경우 Supabase 또는 books 배열에 잘못 들어간 이용 가이드북이 있다면 완전 정리 (좋아요 레코드 제외)
     if (currentUser) {
       const guideBooksInRemote = books.filter(b => isGuideBook(b));
       if (guideBooksInRemote.length > 0) {
@@ -318,6 +384,7 @@ async function loadData() {
       }
     }
 
+    books = books.filter(b => !isOhaImportedBook(b));
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
@@ -326,7 +393,7 @@ async function loadData() {
     initCommunityLikesChannel();
   } catch (e) {
     console.error('Supabase load error, using local storage backup:', e);
-    books = currentUser ? localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b)) : localBooks.filter(b => !isLikeRecord(b));
+    books = (currentUser ? localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b)) : localBooks.filter(b => !isLikeRecord(b))).filter(b => !isOhaImportedBook(b));
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
@@ -883,6 +950,7 @@ function getShelfTotalPages(booksList) {
 }
 
 function renderGallery() {
+  if (Array.isArray(books)) books = books.filter(b => !isOhaImportedBook(b));
   const grid = document.getElementById('gallery-grid');
   const empty = document.getElementById('gallery-empty');
   grid.innerHTML = '';
@@ -4790,6 +4858,7 @@ async function doDeleteScrap(bookId, scrapId) {
    SCRAPS ARCHIVE & SEARCH VIEW
 ============================================== */
 function showScraps(filterTag = null, searchQuery = '', pushHistory = true) {
+  if (Array.isArray(books)) books = books.filter(b => !isOhaImportedBook(b));
   document.body.classList.remove('page-detail');
   closeAppMenu();
   document.getElementById('view-gallery').style.display = 'none';
@@ -4881,9 +4950,11 @@ function renderScrapsArchive() {
   const tagCounts = {};
   let totalScrapsCount = 0;
 
-  const sourceBooks = currentUser ? books.filter(b => !isGuideBook(b)) : books;
+  const sourceBooks = (currentUser ? books.filter(b => !isGuideBook(b)) : books).filter(b => !isOhaImportedBook(b));
   sourceBooks.forEach(book => {
     (book.scraps || []).forEach(scrap => {
+      if (scrap.memo && scrap.memo.includes('노션 완독책장')) return;
+      if (scrap.text && (scrap.text.includes('blog.naver.com/zzine315') || scrap.text.includes('zzine315'))) return;
       totalScrapsCount++;
       const tags = scrap.tags || scrap.keywords || [];
       tags.forEach(t => {
@@ -7602,7 +7673,7 @@ function getAllCommunityBooks() {
   const seenUserTitle = new Set();
 
   function processBook(b, source) {
-    if (!b || isGuideBook(b) || !b.title || b.title === '__like__' || b.id?.startsWith('like_') || b.is_public === false) return;
+    if (!b || isGuideBook(b) || isOhaImportedBook(b) || !b.title || b.title === '__like__' || b.id?.startsWith('like_') || b.is_public === false) return;
     const ownerId = resolveCommunityBookOwner(b, source);
     const normTitle = getBookGroupingKey(b);
     if (!normTitle) return;
@@ -8601,11 +8672,14 @@ function getCommunityScrapsList() {
 
   // ONLY collect from "수집한 문장" (b.scraps)
   allBooks.forEach(b => {
+    if (isOhaImportedBook(b)) return;
     if (b.scraps && b.scraps.length) {
       const bTitleParts = splitBookTitle(b);
       const bMainTitle = bTitleParts.main || b.title;
       b.scraps.forEach(s => {
         if (!s.text || !s.text.trim()) return;
+        if (s.memo && s.memo.includes('노션 완독책장')) return;
+        if (s.text && (s.text.includes('blog.naver.com/zzine315') || s.text.includes('zzine315'))) return;
         const scrapTime = s.created_at || s.at || b.created_at || b.date;
         const rawTime = getSafeTimestamp(scrapTime);
         userScraps.push({
