@@ -3481,27 +3481,40 @@
       font-size: 11px;
       color: var(--text-400);
     }
+    .comm-book-author-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+      min-width: 0;
+      margin-top: 1px;
+    }
     .comm-book-author {
       font-size: 11.5px;
       color: var(--text-300);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      min-width: 0;
+      flex: 0 1 auto;
     }
     .comm-book-rating {
       font-size: 11px;
       color: var(--amber);
       letter-spacing: 1px;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 4px;
+      flex-shrink: 0;
     }
     .comm-book-keywords {
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
-      margin-top: 3px;
-      margin-bottom: 2px;
+      margin-top: -2px;
+      margin-bottom: 0px;
+      width: 100%;
+      justify-content: flex-start;
     }
     .comm-book-kw-tag {
       display: inline-flex;
@@ -5258,6 +5271,9 @@ body.large-text-mode .comm-book-subtitle {
 }
 body.large-text-mode .comm-book-author {
   font-size: 14.5px !important;
+}
+body.large-text-mode .comm-book-author-row {
+  gap: 9px !important;
 }
 /* 핵심: 도서 카드 내 한 문장 서평 / 나만의 문장 - 문장카드 감상평 수준으로 시원하게 확대 */
 body.large-text-mode .comm-book-review {

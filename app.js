@@ -8123,11 +8123,13 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
             ${isMe ? '<span class="comm-my-badge">나</span>' : ''}
           </div>
           <div class="comm-book-title" onclick="showDetail('${esc(bid)}')">${esc(mainTitle)}</div>
-          <div class="comm-book-author">${esc(b.author)}</div>
-          ${ratingHtml}
-          ${keywordsHtml}
+          <div class="comm-book-author-row">
+            <div class="comm-book-author">${esc(b.author)}</div>
+            ${ratingHtml}
+          </div>
         </div>
       </div>
+      ${keywordsHtml}
       ${reviewHtml}
       <div class="comm-book-meta">
         <span class="comm-book-time">${esc(b.time || '')}</span>
@@ -8584,7 +8586,7 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
     : `<div class="comm-book-cover-placeholder">8ook</div>`;
 
   const ratingHtml = (b.rating && Number(b.rating) > 0)
-    ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">평균 ${Number(b.rating).toFixed(1)}</span></div>`
+    ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${Number(b.rating).toFixed(1)}</span></div>`
     : '';
 
   const kwList = Array.isArray(b.keywords) ? b.keywords : [];
@@ -8640,11 +8642,13 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
         <div class="comm-book-info">
           ${readersHtml}
           <div class="comm-book-title">${esc(b.title)}</div>
-          <div class="comm-book-author">${esc(b.author)}</div>
-          ${ratingHtml}
-          ${keywordsHtml}
+          <div class="comm-book-author-row">
+            <div class="comm-book-author">${esc(b.author)}</div>
+            ${ratingHtml}
+          </div>
         </div>
       </div>
+      ${keywordsHtml}
       ${reviewsHtml}
       <div class="comm-book-meta" style="justify-content: flex-end;">
         <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
