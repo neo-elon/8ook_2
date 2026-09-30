@@ -9,12 +9,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "혼잣말이 노래가 되는 법",
     "cover": "https://shopping-phinf.pstatic.net/main_5161431/51614313628.20250418072348.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/35291/67/Spine/8967215517_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 94,
     "year": 2025,
-    "created_at": "2025-12-31T00:00:00.000Z"
+    "created_at": "2025-12-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/35291/67/cover500/8967215517_1.jpg"
   },
   {
     "id": "neo_2025_095",
@@ -25,12 +26,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "1950년대의 스페이스 오페라",
     "cover": "https://shopping-phinf.pstatic.net/main_3246685/32466854903.20230920072747.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/25676/81/Spine/k662735242_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 95,
     "year": 2025,
-    "created_at": "2025-12-31T00:00:00.000Z"
+    "created_at": "2025-12-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/25676/81/cover500/k662735242_1.jpg"
   },
   {
     "id": "neo_2025_096",
@@ -41,12 +43,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "가장 확실한 문제해결방법은 행동하는 것",
     "cover": "https://shopping-phinf.pstatic.net/main_5402904/54029042687.20250408083406.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36196/71/Spine/k362038594_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 96,
     "year": 2025,
-    "created_at": "2025-12-31T00:00:00.000Z"
+    "created_at": "2025-12-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36196/71/cover500/k362038594_1.jpg"
   },
   {
     "id": "neo_2025_091",
@@ -57,12 +60,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "암스테르담 반 고흐 미술관에서 만난 인간 빈센트",
     "cover": "https://shopping-phinf.pstatic.net/main_3571560/35715609620.20221129170314.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/30461/84/Spine/8950942593_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 91,
     "year": 2025,
-    "created_at": "2025-12-27T00:00:00.000Z"
+    "created_at": "2025-12-27T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/30461/84/cover500/8950942593_1.jpg"
   },
   {
     "id": "neo_2025_092",
@@ -73,12 +77,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "수익, 안정성, 성장성",
     "cover": "https://shopping-phinf.pstatic.net/main_5690756/56907565633.20250926083507.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/37289/59/Spine/k122031342_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 92,
     "year": 2025,
-    "created_at": "2025-12-27T00:00:00.000Z"
+    "created_at": "2025-12-27T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/37289/59/cover500/k122031342_1.jpg"
   },
   {
     "id": "neo_2025_093",
@@ -89,12 +94,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "취향에 맞는 소비가 답이다",
     "cover": "https://shopping-phinf.pstatic.net/main_5655787/56557878247.20250903091736.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/37117/86/Spine/8925573229_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 93,
     "year": 2025,
-    "created_at": "2025-12-27T00:00:00.000Z"
+    "created_at": "2025-12-27T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/37117/86/cover500/8925573229_1.jpg"
   },
   {
     "id": "neo_2025_089",
@@ -105,12 +111,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "양자역학과 자연발화를 버무리면?",
     "cover": "https://shopping-phinf.pstatic.net/main_5656147/56561472675.20250903091737.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36946/25/Spine/k222030516_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 89,
     "year": 2025,
-    "created_at": "2025-12-20T00:00:00.000Z"
+    "created_at": "2025-12-20T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36946/25/cover500/k222030516_2.jpg"
   },
   {
     "id": "neo_2025_090",
@@ -121,12 +128,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "정답은 없다. 메타인지를 통한 장점 극대화만 있을 뿐",
     "cover": "https://shopping-phinf.pstatic.net/main_4545671/45456711618.20240127070834.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/33293/29/Spine/k552938284_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 90,
     "year": 2025,
-    "created_at": "2025-12-20T00:00:00.000Z"
+    "created_at": "2025-12-20T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/33293/29/cover500/k552938284_1.jpg"
   },
   {
     "id": "neo_2025_087",
@@ -137,12 +145,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "오늘이 내가 죽는 날이라면 나는 준비되어 있는가",
     "cover": "https://shopping-phinf.pstatic.net/main_3246666/32466662933.20230614072600.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/11350/69/Spine/8952236750_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 87,
     "year": 2025,
-    "created_at": "2025-11-30T00:00:00.000Z"
+    "created_at": "2025-11-30T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/11350/69/cover500/8952236750_2.jpg"
   },
   {
     "id": "neo_2025_088",
@@ -153,12 +162,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "계층사다리가 사라지는 요즘, 진정 필요한 것은?",
     "cover": "https://shopping-phinf.pstatic.net/main_5702821/57028214881.20251015071915.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/37336/44/Spine/k532032661_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 88,
     "year": 2025,
-    "created_at": "2025-11-30T00:00:00.000Z"
+    "created_at": "2025-11-30T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/37336/44/cover500/k532032661_1.jpg"
   },
   {
     "id": "neo_2025_086",
@@ -169,12 +179,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "과학과 논리, 심리학까지 아우르는 SF수작",
     "cover": "https://shopping-phinf.pstatic.net/main_3246292/32462921267.20230912084005.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/28912/67/Spine/s292930969_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 86,
     "year": 2025,
-    "created_at": "2025-11-25T00:00:00.000Z"
+    "created_at": "2025-11-25T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/28912/67/cover500/s292930969_1.jpg"
   },
   {
     "id": "neo_2025_085",
@@ -185,12 +196,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "암흑의 숲에 인류라는 멍청한 아이가 있었어요",
     "cover": "https://shopping-phinf.pstatic.net/main_3244164/32441648336.20240404071049.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/28912/66/Spine/s362930969_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 85,
     "year": 2025,
-    "created_at": "2025-11-24T00:00:00.000Z"
+    "created_at": "2025-11-24T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/28912/66/cover500/s362930969_1.jpg"
   },
   {
     "id": "neo_2025_083",
@@ -201,12 +213,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "암스테르담 반 고흐 미술관 가기 전 필독서",
     "cover": "https://shopping-phinf.pstatic.net/main_3252554/32525540674.20230530083558.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/4897/20/Spine/1155350324_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 83,
     "year": 2025,
-    "created_at": "2025-11-23T00:00:00.000Z"
+    "created_at": "2025-11-23T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/4897/20/cover500/1155350324_2.jpg"
   },
   {
     "id": "neo_2025_084",
@@ -217,12 +230,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "외계 공습이 450년 후에 있다면 지금의 인류는 대비할 수 있을까?",
     "cover": "https://shopping-phinf.pstatic.net/main_3245493/32454932625.20230926085858.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/28912/65/Spine/s772939656_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 84,
     "year": 2025,
-    "created_at": "2025-11-23T00:00:00.000Z"
+    "created_at": "2025-11-23T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/28912/65/cover500/s772939656_2.jpg"
   },
   {
     "id": "neo_2025_082",
@@ -233,12 +247,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "내버려두기를 통해 인생의 통제권을 찾아오는 법",
     "cover": "https://shopping-phinf.pstatic.net/main_5614694/56146941953.20250808091329.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36949/35/Spine/k532030618_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 82,
     "year": 2025,
-    "created_at": "2025-11-06T00:00:00.000Z"
+    "created_at": "2025-11-06T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36949/35/cover500/k532030618_2.jpg"
   },
   {
     "id": "neo_2025_081",
@@ -249,12 +264,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "한국엄마를 가진 이들이라면 누구나 공감할 상실과 치유의 메시지",
     "cover": "https://shopping-phinf.pstatic.net/main_3246667/32466675396.20230906071216.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/28962/10/Spine/8954683371_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 81,
     "year": 2025,
-    "created_at": "2025-11-02T00:00:00.000Z"
+    "created_at": "2025-11-02T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/28962/10/cover500/8954683371_1.jpg"
   },
   {
     "id": "neo_2025_079",
@@ -265,12 +281,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "비펭귄 인간의 남극 체험기",
     "cover": "https://shopping-phinf.pstatic.net/main_5259787/52597870029.20250123071230.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/35579/67/Spine/k742036792_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 79,
     "year": 2025,
-    "created_at": "2025-10-31T00:00:00.000Z"
+    "created_at": "2025-10-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/35579/67/cover500/k742036792_3.jpg"
   },
   {
     "id": "neo_2025_080",
@@ -281,12 +298,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "어린 왕자의 정체를 밝혀드립니다",
     "cover": "https://shopping-phinf.pstatic.net/main_3247803/32478037715.20230920071355.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/25184/75/Spine/8931021291_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 80,
     "year": 2025,
-    "created_at": "2025-10-31T00:00:00.000Z"
+    "created_at": "2025-10-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/25184/75/cover500/8931021291_1.jpg"
   },
   {
     "id": "neo_2025_078",
@@ -297,12 +315,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "그는 무엇을 증명하고 싶었을까",
     "cover": "https://shopping-phinf.pstatic.net/main_3246767/32467677693.20230919130842.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/15136/29/Spine/k962533360_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 78,
     "year": 2025,
-    "created_at": "2025-10-30T00:00:00.000Z"
+    "created_at": "2025-10-30T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/15136/29/cover500/k962533360_2.jpg"
   },
   {
     "id": "neo_2025_077",
@@ -313,12 +332,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "이 세상에 SF를 가져다 준 작품",
     "cover": "https://shopping-phinf.pstatic.net/main_3248377/32483771893.20230801121838.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/885/61/Spine/8949140985_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 77,
     "year": 2025,
-    "created_at": "2025-10-26T00:00:00.000Z"
+    "created_at": "2025-10-26T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/885/61/cover500/8949140985_1.jpg"
   },
   {
     "id": "neo_2025_076",
@@ -329,12 +349,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "당신의 바다는 무슨 색인가요",
     "cover": "https://shopping-phinf.pstatic.net/main_3247614/32476146668.20230606085429.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/26302/71/Spine/8954677150_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 76,
     "year": 2025,
-    "created_at": "2025-10-23T00:00:00.000Z"
+    "created_at": "2025-10-23T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/26302/71/cover500/8954677150_1.jpg"
   },
   {
     "id": "neo_2025_075",
@@ -345,12 +366,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "사회가 주입하는 아비투스에 휘둘리지 않는 방법",
     "cover": "https://shopping-phinf.pstatic.net/main_4907368/49073682636.20240712093712.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/34293/2/Spine/k852932279_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 75,
     "year": 2025,
-    "created_at": "2025-10-16T00:00:00.000Z"
+    "created_at": "2025-10-16T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/34293/2/cover500/k852932279_1.jpg"
   },
   {
     "id": "neo_2025_074",
@@ -377,12 +399,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "지능화와 고령화가 축이 될 미래, 개인의 역할은?",
     "cover": "https://shopping-phinf.pstatic.net/main_4262165/42621656619.20240112135420.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/40129/12/Spine/k772131860_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 73,
     "year": 2025,
-    "created_at": "2025-10-10T00:00:00.000Z"
+    "created_at": "2025-10-10T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/40129/12/cover500/k772131860_1.jpg"
   },
   {
     "id": "neo_2025_071",
@@ -393,12 +416,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "지금까지 읽은 책이 앞으로 읽을 책을 결정한다",
     "cover": "https://shopping-phinf.pstatic.net/main_3245528/32455281628.20230919131630.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/5531/74/Spine/8901181533_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 71,
     "year": 2025,
-    "created_at": "2025-09-28T00:00:00.000Z"
+    "created_at": "2025-09-28T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/5531/74/cover500/8901181533_1.jpg"
   },
   {
     "id": "neo_2025_072",
@@ -409,12 +433,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "내 인생의 키는 내가 쥐어야 한다",
     "cover": "https://shopping-phinf.pstatic.net/main_3246693/32466939815.20230912083818.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/1284/8/Spine/8956605416_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 72,
     "year": 2025,
-    "created_at": "2025-09-28T00:00:00.000Z"
+    "created_at": "2025-09-28T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/1284/8/cover500/8956605416_3.jpg"
   },
   {
     "id": "neo_2025_070",
@@ -425,12 +450,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "내 삶의 베이스캠프는 어디인가",
     "cover": "https://shopping-phinf.pstatic.net/main_3243612/32436123661.20230620095247.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/642/81/Spine/8954610552_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 70,
     "year": 2025,
-    "created_at": "2025-09-24T00:00:00.000Z"
+    "created_at": "2025-09-24T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/642/81/cover500/8954610552_3.jpg"
   },
   {
     "id": "neo_2025_068",
@@ -441,12 +467,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "영화에서 배우는 브랜드 스토리텔링",
     "cover": "https://shopping-phinf.pstatic.net/main_3246351/32463518678.20230927071558.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/16901/95/Spine/k022534274_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 68,
     "year": 2025,
-    "created_at": "2025-09-23T00:00:00.000Z"
+    "created_at": "2025-09-23T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/16901/95/cover500/k022534274_1.jpg"
   },
   {
     "id": "neo_2025_069",
@@ -457,12 +484,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "감정일기를 써야하는 이유",
     "cover": "https://shopping-phinf.pstatic.net/main_5526949/55269496515.20250617094239.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36589/25/Spine/k462039658_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 69,
     "year": 2025,
-    "created_at": "2025-09-23T00:00:00.000Z"
+    "created_at": "2025-09-23T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36589/25/cover500/k462039658_1.jpg"
   },
   {
     "id": "neo_2025_067",
@@ -473,12 +501,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "키메라의 땅, 인종차별 얘기다?",
     "cover": "https://shopping-phinf.pstatic.net/main_5628517/56285172498.20250815115221.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36973/11/Spine/8932925348_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 67,
     "year": 2025,
-    "created_at": "2025-09-19T00:00:00.000Z"
+    "created_at": "2025-09-19T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36973/11/cover500/8932925348_1.jpg"
   },
   {
     "id": "neo_2025_066",
@@ -489,12 +518,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "기하와 재하가 두고 온 것은 무엇이었을까",
     "cover": "https://shopping-phinf.pstatic.net/main_3854705/38547054623.20230725120432.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/31294/95/Spine/8936439006_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 66,
     "year": 2025,
-    "created_at": "2025-09-13T00:00:00.000Z"
+    "created_at": "2025-09-13T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/31294/95/cover500/8936439006_1.jpg"
   },
   {
     "id": "neo_2025_065",
@@ -505,12 +535,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "사슴의 몰입이 아니라 사자의 몰입이 답이다",
     "cover": "https://shopping-phinf.pstatic.net/main_3246105/32461055008.20240505070931.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/33850/89/Spine/8925575027_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 65,
     "year": 2025,
-    "created_at": "2025-09-11T00:00:00.000Z"
+    "created_at": "2025-09-11T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/33850/89/cover500/8925575027_1.jpg"
   },
   {
     "id": "neo_2025_064",
@@ -521,12 +552,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "나의 원점을 잊지 않고 살아가는 방법",
     "cover": "https://shopping-phinf.pstatic.net/main_3245495/32454958510.20230711115424.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/17103/80/Spine/k642534184_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 64,
     "year": 2025,
-    "created_at": "2025-08-31T00:00:00.000Z"
+    "created_at": "2025-08-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/17103/80/cover500/k642534184_1.jpg"
   },
   {
     "id": "neo_2025_063",
@@ -537,12 +569,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "스스로 생각하는 삶",
     "cover": "https://shopping-phinf.pstatic.net/main_3245689/32456894396.20230815080409.jpg",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/38724/97/Spine/893567916x_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 63,
     "year": 2025,
-    "created_at": "2025-08-29T00:00:00.000Z"
+    "created_at": "2025-08-29T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/38724/97/cover500/893567916x_1.jpg"
   },
   {
     "id": "neo_2025_062",
@@ -553,12 +586,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "내 돌은 내가 놓아야 한다",
     "cover": "https://shopping-phinf.pstatic.net/main_5621418/56214188047.20250812122730.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36975/23/Spine/8901296888_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 62,
     "year": 2025,
-    "created_at": "2025-08-28T00:00:00.000Z"
+    "created_at": "2025-08-28T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36975/23/cover500/8901296888_1.jpg"
   },
   {
     "id": "neo_2025_061",
@@ -569,12 +603,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "여러분은 인생의 롤모델이 있습니까?",
     "cover": "https://shopping-phinf.pstatic.net/main_5590537/55905370886.20250723101024.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36847/53/Spine/k062030302_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 61,
     "year": 2025,
-    "created_at": "2025-08-21T00:00:00.000Z"
+    "created_at": "2025-08-21T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36847/53/cover500/k062030302_1.jpg"
   },
   {
     "id": "neo_2025_060",
@@ -601,12 +636,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "작지만 옳은 일을 행하는 용기",
     "cover": "https://shopping-phinf.pstatic.net/main_4390280/43902803626.20231126071023.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/32938/68/Spine/k472936042_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 59,
     "year": 2025,
-    "created_at": "2025-08-08T00:00:00.000Z"
+    "created_at": "2025-08-08T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/32938/68/cover500/k472936042_2.jpg"
   },
   {
     "id": "neo_2025_058",
@@ -617,12 +653,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "시간도둑 회색신사들은 사라지지 않았다",
     "cover": "https://shopping-phinf.pstatic.net/main_3246461/32464613662.20241214071315.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/33712/5/Spine/8949139995_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 58,
     "year": 2025,
-    "created_at": "2025-08-04T00:00:00.000Z"
+    "created_at": "2025-08-04T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/33712/5/cover500/8949139995_1.jpg"
   },
   {
     "id": "neo_2025_057",
@@ -633,12 +670,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "꿈과 현실은 같이 갈 수 없는가",
     "cover": "https://shopping-phinf.pstatic.net/main_3244102/32441026630.20230913071110.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/17376/87/Spine/k722534698_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 57,
     "year": 2025,
-    "created_at": "2025-08-03T00:00:00.000Z"
+    "created_at": "2025-08-03T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/17376/87/cover500/k722534698_1.jpg"
   },
   {
     "id": "neo_2025_054",
@@ -649,12 +687,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "건축을 이해하는 것이 곧 인간을 이해하는 길이다",
     "cover": "https://shopping-phinf.pstatic.net/main_3245375/32453754630.20230502162312.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/38830/25/Spine/8932476047_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 54,
     "year": 2025,
-    "created_at": "2025-07-31T00:00:00.000Z"
+    "created_at": "2025-07-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/38830/25/cover500/8932476047_1.jpg"
   },
   {
     "id": "neo_2025_055",
@@ -665,12 +704,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "진정으로 좋아한다는 것은",
     "cover": "https://shopping-phinf.pstatic.net/main_3243639/32436398059.20230919131244.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/21766/77/Spine/k002636002_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 55,
     "year": 2025,
-    "created_at": "2025-07-31T00:00:00.000Z"
+    "created_at": "2025-07-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/21766/77/cover500/k002636002_2.jpg"
   },
   {
     "id": "neo_2025_056",
@@ -681,12 +721,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "브랜딩에서 가장 중요한 것은 의외로 이 두가지, 메타인지와 실력 쌓기다.",
     "cover": "https://shopping-phinf.pstatic.net/main_5046624/50466246618.20240925091032.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/34800/46/Spine/k222933226_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 56,
     "year": 2025,
-    "created_at": "2025-07-31T00:00:00.000Z"
+    "created_at": "2025-07-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/34800/46/cover500/k222933226_1.jpg"
   },
   {
     "id": "neo_2025_053",
@@ -697,12 +738,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "인생의 전반부는 노동으로, 후반에는 경험으로 돈을 벌어라",
     "cover": "https://shopping-phinf.pstatic.net/main_5536038/55360387586.20250619120259.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36627/6/Spine/k622030576_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 53,
     "year": 2025,
-    "created_at": "2025-07-30T00:00:00.000Z"
+    "created_at": "2025-07-30T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36627/6/cover500/k622030576_2.jpg"
   },
   {
     "id": "neo_2025_052",
@@ -713,12 +755,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "기능이 아니라 의미를 팔아라 (나는 응원해 주고 싶은 사람인가)",
     "cover": "https://shopping-phinf.pstatic.net/main_4619781/46197810621.20240604081644.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/37297/54/Spine/k052031544_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 52,
     "year": 2025,
-    "created_at": "2025-07-27T00:00:00.000Z"
+    "created_at": "2025-07-27T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/37297/54/cover500/k052031544_1.jpg"
   },
   {
     "id": "neo_2025_051",
@@ -729,12 +772,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "잘 살기 위해 오늘도 글을 씁니다",
     "cover": "https://shopping-phinf.pstatic.net/main_5563899/55638995364.20250706073807.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36758/53/Spine/8990701627_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 51,
     "year": 2025,
-    "created_at": "2025-07-16T00:00:00.000Z"
+    "created_at": "2025-07-16T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36758/53/cover500/8990701627_1.jpg"
   },
   {
     "id": "neo_2025_050",
@@ -745,12 +789,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "영화적 기법의 신소설, 이것이 천명관의 법칙이었다",
     "cover": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788954691581.jpg",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/31656/65/Spine/8954691587_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 50,
     "year": 2025,
-    "created_at": "2025-07-09T00:00:00.000Z"
+    "created_at": "2025-07-09T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/31656/65/cover500/8954691587_1.jpg"
   },
   {
     "id": "neo_2025_049",
@@ -761,12 +806,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "러닝과 인생에서 중요한 것은 결국 나만의 페이스 찾기",
     "cover": "https://shopping-phinf.pstatic.net/main_3246475/32464753902.20230704090903.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/25227/5/Spine/k592633909_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 49,
     "year": 2025,
-    "created_at": "2025-07-06T00:00:00.000Z"
+    "created_at": "2025-07-06T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/25227/5/cover500/k592633909_1.jpg"
   },
   {
     "id": "neo_2025_048",
@@ -777,12 +823,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "한 달 간의 일상기록으로 바꾸는 인생",
     "cover": "https://shopping-phinf.pstatic.net/main_4403982/44039826622.20231118075410.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/32891/69/Spine/k762936521_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 48,
     "year": 2025,
-    "created_at": "2025-06-30T00:00:00.000Z"
+    "created_at": "2025-06-30T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/32891/69/cover500/k762936521_3.jpg"
   },
   {
     "id": "neo_2025_047",
@@ -793,12 +840,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "여러분! 하고 싶은거 합시다!",
     "cover": "https://shopping-phinf.pstatic.net/main_3246407/32464075355.20230913071236.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/18754/45/Spine/k522635176_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 47,
     "year": 2025,
-    "created_at": "2025-06-29T00:00:00.000Z"
+    "created_at": "2025-06-29T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/18754/45/cover500/k522635176_2.jpg"
   },
   {
     "id": "neo_2025_046",
@@ -809,12 +857,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "부동산은 결국 사람이다",
     "cover": "https://shopping-phinf.pstatic.net/main_5485920/54859209752.20250520082939.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36444/5/Spine/k732039498_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 46,
     "year": 2025,
-    "created_at": "2025-06-16T00:00:00.000Z"
+    "created_at": "2025-06-16T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36444/5/cover500/k732039498_2.jpg"
   },
   {
     "id": "neo_2025_045",
@@ -825,12 +874,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "나는 지금 내 삶을 주도하고 있는가",
     "cover": "https://shopping-phinf.pstatic.net/main_5496910/54969106268.20250527094655.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36485/17/Spine/k302039019_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 45,
     "year": 2025,
-    "created_at": "2025-06-09T00:00:00.000Z"
+    "created_at": "2025-06-09T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36485/17/cover500/k302039019_1.jpg"
   },
   {
     "id": "neo_2025_044",
@@ -841,12 +891,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "질서와 혼란, 어느 쪽이 삶의 진리와 가까울까",
     "cover": "https://shopping-phinf.pstatic.net/main_3243943/32439434396.20230913071305.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/28465/73/Spine/k092835920_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 44,
     "year": 2025,
-    "created_at": "2025-06-08T00:00:00.000Z"
+    "created_at": "2025-06-08T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/28465/73/cover500/k092835920_2.jpg"
   },
   {
     "id": "neo_2025_043",
@@ -857,12 +908,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "자영업자에게만 허락된 건물주 되는 계산법",
     "cover": "https://shopping-phinf.pstatic.net/main_5496910/54969106239.20250527094746.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36485/44/Spine/k962039012_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 43,
     "year": 2025,
-    "created_at": "2025-06-07T00:00:00.000Z"
+    "created_at": "2025-06-07T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36485/44/cover500/k962039012_1.jpg"
   },
   {
     "id": "neo_2025_042",
@@ -873,12 +925,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "아이디어 조각을 모아 새로운 생각을 만드는 방법",
     "cover": "https://shopping-phinf.pstatic.net/main_4874107/48741074622.20240629092238.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/34220/13/Spine/k052931230_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 42,
     "year": 2025,
-    "created_at": "2025-06-05T00:00:00.000Z"
+    "created_at": "2025-06-05T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/34220/13/cover500/k052931230_2.jpg"
   },
   {
     "id": "neo_2025_041",
@@ -889,12 +942,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "내 삶에서 가장 중요한 가치는 무엇인가",
     "cover": "https://shopping-phinf.pstatic.net/main_3248195/32481952859.20230926084945.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/14831/79/Spine/k222532357_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 41,
     "year": 2025,
-    "created_at": "2025-06-02T00:00:00.000Z"
+    "created_at": "2025-06-02T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/14831/79/cover500/k222532357_1.jpg"
   },
   {
     "id": "neo_2025_039",
@@ -905,12 +959,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "인생 주도권을 되찾는 비결인 ‘나 사용법’에 대하여",
     "cover": "https://shopping-phinf.pstatic.net/main_4955876/49558768621.20240802074937.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/34403/80/Spine/k012932614_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 39,
     "year": 2025,
-    "created_at": "2025-05-31T00:00:00.000Z"
+    "created_at": "2025-05-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/34403/80/cover500/k012932614_1.jpg"
   },
   {
     "id": "neo_2025_040",
@@ -921,12 +976,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "나의 우주가 확장되는 기분을 느끼다",
     "cover": "https://shopping-phinf.pstatic.net/main_5472458/54724585752.20250513093440.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36401/68/Spine/k042039783_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 40,
     "year": 2025,
-    "created_at": "2025-05-31T00:00:00.000Z"
+    "created_at": "2025-05-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36401/68/cover500/k042039783_1.jpg"
   },
   {
     "id": "neo_2025_038",
@@ -937,12 +993,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "인생은 '나 사용법'을 찾아가는 길",
     "cover": "https://shopping-phinf.pstatic.net/main_4003423/40034238620.20230815080659.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/31672/72/Spine/k792833671_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 38,
     "year": 2025,
-    "created_at": "2025-05-30T00:00:00.000Z"
+    "created_at": "2025-05-30T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/31672/72/cover500/k792833671_1.jpg"
   },
   {
     "id": "neo_2025_037",
@@ -953,12 +1010,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "내가 본 마지막 세상은 너여야 했다",
     "cover": "https://shopping-phinf.pstatic.net/main_3957787/39577879626.20230926084932.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/31561/46/Spine/k782832854_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 37,
     "year": 2025,
-    "created_at": "2025-05-29T00:00:00.000Z"
+    "created_at": "2025-05-29T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/31561/46/cover500/k782832854_1.jpg"
   },
   {
     "id": "neo_2025_036",
@@ -969,12 +1027,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "글이 되는 삶을 사는 법에 관하여",
     "cover": "https://shopping-phinf.pstatic.net/main_3244102/32441025908.20231102092117.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/28465/0/Spine/8931022573_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 36,
     "year": 2025,
-    "created_at": "2025-05-28T00:00:00.000Z"
+    "created_at": "2025-05-28T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/28465/0/cover500/8931022573_1.jpg"
   },
   {
     "id": "neo_2025_035",
@@ -985,12 +1044,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "인생에서 방향을 잃어버리지 않는 비결",
     "cover": "https://shopping-phinf.pstatic.net/main_3244568/32445681035.20230822104150.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/28141/51/Spine/k972835768_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 35,
     "year": 2025,
-    "created_at": "2025-05-18T00:00:00.000Z"
+    "created_at": "2025-05-18T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/28141/51/cover500/k972835768_1.jpg"
   },
   {
     "id": "neo_2025_034",
@@ -1001,12 +1061,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "나만의 투자 스타일과 접근 방식을 갖추기 위한 전략은?",
     "cover": "https://shopping-phinf.pstatic.net/main_5449011/54490117529.20250430091547.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36325/25/Spine/k142038641_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 34,
     "year": 2025,
-    "created_at": "2025-05-15T00:00:00.000Z"
+    "created_at": "2025-05-15T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36325/25/cover500/k142038641_1.jpg"
   },
   {
     "id": "neo_2025_033",
@@ -1017,12 +1078,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "‘나 사용법’을 알아가는 수고로운 행위에 관하여",
     "cover": "https://shopping-phinf.pstatic.net/main_5214491/52144910623.20241231072023.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/35457/45/Spine/k782035144_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 33,
     "year": 2025,
-    "created_at": "2025-05-08T00:00:00.000Z"
+    "created_at": "2025-05-08T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/35457/45/cover500/k782035144_1.jpg"
   },
   {
     "id": "neo_2025_032",
@@ -1033,12 +1095,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "변화하는 세상을 이해하려면 변하지 않는 것부터 알아야 한다",
     "cover": "https://shopping-phinf.pstatic.net/main_4580984/45809842631.20240216070942.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/33406/14/Spine/k272938139_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 32,
     "year": 2025,
-    "created_at": "2025-04-30T00:00:00.000Z"
+    "created_at": "2025-04-30T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/33406/14/cover500/k272938139_2.jpg"
   },
   {
     "id": "neo_2025_031",
@@ -1049,12 +1112,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "인간은 어디로 가야 하는가에 대한 거대한 이야기",
     "cover": "https://shopping-phinf.pstatic.net/main_3248237/32482377706.20230926085206.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/31424/4/Spine/k482832219_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 31,
     "year": 2025,
-    "created_at": "2025-04-26T00:00:00.000Z"
+    "created_at": "2025-04-26T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/31424/4/cover500/k482832219_1.jpg"
   },
   {
     "id": "neo_2025_030",
@@ -1065,12 +1129,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "스스로 자본주의의 괴물이 되지는 말자",
     "cover": "https://shopping-phinf.pstatic.net/main_3245553/32455537052.20230927071057.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/40059/18/Spine/8932925860_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 30,
     "year": 2025,
-    "created_at": "2025-04-23T00:00:00.000Z"
+    "created_at": "2025-04-23T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/40059/18/cover500/8932925860_1.jpg"
   },
   {
     "id": "neo_2025_029",
@@ -1081,12 +1146,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "한류의 절정에서 '자포니즘의 설국'을 이야기하다",
     "cover": "https://shopping-phinf.pstatic.net/main_3248375/32483752698.20230725121102.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/32/87/Spine/s092934786_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 29,
     "year": 2025,
-    "created_at": "2025-04-22T00:00:00.000Z"
+    "created_at": "2025-04-22T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/32/87/cover500/s092934786_1.jpg"
   },
   {
     "id": "neo_2025_028",
@@ -1113,12 +1179,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "기득권의 선동과 청춘의 희생",
     "cover": "https://shopping-phinf.pstatic.net/main_3249171/32491718662.20230704090734.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/587/35/Spine/8932909849_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 27,
     "year": 2025,
-    "created_at": "2025-04-18T00:00:00.000Z"
+    "created_at": "2025-04-18T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/587/35/cover500/8932909849_1.jpg"
   },
   {
     "id": "neo_2025_026",
@@ -1129,12 +1196,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "나에게는 이 ���을 잘 완성할 책임이 있다",
     "cover": "https://shopping-phinf.pstatic.net/main_5373501/53735013051.20250325080327.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/40166/21/Spine/k812131661_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 26,
     "year": 2025,
-    "created_at": "2025-04-09T00:00:00.000Z"
+    "created_at": "2025-04-09T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/40166/21/cover500/k812131661_1.jpg"
   },
   {
     "id": "neo_2025_025",
@@ -1145,12 +1213,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "나와 내 취향을 발견하는 기록법",
     "cover": "https://shopping-phinf.pstatic.net/main_5285697/52856970844.20250208082641.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/35729/81/Spine/k422036437_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 25,
     "year": 2025,
-    "created_at": "2025-04-08T00:00:00.000Z"
+    "created_at": "2025-04-08T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/35729/81/cover500/k422036437_2.jpg"
   },
   {
     "id": "neo_2025_022",
@@ -1161,12 +1230,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_3244164/32441649963.20230627104601.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/23776/63/Spine/8932474273_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 22,
     "year": 2025,
-    "created_at": "2025-03-31T00:00:00.000Z"
+    "created_at": "2025-03-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/23776/63/cover500/8932474273_3.jpg"
   },
   {
     "id": "neo_2025_023",
@@ -1177,12 +1247,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_3244158/32441584625.20221228071805.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/22693/84/Spine/8958077468_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 23,
     "year": 2025,
-    "created_at": "2025-03-31T00:00:00.000Z"
+    "created_at": "2025-03-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/22693/84/cover500/8958077468_1.jpg"
   },
   {
     "id": "neo_2025_024",
@@ -1193,12 +1264,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_4642689/46426890618.20240317071032.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/33626/89/Spine/k662939214_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 24,
     "year": 2025,
-    "created_at": "2025-03-31T00:00:00.000Z"
+    "created_at": "2025-03-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/33626/89/cover500/k662939214_1.jpg"
   },
   {
     "id": "neo_2025_020",
@@ -1209,12 +1281,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_4404280/44042808628.20231118075354.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/37231/18/Spine/8901297450_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 20,
     "year": 2025,
-    "created_at": "2025-03-29T00:00:00.000Z"
+    "created_at": "2025-03-29T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/37231/18/cover500/8901297450_2.jpg"
   },
   {
     "id": "neo_2025_021",
@@ -1225,12 +1298,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_5318966/53189664314.20250225082509.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/35889/97/Spine/k242037888_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 21,
     "year": 2025,
-    "created_at": "2025-03-29T00:00:00.000Z"
+    "created_at": "2025-03-29T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/35889/97/cover500/k242037888_2.jpg"
   },
   {
     "id": "neo_2025_019",
@@ -1257,12 +1331,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_3246137/32461371978.20230117163348.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/27432/73/Spine/8937472112_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 18,
     "year": 2025,
-    "created_at": "2025-03-10T00:00:00.000Z"
+    "created_at": "2025-03-10T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/27432/73/cover500/8937472112_2.jpg"
   },
   {
     "id": "neo_2025_017",
@@ -1273,12 +1348,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_3247329/32473290161.20230530083507.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/49/16/Spine/893746103x_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 17,
     "year": 2025,
-    "created_at": "2025-03-04T00:00:00.000Z"
+    "created_at": "2025-03-04T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/49/16/cover500/893746103x_3.jpg"
   },
   {
     "id": "neo_2025_015",
@@ -1289,12 +1365,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_3245591/32455917828.20230627104452.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36281/4/Spine/k702038937_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 15,
     "year": 2025,
-    "created_at": "2025-02-28T00:00:00.000Z"
+    "created_at": "2025-02-28T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36281/4/cover500/k702038937_1.jpg"
   },
   {
     "id": "neo_2025_016",
@@ -1305,12 +1382,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_3248200/32482005923.20250206072651.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/14113/13/Spine/8950974126_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 16,
     "year": 2025,
-    "created_at": "2025-02-28T00:00:00.000Z"
+    "created_at": "2025-02-28T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/14113/13/cover500/8950974126_1.jpg"
   },
   {
     "id": "neo_2025_013",
@@ -1337,12 +1415,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_3247446/32474460634.20230815080640.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/36069/56/Spine/k032037144_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 14,
     "year": 2025,
-    "created_at": "2025-02-27T00:00:00.000Z"
+    "created_at": "2025-02-27T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/36069/56/cover500/k032037144_1.jpg"
   },
   {
     "id": "neo_2025_012",
@@ -1353,12 +1432,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_3247058/32470588838.20241019070825.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/22249/19/Spine/s912633025_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 12,
     "year": 2025,
-    "created_at": "2025-02-20T00:00:00.000Z"
+    "created_at": "2025-02-20T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/22249/19/cover500/s912633025_1.jpg"
   },
   {
     "id": "neo_2025_011",
@@ -1369,12 +1449,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_5261555/52615553828.20250128071133.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/35640/13/Spine/k792036505_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 11,
     "year": 2025,
-    "created_at": "2025-02-19T00:00:00.000Z"
+    "created_at": "2025-02-19T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/35640/13/cover500/k792036505_3.jpg"
   },
   {
     "id": "neo_2025_010",
@@ -1401,12 +1482,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_5242392/52423922618.20250114083147.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/35547/40/Spine/k422036276_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 9,
     "year": 2025,
-    "created_at": "2025-02-06T00:00:00.000Z"
+    "created_at": "2025-02-06T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/35547/40/cover500/k422036276_1.jpg"
   },
   {
     "id": "neo_2025_008",
@@ -1417,12 +1499,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_5019947/50199477648.20240908071000.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/34648/52/Spine/8937464500_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 8,
     "year": 2025,
-    "created_at": "2025-01-31T00:00:00.000Z"
+    "created_at": "2025-01-31T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/34648/52/cover500/8937464500_1.jpg"
   },
   {
     "id": "neo_2025_007",
@@ -1433,12 +1516,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_3284386/32843864620.20230919124731.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/29617/81/Spine/s292838562_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 7,
     "year": 2025,
-    "created_at": "2025-01-29T00:00:00.000Z"
+    "created_at": "2025-01-29T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/29617/81/cover500/s292838562_1.jpg"
   },
   {
     "id": "neo_2025_006",
@@ -1449,12 +1533,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_3246382/32463828936.20250108071103.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/38470/16/Spine/k242135019_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 6,
     "year": 2025,
-    "created_at": "2025-01-28T00:00:00.000Z"
+    "created_at": "2025-01-28T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/38470/16/cover500/k242135019_2.jpg"
   },
   {
     "id": "neo_2025_005",
@@ -1497,12 +1582,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_5201337/52013374618.20241220071414.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/35408/42/Spine/k372035320_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 3,
     "year": 2025,
-    "created_at": "2025-01-10T00:00:00.000Z"
+    "created_at": "2025-01-10T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/35408/42/cover500/k372035320_1.jpg"
   },
   {
     "id": "neo_2025_002",
@@ -1513,12 +1599,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_4046050/40460507636.20230627102116.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/38808/31/Spine/k552137982_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 2,
     "year": 2025,
-    "created_at": "2025-01-03T00:00:00.000Z"
+    "created_at": "2025-01-03T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/38808/31/cover500/k552137982_1.jpg"
   },
   {
     "id": "neo_2025_001",
@@ -1529,12 +1616,13 @@ window.NEO_BOOKS_131 = [
     "rating": 5,
     "sentence": "",
     "cover": "https://shopping-phinf.pstatic.net/main_3267092/32670927636.20230919131156.jpg?type=w300",
-    "spineCover": "",
+    "spineCover": "https://image.aladin.co.kr/product/29563/46/Spine/k762837255_d.jpg",
     "keywords": [],
     "scraps": [],
     "seq": 1,
     "year": 2025,
-    "created_at": "2025-01-02T00:00:00.000Z"
+    "created_at": "2025-01-02T00:00:00.000Z",
+    "aladinCover": "https://image.aladin.co.kr/product/29563/46/cover500/k762837255_2.jpg"
   },
   {
     "id": "mtqy22sld87nw",
