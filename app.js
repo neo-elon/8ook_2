@@ -7180,7 +7180,8 @@ function getUserNickname() {
   if (currentUser && currentUser.id) {
     // 1-1. Supabase 클라우드 auth user_metadata에 저장된 변경 닉네임 최우선 적용
     if (currentUser.user_metadata && currentUser.user_metadata.nickname) {
-      const cloudNick = String(currentUser.user_metadata.nickname).trim().toLowerCase();
+      let cloudNick = String(currentUser.user_metadata.nickname).trim().toLowerCase();
+      if (cloudNick === 'curator_neo') cloudNick = 'di31om';
       if (cloudNick) {
         try { localStorage.setItem(`rj_user_nickname_${currentUser.id}`, cloudNick); } catch (e) {}
         return cloudNick;
@@ -7189,15 +7190,20 @@ function getUserNickname() {
 
     // 1-2. 현재 로그인 계정 전용 로컬 저장소 확인
     try {
-      const accountNick = localStorage.getItem(`rj_user_nickname_${currentUser.id}`);
-      if (accountNick && accountNick.trim()) return accountNick.trim().toLowerCase();
+      let accountNick = localStorage.getItem(`rj_user_nickname_${currentUser.id}`);
+      if (accountNick && accountNick.trim()) {
+        accountNick = accountNick.trim().toLowerCase();
+        if (accountNick === 'curator_neo') accountNick = 'di31om';
+        return accountNick;
+      }
     } catch (e) {}
 
     // 1-3. 기존 기기에서 설정했던 레거시 닉네임 중 유저가 직접 수정한 닉네임(di31om 등) 마이그레이션
     try {
       const legacyNick = localStorage.getItem('rj_user_nickname');
       if (legacyNick && legacyNick.trim()) {
-        const clean = legacyNick.trim().toLowerCase();
+        let clean = legacyNick.trim().toLowerCase();
+        if (clean === 'curator_neo') clean = 'di31om';
         if (clean === 'di31om' || (getNicknameChangeCount() > 0 && !clean.match(/^[a-z0-9]{6}$/))) {
           localStorage.setItem(`rj_user_nickname_${currentUser.id}`, clean);
           return clean;
@@ -7480,6 +7486,7 @@ function getCommunityItemOwnerNickname(item, source = '') {
                  (ownerId === 'user_local') ||
                  (currentUser && item.user_id && String(item.user_id) === String(currentUser.id)) ||
                  (currentUser && currentUser.id && ownerId === ('user_' + currentUser.id)) ||
+                 (currentUser && String(currentUser.id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216' && (ownerId === 'user_owner_neo' || effSource === 'neo_dataset')) ||
                  (item.id && Array.isArray(books) && books.some(b => String(b.id) === String(item.id)));
 
   if (isMine) {
@@ -7487,12 +7494,16 @@ function getCommunityItemOwnerNickname(item, source = '') {
   }
 
   if (item.nickname && typeof item.nickname === 'string' && item.nickname.trim()) {
-    return { nickname: item.nickname.trim().toLowerCase(), isMe: false };
+    const customNick = item.nickname.trim().toLowerCase();
+    if (customNick === 'curator_neo') {
+      return { nickname: 'di31om', isMe: false };
+    }
+    return { nickname: customNick, isMe: false };
   }
 
-  // 큐레이터
+  // 큐레이터 (Neo의 데이터셋/도서) -> curator_neo 대신 di31om으로 완전 통합
   if (ownerId === 'user_owner_neo' || effSource === 'neo_dataset' || String(item.user_id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') {
-    return { nickname: 'curator_neo', isMe: false };
+    return { nickname: 'di31om', isMe: !!(currentUser && String(currentUser.id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') };
   }
 
   // 그 외: '독서가 1인당 1닉네임' 완전 일치를 위해 오직 정규화된 ownerId만을 시드로 사용!
