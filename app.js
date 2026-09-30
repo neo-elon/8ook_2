@@ -7231,6 +7231,7 @@ function updateAuthUI(session) {
     if (shortUsernameSpan) shortUsernameSpan.textContent = fullName.split(' ')[0] || fullName;
     if (headerChip) headerChip.style.display = 'inline-flex';
     if (googleLoginBtn) googleLoginBtn.style.display = 'none';
+    syncNicknameUI();
   } else {
     currentUser = null;
     if (loggedInDiv) loggedInDiv.style.display = 'none';
@@ -7471,6 +7472,10 @@ function syncNicknameUI() {
   if (menuBadge) {
     menuBadge.textContent = left > 0 ? `변경 (${left}회)` : '완료 (0회)';
     menuBadge.classList.toggle('disabled', left <= 0);
+  }
+  const menuChangeBtn = document.getElementById('menu-nickname-change-btn');
+  if (menuChangeBtn) {
+    menuChangeBtn.classList.toggle('disabled', left <= 0);
   }
 
   // 3. 모달 내부
