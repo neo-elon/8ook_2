@@ -335,6 +335,9 @@ async function loadData() {
       window.NEO_BOOKS_131.forEach(nb => {
         const eb = books.find(b => (b.id === nb.id) || (b.title && b.title.trim().toLowerCase() === nb.title.trim().toLowerCase() && (b.date || '').substring(0, 4) === (nb.date || '').substring(0, 4)));
         if (eb) {
+          if (nb.cover && (!eb.cover || eb.cover !== nb.cover || eb.cover.includes('pstatic.net'))) {
+            eb.cover = nb.cover;
+          }
           if (nb.spineCover && (!eb.spineCover || eb.spineCover !== nb.spineCover)) {
             eb.spineCover = nb.spineCover;
           }
@@ -470,6 +473,10 @@ async function loadData() {
         const eb = books.find(b => b.id === nb.id) || books.find(b => b.title && b.title.trim().toLowerCase() === nb.title.trim().toLowerCase() && (b.date || '').substring(0, 4) === (nb.date || '').substring(0, 4));
         if (eb) {
           let updated = false;
+          if (nb.cover && (!eb.cover || eb.cover !== nb.cover || eb.cover.includes('pstatic.net'))) {
+            eb.cover = nb.cover;
+            updated = true;
+          }
           if (nb.spineCover && (!eb.spineCover || eb.spineCover !== nb.spineCover)) {
             eb.spineCover = nb.spineCover;
             spineUpdated++;
