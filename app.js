@@ -7750,23 +7750,11 @@ function getClientLikeId() {
 
 function broadcastLikeUpdate(targetId, userId, isLiked) {
   const payload = { targetId: String(targetId), userId, isLiked };
-  // 1. Cross-tab BroadcastChannel
+  // Cross-tab BroadcastChannel
   if (localLikeBroadcast) {
     try {
       localLikeBroadcast.postMessage(payload);
     } catch (e) {}
-  }
-  // 2. Supabase Realtime channel
-  if (commLikesChannel) {
-    try {
-      commLikesChannel.send({
-        type: 'broadcast',
-        event: 'like_update',
-        payload: payload
-      });
-    } catch (e) {
-      console.warn('Failed to broadcast like update via Supabase:', e);
-    }
   }
 }
 
@@ -7809,19 +7797,6 @@ function initCommunityLikesChannel() {
         }
       };
     } catch (e) {}
-  }
-
-  if (!supabaseClient || commLikesChannel) return;
-  try {
-    commLikesChannel = supabaseClient.channel('comm_likes_broadcast')
-      .on('broadcast', { event: 'like_update' }, (payload) => {
-        if (payload && payload.payload) {
-          applyIncomingLikeUpdate(payload.payload);
-        }
-      })
-      .subscribe();
-  } catch (e) {
-    console.warn('Realtime like channel error:', e);
   }
 }
 
@@ -9362,34 +9337,12 @@ function initCommunityCommentsChannel() {
       };
     } catch (e) {}
   }
-
-  if (!supabaseClient || commCommentsChannel) return;
-  try {
-    commCommentsChannel = supabaseClient.channel('comm_comments_broadcast')
-      .on('broadcast', { event: 'comment_update' }, (payload) => {
-        if (payload && payload.payload) {
-          applyIncomingCommentUpdate(payload.payload);
-        }
-      })
-      .subscribe();
-  } catch (e) {
-    console.warn('Realtime comment channel error:', e);
-  }
 }
 
 function broadcastCommentUpdate(action, commentData) {
   const payload = { action, comment: commentData };
   if (localCommentBroadcast) {
     try { localCommentBroadcast.postMessage(payload); } catch (e) {}
-  }
-  if (commCommentsChannel) {
-    try {
-      commCommentsChannel.send({
-        type: 'broadcast',
-        event: 'comment_update',
-        payload: payload
-      });
-    } catch (e) {}
   }
 }
 
