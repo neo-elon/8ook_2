@@ -241,12 +241,27 @@ function isOhaUser(user) {
   return uid === '7396cf84-8b75-4617-a050-5ed974fcbe02' || email.includes('thejs2050');
 }
 
+function isNeoUser(user) {
+  if (!user) return false;
+  const uid = user.id ? String(user.id) : '';
+  const email = (user.email || '').toLowerCase();
+  return uid === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216' ||
+    email.includes('parkyangkyu') ||
+    email.includes('neo_elon') ||
+    email.includes('neo');
+}
+
 function isOhaImportedBook(book) {
   if (!book) return false;
   // 오하 본인 계정(thejs2050@gmail.com)에서는 자신의 가져오기 도서도 온전한 서재 도서로 유지
   if (currentUser && isOhaUser(currentUser)) return false;
 
+  // 네오(Neo) 본인 계정이거나 네오 도서 데이터셋(neo_, mtqy 접두사)은 절대 오하 도서로 오인하지 않음
+  if (currentUser && isNeoUser(currentUser)) return false;
   const bid = String(book.id || '');
+  if (bid.startsWith('neo_') || bid.startsWith('mtqy')) return false;
+  if (book._source === 'neo_dataset' || book.source === 'neo_dataset') return false;
+
   if (bid.startsWith('notion_')) return true;
   if (bid.includes('2608775c') || bid.includes('2da8775c') || bid.includes('2378775c') || bid.includes('2308775c') || bid.includes('22b8775c')) {
     return true;
@@ -315,6 +330,18 @@ async function loadData() {
 
   if (!supabaseClient || !currentUser) {
     books = localBooks.filter(b => !isOhaImportedBook(b));
+    // 게스트 모드: window.NEO_BOOKS_131의 신규 도서(2025년 도서 포함)가 빠져있다면 자동 보충
+    if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
+      const existingKeys = new Set(books.map(b => `${(b.date || '').substring(0, 7)}_${(b.title || '').trim().toLowerCase()}`));
+      const missing = window.NEO_BOOKS_131.filter(b => {
+        const k = `${(b.date || '').substring(0, 7)}_${(b.title || '').trim().toLowerCase()}`;
+        return !existingKeys.has(k);
+      });
+      if (missing.length > 0) {
+        books = [...missing, ...books];
+        books.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      }
+    }
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
@@ -410,6 +437,38 @@ async function loadData() {
     }
 
     books = books.filter(b => !isOhaImportedBook(b));
+
+    // 네오 본인 계정이거나 네오 서재를 사용하는 계정: window.NEO_BOOKS_131(2025 도서 96권 포함) 자동 병합 및 Supabase upsert
+    const isNeoLibraryUser = isNeoUser(currentUser) || books.some(b => b.id && String(b.id).startsWith('mtqy'));
+    if (isNeoLibraryUser && typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
+      const existingKeys = new Set(books.map(b => `${(b.date || '').substring(0, 7)}_${(b.title || '').trim().toLowerCase()}`));
+      const missing = window.NEO_BOOKS_131.filter(b => {
+        const k = `${(b.date || '').substring(0, 7)}_${(b.title || '').trim().toLowerCase()}`;
+        return !existingKeys.has(k);
+      });
+      if (missing.length > 0) {
+        console.log(`[Sync] Merging ${missing.length} new Neo books into library...`);
+        const newItems = missing.map(b => ({
+          ...b,
+          user_id: currentUser.id
+        }));
+        books = [...newItems, ...books];
+        books.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        // Supabase에 비동기 청크 업로드
+        if (supabaseClient) {
+          const payload = newItems.map(b => sanitizeBookForSupabase(b));
+          for (let i = 0; i < payload.length; i += 50) {
+            const chunk = payload.slice(i, i + 50);
+            supabaseClient.from('books').upsert(chunk, { onConflict: 'id' }).then(({ error }) => {
+              if (error) console.error('[Sync] Supabase upsert error:', error);
+              else console.log('[Sync] Successfully synced chunk to Supabase');
+            });
+          }
+        }
+        toast(`새로 추가된 서재 ${missing.length}권이 책장에 성공적으로 동기화되었습니다!`, 3500);
+      }
+    }
+
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
     saveData();
@@ -9324,3 +9383,35 @@ function exportToGoogleSheetsCSV() {
   closeModal('export-modal');
   toast(`선택한 기간의 ${exportBooks.length}권 독서 기록이 다운로드되었습니다.`);
 }
+
+window.syncNeoBooks = async function() {
+  if (typeof window === 'undefined' || !Array.isArray(window.NEO_BOOKS_131)) {
+    toast('NEO_BOOKS_131 데이터셋을 찾을 수 없습니다.');
+    return;
+  }
+  const existingKeys = new Set(books.map(b => `${(b.date || '').substring(0, 7)}_${(b.title || '').trim().toLowerCase()}`));
+  const missing = window.NEO_BOOKS_131.filter(b => {
+    const k = `${(b.date || '').substring(0, 7)}_${(b.title || '').trim().toLowerCase()}`;
+    return !existingKeys.has(k);
+  });
+  if (missing.length === 0) {
+    toast('모든 네오 도서가 이미 책장에 동기화되어 있습니다.');
+    return;
+  }
+  const newItems = missing.map(b => ({
+    ...b,
+    user_id: currentUser ? currentUser.id : undefined
+  }));
+  books = [...newItems, ...books];
+  books.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  saveData();
+  renderGallery();
+  if (currentUser && supabaseClient) {
+    const payload = newItems.map(b => sanitizeBookForSupabase(b));
+    for (let i = 0; i < payload.length; i += 50) {
+      const chunk = payload.slice(i, i + 50);
+      await supabaseClient.from('books').upsert(chunk, { onConflict: 'id' });
+    }
+  }
+  toast(`네오 도서 ${missing.length}권 동기화 완료!`, 3500);
+};
