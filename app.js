@@ -8471,14 +8471,28 @@ function getMostShelvedCommunityBooks() {
     const avgRating = userRatingMap.size > 0 ? parseFloat((ratingSum / userRatingMap.size).toFixed(1)) : null;
     const ratingCount = userRatingMap.size;
 
-    // 여러 독서가의 나만의 한문장 모두 수집 (중복 제거)
+    // copies를 완독일(date) 최신순으로 정렬
+    const sortedCopies = [...g.copies].sort((ca, cb) => {
+      const ta = getSafeTimestamp(ca.date) || getSafeTimestamp(ca.created_at) || getSafeTimestamp(ca.time) || 0;
+      const tb = getSafeTimestamp(cb.date) || getSafeTimestamp(cb.created_at) || getSafeTimestamp(cb.time) || 0;
+      return tb - ta;
+    });
+
+    // 여러 독서가의 나만의 한문장 모두 수집 (작성자 닉네임 매핑, 중복 제거, 완독일 최신순)
     const reviews = [];
     const seenReviews = new Set();
-    g.copies.forEach(copy => {
+    sortedCopies.forEach(copy => {
       const rev = (copy.sentence || copy.review || copy.oneLineReview || '').trim();
       if (rev && !seenReviews.has(rev)) {
         seenReviews.add(rev);
-        reviews.push(rev);
+        const ownerInfo = getCommunityItemOwnerNickname(copy, copy._source);
+        const copyDate = getSafeTimestamp(copy.date) || getSafeTimestamp(copy.created_at) || getSafeTimestamp(copy.time) || 0;
+        reviews.push({
+          text: rev,
+          nickname: ownerInfo.nickname,
+          isMe: ownerInfo.isMe,
+          date: copyDate
+        });
       }
     });
 
@@ -8488,7 +8502,7 @@ function getMostShelvedCommunityBooks() {
 
     // 여러 독서가가 꼽은 모든 키워드 수집 (동일 독서가가 중복 등록한 경우 겹치지 않게 서로 다른 독서가 수만 카운트)
     const kwMap = new Map();
-    g.copies.forEach(copy => {
+    sortedCopies.forEach(copy => {
       const ownerId = resolveCommunityBookOwner(copy, copy._source);
       let rawKws = [];
       if (Array.isArray(copy.keywords)) rawKws = copy.keywords;
@@ -8511,17 +8525,28 @@ function getMostShelvedCommunityBooks() {
       .map(item => ({ text: item.text, count: item.users.size }))
       .sort((a, b) => b.count - a.count);
 
-    // 참여 독서가 닉네임 목록 수집 (중복 제거, 본인 우선 정렬)
-    const readers = [];
-    const seenReaders = new Set();
-    g.copies.forEach(copy => {
+    // 참여 독서가 닉네임 목록 수집 (완독일 최신순 정렬)
+    const readerMap = new Map();
+    sortedCopies.forEach(copy => {
       const info = getCommunityItemOwnerNickname(copy, copy._source);
-      if (info && info.nickname && !seenReaders.has(info.nickname)) {
-        seenReaders.add(info.nickname);
-        readers.push(info);
+      if (info && info.nickname) {
+        const copyDate = getSafeTimestamp(copy.date) || getSafeTimestamp(copy.created_at) || getSafeTimestamp(copy.time) || 0;
+        if (!readerMap.has(info.nickname) || copyDate > readerMap.get(info.nickname).date) {
+          readerMap.set(info.nickname, {
+            nickname: info.nickname,
+            isMe: info.isMe,
+            date: copyDate
+          });
+        }
       }
     });
-    readers.sort((a, b) => (b.isMe ? 1 : 0) - (a.isMe ? 1 : 0));
+
+    const readers = Array.from(readerMap.values()).sort((a, b) => {
+      // 1. 완독일(date) 최신순
+      if (b.date !== a.date) return b.date - a.date;
+      // 2. 완독일 동일 시 본인 우선
+      return (b.isMe ? 1 : 0) - (a.isMe ? 1 : 0);
+    });
 
     result.push({
       id: b.id,
@@ -8573,9 +8598,22 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
       }).join('')}</div>`
     : '';
 
-  const reviewsList = Array.isArray(b.reviews) ? b.reviews : (b.review ? [b.review] : []);
+  const reviewsList = Array.isArray(b.reviews) ? b.reviews : (b.review ? [{ text: b.review, nickname: '' }] : []);
   const reviewsHtml = reviewsList.length > 0
-    ? reviewsList.map(r => `<div class="comm-book-review">“${esc(r)}”</div>`).join('')
+    ? reviewsList.map(r => {
+        const text = typeof r === 'object' ? r.text : String(r);
+        const nick = typeof r === 'object' ? r.nickname : '';
+        const isMe = typeof r === 'object' ? r.isMe : false;
+        const writerHtml = nick
+          ? `<span class="comm-review-writer"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(nick)}</span>${isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>`
+          : '';
+        return `
+          <div class="comm-book-review has-writer">
+            ${writerHtml}
+            <span class="comm-review-quote">“${esc(text)}”</span>
+          </div>
+        `;
+      }).join('')
     : '';
 
   const readersHtml = (Array.isArray(b.readers) && b.readers.length > 0)
