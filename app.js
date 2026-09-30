@@ -7393,9 +7393,14 @@ function hashStringToNickname(str) {
 function getCommunityItemOwnerNickname(item, source = '') {
   if (!item) return { nickname: generateDefaultNickname(), isMe: false };
 
+  const effSource = source || item._source || '';
+  const ownerId = item._ownerId || resolveCommunityBookOwner(item, effSource);
+
   // 내가 작성한 도서인지 판별
-  const isMine = (source === 'local') ||
+  const isMine = (effSource === 'local') ||
+                 (ownerId === 'user_local') ||
                  (currentUser && item.user_id && String(item.user_id) === String(currentUser.id)) ||
+                 (currentUser && currentUser.id && ownerId === ('user_' + currentUser.id)) ||
                  (item.id && Array.isArray(books) && books.some(b => String(b.id) === String(item.id)));
 
   if (isMine) {
@@ -7407,16 +7412,15 @@ function getCommunityItemOwnerNickname(item, source = '') {
   }
 
   // 큐레이터 및 특별 독서가
-  if (source === 'neo_dataset' || String(item.user_id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') {
+  if (ownerId === 'user_owner_neo' || effSource === 'neo_dataset' || String(item.user_id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') {
     return { nickname: 'curator_neo', isMe: false };
   }
-  if (source === 'oha_dataset' || String(item.user_id) === '7396cf84-8b75-4617-a050-5ed974fcbe02') {
+  if (ownerId === 'user_owner_oha' || effSource === 'oha_dataset' || String(item.user_id) === '7396cf84-8b75-4617-a050-5ed974fcbe02') {
     return { nickname: 'reader_oha', isMe: false };
   }
 
-  // 그 외: 고유 식별자 기반 결정적 6자리 영문+숫자 닉네임 생성
-  const seed = item.user_id || item.id || item.author || (item.title ? (item.title + (item.time || '')) : '');
-  const nick = hashStringToNickname(String(seed));
+  // 그 외: '독서가 1인당 1닉네임' 완전 일치를 위해 오직 정규화된 ownerId만을 시드로 사용!
+  const nick = hashStringToNickname(String(ownerId));
   return { nickname: nick, isMe: false };
 }
 
@@ -7440,368 +7444,7 @@ let currentFeedRating = 5;
 
 const SEED_COMMUNITY_BOOKS = [];
 
-const SEED_COMMUNITY_SCRAPS = [
-  {
-    id: 'cs_1',
-    text: '새는 알을 깨고 나온다. 알은 세계이다. 태어나려는 자는 하나의 세계를 파괴하지 않으면 안 된다.',
-    bookTitle: '데미안',
-    author: '헤르만 헤세',
-    cover: 'https://image.aladin.co.kr/product/26/0/cover200/s452139198_1.jpg',
-    page: 124,
-    memo: '변화와 성장의 고통을 마주할 때마다 나를 지탱해 주는 문장.',
-    tags: ['성장', '자아', '고전'],
-    likes: 0,
-    time: '15분 전'
-  },
-  {
-    id: 'cs_2',
-    text: '우리는 모두 별의 부스러기(stardust)다. 밤하늘을 바라볼 때, 우리는 우리의 고향을 보고 있는 것이다.',
-    bookTitle: '코스모스',
-    author: '칼 세이건',
-    cover: 'https://image.aladin.co.kr/product/39676/50/cover200/k382130398_1.jpg',
-    page: 382,
-    memo: '광대한 우주 속에서 인간이라는 존재가 얼마나 소중하고 경이로운지.',
-    tags: ['우주', '과학', '사유'],
-    likes: 0,
-    time: '32분 전'
-  },
-  {
-    id: 'cs_3',
-    text: '지나간 슬픔을 말하는 것이 아니라, 지금도 흐르고 있는 피를 닦아내는 마음으로 썼다.',
-    bookTitle: '작별하지 않는다',
-    author: '한강',
-    cover: 'https://image.aladin.co.kr/product/27877/5/cover200/8954682154_3.jpg',
-    page: 88,
-    memo: '역사의 아픔을 가만히 보듬는 작가의 깊은 시선.',
-    tags: ['문학', '위로', '기억'],
-    likes: 0,
-    time: '1시간 전'
-  },
-  {
-    id: 'cs_4',
-    text: '인생이란 때때로 우리로 하여금 전혀 예기치 않은 모순을 끌어안게 만든다.',
-    bookTitle: '모순',
-    author: '양귀자',
-    cover: 'https://image.aladin.co.kr/product/2584/37/cover200/s392131969_1.jpg',
-    page: 67,
-    memo: '옳고 그름만으로 나눌 수 없는 삶의 입체적인 진실들.',
-    tags: ['소설', '인생', '성찰'],
-    likes: 0,
-    time: '2시간 전'
-  },
-  {
-    id: 'cs_5',
-    text: '우리가 빛의 속도로 갈 수 없다면, 같은 우주에 존재한다 하더라도 영원히 닿지 못할지도 몰라.',
-    bookTitle: '우리가 빛의 속도로 갈 수 없다면',
-    author: '김초엽',
-    cover: 'https://image.aladin.co.kr/product/19359/16/cover200/s722039767_1.jpg',
-    page: 198,
-    memo: '닿을 수 없는 거리를 넘어 전해지는 그리움의 온기.',
-    tags: ['SF', '그리움', '다정함'],
-    likes: 0,
-    time: '2시간 전'
-  },
-  {
-    id: 'cs_6',
-    text: '인간은 패배하도록 창조된 것이 아니다. 인간은 파괴될 수는 있어도 패배할 수는 없다.',
-    bookTitle: '노인과 바다',
-    author: '어니스트 헤밍웨이',
-    cover: 'https://image.aladin.co.kr/product/37480/63/cover200/k902032019_1.jpg',
-    page: 115,
-    memo: '삶의 거친 파도 앞에서도 굽히지 않는 인간의 존엄.',
-    tags: ['고전', '의지', '용기'],
-    likes: 0,
-    time: '3시간 전'
-  },
-  {
-    id: 'cs_7',
-    text: '잠깐 머무는 여행자로서 우리는 세상에 아무것도 보태지 않고, 그저 바라볼 뿐이다.',
-    bookTitle: '여행의 이유',
-    author: '김영하',
-    cover: 'https://image.aladin.co.kr/product/33763/31/cover200/s332036339_1.jpg',
-    page: 54,
-    memo: '일상의 짐을 벗어던지고 순수한 관찰자로 돌아가는 해방감.',
-    tags: ['여행', '산문', '휴식'],
-    likes: 0,
-    time: '4시간 전'
-  },
-  {
-    id: 'cs_8',
-    text: '가장 무거운 짐은 동시에 가장 자유로운 삶의 완성에 대한 형상이기도 하다.',
-    bookTitle: '참을 수 없는 존재의 가벼움',
-    author: '밀란 쿤데라',
-    cover: 'https://image.aladin.co.kr/product/34797/80/cover200/8937437562_1.jpg',
-    page: 18,
-    memo: '가벼움의 허무와 무거움의 숭고함 사이에서의 방황.',
-    tags: ['철학', '문학', '존재'],
-    likes: 0,
-    time: '4시간 전'
-  },
-  {
-    id: 'cs_9',
-    text: '모든 발명에는 권력을 향한 내밀한 욕망이 깃들어 있었다.',
-    bookTitle: '도구는 어떻게 권력이 되는가',
-    author: '신무연',
-    cover: 'https://image.aladin.co.kr/product/40129/94/cover200/k132131865_1.jpg',
-    page: 45,
-    memo: '도구는 중립적이지 않다. 권력 구조를 이해하는 새로운 렌즈.',
-    tags: ['역사', '권력', '인문'],
-    likes: 0,
-    time: '5시간 전'
-  },
-  {
-    id: 'cs_10',
-    text: '눈에 보이지 않는 것이 가장 소중한 법이야. 마음으로 보아야만 분명하게 볼 수 있어.',
-    bookTitle: '어린 왕자',
-    author: '앙투안 드 생텍쥐페리',
-    cover: 'https://image.aladin.co.kr/product/6853/49/cover200/8932917248_2.jpg',
-    page: 92,
-    memo: '언제 읽어도 마음 깊은 곳을 정화해 주는 영원한 문장.',
-    tags: ['동화', '마음', '순수'],
-    likes: 0,
-    time: '6시간 전'
-  },
-  {
-    id: 'cs_11',
-    text: '인간은 고통을 통해서만 진정으로 성숙해지는 괴상한 존재이다.',
-    bookTitle: '죄와 벌',
-    author: '표도르 도스토옙스키',
-    cover: 'https://image.aladin.co.kr/product/1621/17/cover200/8937462842_3.jpg',
-    page: 320,
-    memo: '심연을 들여다본 자만이 비로소 빛의 소중함을 깨닫는다.',
-    tags: ['고전', '인간', '구원'],
-    likes: 0,
-    time: '7시간 전'
-  },
-  {
-    id: 'cs_12',
-    text: '겨울의 한가운데서 나는 내 안에 꺾이지 않는 여름이 있음을 깨달았다.',
-    bookTitle: '여름',
-    author: '알베르 카뮈',
-    cover: 'https://image.aladin.co.kr/product/39656/80/cover200/k792130190_1.jpg',
-    page: 72,
-    memo: '어떤 절망과 시련 속에서도 결코 꺼지지 않는 생의 불꽃.',
-    tags: ['산문', '희망', '철학'],
-    likes: 0,
-    time: '8시간 전'
-  },
-  {
-    id: 'cs_13',
-    text: '자유란 둘 더하기 둘이 넷이라고 말할 수 있는 자유이다. 그것이 허용된다면 다른 모든 것도 뒤따른다.',
-    bookTitle: '1984',
-    author: '조지 오웰',
-    cover: 'https://image.aladin.co.kr/product/41/89/cover200/s122531356_2.jpg',
-    page: 135,
-    memo: '진실을 말할 권리와 생각의 독립성이 얼마나 소중한지 일깨운다.',
-    tags: ['사회', '자유', '명작'],
-    likes: 0,
-    time: '9시간 전'
-  },
-  {
-    id: 'cs_14',
-    text: '누군가를 사랑한다는 것은, 그 사람의 가장 깊은 외로움까지 끌어안겠다는 다짐이다.',
-    bookTitle: '바깥은 여름',
-    author: '김애란',
-    cover: 'https://image.aladin.co.kr/product/11145/47/cover200/s532932793_1.jpg',
-    page: 154,
-    memo: '사랑의 이면에 자리 잡은 연민과 연대의 깊이.',
-    tags: ['소설', '사랑', '여운'],
-    likes: 0,
-    time: '10시간 전'
-  },
-  {
-    id: 'cs_15',
-    text: '상상할 수 있는 능력이 없었다면 우리는 아직도 아프리카의 초원에서 영양을 쫓고 있었을 것이다.',
-    bookTitle: '사피엔스',
-    author: '유발 하라리',
-    cover: 'https://image.aladin.co.kr/product/31424/4/cover200/k482832219_1.jpg',
-    page: 48,
-    memo: '허구를 믿는 능력이야말로 인간 문명의 위대한 출발점.',
-    tags: ['역사', '인류', '지성'],
-    likes: 0,
-    time: '12시간 전'
-  },
-  {
-    id: 'cs_16',
-    text: '어둠이 깊을수록 별은 더욱 찬란하게 빛난다.',
-    bookTitle: '별 헤는 밤',
-    author: '윤동주',
-    cover: 'https://image.aladin.co.kr/product/8347/49/cover200/8937475103_2.jpg',
-    page: 34,
-    memo: '순결한 시인의 고뇌 속에서 피어난 영원한 서정.',
-    tags: ['시', '별', '순수'],
-    likes: 0,
-    time: '14시간 전'
-  },
-  {
-    id: 'cs_17',
-    text: '나를 죽이지 못하는 고통은 나를 더욱 강하게 만든다.',
-    bookTitle: '우상의 황혼',
-    author: '프리드리히 니체',
-    cover: 'https://image.aladin.co.kr/product/6419/39/cover200/8957334513_1.jpg',
-    page: 88,
-    memo: '시련 앞에서 물러서지 않고 나아가는 강인한 의지.',
-    tags: ['철학', '극복', '힘'],
-    likes: 0,
-    time: '16시간 전'
-  },
-  {
-    id: 'cs_18',
-    text: '시간은 흐르는 것이 아니라 우리가 시간을 뚫고 걸어가는 것이다.',
-    bookTitle: '시간의 향기',
-    author: '한병철',
-    cover: 'https://image.aladin.co.kr/product/2473/36/cover200/8932023964_1.jpg',
-    page: 62,
-    memo: '속도에 쫓기는 현대 사회에서 사유의 시간성을 되찾는 법.',
-    tags: ['철학', '시간', '사색'],
-    likes: 0,
-    time: '18시간 전'
-  },
-  {
-    id: 'cs_19',
-    text: '그리하여 우리는 조류를 거스르는 배처럼, 끊임없이 과거로 밀려가면서도 앞으로 나아가는 것이다.',
-    bookTitle: '위대한 개츠비',
-    author: 'F. 스콧 피츠제럴드',
-    cover: 'https://image.aladin.co.kr/product/41/79/cover200/s582934787_1.jpg',
-    page: 252,
-    memo: '손에 닿지 않는 초록 불빛을 향해 끊임없이 노를 젓는 인간의 숙명.',
-    tags: ['고전', '꿈', '여운'],
-    likes: 0,
-    time: '20시간 전'
-  },
-  {
-    id: 'cs_20',
-    text: '살아온 기적이 살아갈 기적이 된다. 사소한 하루가 모여 하나의 온전한 삶이 된다.',
-    bookTitle: '그 많던 싱아는 누가 다 먹었을까',
-    author: '박완서',
-    cover: 'https://image.aladin.co.kr/product/36931/7/cover200/890129690x_2.jpg',
-    page: 210,
-    memo: '질곡의 세월을 담담하게 통과해 낸 거목의 따스한 품.',
-    tags: ['수필', '생애', '따뜻함'],
-    likes: 0,
-    time: '22시간 전'
-  },
-  {
-    id: 'cs_21',
-    text: '너의 내면으로 침잠하라. 그곳에서 네가 쓰지 않고는 살 수 없는지 물어보라.',
-    bookTitle: '젊은 시인에게 주는 충고',
-    author: '라이너 마리아 릴케',
-    cover: 'https://image.aladin.co.kr/product/25056/37/cover200/k682632647_1.jpg',
-    page: 25,
-    memo: '타인의 시선이 아닌 오직 자기 자신과의 깊은 대면.',
-    tags: ['문학', '창작', '예술'],
-    likes: 0,
-    time: '어제'
-  },
-  {
-    id: 'cs_22',
-    text: '한 권의 책은 우리 안의 얼어붙은 바다를 깨부수는 도끼여야 한다.',
-    bookTitle: '변신',
-    author: '프란츠 카프카',
-    cover: 'https://image.aladin.co.kr/product/37480/50/cover200/k522032917_1.jpg',
-    page: 12,
-    memo: '안온함에 취해 무뎌진 감각을 날카롭게 깨우는 독서의 본령.',
-    tags: ['독서', '카프카', '사유'],
-    likes: 0,
-    time: '어제'
-  },
-  {
-    id: 'cs_23',
-    text: '내가 어둠을 바라볼 때, 어둠 또한 나를 바라본다.',
-    bookTitle: '종의 기원',
-    author: '정유정',
-    cover: 'https://image.aladin.co.kr/product/7492/9/cover200/8956609950_2.jpg',
-    page: 180,
-    memo: '금기를 넘어서는 인간의 어두운 본능에 대한 섬뜩한 질문.',
-    tags: ['스릴러', '심리', '인간'],
-    likes: 0,
-    time: '어제'
-  },
-  {
-    id: 'cs_24',
-    text: '진정한 발견의 여정은 새로운 풍경을 찾는 것이 아니라, 새로운 눈을 갖는 것이다.',
-    bookTitle: '잃어버린 시간을 찾아서',
-    author: '마르셀 프루스트',
-    cover: 'https://image.aladin.co.kr/product/1960/90/cover200/8937485613_1.jpg',
-    page: 440,
-    memo: '세상을 새롭게 감각하는 눈이야말로 독서가 우리에게 주는 가장 큰 선물.',
-    tags: ['고전', '통찰', '발견'],
-    likes: 0,
-    time: '어제'
-  },
-  {
-    id: 'cs_25',
-    text: '기억은 기록되지 않으면 안개처럼 흩어져 버린다. 쓰는 행위만이 기억에 형태를 부여한다.',
-    bookTitle: '눈먼 자들의 도시',
-    author: '주제 사라마구',
-    cover: 'https://image.aladin.co.kr/product/30307/98/cover200/k392839030_1.jpg',
-    page: 290,
-    memo: '망각의 강에서 우리가 건져 올려야 할 기록의 가치.',
-    tags: ['소설', '기록', '인간'],
-    likes: 0,
-    time: '2일 전'
-  },
-  {
-    id: 'cs_26',
-    text: '우리가 진정으로 두려워해야 할 유일한 것은 두려움 그 자체이다.',
-    bookTitle: '페스트',
-    author: '알베르 카뮈',
-    cover: 'https://image.aladin.co.kr/product/1126/73/cover200/s937462672_2.jpg',
-    page: 175,
-    memo: '재난과 혼돈 속에서도 묵묵히 자신의 자리를 지키는 이들의 연대.',
-    tags: ['문학', '용기', '연대'],
-    likes: 0,
-    time: '2일 전'
-  },
-  {
-    id: 'cs_27',
-    text: '책 속에는 우리가 아직 가보지 못한 수만 개의 삶이 숨 쉬고 있다.',
-    bookTitle: '책 읽는 뇌',
-    author: '매리언 울프',
-    cover: 'https://image.aladin.co.kr/product/34152/40/cover200/k022931499_1.jpg',
-    page: 112,
-    memo: '타인의 삶에 공감하는 기적을 일으키는 뇌의 마법.',
-    tags: ['뇌과학', '독서', '공감'],
-    likes: 0,
-    time: '2일 전'
-  },
-  {
-    id: 'cs_28',
-    text: '침묵은 때로 어떤 화려한 웅변보다도 강렬한 울림을 지닌다.',
-    bookTitle: '채식주의자',
-    author: '한강',
-    cover: 'https://image.aladin.co.kr/product/29137/2/cover200/8936434594_2.jpg',
-    page: 145,
-    memo: '말을 잃어버린 침묵 속에서 터져 나오는 존재의 절규.',
-    tags: ['문학', '침묵', '한강'],
-    likes: 0,
-    time: '3일 전'
-  },
-  {
-    id: 'cs_29',
-    text: '행복한 가정은 모두 엇비슷하지만, 불행한 가정은 각기 다른 이유로 불행하다.',
-    bookTitle: '안나 카레니나',
-    author: '레프 톨스토이',
-    cover: 'https://image.aladin.co.kr/product/2090/89/cover200/8937486075_3.jpg',
-    page: 9,
-    memo: '세계 문학사상 가장 완벽하고 강렬한 첫 문장.',
-    tags: ['고전', '인생', '첫문장'],
-    likes: 0,
-    time: '3일 전'
-  },
-  {
-    id: 'cs_30',
-    text: '독서는 타인의 생각을 빌려 나의 생각을 직조해 내는 가장 고결한 대화이다.',
-    bookTitle: '문장의 온도',
-    author: '이기주',
-    cover: 'https://image.aladin.co.kr/product/12985/30/cover200/k292532799_1.jpg',
-    page: 78,
-    memo: '책장을 넘기며 나와 마주하는 고요하고 깊은 시간.',
-    tags: ['에세이', '독서', '마음'],
-    likes: 0,
-    time: '3일 전'
-  }
-];
+const SEED_COMMUNITY_SCRAPS = [];
 
 /* ==============================================
    COMMUNITY TIME & DATA HELPERS
@@ -7994,6 +7637,7 @@ function getBookGroupingKey(b) {
 // 파일 불러오기(Notion 가져오기 등) 및 각 서재 데이터의 소유자를 단일 독서가로 정합성 있게 식별
 function resolveCommunityBookOwner(b, source) {
   if (!b) return 'unknown_user';
+  if (b._ownerId) return b._ownerId;
 
   // 1. 도서 객체에 저장된 user_id 우선 확인
   const uid = b.user_id ? String(b.user_id) : '';
@@ -8007,11 +7651,12 @@ function resolveCommunityBookOwner(b, source) {
   if (bid.includes('1df9f1ae-d5bf-4076-bd1d-b3f32916b216') || bid.includes('1df9f1ae')) return 'user_owner_neo';
 
   // 3. 데이터셋 소스별 기본 독서가 매핑
-  if (source === 'oha_dataset') return 'user_owner_oha';
-  if (source === 'neo_dataset') return 'user_owner_neo';
+  const effSource = source || b._source || '';
+  if (effSource === 'oha_dataset') return 'user_owner_oha';
+  if (effSource === 'neo_dataset') return 'user_owner_neo';
 
   // 4. 로컬 서재 도서인 경우 현재 로그인 사용자 기준 식별
-  if (source === 'local') {
+  if (effSource === 'local') {
     if (currentUser && currentUser.id) {
       if (currentUser.id === '7396cf84-8b75-4617-a050-5ed974fcbe02' || (currentUser.email && currentUser.email.toLowerCase().includes('thejs2050'))) {
         return 'user_owner_oha';
@@ -8021,9 +7666,13 @@ function resolveCommunityBookOwner(b, source) {
       }
       return 'user_' + currentUser.id;
     }
+    return 'user_local';
   }
 
-  return 'remote_anon_' + (bid || 'unknown');
+  if (b.user_email) return 'user_email_' + String(b.user_email).toLowerCase().trim();
+  if (b.owner) return 'user_owner_' + String(b.owner).trim();
+
+  return 'remote_user_' + (bid || 'anon');
 }
 
 function getAllCommunityBooks() {
@@ -8055,6 +7704,8 @@ function getAllCommunityBooks() {
           map.set(existingKey, {
             ...eb,
             ...b,
+            _source: source,
+            _ownerId: ownerId,
             cover: (bHasAladin || !ebHasAladin) ? (b.cover || eb.cover) : eb.cover,
             spineCover: (b.spineCover && b.spineCover.includes('image.aladin.co.kr')) ? b.spineCover : (eb.spineCover || b.spineCover),
             id: existingKey
@@ -8064,7 +7715,11 @@ function getAllCommunityBooks() {
       return;
     }
     seenUserTitle.add(userTitleKey);
-    map.set(b.id, b);
+    map.set(b.id, {
+      ...b,
+      _source: source,
+      _ownerId: ownerId
+    });
   }
 
   // 1. Remote community books from Supabase across all users (공개 도서만 포함)
@@ -9054,7 +8709,12 @@ function getCommunityScrapsList() {
           tags: s.tags || s.keywords || [],
           likes: 0,
           rawTime: rawTime,
-          time: formatTimeAgo(scrapTime)
+          time: formatTimeAgo(scrapTime),
+          // 독서가 1인당 1닉네임 일치를 위한 소유자 정보 전달
+          user_id: b.user_id,
+          _source: b._source,
+          _ownerId: b._ownerId || resolveCommunityBookOwner(b, b._source),
+          nickname: b.nickname
         });
       });
     }
@@ -9063,23 +8723,8 @@ function getCommunityScrapsList() {
   // 문장 자체의 등록 시각(rawTime) 기준으로 모든 유저에게 완벽히 동일한 최신순(내림차순) 정렬!
   userScraps.sort((a, b) => b.rawTime - a.rawTime);
 
-  if (userScraps.length >= 30) {
-    return userScraps.slice(0, 30);
-  }
-
-  const combined = [...userScraps];
-  SEED_COMMUNITY_SCRAPS.forEach(ss => {
-    if (combined.length < 30 && !combined.some(s => s.text === ss.text)) {
-      const matched = bookByTitle.get((ss.bookTitle || '').trim().toLowerCase());
-      combined.push({
-        ...ss,
-        bookId: matched ? matched.id : (ss.bookId || ''),
-        cover: (matched && matched.cover) ? matched.cover : (ss.cover || ''),
-        likes: 0
-      });
-    }
-  });
-  return combined.slice(0, 30);
+  // 더미 데이터 병합을 완전히 제거하고 실제 독서가의 문장만 반환
+  return userScraps;
 }
 
 function renderCommunityScraps() {
@@ -9089,6 +8734,15 @@ function renderCommunityScraps() {
   const list = getCommunityScrapsList();
   const countEl = document.getElementById('comm-scraps-count');
   if (countEl) countEl.remove();
+
+  if (!list || list.length === 0) {
+    container.innerHTML = `
+      <div class="comm-empty-scraps" style="grid-column: 1 / -1; width: 100%; text-align: center; padding: 48px 16px; color: var(--text-sub); font-size: 14px; line-height: 1.6;">
+        아직 등록된 이웃 독서가의 문장이 없습니다.<br>책을 읽고 마음에 와닿은 문장을 남겨보세요.
+      </div>
+    `;
+    return;
+  }
 
   let storedLikes = {};
   try {
