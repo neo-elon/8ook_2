@@ -4750,6 +4750,14 @@ mark.search-highlight {
 /* ======================================
    LARGE TEXT MODE (큰글자 모드)
    ====================================== */
+html.large-text-mode {
+  font-size: 18px !important;
+}
+
+body.large-text-mode {
+  font-size: 17px !important;
+}
+
 .menu-toggle-badge {
   font-size: 10px;
   font-weight: 700;
@@ -4768,152 +4776,138 @@ mark.search-highlight {
   box-shadow: 0 2px 6px rgba(140, 98, 57, 0.25);
 }
 
-/* 1. 문장 보관함 (Scraps Archive) */
-body.large-text-mode .scrap-card-body {
-  font-size: 17.5px !important;
-  line-height: 1.8 !important;
-  letter-spacing: -0.3px;
-}
-body.large-text-mode .scrap-card-body::before,
-body.large-text-mode .scrap-card-body::after {
-  font-size: 21px !important;
-}
-body.large-text-mode .scrap-card-title {
-  font-size: 16.5px !important;
-  font-weight: 700;
-}
-body.large-text-mode .scrap-card-sub {
-  font-size: 13.5px !important;
-}
-body.large-text-mode .scrap-card-meta {
-  gap: 4px !important;
-}
-body.large-text-mode .comm-scrap-memo {
-  font-size: 15px !important;
-  line-height: 1.65 !important;
-}
-body.large-text-mode .scrap-tag-chip {
-  font-size: 13px !important;
-  padding: 4px 10px !important;
-}
-body.large-text-mode .scrap-filter-pill {
-  font-size: 14px !important;
-  padding: 6px 14px !important;
-}
-body.large-text-mode .scraps-hero-title {
-  font-size: 30px !important;
-}
-body.large-text-mode .scraps-hero-subtitle {
-  font-size: 14.5px !important;
-}
-body.large-text-mode .scraps-tab-btn {
-  font-size: 14px !important;
-  padding: 6px 14px !important;
-}
-body.large-text-mode .scraps-archive-input {
-  font-size: 15px !important;
+/* ── 1. 핵심 본문 (문장 보관함, 북클럽, 도서 상세 한 문장 및 수집 문장 전수 확대) ── */
+body.large-text-mode .scrap-card-body,
+body.large-text-mode .comm-scrap-text,
+body.large-text-mode .scrap-quote,
+body.large-text-mode .detail-sentence,
+body.large-text-mode .detail-sentence * {
+  font-size: 20px !important;
+  line-height: 1.85 !important;
+  letter-spacing: -0.35px !important;
 }
 
-/* 2. 북클럽 문장 스트림 (Community Scraps) */
-body.large-text-mode .comm-scrap-text {
-  font-size: 17.5px !important;
-  line-height: 1.8 !important;
-  letter-spacing: -0.3px;
-}
+body.large-text-mode .scrap-card-body::before,
+body.large-text-mode .scrap-card-body::after,
 body.large-text-mode .comm-scrap-text::before,
-body.large-text-mode .comm-scrap-text::after {
-  font-size: 21px !important;
+body.large-text-mode .comm-scrap-text::after,
+body.large-text-mode .scrap-quote::before,
+body.large-text-mode .scrap-quote::after {
+  font-size: 24px !important;
 }
-body.large-text-mode .comm-scrap-title {
+
+/* ── 2. 메모, 감상평, 내 생각 본문 ── */
+body.large-text-mode .comm-scrap-memo,
+body.large-text-mode .comm-scrap-memo-wrap .comm-scrap-memo,
+body.large-text-mode .scrap-memo,
+body.large-text-mode .detail-field-txt {
   font-size: 16.5px !important;
-  font-weight: 700;
+  line-height: 1.75 !important;
 }
-body.large-text-mode .comm-scrap-sub {
+
+/* ── 3. 도서 상세 뷰 ── */
+body.large-text-mode .detail-title {
+  font-size: 30px !important;
+  line-height: 1.35 !important;
+}
+body.large-text-mode .detail-subtitle {
+  font-size: 18px !important;
+}
+body.large-text-mode .detail-author {
+  font-size: 17px !important;
+}
+body.large-text-mode .detail-sec-title,
+body.large-text-mode .scraps-htitle {
+  font-size: 18px !important;
+}
+body.large-text-mode .detail-chips .chip,
+body.large-text-mode .scrap-page,
+body.large-text-mode .scraps-badge {
   font-size: 13.5px !important;
-}
-body.large-text-mode .comm-scrap-tag {
-  font-size: 13px !important;
   padding: 4px 10px !important;
 }
-body.large-text-mode .comm-book-title {
-  font-size: 15.5px !important;
-  font-weight: 700;
+
+/* ── 4. 문장카드 헤더 & 메타 정보 ── */
+body.large-text-mode .scrap-card-title,
+body.large-text-mode .comm-scrap-title {
+  font-size: 17.5px !important;
+  font-weight: 700 !important;
 }
+body.large-text-mode .scrap-card-sub,
+body.large-text-mode .comm-scrap-sub {
+  font-size: 14px !important;
+}
+body.large-text-mode .scrap-tag-chip,
+body.large-text-mode .comm-scrap-tag {
+  font-size: 13.5px !important;
+  padding: 5px 12px !important;
+}
+body.large-text-mode .scrap-filter-pill {
+  font-size: 14.5px !important;
+  padding: 6px 14px !important;
+}
+body.large-text-mode .scraps-hero-title,
+body.large-text-mode .community-hero-title {
+  font-size: 30px !important;
+}
+body.large-text-mode .scraps-hero-subtitle,
+body.large-text-mode .community-hero-subtitle {
+  font-size: 15px !important;
+}
+body.large-text-mode .scraps-tab-btn,
+body.large-text-mode .comm-tab-btn {
+  font-size: 14.5px !important;
+  padding: 7px 16px !important;
+}
+body.large-text-mode .scraps-archive-input {
+  font-size: 15.5px !important;
+}
+
+/* ── 5. 메인 책장 도서 카드 및 오버레이 문장 ── */
+body.large-text-mode .book-card-title,
+body.large-text-mode .comm-book-title {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+}
+body.large-text-mode .book-card-author,
 body.large-text-mode .comm-book-author {
   font-size: 13.5px !important;
 }
-body.large-text-mode .comm-tab-btn {
-  font-size: 14.5px !important;
-  padding: 8px 18px !important;
+body.large-text-mode .book-card-date {
+  font-size: 12.5px !important;
 }
-
-/* 3. 도서 상세 뷰 (Book Detail View) */
-body.large-text-mode .detail-title {
-  font-size: 27px !important;
-  line-height: 1.35 !important;
-}
-body.large-text-mode .detail-author {
-  font-size: 16px !important;
-}
-body.large-text-mode .detail-field-txt {
-  font-size: 15.5px !important;
-  line-height: 1.7 !important;
-}
-body.large-text-mode .detail-sec-title {
-  font-size: 16.5px !important;
-}
-body.large-text-mode .scrap-quote {
+body.large-text-mode .shelf-group-header {
   font-size: 17.5px !important;
-  line-height: 1.8 !important;
 }
-body.large-text-mode .scrap-quote::before,
-body.large-text-mode .scrap-quote::after {
-  font-size: 21px !important;
-}
-body.large-text-mode .scrap-memo {
+body.large-text-mode .book-hover-sentence,
+body.large-text-mode .ov-sentence {
   font-size: 15px !important;
   line-height: 1.65 !important;
 }
-body.large-text-mode .scrap-page {
-  font-size: 13px !important;
-}
-body.large-text-mode .detail-chips .chip {
-  font-size: 13px !important;
-  padding: 4px 10px !important;
-}
-
-/* 4. 메인 책장 (Gallery View & Spine) */
-body.large-text-mode .book-card-title {
-  font-size: 15px !important;
-  font-weight: 700;
-}
-body.large-text-mode .book-card-author {
-  font-size: 12.5px !important;
-}
-body.large-text-mode .book-card-date {
-  font-size: 12px !important;
-}
-body.large-text-mode .shelf-group-header {
-  font-size: 16.5px !important;
-}
 body.large-text-mode .spine-item .spine-label,
 body.large-text-mode .book-spine-text {
-  font-size: 13.5px !important;
-  font-weight: 600;
+  font-size: 14px !important;
+  font-weight: 600 !important;
 }
 
-/* 5. 메뉴 및 헤더 */
+/* ── 6. 메뉴, 버튼 및 통계 뷰 ── */
 body.large-text-mode .menu-nav-title {
-  font-size: 14.5px !important;
+  font-size: 15px !important;
 }
 body.large-text-mode .menu-nav-desc {
-  font-size: 12px !important;
+  font-size: 12.5px !important;
 }
 body.large-text-mode #view-label {
-  font-size: 13.5px !important;
+  font-size: 14px !important;
   padding: 5px 14px !important;
 }
 body.large-text-mode #random-quote-text {
-  font-size: 16.5px !important;
-  line-height: 1.75 !important;
+  font-size: 18px !important;
+  line-height: 1.8 !important;
+}
+body.large-text-mode .stat-num {
+  font-size: 30px !important;
+}
+body.large-text-mode .stat-label {
+  font-size: 13px !important;
 }

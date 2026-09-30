@@ -540,8 +540,10 @@ function loadLargeTextMode() {
 
 function applyLargeTextMode(enabled, showToast = false) {
   if (enabled) {
+    document.documentElement.classList.add('large-text-mode');
     document.body.classList.add('large-text-mode');
   } else {
+    document.documentElement.classList.remove('large-text-mode');
     document.body.classList.remove('large-text-mode');
   }
 
