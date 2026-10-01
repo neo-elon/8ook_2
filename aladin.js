@@ -382,7 +382,27 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
   // Normalize items from XML array or raw JSON response
   let items = [];
   if (Array.isArray(data)) {
-    items = data;
+    items = data.map(item => {
+      let pagesVal = (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) ||
+        (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
+        (item.bookinfo ? (item.bookinfo.itemPage || item.bookinfo.itempage) : null) ||
+        item.itemPage || item.itempage || '';
+      let pages = pagesVal ? String(pagesVal).replace(/[^0-9]/g, '') : '';
+      let author = item.author || '';
+      let cleanAuthor = author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '');
+      let cover = (item.cover || '').replace('/coversum/', '/cover500/').replace('/cover200/', '/cover500/');
+      return {
+        title: decodeHtml(item.title || ''),
+        author: decodeHtml(cleanAuthor),
+        cover: cover,
+        publisher: decodeHtml(item.publisher || ''),
+        pubDate: item.pubDate || '',
+        pages: pages,
+        itemId: item.itemId || item.itemid || '',
+        isbn: item.isbn || '',
+        isbn13: item.isbn13 || ''
+      };
+    });
   } else if (data && data.item) {
     items = data.item.map(item => {
       let pagesVal = (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) ||
