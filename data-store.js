@@ -53,8 +53,6 @@ async function loadData() {
   if (!supabaseClient || !currentUser) {
     // Logged-out/guest view is intentionally isolated from any previously
     // imported or cached library data. Show only the built-in user guide.
-    // Do not delete localStorage here: legacy guest data may still be needed
-    // for migration after the user signs in.
     books = [];
     ensureUserGuideBook();
     bootstrapTagLearningFromLibrary();
@@ -117,7 +115,6 @@ async function loadData() {
   } catch (e) {
     console.error('Supabase load error:', e);
     // Signed-in libraries use Supabase as the sole source of truth.
-    // Never revive stale rj_books_<uid> data after a server/load failure.
     books = [];
     toast('서재 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.', 3500);
     bootstrapTagLearningFromLibrary();
