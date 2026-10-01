@@ -2281,7 +2281,7 @@ function showDetail(id, direction = null, pushHistory = true) {
 
   const chips = [];
   if (book.pages) chips.push(`<div class="chip">${Number(book.pages).toLocaleString()}p</div>`);
-  if (book.date) chips.push(`<div class="chip">${fmtDate(book.date)}</div>`);
+  if (book.date) chips.push(`<div class="chip">${esc(fmtDate(book.date))}</div>`);
   if (book.is_public === false) {
     chips.push(`<div class="chip" style="background:rgba(239,68,68,0.15); color:#f87171; border-color:rgba(239,68,68,0.3);" title="내 서재에만 보이고 북클럽에는 비공개됩니다">🔒 비공개</div>`);
   }
@@ -2436,12 +2436,12 @@ function buildScrapsHtml(book) {
       : '';
 
     return `
-    <div class="scrap-item" id="${sId}" style="order:${idx};">
+    <div class="scrap-item" id="${esc(sId)}" style="order:${idx};">
       <div class="scrap-quote">${esc(sText)}</div>
       ${sMemo ? `<div class="comm-scrap-memo-wrap"><div class="comm-scrap-memo">${esc(sMemo)}</div></div>` : ''}
       ${tagsHtml}
       <div class="scrap-foot" style="display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; width:100%; margin-top:4px;">
-        ${sPage ? `<span class="scrap-page">p.${sPage}</span>` : ''}
+        ${sPage ? `<span class="scrap-page">p.${esc(sPage)}</span>` : ''}
         <div class="scrap-actions" style="margin-left:auto; display:flex; gap:6px;">
           <button class="btn btn-ghost btn-sm" ${libraryEventAttrs('copyScrapQuoteText', [sText, book.title || '', book.author || ''])} style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;" title="문장 복사">복사</button>
           ${isGuide ? '' : `
@@ -2777,8 +2777,11 @@ function setPrev(src) {
   if (!src) { resetPrev(); return; }
   const el = document.getElementById('book-prev');
   if (!el) return;
-  el.innerHTML =
-    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="handlePrevError(this)">`;
+  const img = document.createElement('img');
+  img.style.cssText = "width:100%; height:100%; object-fit:cover; display:block;";
+  img.onerror = () => handlePrevError(img);
+  img.src = getSafeImageUrl(src);
+  el.replaceChildren(img);
 }
 
 function resetPrev() {
@@ -2794,8 +2797,11 @@ function setSpinePrev(src) {
   }
   const el = document.getElementById('spine-prev');
   if (!el) return;
-  el.innerHTML =
-    `<img src="${getSafeImageUrl(src)}" style="width:100%; height:100%; object-fit:fill; display:block;" onerror="handleSpinePrevError(this)">`;
+  const img = document.createElement('img');
+  img.style.cssText = "width:100%; height:100%; object-fit:fill; display:block;";
+  img.onerror = () => handleSpinePrevError(img);
+  img.src = getSafeImageUrl(src);
+  el.replaceChildren(img);
 }
 
 function resetSpinePrev() {
@@ -3192,13 +3198,13 @@ function runAladinLookUpJsonp(isbn, key, results, isBarcodeScan = false) {
           if (kwData && kwData.item && kwData.item.length > 0) {
             handleAladinResults(kwData.item, isBarcodeScan, isbn);
           } else {
-            results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})<br><span style="font-size:12px; opacity:0.8; margin-top:6px; display:inline-block;">도서 제목이나 저자명으로 직접 검색해 보세요.</span></div>`;
+            results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${esc(isbn)})<br><span style="font-size:12px; opacity:0.8; margin-top:6px; display:inline-block;">도서 제목이나 저자명으로 직접 검색해 보세요.</span></div>`;
           }
         };
         scriptKw.onerror = function () {
           delete window[cbNameKw];
           scriptKw.remove();
-          results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${isbn})</div>`;
+          results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${esc(isbn)})</div>`;
         };
         document.body.appendChild(scriptKw);
       };
@@ -4362,7 +4368,7 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
       <div class="search-item-info">
         <div class="search-item-title">${esc(title)}</div>
         <div class="search-item-author">${esc(author)}</div>
-        <div class="search-item-meta">${esc(publisher)}${pubDate ? ' · ' + pubDate : ''}${pages ? ' · ' + pages + 'p' : ''}</div>
+        <div class="search-item-meta">${esc(publisher)}${pubDate ? ' · ' + esc(pubDate) : ''}${pages ? ' · ' + esc(pages) + 'p' : ''}</div>
       </div>
     </div>`;
   });
@@ -5396,15 +5402,15 @@ function renderScrapsArchive() {
     const bookMainTitle = bookTitleParts.main || book.title;
 
     return `
-      <div class="scrap-card-full" id="archive-sc-${scrap.id}" style="order:${idx};">
+      <div class="scrap-card-full" id="archive-sc-${esc(scrap.id)}" style="order:${idx};">
         <div class="scrap-card-header">
           ${coverHtml}
           <div class="scrap-card-meta">
             <div class="scrap-card-title" ${libraryEventAttrs('showDetail', [book.id])}>${esc(bookMainTitle)}</div>
             <div class="scrap-card-sub">
               <span>${esc(book.author || '저자 미상')}</span>
-              ${book.date ? `<span title="도서 완독일">• 완독 ${fmtDate(book.date)}</span>` : (scrap.at ? `<span>• ${fmtDate(scrap.at.slice(0, 10))}</span>` : '')}
-              ${scrap.page ? `<span>• p.${scrap.page}</span>` : ''}
+              ${book.date ? `<span title="도서 완독일">• 완독 ${esc(fmtDate(book.date))}</span>` : (scrap.at ? `<span>• ${esc(fmtDate(scrap.at.slice(0, 10)))}</span>` : '')}
+              ${scrap.page ? `<span>• p.${esc(scrap.page)}</span>` : ''}
             </div>
           </div>
         </div>
@@ -5476,7 +5482,7 @@ function openInlineScrapMemo(bookId, scrapId) {
   box.className = 'scrap-inline-memo-box';
   box.id = `inline-memo-box-${scrapId}`;
   box.innerHTML = `
-    <textarea class="scrap-inline-memo-input" id="inline-memo-input-${scrapId}" placeholder="이 문장을 읽고 든 생각이나 감상을 기록해보세요..." rows="2">${esc(currentMemo)}</textarea>
+    <textarea class="scrap-inline-memo-input" id="inline-memo-input-${esc(scrapId)}" placeholder="이 문장을 읽고 든 생각이나 감상을 기록해보세요..." rows="2">${esc(currentMemo)}</textarea>
     <div class="scrap-inline-memo-actions">
       <button type="button" class="btn btn-ghost btn-sm" ${libraryEventAttrs('cancelInlineScrapMemo', [scrapId])} style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">취소</button>
       <button type="button" class="btn btn-sm" ${libraryEventAttrs('saveInlineScrapMemo', [bookId, scrapId])} style="padding:2px 10px; font-size:11px; height:24px; border-radius:4px; background:var(--violet); color:#fff; border:none; cursor:pointer;">저장</button>
@@ -7986,7 +7992,7 @@ function filterProfileBookPicker() {
         }
         <div class="profile-picker-item-info">
           <span class="profile-picker-item-title">${esc(b.title)}</span>
-          <span class="profile-picker-item-author">${esc(b.author || '저자 미상')} ${b.rating ? `• ★${b.rating}` : ''}</span>
+          <span class="profile-picker-item-author">${esc(b.author || '저자 미상')} ${b.rating ? `• ★${esc(b.rating)}` : ''}</span>
         </div>
       </div>
     `;
@@ -8749,7 +8755,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
           <div class="comm-book-user-bar">
             <span class="comm-book-user" ${communityEventAttrs('openUserProfileCard', [ownerNick, b.user_id || b._ownerId || ''], 'onclick')} style="cursor: pointer;" title="${esc(ownerNick)}님의 프로필 보기"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span></span>
             ${isMe ? '<span class="comm-my-badge">나</span>' : ''}
-            ${b.date ? `<span class="comm-book-time" title="${esc(b.timeTooltip || `도서 완독일: ${fmtDate(b.date)}`)}">• 완독 ${fmtDate(b.date)}</span>` : (b.time ? `<span class="comm-book-time" title="${esc(b.timeTooltip || '')}">• ${esc(b.time)}</span>` : '')}
+            ${b.date ? `<span class="comm-book-time" title="${esc(b.timeTooltip || `도서 완독일: ${fmtDate(b.date)}`)}">• 완독 ${esc(fmtDate(b.date))}</span>` : (b.time ? `<span class="comm-book-time" title="${esc(b.timeTooltip || '')}">• ${esc(b.time)}</span>` : '')}
           </div>
           <div class="comm-book-title" ${communityEventAttrs('showDetail', [bid], 'onclick')}>${esc(mainTitle)}</div>
           <div class="comm-book-author-row">
@@ -10374,7 +10380,7 @@ function renderCommunityScraps() {
           <div class="comm-scrap-meta">
             <div class="comm-scrap-user-bar">
               <span class="comm-scrap-owner-wrap" ${communityEventAttrs('openUserProfileCard', [ownerNick, s.user_id || s._ownerId || ''], 'onclick')} style="cursor: pointer;" title="${esc(ownerNick)}님의 프로필 보기"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span>${isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>
-              ${s.bookDate ? `<span class="comm-scrap-time" title="도서 완독일: ${fmtDate(s.bookDate)}">• 완독 ${fmtDate(s.bookDate)}</span>` : (s.time ? `<span class="comm-scrap-time">• ${esc(s.time)}</span>` : '')}
+              ${s.bookDate ? `<span class="comm-scrap-time" title="도서 완독일: ${esc(fmtDate(s.bookDate))}">• 완독 ${esc(fmtDate(s.bookDate))}</span>` : (s.time ? `<span class="comm-scrap-time">• ${esc(s.time)}</span>` : '')}
             </div>
             <div class="comm-scrap-title" ${clickDetail}>${esc(mainTitle)}</div>
             <div class="comm-scrap-sub">
