@@ -47,12 +47,11 @@ function saveData() {
   markGalleryDirty();
   try {
     if (currentUser) {
-      // 로그인 사용자 로컬 저장소 (가이드북/좋아요/댓글/프로필 레코드 제외)
-      const userBooks = books.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
-      localStorage.setItem(`rj_books_${currentUser.id}`, JSON.stringify(userBooks));
+      // Supabase is the single source of truth for signed-in libraries.
+      // Existing rj_books_<uid> values are retained only as a legacy emergency fallback;
+      // do not keep writing a second copy that can drift from the server.
     } else {
       // Logged-out mode is read-only and shows only the built-in guide.
-      // Do not create a separate guest library; signed-in Supabase is the SSOT.
     }
   } catch (e) { }
 }
