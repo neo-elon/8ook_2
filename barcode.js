@@ -105,16 +105,10 @@ function closeBarcodeScannerModal() {
 }
 
 async function _initBarcodeEngines() {
-  console.info('[8ook barcode] init', {
-    wasm: typeof ZXingWASM !== 'undefined',
-    native: 'BarcodeDetector' in window,
-    legacy: typeof ZXing !== 'undefined'
-  });
   // 1. Pre-warm ZXingWASM WebAssembly engine
   if (typeof ZXingWASM !== 'undefined' && ZXingWASM.prepareZXingModule) {
     try {
       await ZXingWASM.prepareZXingModule();
-      console.info('[8ook barcode] WASM module ready');
     } catch (e) {
       console.warn('[8ook barcode] WASM prepare error', e);
     }
@@ -129,7 +123,6 @@ async function _initBarcodeEngines() {
         if (supported && supported.includes('ean_13')) {
           formats = formats.filter(f => supported.includes(f));
           nativeBarcodeDetectorInstance = new BarcodeDetector({ formats });
-          console.info('[8ook barcode] native ready', formats);
         } else {
           nativeBarcodeDetectorInstance = null;
         }
@@ -159,7 +152,6 @@ async function _initBarcodeEngines() {
         if (formats.length) hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
       }
       sharedZXingReaderInstance = new ZXing.BrowserMultiFormatReader(hints);
-      console.info('[8ook barcode] legacy ZXing ready');
     } catch (e) {
       console.warn('ZXing init error:', e);
     }
@@ -286,8 +278,6 @@ async function _startBarcodeCamera(facing) {
       zoomBtn.style.background = barcodeCurrentZoom > 1 ? '#c99365' : 'rgba(0,0,0,0.6)';
       zoomBtn.style.color = barcodeCurrentZoom > 1 ? '#000' : '#fff';
     }
-
-    console.info('[8ook barcode] camera ready', { width: video.videoWidth, height: video.videoHeight, facing });
     _setBarcodeScannerStatus('자동 스캔 중 (AI/WASM)', '#34d399');
     _startBarcodeScanLoop();
   } catch (err) {
@@ -550,12 +540,6 @@ function _startBarcodeScanLoop() {
                 binarizer: binarizerType,
                 maxNumberOfSymbols: 4
               });
-              if (frameCounter === 1 || frameCounter % 30 === 0) {
-                console.info('[8ook barcode] WASM result', {
-                  count: Array.isArray(results) ? results.length : -1,
-                  sample: Array.isArray(results) ? results.slice(0, 3).map(r => ({ text: r.text, format: r.format, error: r.error })) : results
-                });
-              }
               if (results && results.length > 0) {
                 const codes = results.map(r => r.text).filter(Boolean);
                 const best = pickBestBookBarcode(codes);
@@ -567,7 +551,6 @@ function _startBarcodeScanLoop() {
             } catch (err) {
               if (frameCounter === 1 || frameCounter % 60 === 0) console.warn('[8ook barcode] WASM frame error', err);
             }
-            if (frameCounter === 1) console.info('[8ook barcode] WASM first frame processed');
           }
 
           // ── Tier 2: Native BarcodeDetector (Zero-copy GPU Hardware Accelerated) ──
@@ -605,12 +588,10 @@ function _startBarcodeScanLoop() {
                 if (text) detected = { code: text };
               }
             } catch (err) {
-              if (frameCounter === 2 || frameCounter % 60 === 0) console.warn('[8ook barcode] legacy frame error', err);
             }
           }
 
           if (detected && detected.code) {
-            console.info('[8ook barcode] detected', detected.code);
             barcodeAutoScanningActive = false;
             if (detected.position) {
               _drawTrackingBoxFromPosition(detected.position, video, detected.canvasW, detected.canvasH);
