@@ -1,5 +1,10 @@
 'use strict';
 
+// Aladin TTB API key helper (restored from pre-refactor app.js)
+function getApiKey() {
+  return 'ttbparkq0072106001';
+}
+
 /* Aladin book search, JSONP lookup, sorting, selection, and page-detail helpers. */
 
 function hideSearchResults() {
