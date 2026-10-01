@@ -8631,6 +8631,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
 
   const comments = getBookComments(bid);
   const commentCount = comments.length;
+  const hasComments = commentCount > 0;
 
   return `
     <div class="comm-book-card" id="comm-bk-${esc(bid)}">
@@ -8653,7 +8654,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
       <div class="comm-book-meta">
         ${keywordsHtml}
         <div class="comm-book-meta-right">
-          <button type="button" class="comm-book-comment-btn" id="comm-cmt-toggle-btn-${esc(bid)}" onclick="toggleBookCommentsSection('${esc(bid)}', event)" title="말풍선 댓글 보기 및 작성">
+          <button type="button" class="comm-book-comment-btn${hasComments ? ' active' : ''}" id="comm-cmt-toggle-btn-${esc(bid)}" onclick="toggleBookCommentsSection('${esc(bid)}', event)" title="${hasComments ? '말풍선 댓글 작성하기' : '말풍선 댓글 보기 및 작성'}">
             <span class="comm-comment-icon">💬</span> <span id="comm-cmt-cnt-${esc(bid)}">${commentCount}</span>
           </button>
           <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
@@ -8661,7 +8662,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
           </button>
         </div>
       </div>
-      <div class="comm-book-comments-sec collapsed" id="comm-cmts-sec-${esc(bid)}">
+      <div class="comm-book-comments-sec${hasComments ? '' : ' collapsed'}" id="comm-cmts-sec-${esc(bid)}">
         <div class="comm-comments-list" id="comm-cmts-list-${esc(bid)}">
           ${renderCommentsListHtml(bid, comments)}
         </div>
@@ -9792,15 +9793,30 @@ function toggleBookCommentsSection(bookId, event) {
   const strId = String(bookId);
   const sec = document.getElementById('comm-cmts-sec-' + strId);
   if (!sec) return;
+  const comments = getBookComments(strId);
+  const input = document.getElementById('comm-cmt-input-' + strId);
+
+  // 댓글이 달린 카드는 댓글창을 열어서 고정 (아이콘 클릭 시 닫히지 않고 입력창으로 바로 포커스)
+  if (comments && comments.length > 0) {
+    sec.classList.remove('collapsed');
+    const btn = document.getElementById('comm-cmt-toggle-btn-' + strId);
+    if (btn) btn.classList.add('active');
+    if (input) {
+      input.focus();
+      input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    return;
+  }
+
+  // 댓글이 아직 없는 카드는 토글
   sec.classList.toggle('collapsed');
   const isCollapsed = sec.classList.contains('collapsed');
   const btn = document.getElementById('comm-cmt-toggle-btn-' + strId);
   if (btn) {
     btn.classList.toggle('active', !isCollapsed);
   }
-  if (!isCollapsed) {
-    const input = document.getElementById('comm-cmt-input-' + strId);
-    if (input) input.focus();
+  if (!isCollapsed && input) {
+    input.focus();
   }
 }
 
@@ -9815,6 +9831,13 @@ function updateBookCommentsUI(bookId) {
   const cntEl = document.getElementById('comm-cmt-cnt-' + strId);
   if (cntEl) {
     cntEl.textContent = String(comments.length);
+  }
+  // 댓글이 달린 도서카드는 댓글창을 열어서 고정
+  const sec = document.getElementById('comm-cmts-sec-' + strId);
+  const btn = document.getElementById('comm-cmt-toggle-btn-' + strId);
+  if (comments.length > 0) {
+    if (sec) sec.classList.remove('collapsed');
+    if (btn) btn.classList.add('active');
   }
 }
 
