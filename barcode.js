@@ -147,14 +147,15 @@ async function _initBarcodeEngines() {
       const hints = new Map();
       if (ZXing.DecodeHintType) {
         hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-        hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+        const formats = [
           ZXing.BarcodeFormat.EAN_13,
           ZXing.BarcodeFormat.EAN_8,
           ZXing.BarcodeFormat.UPC_A,
           ZXing.BarcodeFormat.UPC_E,
           ZXing.BarcodeFormat.CODE_128,
           ZXing.BarcodeFormat.CODE_39
-        ]);
+        ].filter(format => format !== undefined);
+        if (formats.length) hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
       }
       sharedZXingReaderInstance = new ZXing.BrowserMultiFormatReader(hints);
       console.info('[8ook barcode] legacy ZXing ready');
