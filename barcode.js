@@ -433,7 +433,7 @@ async function _scanFrameWithZxingWasm(canvasOrImageData, options = {}) {
   if (typeof ZXingWASM === 'undefined' || !ZXingWASM.readBarcodesFromImageData) return null;
   try {
     const opts = {
-      formats: ['EAN13', 'ISBN', 'EAN8', 'UPCA', 'UPCE', 'Code128', 'Code39'],
+      formats: ['EAN-13', 'EAN-8', 'UPC-A', 'UPC-E', 'Code 128', 'Code 39'],
       tryHarder: true,
       tryRotate: true,
       tryInvert: true,
@@ -542,7 +542,7 @@ function _startBarcodeScanLoop() {
               const imgData = barcodeProcessingCtx.getImageData(0, 0, targetW, targetH);
               const binarizerType = (frameCounter % 3 === 0) ? 'GlobalHistogram' : 'LocalAverage';
               const results = await ZXingWASM.readBarcodesFromImageData(imgData, {
-                formats: ['EAN13', 'ISBN', 'EAN8', 'UPCA', 'UPCE', 'Code128', 'Code39'],
+                formats: ['EAN-13', 'EAN-8', 'UPC-A', 'UPC-E', 'Code 128', 'Code 39'],
                 tryHarder: true,
                 tryRotate: true,
                 tryInvert: true,
@@ -771,7 +771,7 @@ async function handleBarcodeAlbumSelect(input) {
   if (typeof ZXingWASM !== 'undefined' && ZXingWASM.readBarcodes) {
     try {
       const results = await ZXingWASM.readBarcodes(file, {
-        formats: ['EAN13', 'ISBN', 'EAN8', 'UPCA', 'UPCE', 'Code128', 'Code39'],
+        formats: ['EAN-13', 'EAN-8', 'UPC-A', 'UPC-E', 'Code 128', 'Code 39'],
         tryHarder: true,
         tryRotate: true,
         tryInvert: true,
