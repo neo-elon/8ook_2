@@ -7648,6 +7648,22 @@ function getUserRepBooksStorageKey(nickname, userId) {
   return '8ook_rep_books_' + (userId || normNick);
 }
 
+function hasBookReviewText(book) {
+  if (!book) return false;
+  return Boolean(String(book.sentence || book.review || book.oneLineReview || '').trim());
+}
+
+function getBookSentenceCount(book) {
+  if (!book) return 0;
+  const scrapsCount = Array.isArray(book.scraps) ? book.scraps.length : 0;
+  return scrapsCount + (hasBookReviewText(book) ? 1 : 0);
+}
+
+function getValidRepBooks(list) {
+  if (!Array.isArray(list)) return [];
+  return list.filter(b => b && b.title).slice(0, 3);
+}
+
 function getUserRepBooks(nickname, userId) {
   const normNick = String(nickname || '').trim().replace(/^@/, '');
   const isMe = (currentUser && userId === currentUser.id) || normNick === getUserNickname();
@@ -7658,18 +7674,21 @@ function getUserRepBooks(nickname, userId) {
     const raw = localStorage.getItem(key);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.slice(0, 3);
+      const validRepBooks = getValidRepBooks(parsed);
+      if (validRepBooks.length > 0) {
+        return validRepBooks;
       }
     }
   } catch (e) {}
 
   // 2. Try in-memory community map
   if (communityRepBooksMap.has(normNick)) {
-    return communityRepBooksMap.get(normNick).slice(0, 3);
+    const validRepBooks = getValidRepBooks(communityRepBooksMap.get(normNick));
+    if (validRepBooks.length > 0) return validRepBooks;
   }
   if (userId && communityRepBooksMap.has(userId)) {
-    return communityRepBooksMap.get(userId).slice(0, 3);
+    const validRepBooks = getValidRepBooks(communityRepBooksMap.get(userId));
+    if (validRepBooks.length > 0) return validRepBooks;
   }
 
   // 3. Fallback: generate default 3 books from the user's library
@@ -7689,6 +7708,9 @@ function getUserRepBooks(nickname, userId) {
     const aHasCover = (a.cover && !a.cover.includes('data:image/svg')) ? 1 : 0;
     const bHasCover = (b.cover && !b.cover.includes('data:image/svg')) ? 1 : 0;
     if (bHasCover !== aHasCover) return bHasCover - aHasCover;
+    const aHasReview = hasBookReviewText(a) ? 1 : 0;
+    const bHasReview = hasBookReviewText(b) ? 1 : 0;
+    if (bHasReview !== aHasReview) return bHasReview - aHasReview;
     return (parseFloat(b.rating) || 0) - (parseFloat(a.rating) || 0);
   });
 
@@ -7750,7 +7772,7 @@ function openUserProfileCard(rawNickname, rawUserId, event) {
   if (isMe) {
     userBooks = (Array.isArray(books) ? books : []).filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
     userBooks.forEach(b => {
-      if (b.scraps && Array.isArray(b.scraps)) userScrapsCount += b.scraps.length;
+      userScrapsCount += getBookSentenceCount(b);
     });
   } else {
     const all = getAllCommunityBooks();
@@ -7759,7 +7781,7 @@ function openUserProfileCard(rawNickname, rawUserId, event) {
       return bNick === cleanNick || b.user_id === userId;
     });
     userBooks.forEach(b => {
-      if (b.scraps && Array.isArray(b.scraps)) userScrapsCount += b.scraps.length;
+      userScrapsCount += getBookSentenceCount(b);
     });
   }
 
