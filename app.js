@@ -304,6 +304,8 @@ async function loadData() {
     bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
     initCommunityLikesChannel();
+    fetchCommunityComments();
+    initCommunityCommentsChannel();
     return;
   }
 
@@ -429,6 +431,8 @@ async function loadData() {
     bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
     initCommunityLikesChannel();
+    fetchCommunityComments();
+    initCommunityCommentsChannel();
     preheatSpineCache();
   } catch (e) {
     console.error('Supabase load error, using local storage backup:', e);
@@ -439,6 +443,8 @@ async function loadData() {
     bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
     initCommunityLikesChannel();
+    fetchCommunityComments();
+    initCommunityCommentsChannel();
     preheatSpineCache();
   }
 }
@@ -8388,6 +8394,15 @@ async function showCommunity(pushHistory = true) {
   ]);
   initCommunityLikesChannel();
   initCommunityCommentsChannel();
+
+  // 모든 원격 도서 및 댓글 데이터 수신 완료 후 화면 동기화 재렌더링
+  if (currentCommunityTab === 'books') {
+    renderCommunityBooks();
+  } else if (currentCommunityTab === 'popular') {
+    renderCommunityPopularBooks();
+  } else if (currentCommunityTab === 'scraps') {
+    renderCommunityScraps();
+  }
 }
 
 function switchCommunityTab(tab) {
@@ -9642,14 +9657,37 @@ async function submitBookReply(parentId, bookId) {
     return;
   }
 
+  // 기기 간 공유 및 영구 저장을 위해 로그인 필수
+  if (!currentUser) {
+    toast('답글을 다른 기기와 공유하려면 구글 로그인이 필요합니다.');
+    loginWithGoogle();
+    return;
+  }
+
+  // 세션 유효성 검사 및 자동 갱신
+  if (supabaseClient) {
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        const { data: refData } = await supabaseClient.auth.refreshSession();
+        if (refData && refData.session) {
+          currentUser = refData.session.user;
+        } else {
+          toast('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');
+          loginWithGoogle();
+          return;
+        }
+      }
+    } catch (e) {}
+  }
+
   const nick = getUserNickname();
-  const myId = getClientLikeId();
   const replyId = 'cmt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
   const newReply = {
     id: replyId,
     bookId: strId,
     parentId: strParentId,
-    userId: currentUser ? currentUser.id : myId,
+    userId: currentUser.id,
     nickname: nick,
     text: text,
     createdAt: new Date().toISOString()
@@ -9663,13 +9701,11 @@ async function submitBookReply(parentId, bookId) {
 
   input.value = '';
   updateBookCommentsUI(strId);
-  toast('답글이 등록되었습니다 💬');
 
-  broadcastCommentUpdate('add', newReply);
-
-  if (currentUser && supabaseClient) {
+  // Supabase 원격 저장 및 에러 핸들링
+  if (supabaseClient) {
     try {
-      await supabaseClient.from('books').insert({
+      let { error: insertError } = await supabaseClient.from('books').insert({
         id: replyId,
         user_id: currentUser.id,
         title: '__comment__',
@@ -9679,10 +9715,49 @@ async function submitBookReply(parentId, bookId) {
         created_at: newReply.createdAt,
         is_public: true
       });
+
+      if (insertError) {
+        console.warn('[Reply Sync] Insert error, attempting session refresh retry...', insertError);
+        const { data: refData } = await supabaseClient.auth.refreshSession();
+        if (refData && refData.session) {
+          currentUser = refData.session.user;
+          const retryRes = await supabaseClient.from('books').insert({
+            id: replyId,
+            user_id: currentUser.id,
+            title: '__comment__',
+            author: strId,
+            sentence: text,
+            keywords: [nick, strParentId],
+            created_at: newReply.createdAt,
+            is_public: true
+          });
+          insertError = retryRes.error;
+        }
+      }
+
+      if (insertError) {
+        console.error('[Reply Sync] Supabase insert failed permanently:', insertError);
+        toast(`답글 서버 저장 실패 (${insertError.message || '네트워크 오류'}).`);
+        // 로컬 롤백
+        const list = communityCommentsMap.get(strId) || [];
+        communityCommentsMap.set(strId, list.filter(c => c.id !== replyId));
+        saveCommunityCommentsToStorage();
+        updateBookCommentsUI(strId);
+        return;
+      }
     } catch (err) {
-      console.warn('[Reply Sync] Supabase insert error:', err);
+      console.error('[Reply Sync] Supabase insert exception:', err);
+      toast('답글 전송 중 오류가 발생했습니다.');
+      const list = communityCommentsMap.get(strId) || [];
+      communityCommentsMap.set(strId, list.filter(c => c.id !== replyId));
+      saveCommunityCommentsToStorage();
+      updateBookCommentsUI(strId);
+      return;
     }
   }
+
+  toast('답글이 등록되었습니다 💬');
+  broadcastCommentUpdate('add', newReply);
 }
 
 async function submitBookComment(bookId) {
@@ -9700,13 +9775,36 @@ async function submitBookComment(bookId) {
     return;
   }
 
+  // 기기 간 공유 및 영구 저장을 위해 로그인 필수
+  if (!currentUser) {
+    toast('댓글을 다른 기기와 공유하려면 구글 로그인이 필요합니다.');
+    loginWithGoogle();
+    return;
+  }
+
+  // 세션 유효성 검사 및 자동 갱신
+  if (supabaseClient) {
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        const { data: refData } = await supabaseClient.auth.refreshSession();
+        if (refData && refData.session) {
+          currentUser = refData.session.user;
+        } else {
+          toast('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');
+          loginWithGoogle();
+          return;
+        }
+      }
+    } catch (e) {}
+  }
+
   const nick = getUserNickname();
-  const myId = getClientLikeId();
   const cmtId = 'cmt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
   const newCmt = {
     id: cmtId,
     bookId: strId,
-    userId: currentUser ? currentUser.id : myId,
+    userId: currentUser.id,
     nickname: nick,
     text: text,
     createdAt: new Date().toISOString()
@@ -9720,13 +9818,11 @@ async function submitBookComment(bookId) {
 
   input.value = '';
   updateBookCommentsUI(strId);
-  toast('댓글이 등록되었습니다.');
 
-  broadcastCommentUpdate('add', newCmt);
-
-  if (currentUser && supabaseClient) {
+  // Supabase 원격 저장 및 에러 핸들링
+  if (supabaseClient) {
     try {
-      await supabaseClient.from('books').insert({
+      let { error: insertError } = await supabaseClient.from('books').insert({
         id: cmtId,
         user_id: currentUser.id,
         title: '__comment__',
@@ -9736,10 +9832,49 @@ async function submitBookComment(bookId) {
         created_at: newCmt.createdAt,
         is_public: true
       });
+
+      if (insertError) {
+        console.warn('[Comment Sync] Insert error, attempting session refresh retry...', insertError);
+        const { data: refData } = await supabaseClient.auth.refreshSession();
+        if (refData && refData.session) {
+          currentUser = refData.session.user;
+          const retryRes = await supabaseClient.from('books').insert({
+            id: cmtId,
+            user_id: currentUser.id,
+            title: '__comment__',
+            author: strId,
+            sentence: text,
+            keywords: [nick],
+            created_at: newCmt.createdAt,
+            is_public: true
+          });
+          insertError = retryRes.error;
+        }
+      }
+
+      if (insertError) {
+        console.error('[Comment Sync] Supabase insert failed permanently:', insertError);
+        toast(`댓글 서버 저장 실패 (${insertError.message || '네트워크 오류'}).`);
+        // 로컬 롤백
+        const list = communityCommentsMap.get(strId) || [];
+        communityCommentsMap.set(strId, list.filter(c => c.id !== cmtId));
+        saveCommunityCommentsToStorage();
+        updateBookCommentsUI(strId);
+        return;
+      }
     } catch (err) {
-      console.warn('[Comment Sync] Supabase insert error:', err);
+      console.error('[Comment Sync] Supabase insert exception:', err);
+      toast('댓글 전송 중 오류가 발생했습니다.');
+      const list = communityCommentsMap.get(strId) || [];
+      communityCommentsMap.set(strId, list.filter(c => c.id !== cmtId));
+      saveCommunityCommentsToStorage();
+      updateBookCommentsUI(strId);
+      return;
     }
   }
+
+  toast('댓글이 등록되었습니다.');
+  broadcastCommentUpdate('add', newCmt);
 }
 
 async function deleteBookComment(commentId, bookId, event) {
@@ -9751,9 +9886,34 @@ async function deleteBookComment(commentId, bookId, event) {
   const strCmtId = String(commentId);
   if (!confirm('이 댓글을 삭제하시겠습니까?')) return;
 
+  if (!currentUser) {
+    toast('댓글 삭제를 위해 로그인이 필요합니다.');
+    return;
+  }
+
+  // Supabase 원격 삭제
+  if (supabaseClient) {
+    try {
+      const { error: delError } = await supabaseClient
+        .from('books')
+        .delete()
+        .eq('id', strCmtId)
+        .eq('user_id', currentUser.id);
+
+      if (delError) {
+        console.error('[Comment Sync] Delete error:', delError);
+        toast(`댓글 삭제 실패: ${delError.message || '오류'}`);
+        return;
+      }
+    } catch (err) {
+      console.error('[Comment Sync] Delete exception:', err);
+      toast('댓글 삭제 중 오류가 발생했습니다.');
+      return;
+    }
+  }
+
   if (communityCommentsMap.has(strId)) {
     const list = communityCommentsMap.get(strId);
-    // Delete this comment and its child replies (if any)
     const toDeleteIds = [strCmtId];
     list.forEach(c => {
       if (c.parentId === strCmtId) {
@@ -9768,14 +9928,6 @@ async function deleteBookComment(commentId, bookId, event) {
   }
 
   broadcastCommentUpdate('delete', { id: strCmtId, bookId: strId });
-
-  if (currentUser && supabaseClient) {
-    try {
-      await supabaseClient.from('books').delete().eq('id', strCmtId).eq('user_id', currentUser.id);
-    } catch (err) {
-      console.warn('[Comment Sync] Supabase delete error:', err);
-    }
-  }
 }
 
 function handleCommentKeyDown(event, bookId) {
@@ -9851,33 +10003,46 @@ async function fetchCommunityComments() {
       .order('created_at', { ascending: true });
 
     if (!error && Array.isArray(data)) {
+      // Supabase 원격 댓글을 책 ID별로 그룹화
+      const remoteMap = new Map();
       data.forEach(row => {
         const bookId = String(row.author);
         if (!bookId) return;
-        if (!communityCommentsMap.has(bookId)) {
-          communityCommentsMap.set(bookId, []);
+        if (!remoteMap.has(bookId)) {
+          remoteMap.set(bookId, []);
         }
-        const list = communityCommentsMap.get(bookId);
-        if (!list.some(c => c.id === row.id)) {
-          const nick = (Array.isArray(row.keywords) && row.keywords[0]) || '독서가';
-          const parentId = (Array.isArray(row.keywords) && row.keywords[1]) || null;
-          list.push({
-            id: row.id,
-            bookId: bookId,
-            parentId: parentId,
-            userId: row.user_id,
-            nickname: nick,
-            text: row.sentence || '',
-            createdAt: row.created_at
-          });
+        const nick = (Array.isArray(row.keywords) && row.keywords[0]) || '독서가';
+        const parentId = (Array.isArray(row.keywords) && row.keywords[1]) || null;
+        remoteMap.get(bookId).push({
+          id: row.id,
+          bookId: bookId,
+          parentId: parentId,
+          userId: row.user_id,
+          nickname: nick,
+          text: row.sentence || '',
+          createdAt: row.created_at
+        });
+      });
+
+      // 기존 시드 댓글 중 Supabase에 아직 등록되지 않은 기본 예시 보존
+      const seedComments = DEFAULT_COMMUNITY_COMMENTS || {};
+      Object.entries(seedComments).forEach(([sBid, sList]) => {
+        if (!remoteMap.has(sBid)) {
+          remoteMap.set(sBid, [...sList]);
         }
       });
+
+      // Supabase SSOT(단일 진실 공급원)로 communityCommentsMap 동기화
+      communityCommentsMap.clear();
+      remoteMap.forEach((list, bid) => {
+        communityCommentsMap.set(bid, list);
+      });
+
       saveCommunityCommentsToStorage();
-      if (currentCommunityTab === 'books') {
-        communityCommentsMap.forEach((_, bid) => {
-          updateBookCommentsUI(bid);
-        });
-      }
+
+      communityCommentsMap.forEach((_, bid) => {
+        updateBookCommentsUI(bid);
+      });
     }
   } catch (e) {
     console.warn('Failed to fetch community comments:', e);
@@ -9885,6 +10050,7 @@ async function fetchCommunityComments() {
 }
 
 function initCommunityCommentsChannel() {
+  // 브라우저 탭 간 BroadcastChannel
   if (typeof BroadcastChannel !== 'undefined' && !localCommentBroadcast) {
     try {
       localCommentBroadcast = new BroadcastChannel('8ook_comments_channel');
@@ -9894,6 +10060,51 @@ function initCommunityCommentsChannel() {
         }
       };
     } catch (e) {}
+  }
+
+  // Supabase Realtime 채널을 통한 물리적 기기 간 실시간 동기화
+  if (supabaseClient && !commCommentsChannel) {
+    try {
+      commCommentsChannel = supabaseClient
+        .channel('realtime_community_comments')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'books',
+          filter: 'title=eq.__comment__'
+        }, (payload) => {
+          const row = payload.new;
+          if (!row) return;
+          const bookId = String(row.author);
+          const nick = (Array.isArray(row.keywords) && row.keywords[0]) || '독서가';
+          const parentId = (Array.isArray(row.keywords) && row.keywords[1]) || null;
+          const comment = {
+            id: row.id,
+            bookId: bookId,
+            parentId: parentId,
+            userId: row.user_id,
+            nickname: nick,
+            text: row.sentence || '',
+            createdAt: row.created_at
+          };
+          applyIncomingCommentUpdate({ action: 'add', comment });
+        })
+        .on('postgres_changes', {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'books'
+        }, (payload) => {
+          const oldRow = payload.old;
+          if (!oldRow || !oldRow.id) return;
+          applyIncomingCommentUpdate({
+            action: 'delete',
+            comment: { id: oldRow.id, bookId: oldRow.author }
+          });
+        })
+        .subscribe();
+    } catch (e) {
+      console.warn('Failed to subscribe to realtime comments:', e);
+    }
   }
 }
 
@@ -9907,7 +10118,19 @@ function broadcastCommentUpdate(action, commentData) {
 function applyIncomingCommentUpdate(payload) {
   if (!payload || !payload.comment) return;
   const { action, comment } = payload;
-  const bookId = String(comment.bookId);
+  let bookId = comment.bookId ? String(comment.bookId) : '';
+
+  // DELETE의 경우 postgres_changes에서 bookId(author)가 누락될 수 있으므로 전체 맵에서 comment.id 탐색
+  if (!bookId || bookId === 'undefined') {
+    for (const [bId, cList] of communityCommentsMap.entries()) {
+      if (cList.some(c => c.id === comment.id)) {
+        bookId = bId;
+        break;
+      }
+    }
+  }
+
+  if (!bookId) return;
 
   if (!communityCommentsMap.has(bookId)) {
     communityCommentsMap.set(bookId, []);
