@@ -113,9 +113,10 @@ async function _initBarcodeEngines() {
   // 1. Pre-warm ZXingWASM WebAssembly engine
   if (typeof ZXingWASM !== 'undefined' && ZXingWASM.prepareZXingModule) {
     try {
-      ZXingWASM.prepareZXingModule();
+      await ZXingWASM.prepareZXingModule();
+      console.info('[8ook barcode] WASM module ready');
     } catch (e) {
-      console.warn('ZXingWASM prepare error:', e);
+      console.warn('[8ook barcode] WASM prepare error', e);
     }
   }
 
@@ -560,6 +561,7 @@ function _startBarcodeScanLoop() {
             } catch (err) {
               if (frameCounter === 1 || frameCounter % 60 === 0) console.warn('[8ook barcode] WASM frame error', err);
             }
+            if (frameCounter === 1) console.info('[8ook barcode] WASM first frame processed');
           }
 
           // ── Tier 2: Native BarcodeDetector (Zero-copy GPU Hardware Accelerated) ──
