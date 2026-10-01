@@ -2,6 +2,13 @@
 
 /* Aladin book search, JSONP lookup, sorting, selection, and page-detail helpers. */
 
+function hideSearchResults() {
+  const r = document.getElementById('aladin-results');
+  if (!r) return;
+  r.classList.remove('show');
+  r.innerHTML = '';
+}
+
 function fetchAladinCover(title, author) {
   return new Promise((resolve) => {
     const key = getApiKey();
