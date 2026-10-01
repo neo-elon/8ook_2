@@ -56,7 +56,6 @@ function resolveCommunityBookOwner(b, source) {
   // 3. 데이터셋 소스별 기본 독서가 매핑
   const effSource = source || b._source || '';
   if (effSource === 'oha_dataset') return 'user_owner_oha';
-  if (effSource === 'neo_dataset') return 'user_owner_neo';
 
   // 4. 로컬 서재 도서인 경우 현재 로그인 사용자 기준 식별
   if (effSource === 'local') {
@@ -136,10 +135,6 @@ function getAllCommunityBooks() {
     books.forEach(b => processBook(b, 'local'));
   }
 
-  // 3. Shared community dataset (window.NEO_BOOKS_131) from Neo
-  if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
-    window.NEO_BOOKS_131.forEach(b => processBook(b, 'neo_dataset'));
-  }
 
   return Array.from(map.values());
 }
@@ -806,10 +801,6 @@ function getMostShelvedCommunityBooks() {
     books.forEach(b => addToGroup(b, 'local'));
   }
 
-  // 3. 기본 데이터셋 도서 (큐레이터 서재 도서)
-  if (typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
-    window.NEO_BOOKS_131.forEach(b => addToGroup(b, 'neo_dataset'));
-  }
 
   const result = [];
   groups.forEach((g) => {
@@ -2065,10 +2056,9 @@ function renderCommunityScraps() {
     if (!coverUrl) {
       const normalize = (t) => (t || '').replace(/[\s\-_:：·,，\(\)]/g, '').toLowerCase();
       const normTitle = normalize(mainTitle);
-      if (!coverUrl && typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131)) {
-        const nb = window.NEO_BOOKS_131.find(b => (normTitle && normalize(b.title) === normTitle) || (b.id === s.bookId));
-        if (nb && nb.cover) coverUrl = getSafeImageUrl(nb.cover);
-      }
+      const coverBook = [...(Array.isArray(remoteCommunityBooks) ? remoteCommunityBooks : []), ...(Array.isArray(books) ? books : [])]
+        .find(b => (normTitle && normalize(b.title) === normTitle) || (b.id === s.bookId));
+      if (coverBook && coverBook.cover) coverUrl = getSafeImageUrl(coverBook.cover);
     }
     const clickDetail = s.bookId ? `${communityEventAttrs('showDetail', [s.bookId], 'onclick')}` : '';
     const coverHtml = coverUrl
