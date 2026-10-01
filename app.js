@@ -61,7 +61,7 @@ try {
       }
     });
   } else {
-    console.warn("Supabase SDK not loaded. Operating in LocalStorage-only mode.");
+    console.warn("Supabase SDK not loaded. Personal library loading is unavailable.");
   }
 } catch (e) {
   console.error("Supabase initialization failed:", e);
@@ -1738,6 +1738,28 @@ function updateStarBtns(n) {
   });
 }
 
+async function getBookWriteContext() {
+  const client = supabaseClient;
+  try {
+    if (!client || typeof client.from !== 'function' ||
+        typeof client.auth?.getSession !== 'function') {
+      throw new Error('Supabase client is unavailable');
+    }
+    const { data, error } = await client.auth.getSession();
+    if (error || !data) throw error || new Error('Auth session could not be checked');
+    const user = data.session?.user;
+    if (!user?.id) {
+      toast('로그인이 필요합니다. 먼저 로그인 해주세요.');
+      return null;
+    }
+    return { client, user };
+  } catch (err) {
+    console.error('Book write connection check failed:', err);
+    toast('서버 연결을 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.');
+    return null;
+  }
+}
+
 async function saveBook() {
   const rawTitle = document.getElementById('bk-title').value.trim();
   if (!rawTitle) { toast('도서 제목을 입력해주세요'); return; }
@@ -1745,15 +1767,9 @@ async function saveBook() {
   const rawSubtitle = subInputEl ? subInputEl.value.trim() : '';
   const title = rawSubtitle ? `${rawTitle} - ${rawSubtitle}` : rawTitle;
 
-  let user = null;
-  if (supabaseClient) {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    user = session?.user;
-    if (!user) {
-      toast('로그인이 필요합니다. 먼저 로그인 해주세요.');
-      return;
-    }
-  }
+  const context = await getBookWriteContext();
+  if (!context) return;
+  const { client, user } = context;
 
   const pubInputEl = document.getElementById('bk-is-public');
   const is_public = pubInputEl ? pubInputEl.checked : true;
@@ -1785,51 +1801,47 @@ async function saveBook() {
   try {
     if (editingBookId) {
       const idx = books.findIndex(b => b.id === editingBookId);
-      if (idx !== -1) {
-        const updatedBook = { ...books[idx], ...data };
-        if (supabaseClient && user) {
-          updatedBook.user_id = user.id;
-          const payload = sanitizeBookForSupabase(updatedBook);
-          let { error } = await supabaseClient
-            .from('books')
-            .update(payload)
-            .eq('id', editingBookId)
-            .eq('user_id', user.id);
+      if (idx === -1) throw new Error('수정할 도서를 찾을 수 없습니다.');
+      const updatedBook = { ...books[idx], ...data, user_id: user.id };
+      const payload = sanitizeBookForSupabase(updatedBook);
+      let { error } = await client
+        .from('books')
+        .update(payload)
+        .eq('id', editingBookId)
+        .eq('user_id', user.id)
+        .select('id').single();
 
-          if (error && handleSupabaseSchemaError(error)) {
-            const safeBook = sanitizeBookForSupabase(updatedBook);
-            const res = await supabaseClient
-              .from('books')
-              .update(safeBook)
-              .eq('id', editingBookId)
-              .eq('user_id', user.id);
-            error = res.error;
-          }
-          if (error) throw error;
-        }
-        books[idx] = updatedBook;
-        toast('도서 정보가 수정되었습니다');
+      if (error && handleSupabaseSchemaError(error)) {
+        const safeBook = sanitizeBookForSupabase(updatedBook);
+        const res = await client
+          .from('books')
+          .update(safeBook)
+          .eq('id', editingBookId)
+          .eq('user_id', user.id)
+          .select('id').single();
+        error = res.error;
       }
+      if (error) throw error;
+      books[idx] = updatedBook;
+      toast('도서 정보가 수정되었습니다');
     } else {
       data.id = uid();
       data.scraps = [];
       data.created_at = new Date().toISOString();
-      if (supabaseClient && user) {
-        data.user_id = user.id;
-        const payload = sanitizeBookForSupabase(data);
-        let { error } = await supabaseClient
-          .from('books')
-          .insert([payload]);
+      data.user_id = user.id;
+      const payload = sanitizeBookForSupabase(data);
+      let { error } = await client
+        .from('books')
+        .insert([payload]).select('id').single();
 
-        if (error && handleSupabaseSchemaError(error)) {
-          const safeData = sanitizeBookForSupabase(data);
-          const res = await supabaseClient
-            .from('books')
-            .insert([safeData]);
-          error = res.error;
-        }
-        if (error) throw error;
+      if (error && handleSupabaseSchemaError(error)) {
+        const safeData = sanitizeBookForSupabase(data);
+        const res = await client
+          .from('books')
+          .insert([safeData]).select('id').single();
+        error = res.error;
       }
+      if (error) throw error;
       books.unshift(data);
       toast('도서가 추가되었습니다');
     }
@@ -1857,26 +1869,19 @@ async function saveBook() {
 }
 
 async function doDeleteBook(id) {
-  let user = null;
-  if (supabaseClient) {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    user = session?.user;
-    if (!user) {
-      toast('로그인이 필요합니다. 먼저 로그인 해주세요.');
-      return;
-    }
-  }
+  const context = await getBookWriteContext();
+  if (!context) return;
+  const { client, user } = context;
 
   if (!confirm('이 책을 삭제할까요?')) return;
   try {
-    if (supabaseClient && user) {
-      const { error } = await supabaseClient
-        .from('books')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
-      if (error) throw error;
-    }
+    const { error } = await client
+      .from('books')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select('id').single();
+    if (error) throw error;
 
     books = books.filter(b => b.id !== id);
     saveData();
@@ -3462,8 +3467,3 @@ function searchAladinByQuery(query) {
   document.getElementById('bk-title').value = query;
   searchAladin();
 }
-
-/* ==============================================
-   EXPORT TO GOOGLE SHEETS (CSV)
-============================================== */
-

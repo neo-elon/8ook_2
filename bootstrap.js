@@ -82,31 +82,6 @@ loadTagLearningModel();
 
   await loadData();
 
-  // Unique sentences representing the 6 demo books
-  const demoSentences = [
-    '폭력에 저항하는 방식으로 선택한 침묵과 채식, 그 고요한 절규.',
-    '평범한 한 여성의 삶을 통해 드러나는 사회 구조의 민낯.',
-    '감정을 모르는 소년이 가르쳐준 진짜 공감의 의미.',
-    '꿈을 파는 백화점에서 발견한 위로와 희망의 이야기.',
-    '5.18을 통해 인간의 존엄과 폭력의 본질을 묻다.',
-    '상상력이 현실이 되는 마법같은 세계로의 첫 여행.'
-  ];
-
-  // Clean up any old demo books from database & memory (both guest and logged-in user)
-  const demoBooksToDelete = books.filter(b => demoSentences.includes(b.sentence));
-  if (demoBooksToDelete.length > 0) {
-    books = books.filter(b => !demoSentences.includes(b.sentence));
-    saveData();
-
-    if (currentUser && supabaseClient) {
-      const idsToDelete = demoBooksToDelete.map(b => b.id);
-      supabaseClient.from('books').delete().in('id', idsToDelete).then(({ error }) => {
-        if (error) console.error('Failed to clean up demo books from Supabase:', error);
-        else console.log('Cleaned up demo books from Supabase.');
-      });
-    }
-  }
-
   // Initialize / update the comprehensive "User Manual" book
   ensureUserGuideBook();
 

@@ -36,7 +36,7 @@ function getBookGroupingKey(b) {
   return String(main).trim().toLowerCase().replace(/[\s\-_:·・《》〈〉()（）[\]'"]/g, '');
 }
 
-// 파일 불러오기(Notion 가져오기 등) 및 각 서재 데이터의 소유자를 단일 독서가로 정합성 있게 식별
+// Resolve the owner of each library book.
 function resolveCommunityBookOwner(b, source) {
   if (!b) return 'unknown_user';
   if (b._ownerId) return b._ownerId;
@@ -53,11 +53,8 @@ function resolveCommunityBookOwner(b, source) {
   if (bid.includes('7396cf84-8b75-4617-a050-5ed974fcbe02') || bid.includes('7396cf84')) return 'user_owner_oha';
   if (bid.includes('1df9f1ae-d5bf-4076-bd1d-b3f32916b216') || bid.includes('1df9f1ae') || bid.startsWith('mqds3vy')) return 'user_owner_neo';
 
-  // 3. 데이터셋 소스별 기본 독서가 매핑
+  // Identify the current user for in-memory library books.
   const effSource = source || b._source || '';
-  if (effSource === 'oha_dataset') return 'user_owner_oha';
-
-  // 4. 로컬 서재 도서인 경우 현재 로그인 사용자 기준 식별
   if (effSource === 'local') {
     if (currentUser) {
       if (isOhaUser(currentUser)) {
@@ -82,14 +79,14 @@ function getAllCommunityBooks() {
   const seenUserTitle = new Set();
 
   function processBook(b, source) {
-    // 실제 등록 사용자가 없는 원격 테스트/더미 도서 제외 (오하의 직접 입력 도서와 노션 가져오기 도서는 모두 단일 서재로 통합)
+    // Exclude remote test books without a registered owner.
     if (!b || isGuideBook(b) || !b.title || isLikeRecord(b) || isCommentRecord(b) || isProfileRecord(b) || b.is_public === false || (source === 'remote' && !b.user_id)) return;
     const ownerId = resolveCommunityBookOwner(b, source);
     const normTitle = getBookGroupingKey(b);
     if (!normTitle) return;
     const userTitleKey = ownerId + '::' + normTitle;
 
-    // 파일 불러오기 및 기본 데이터셋 간 동일 사용자의 중복 도서는 1건으로 통합
+    // Combine duplicate books by the same user for community display.
     if (seenUserTitle.has(userTitleKey)) {
       if (map.has(b.id)) return;
       const existingKey = Array.from(map.keys()).find(k => {
@@ -134,7 +131,6 @@ function getAllCommunityBooks() {
   if (Array.isArray(books)) {
     books.forEach(b => processBook(b, 'local'));
   }
-
 
   return Array.from(map.values());
 }
@@ -782,7 +778,7 @@ function getMostShelvedCommunityBooks() {
     g.copies.push({ ...b, _source: source });
     g.totalScraps += (b.scraps || []).length;
 
-    // 파일 불러오기(Notion 가져오기) 및 동일 독서가의 중복 등록을 단일 인물로 정확히 판별
+    // Identify duplicate registrations by the same reader.
     const personId = resolveCommunityBookOwner(b, source);
     g.distinctUsers.add(personId);
 
@@ -800,7 +796,6 @@ function getMostShelvedCommunityBooks() {
   if (Array.isArray(books)) {
     books.forEach(b => addToGroup(b, 'local'));
   }
-
 
   const result = [];
   groups.forEach((g) => {

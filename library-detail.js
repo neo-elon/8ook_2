@@ -5,9 +5,6 @@
 ============================================== */
 function showDetail(id, direction = null, pushHistory = true) {
   let book = books.find(b => b.id === id);
-  if (!book && typeof window !== 'undefined' && window.NEO_BOOKS_131) {
-    book = window.NEO_BOOKS_131.find(b => b.id === id);
-  }
   if (!book && typeof remoteCommunityBooks !== 'undefined' && Array.isArray(remoteCommunityBooks)) {
     book = remoteCommunityBooks.find(b => b.id === id);
   }

@@ -85,7 +85,6 @@ async function loadData() {
 
     books = remoteBooks;
 
-    // 로그인 계정인 경우 가이드북 정리
     if (currentUser) {
       const guideBooksInRemote = books.filter(b => isGuideBook(b));
       if (guideBooksInRemote.length > 0) {
@@ -100,8 +99,6 @@ async function loadData() {
         books = books.filter(b => !isGuideBook(b));
       }
     }
-
-    // Supabase 원격 DB가 단일 진실 공급원(SSOT)이므로 정적 데이터셋으로 사용자의 최신 수정/삭제 사항을 덮어쓰지 않음
 
     books.forEach(b => cleanBookScraps(b));
     ensureUserGuideBook();
