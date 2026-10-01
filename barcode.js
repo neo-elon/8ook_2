@@ -550,6 +550,12 @@ function _startBarcodeScanLoop() {
                 binarizer: binarizerType,
                 maxNumberOfSymbols: 4
               });
+              if (frameCounter === 1 || frameCounter % 30 === 0) {
+                console.info('[8ook barcode] WASM result', {
+                  count: Array.isArray(results) ? results.length : -1,
+                  sample: Array.isArray(results) ? results.slice(0, 3).map(r => ({ text: r.text, format: r.format, error: r.error })) : results
+                });
+              }
               if (results && results.length > 0) {
                 const codes = results.map(r => r.text).filter(Boolean);
                 const best = pickBestBookBarcode(codes);
