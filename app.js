@@ -7800,6 +7800,40 @@ function openUserProfileCard(rawNickname, rawUserId, event) {
   openModal('user-profile-modal');
 }
 
+// Community values are data, never JavaScript source. Do not decode HTML entities here.
+function communityEventAttrs(action, args, eventName = 'onclick') {
+  const encoded = JSON.stringify(args.map(value => value == null ? '' : String(value))).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#39;');
+  const eventType = eventName === 'onkeydown' ? 'keydown' : 'click';
+  return `data-community-${eventType}="${action}" data-community-args="${encoded}"`;
+}
+
+function handleCommunityDelegatedEvent(event) {
+  const element = event.target.closest?.(`[data-community-${event.type}]`);
+  if (!element) return;
+  const actions = {
+    showDetail: args => showDetail(...args),
+    handleProfileBookClick: args => handleProfileBookClick(...args),
+    openUserProfileCard: args => openUserProfileCard(...args, event),
+    toggleBookCommentsSection: args => toggleBookCommentsSection(...args, event),
+    toggleCommunityBookLike: args => toggleCommunityBookLike(...args, element, event),
+    handleCommentKeyDown: args => handleCommentKeyDown(event, ...args),
+    submitBookComment: args => submitBookComment(...args),
+    toggleReplyInput: args => toggleReplyInput(...args),
+    deleteBookComment: args => deleteBookComment(...args, event),
+    handleReplyKeyDown: args => handleReplyKeyDown(event, ...args),
+    submitBookReply: args => submitBookReply(...args),
+    copyCommunityQuote: args => copyCommunityQuote(...args),
+    toggleCommunityLike: args => toggleCommunityLike(...args, element, event),
+  };
+  const action = element.getAttribute(`data-community-${event.type}`);
+  if (!Object.prototype.hasOwnProperty.call(actions, action)) return;
+  actions[action](JSON.parse(element.getAttribute('data-community-args')));
+}
+
+document.addEventListener('click', handleCommunityDelegatedEvent);
+document.addEventListener('keydown', handleCommunityDelegatedEvent);
+
 function renderProfileRepBooksGrid() {
   const container = document.getElementById('prof-rep-books-grid');
   if (!container || !currentProfileTarget) return;
@@ -7813,7 +7847,7 @@ function renderProfileRepBooksGrid() {
     if (b && b.title) {
       const coverUrl = b.cover || '';
       const hasCover = coverUrl && !coverUrl.includes('data:image/svg');
-      const clickAction = isMe ? `onclick="openProfileBookPicker(${i})"` : `onclick="handleProfileBookClick('${esc(b.id)}')"` ;
+      const clickAction = isMe ? `onclick="openProfileBookPicker(${i})"` : `${communityEventAttrs('handleProfileBookClick', [b.id], 'onclick')}` ;
       const cursorTitle = isMe ? '클릭하여 책 변경' : `${esc(b.title)} 상세보기`;
 
       html += `
@@ -8628,7 +8662,9 @@ function handleCommCoverError(img) {
   const isScrap = img.classList.contains('comm-scrap-cover');
   ph.className = isScrap ? 'comm-scrap-cover-placeholder' : 'comm-book-cover-placeholder';
   ph.textContent = '8ook';
-  if (img.onclick) ph.onclick = img.onclick;
+  for (const attr of ['data-community-click', 'data-community-args']) {
+    if (img.hasAttribute(attr)) ph.setAttribute(attr, img.getAttribute(attr));
+  }
   img.replaceWith(ph);
 }
 
@@ -8639,8 +8675,8 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
 
   const coverUrl = b.cover ? getSafeImageUrl(b.cover) : '';
   const coverHtml = coverUrl
-    ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" decoding="async" onclick="showDetail('${esc(bid)}')" onerror="handleCommCoverError(this)">`
-    : `<div class="comm-book-cover-placeholder" onclick="showDetail('${esc(bid)}')">8ook</div>`;
+    ? `<img class="comm-book-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" decoding="async" ${communityEventAttrs('showDetail', [bid], 'onclick')} onerror="handleCommCoverError(this)">`
+    : `<div class="comm-book-cover-placeholder" ${communityEventAttrs('showDetail', [bid], 'onclick')}>8ook</div>`;
 
   const ratingHtml = (b.rating && Number(b.rating) > 0)
     ? `<div class="comm-book-rating">${'★'.repeat(Math.min(5, Math.max(1, Math.round(b.rating))))}${'☆'.repeat(Math.max(0, 5 - Math.round(b.rating)))} <span style="font-size:10px; color:var(--text-300); font-weight:600;">${Number(b.rating).toFixed(1)}</span></div>`
@@ -8648,7 +8684,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
 
   const kwList = Array.isArray(b.keywords) ? b.keywords.slice(0, 3) : [];
   const keywordsHtml = kwList.length > 0
-    ? `<div class="comm-book-keywords">${kwList.map(k => `<span class="comm-book-kw-tag" onclick="showDetail('${esc(bid)}')">#${esc(k)}</span>`).join('')}</div>`
+    ? `<div class="comm-book-keywords">${kwList.map(k => `<span class="comm-book-kw-tag" ${communityEventAttrs('showDetail', [bid], 'onclick')}>#${esc(k)}</span>`).join('')}</div>`
     : '';
 
   const reviewHtml = (b.review && b.review.trim())
@@ -8676,11 +8712,11 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
         ${coverHtml}
         <div class="comm-book-info">
           <div class="comm-book-user-bar">
-            <span class="comm-book-user" onclick="openUserProfileCard('${esc(ownerNick)}', '${esc(b.user_id || b._ownerId || '')}', event)" style="cursor: pointer;" title="${esc(ownerNick)}님의 프로필 보기"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span></span>
+            <span class="comm-book-user" ${communityEventAttrs('openUserProfileCard', [ownerNick, b.user_id || b._ownerId || ''], 'onclick')} style="cursor: pointer;" title="${esc(ownerNick)}님의 프로필 보기"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span></span>
             ${isMe ? '<span class="comm-my-badge">나</span>' : ''}
             ${b.date ? `<span class="comm-book-time" title="${esc(b.timeTooltip || `도서 완독일: ${fmtDate(b.date)}`)}">• 완독 ${fmtDate(b.date)}</span>` : (b.time ? `<span class="comm-book-time" title="${esc(b.timeTooltip || '')}">• ${esc(b.time)}</span>` : '')}
           </div>
-          <div class="comm-book-title" onclick="showDetail('${esc(bid)}')">${esc(mainTitle)}</div>
+          <div class="comm-book-title" ${communityEventAttrs('showDetail', [bid], 'onclick')}>${esc(mainTitle)}</div>
           <div class="comm-book-author-row">
             <div class="comm-book-author">${esc(b.author)}</div>
             ${ratingHtml}
@@ -8691,10 +8727,10 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
       <div class="comm-book-meta">
         ${keywordsHtml}
         <div class="comm-book-meta-right">
-          <button type="button" class="comm-book-comment-btn${hasComments ? ' active' : ''}" id="comm-cmt-toggle-btn-${esc(bid)}" onclick="toggleBookCommentsSection('${esc(bid)}', event)" title="${hasComments ? '댓글 작성하기' : '댓글 보기 및 작성'}">
+          <button type="button" class="comm-book-comment-btn${hasComments ? ' active' : ''}" id="comm-cmt-toggle-btn-${esc(bid)}" ${communityEventAttrs('toggleBookCommentsSection', [bid], 'onclick')} title="${hasComments ? '댓글 작성하기' : '댓글 보기 및 작성'}">
             <span class="comm-comment-icon">💬</span> <span id="comm-cmt-cnt-${esc(bid)}">${commentCount}</span>
           </button>
-          <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
+          <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" ${communityEventAttrs('toggleCommunityBookLike', [bid], 'onclick')} title="좋아요">
             <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
           </button>
         </div>
@@ -8705,8 +8741,8 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
         </div>
         <div class="comm-comment-form">
           <div class="comm-comment-input-box">
-            <input type="text" class="comm-comment-input" id="comm-cmt-input-${esc(bid)}" placeholder="댓글 남기기..." maxlength="200" onkeydown="handleCommentKeyDown(event, '${esc(bid)}')" />
-            <button type="button" class="comm-comment-submit-btn" onclick="submitBookComment('${esc(bid)}')" title="댓글 등록">
+            <input type="text" class="comm-comment-input" id="comm-cmt-input-${esc(bid)}" placeholder="댓글 남기기..." maxlength="200" ${communityEventAttrs('handleCommentKeyDown', [bid], 'onkeydown')} />
+            <button type="button" class="comm-comment-submit-btn" ${communityEventAttrs('submitBookComment', [bid], 'onclick')} title="댓글 등록">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
           </div>
@@ -9203,7 +9239,7 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
   const readersHtml = (Array.isArray(b.readers) && b.readers.length > 0)
     ? `<div class="comm-book-user-bar comm-popular-user-bar">
         ${b.readers.map(r => `
-          <span class="comm-book-user" onclick="openUserProfileCard('${esc(r.nickname)}', '${esc(r.userId || '')}', event)" style="cursor: pointer;" title="${esc(r.nickname)}님의 프로필 보기"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(r.nickname)}</span>${r.isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>
+          <span class="comm-book-user" ${communityEventAttrs('openUserProfileCard', [r.nickname, r.userId || ''], 'onclick')} style="cursor: pointer;" title="${esc(r.nickname)}님의 프로필 보기"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(r.nickname)}</span>${r.isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>
         `).join('')}
       </div>`
     : `<div class="comm-shelved-badge">🔖 ${b.shelvedCount}명의 선택</div>`;
@@ -9232,7 +9268,7 @@ function buildCommunityPopularBookCardHtml(b, storedBookLikes, myId) {
       <div class="comm-book-meta">
         ${keywordsHtml}
         <div class="comm-book-meta-right">
-          <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
+          <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" ${communityEventAttrs('toggleCommunityBookLike', [bid], 'onclick')} title="좋아요">
             <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
           </button>
         </div>
@@ -9591,11 +9627,11 @@ function renderCommentsListHtml(bookId, comments) {
             <div class="comm-reply-item${isMyReply ? ' my-comment' : ''}" id="cmt-item-${esc(r.id)}">
               <div class="comm-comment-meta-row">
                 <span class="comm-reply-branch">↳</span>
-                <span class="comm-comment-author" onclick="openUserProfileCard('${esc(r.nickname || '독서가')}', '${esc(r.userId || '')}', event)" style="cursor: pointer;" title="${esc(r.nickname || '독서가')}님의 프로필 보기"><span class="comm-user-at">@</span>${esc(r.nickname || '독서가')}</span>
+                <span class="comm-comment-author" ${communityEventAttrs('openUserProfileCard', [r.nickname || '독서가', r.userId || ''], 'onclick')} style="cursor: pointer;" title="${esc(r.nickname || '독서가')}님의 프로필 보기"><span class="comm-user-at">@</span>${esc(r.nickname || '독서가')}</span>
                 ${isMyReply ? '<span class="comm-my-badge" style="font-size:9px; padding:1px 4.5px; line-height:1.2;">나</span>' : ''}
                 <span class="comm-comment-time">${esc(formatTimeAgo(r.createdAt))}</span>
-                <button type="button" class="comm-reply-toggle-btn" onclick="toggleReplyInput('${esc(c.id)}', '${esc(bookId)}', '${esc(r.nickname)}')" title="답글 달기">답글</button>
-                ${isMyReply ? `<button type="button" class="comm-comment-delete-btn" onclick="deleteBookComment('${esc(r.id)}', '${esc(bookId)}', event)" title="댓글 삭제">✕</button>` : ''}
+                <button type="button" class="comm-reply-toggle-btn" ${communityEventAttrs('toggleReplyInput', [c.id, bookId, r.nickname], 'onclick')} title="답글 달기">답글</button>
+                ${isMyReply ? `<button type="button" class="comm-comment-delete-btn" ${communityEventAttrs('deleteBookComment', [r.id, bookId], 'onclick')} title="댓글 삭제">✕</button>` : ''}
               </div>
               <div class="comm-comment-bubble comm-reply-bubble">
                 ${esc(r.text)}
@@ -9609,11 +9645,11 @@ function renderCommentsListHtml(bookId, comments) {
     return `
       <div class="comm-comment-item${isMyComment ? ' my-comment' : ''}" id="cmt-item-${esc(c.id)}">
         <div class="comm-comment-meta-row">
-          <span class="comm-comment-author" onclick="openUserProfileCard('${esc(c.nickname || '독서가')}', '${esc(c.userId || '')}', event)" style="cursor: pointer;" title="${esc(c.nickname || '독서가')}님의 프로필 보기"><span class="comm-user-at">@</span>${esc(c.nickname || '독서가')}</span>
+          <span class="comm-comment-author" ${communityEventAttrs('openUserProfileCard', [c.nickname || '독서가', c.userId || ''], 'onclick')} style="cursor: pointer;" title="${esc(c.nickname || '독서가')}님의 프로필 보기"><span class="comm-user-at">@</span>${esc(c.nickname || '독서가')}</span>
           ${isMyComment ? '<span class="comm-my-badge" style="font-size:9px; padding:1px 4.5px; line-height:1.2;">나</span>' : ''}
           <span class="comm-comment-time">${esc(formatTimeAgo(c.createdAt))}</span>
-          <button type="button" class="comm-reply-toggle-btn" onclick="toggleReplyInput('${esc(c.id)}', '${esc(bookId)}', '${esc(c.nickname)}')" title="답글 달기">답글</button>
-          ${isMyComment ? `<button type="button" class="comm-comment-delete-btn" onclick="deleteBookComment('${esc(c.id)}', '${esc(bookId)}', event)" title="댓글 삭제">✕</button>` : ''}
+          <button type="button" class="comm-reply-toggle-btn" ${communityEventAttrs('toggleReplyInput', [c.id, bookId, c.nickname], 'onclick')} title="답글 달기">답글</button>
+          ${isMyComment ? `<button type="button" class="comm-comment-delete-btn" ${communityEventAttrs('deleteBookComment', [c.id, bookId], 'onclick')} title="댓글 삭제">✕</button>` : ''}
         </div>
         <div class="comm-comment-bubble">
           ${esc(c.text)}
@@ -9622,11 +9658,11 @@ function renderCommentsListHtml(bookId, comments) {
         <div class="comm-reply-form" id="comm-reply-form-${esc(c.id)}" style="display: none;">
           <div class="comm-reply-input-box">
             <span class="comm-reply-to-tag" id="comm-reply-to-tag-${esc(c.id)}">@${esc(c.nickname)}</span>
-            <input type="text" class="comm-reply-input" id="comm-reply-input-${esc(c.id)}" placeholder="답글을 남겨보세요..." maxlength="200" onkeydown="handleReplyKeyDown(event, '${esc(c.id)}', '${esc(bookId)}')" />
-            <button type="button" class="comm-comment-submit-btn" onclick="submitBookReply('${esc(c.id)}', '${esc(bookId)}')" title="답글 등록">
+            <input type="text" class="comm-reply-input" id="comm-reply-input-${esc(c.id)}" placeholder="답글을 남겨보세요..." maxlength="200" ${communityEventAttrs('handleReplyKeyDown', [c.id, bookId], 'onkeydown')} />
+            <button type="button" class="comm-comment-submit-btn" ${communityEventAttrs('submitBookReply', [c.id, bookId], 'onclick')} title="답글 등록">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
-            <button type="button" class="comm-reply-cancel-btn" onclick="toggleReplyInput('${esc(c.id)}', '${esc(bookId)}')" title="취소">✕</button>
+            <button type="button" class="comm-reply-cancel-btn" ${communityEventAttrs('toggleReplyInput', [c.id, bookId], 'onclick')} title="취소">✕</button>
           </div>
         </div>
       </div>
@@ -10287,7 +10323,7 @@ function renderCommunityScraps() {
         if (nb && nb.cover) coverUrl = getSafeImageUrl(nb.cover);
       }
     }
-    const clickDetail = s.bookId ? `onclick="showDetail('${esc(s.bookId)}')"` : '';
+    const clickDetail = s.bookId ? `${communityEventAttrs('showDetail', [s.bookId], 'onclick')}` : '';
     const coverHtml = coverUrl
       ? `<img class="comm-scrap-cover" src="${esc(coverUrl)}" alt="${esc(mainTitle)}" referrerpolicy="no-referrer" decoding="async" ${clickDetail} onerror="handleCommCoverError(this)">`
       : `<div class="comm-scrap-cover-placeholder" ${clickDetail}>8ook</div>`;
@@ -10302,7 +10338,7 @@ function renderCommunityScraps() {
           ${coverHtml}
           <div class="comm-scrap-meta">
             <div class="comm-scrap-user-bar">
-              <span class="comm-scrap-owner-wrap" onclick="openUserProfileCard('${esc(ownerNick)}', '${esc(s.user_id || s._ownerId || '')}', event)" style="cursor: pointer;" title="${esc(ownerNick)}님의 프로필 보기"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span>${isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>
+              <span class="comm-scrap-owner-wrap" ${communityEventAttrs('openUserProfileCard', [ownerNick, s.user_id || s._ownerId || ''], 'onclick')} style="cursor: pointer;" title="${esc(ownerNick)}님의 프로필 보기"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span>${isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>
               ${s.bookDate ? `<span class="comm-scrap-time" title="도서 완독일: ${fmtDate(s.bookDate)}">• 완독 ${fmtDate(s.bookDate)}</span>` : (s.time ? `<span class="comm-scrap-time">• ${esc(s.time)}</span>` : '')}
             </div>
             <div class="comm-scrap-title" ${clickDetail}>${esc(mainTitle)}</div>
@@ -10321,10 +10357,10 @@ function renderCommunityScraps() {
             ${tagsHtml}
           </div>
           <div class="comm-scrap-actions">
-            <button class="comm-scrap-btn" onclick="copyCommunityQuote('${esc((s.text || '').replace(/'/g, "\\'"))}', '${esc((mainTitle || '').replace(/'/g, "\\'"))}', '${esc((s.author || '').replace(/'/g, "\\'"))}', '${s.page || ''}')" title="문장 복사">
+            <button class="comm-scrap-btn" ${communityEventAttrs('copyCommunityQuote', [s.text || '', mainTitle || '', s.author || '', s.page || ''], 'onclick')} title="문장 복사">
               복사
             </button>
-            <button type="button" class="comm-scrap-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(sid)}" onclick="toggleCommunityLike('${esc(sid)}', this, event)" title="좋아요">
+            <button type="button" class="comm-scrap-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(sid)}" ${communityEventAttrs('toggleCommunityLike', [sid], 'onclick')} title="좋아요">
               <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>
             </button>
           </div>
