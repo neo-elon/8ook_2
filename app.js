@@ -2276,7 +2276,7 @@ function showDetail(id, direction = null, pushHistory = true) {
   }
 
   const coverHtml = book.cover
-    ? `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}" onclick="copyBlogCoverImage('${book.id}')" title="클릭하여 블로그용 편집 표지(2번 포맷) 복사" style="cursor:pointer;" onerror="handleDetailThumbError(this)">`
+    ? `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}" ${libraryEventAttrs('copyBlogCoverImage', [book.id])} title="클릭하여 블로그용 편집 표지(2번 포맷) 복사" style="cursor:pointer;" onerror="handleDetailThumbError(this)">`
     : `<div class="detail-thumb-placeholder">8ook</div>`;
 
   const chips = [];
@@ -2288,7 +2288,7 @@ function showDetail(id, direction = null, pushHistory = true) {
   const scrapCount = (book.scraps || []).length;
 
   const kwHtml = (book.keywords && book.keywords.length)
-    ? `<div class="meta-chips" style="margin-top:6px;">${book.keywords.map(k => `<button type="button" class="kw-chip" onclick="openEditModal('${book.id}', true)">#${esc(k)}</button>`).join('')}</div>`
+    ? `<div class="meta-chips" style="margin-top:6px;">${book.keywords.map(k => `<button type="button" class="kw-chip" ${libraryEventAttrs('openEditModal', [book.id, true])}>#${esc(k)}</button>`).join('')}</div>`
     : '';
 
   const scrapsHtml = buildScrapsHtml(book);
@@ -2314,8 +2314,8 @@ function showDetail(id, direction = null, pushHistory = true) {
         <div class="detail-book-actions" style="display:inline-flex; gap:6px; align-items:center;">
           ${isGuideDetail
             ? `<button class="btn btn-ghost btn-sm" onclick="showDetail('8ook_user_guide'); toast('가이드가 최신 상태로 갱신되었습니다');" style="padding:0 8px; font-size:11px; border-radius:4px; height:24px; line-height:1; color:#d4af37; border-color:rgba(212,175,55,0.4); display:inline-flex; align-items:center;">가이드 최신화</button>`
-            : `<button class="btn btn-ghost btn-sm" onclick="openEditModal('${book.id}')" style="padding:0 8px; font-size:11.5px; border-radius:4px; height:24px; line-height:1; display:inline-flex; align-items:center; justify-content:center;">편집</button>
-               <button class="btn btn-danger btn-sm" onclick="doDeleteBook('${book.id}')" style="padding:0 8px; font-size:11.5px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:24px; line-height:1; display:inline-flex; align-items:center; justify-content:center;">삭제</button>`
+            : `<button class="btn btn-ghost btn-sm" ${libraryEventAttrs('openEditModal', [book.id])} style="padding:0 8px; font-size:11.5px; border-radius:4px; height:24px; line-height:1; display:inline-flex; align-items:center; justify-content:center;">편집</button>
+               <button class="btn btn-danger btn-sm" ${libraryEventAttrs('doDeleteBook', [book.id])} style="padding:0 8px; font-size:11.5px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:24px; line-height:1; display:inline-flex; align-items:center; justify-content:center;">삭제</button>`
           }
         </div>
       </div>
@@ -2336,15 +2336,15 @@ function showDetail(id, direction = null, pushHistory = true) {
       : ''}
       ${!isGuideDetail ? `
       <div class="scraps-bottom-action">
-        <button type="button" class="scrap-add-bottom-btn" onclick="openScrapModal('${book.id}')">
+        <button type="button" class="scrap-add-bottom-btn" ${libraryEventAttrs('openScrapModal', [book.id])}>
           <span style="font-size:15px; font-weight:700; color:var(--lavender); line-height:1;">＋</span>
           <span>문장 추가</span>
         </button>
-        <button type="button" class="scrap-copy-bottom-btn" onclick="copyBookForBlog('${book.id}')" title="블로그 포스팅용으로 도서 정보와 수집한 문장 전체를 복사합니다">
+        <button type="button" class="scrap-copy-bottom-btn" ${libraryEventAttrs('copyBookForBlog', [book.id])} title="블로그 포스팅용으로 도서 정보와 수집한 문장 전체를 복사합니다">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--lavender); flex-shrink:0;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
           <span>내용 복사</span>
         </button>
-        <button type="button" class="scrap-cover-bottom-btn" onclick="copyBlogCoverImage('${book.id}')" title="블로그용 편집 표지 이미지를 클립보드에 복사합니다">
+        <button type="button" class="scrap-cover-bottom-btn" ${libraryEventAttrs('copyBlogCoverImage', [book.id])} title="블로그용 편집 표지 이미지를 클립보드에 복사합니다">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--lavender); flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
           <span>표지 복사</span>
         </button>
@@ -2379,6 +2379,42 @@ function showDetail(id, direction = null, pushHistory = true) {
   }
 }
 
+// Library values stay JSON data; preserve argument types and do not decode entities.
+function libraryEventAttrs(action, args) {
+  const encoded = JSON.stringify(args).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#39;');
+  return `data-library-click="${action}" data-library-args="${encoded}"`;
+}
+
+function handleLibraryDelegatedClick(event) {
+  const element = event.target.closest?.('[data-library-click]');
+  if (!element) return;
+  const actions = {
+    addScrapTag: args => addScrapTag(...args),
+    cancelInlineScrapMemo: args => cancelInlineScrapMemo(...args),
+    copyBlogCoverImage: args => copyBlogCoverImage(...args),
+    copyBookForBlog: args => copyBookForBlog(...args),
+    copyScrapQuoteText: args => copyScrapQuoteText(...args),
+    doDeleteBook: args => doDeleteBook(...args),
+    doDeleteScrap: args => doDeleteScrap(...args),
+    editScrap: args => editScrap(...args),
+    filterScrapsByTag: args => filterScrapsByTag(...args),
+    openEditModal: args => openEditModal(...args),
+    openInlineScrapMemo: args => openInlineScrapMemo(...args),
+    openScrapModal: args => openScrapModal(...args),
+    removeScrapTag: args => removeScrapTag(...args),
+    saveInlineScrapMemo: args => saveInlineScrapMemo(...args),
+    selectRepBookForSlot: args => selectRepBookForSlot(...args),
+    showDetail: args => showDetail(...args),
+    showScraps: args => showScraps(...args),
+  };
+  const action = element.getAttribute('data-library-click');
+  if (!Object.prototype.hasOwnProperty.call(actions, action)) return;
+  actions[action](JSON.parse(element.getAttribute('data-library-args')));
+}
+
+document.addEventListener('click', handleLibraryDelegatedClick);
+
 function buildScrapsHtml(book) {
   cleanBookScraps(book);
   if (!book.scraps || !book.scraps.length) return '';
@@ -2395,12 +2431,9 @@ function buildScrapsHtml(book) {
     const tags = (s && (s.tags || s.keywords)) || [];
     const tagsHtml = tags.length
       ? `<div class="scrap-tags-row" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">
-           ${tags.map(t => `<span class="scrap-tag-chip" onclick="showScraps('${esc(t)}')" title="#${esc(t)} 해시태그 문장 모아보기">#${esc(t)}</span>`).join('')}
+           ${tags.map(t => `<span class="scrap-tag-chip" ${libraryEventAttrs('showScraps', [t])} title="#${esc(t)} 해시태그 문장 모아보기">#${esc(t)}</span>`).join('')}
          </div>`
       : '';
-    const safeText = sText.replace(/'/g, "\\'");
-    const safeTitle = (book.title || '').replace(/'/g, "\\'");
-    const safeAuthor = (book.author || '').replace(/'/g, "\\'");
 
     return `
     <div class="scrap-item" id="${sId}" style="order:${idx};">
@@ -2410,10 +2443,10 @@ function buildScrapsHtml(book) {
       <div class="scrap-foot" style="display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; width:100%; margin-top:4px;">
         ${sPage ? `<span class="scrap-page">p.${sPage}</span>` : ''}
         <div class="scrap-actions" style="margin-left:auto; display:flex; gap:6px;">
-          <button class="btn btn-ghost btn-sm" onclick="copyScrapQuoteText('${esc(safeText)}', '${esc(safeTitle)}', '${esc(safeAuthor)}')" style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;" title="문장 복사">복사</button>
+          <button class="btn btn-ghost btn-sm" ${libraryEventAttrs('copyScrapQuoteText', [sText, book.title || '', book.author || ''])} style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;" title="문장 복사">복사</button>
           ${isGuide ? '' : `
-          <button class="btn btn-ghost btn-sm" onclick="editScrap('${book.id}','${sId}')" style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;">수정</button>
-          <button class="btn btn-danger btn-sm" onclick="doDeleteScrap('${book.id}','${sId}')" style="padding:2px 6px; font-size:10px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:22px; line-height:1;">삭제</button>
+          <button class="btn btn-ghost btn-sm" ${libraryEventAttrs('editScrap', [book.id,sId])} style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;">수정</button>
+          <button class="btn btn-danger btn-sm" ${libraryEventAttrs('doDeleteScrap', [book.id,sId])} style="padding:2px 6px; font-size:10px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:22px; line-height:1;">삭제</button>
           `}
         </div>
       </div>
@@ -4737,7 +4770,7 @@ function renderScrapModalTags() {
   container.innerHTML = currentScrapTags.map(tag => `
     <span class="scrap-tag-pill">
       #${esc(tag)}
-      <button type="button" class="scrap-tag-pill-del" onclick="removeScrapTag('${esc(tag)}')" aria-label="삭제">×</button>
+      <button type="button" class="scrap-tag-pill-del" ${libraryEventAttrs('removeScrapTag', [tag])} aria-label="삭제">×</button>
     </span>
   `).join('');
 
@@ -4903,7 +4936,7 @@ function updateRecommendedHashtags(immediate = false) {
     }
 
     chipsContainer.innerHTML = recs.map(tag => `
-      <button type="button" class="scrap-rec-chip" tabindex="-1" onclick="addScrapTag('${esc(tag)}')" title="#${esc(tag)} 추가">
+      <button type="button" class="scrap-rec-chip" tabindex="-1" ${libraryEventAttrs('addScrapTag', [tag])} title="#${esc(tag)} 추가">
         <span class="rec-plus">+</span> #${esc(tag)}
       </button>
     `).join('');
@@ -5233,7 +5266,7 @@ function renderScrapsArchive() {
       </button>
     `;
     const tagPills = sortedTags.map(([tag, count]) => `
-      <button type="button" class="scrap-filter-pill ${currentScrapFilterTag === tag ? 'active' : ''}" onclick="filterScrapsByTag('${esc(tag)}')">
+      <button type="button" class="scrap-filter-pill ${currentScrapFilterTag === tag ? 'active' : ''}" ${libraryEventAttrs('filterScrapsByTag', [tag])}>
         #${esc(tag)} <span class="scrap-filter-count">${count}</span>
       </button>
     `).join('');
@@ -5346,13 +5379,13 @@ function renderScrapsArchive() {
     const { book, scrap } = item;
     const tags = scrap.tags || scrap.keywords || [];
     const coverHtml = book.cover
-      ? `<img src="${esc(getSafeImageUrl(book.cover))}" class="scrap-card-cover" alt="${esc(book.title)}" onclick="showDetail('${book.id}')" onerror="handleScrapCoverError(this)">`
-      : `<div class="scrap-card-cover-placeholder" onclick="showDetail('${book.id}')">8ook</div>`;
+      ? `<img src="${esc(getSafeImageUrl(book.cover))}" class="scrap-card-cover" alt="${esc(book.title)}" ${libraryEventAttrs('showDetail', [book.id])} onerror="handleScrapCoverError(this)">`
+      : `<div class="scrap-card-cover-placeholder" ${libraryEventAttrs('showDetail', [book.id])}>8ook</div>`;
 
     const tagsHtml = tags.map(t => {
       const cleanT = t.replace(/^#/, '');
       const isSelected = currentScrapFilterTag && currentScrapFilterTag.toLowerCase() === cleanT.toLowerCase();
-      return `<span class="scrap-tag-chip" style="${isSelected ? 'background:var(--violet); color:#fff; border-color:var(--violet);' : ''}" onclick="filterScrapsByTag('${esc(cleanT)}')" title="#${esc(cleanT)} 필터">#${highlight(cleanT)}</span>`;
+      return `<span class="scrap-tag-chip" style="${isSelected ? 'background:var(--violet); color:#fff; border-color:var(--violet);' : ''}" ${libraryEventAttrs('filterScrapsByTag', [cleanT])} title="#${esc(cleanT)} 필터">#${highlight(cleanT)}</span>`;
     }).join('');
 
     const memoHtml = scrap.memo
@@ -5367,7 +5400,7 @@ function renderScrapsArchive() {
         <div class="scrap-card-header">
           ${coverHtml}
           <div class="scrap-card-meta">
-            <div class="scrap-card-title" onclick="showDetail('${book.id}')">${esc(bookMainTitle)}</div>
+            <div class="scrap-card-title" ${libraryEventAttrs('showDetail', [book.id])}>${esc(bookMainTitle)}</div>
             <div class="scrap-card-sub">
               <span>${esc(book.author || '저자 미상')}</span>
               ${book.date ? `<span title="도서 완독일">• 완독 ${fmtDate(book.date)}</span>` : (scrap.at ? `<span>• ${fmtDate(scrap.at.slice(0, 10))}</span>` : '')}
@@ -5387,16 +5420,16 @@ function renderScrapsArchive() {
             ${tagsHtml}
           </div>
           <div class="scrap-card-actions">
-            <button class="btn btn-ghost btn-sm" onclick="copyScrapQuoteText('${esc((scrap.text || '').replace(/'/g, "\\'"))}', '${esc((bookMainTitle || '').replace(/'/g, "\\'"))}', '${esc((book.author || '').replace(/'/g, "\\'"))}')" title="문장 복사" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">
+            <button class="btn btn-ghost btn-sm" ${libraryEventAttrs('copyScrapQuoteText', [scrap.text || '', bookMainTitle || '', book.author || ''])} title="문장 복사" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">
               복사
             </button>
-            <button class="btn btn-ghost btn-sm" onclick="openInlineScrapMemo('${book.id}','${scrap.id}')" title="이 문장에 내 생각 추가" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px; color:var(--violet);">
+            <button class="btn btn-ghost btn-sm" ${libraryEventAttrs('openInlineScrapMemo', [book.id,scrap.id])} title="이 문장에 내 생각 추가" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px; color:var(--violet);">
               ${scrap.memo ? '내 생각 수정' : '내 생각 추가'}
             </button>
-            <button class="btn btn-ghost btn-sm" onclick="editScrap('${book.id}','${scrap.id}')" style="padding:2px 6px; font-size:10px; height:24px; border-radius:4px;">
+            <button class="btn btn-ghost btn-sm" ${libraryEventAttrs('editScrap', [book.id,scrap.id])} style="padding:2px 6px; font-size:10px; height:24px; border-radius:4px;">
               수정
             </button>
-            <button class="btn btn-danger btn-sm" onclick="doDeleteScrap('${book.id}','${scrap.id}')" style="padding:2px 6px; font-size:10px; height:24px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171;">
+            <button class="btn btn-danger btn-sm" ${libraryEventAttrs('doDeleteScrap', [book.id,scrap.id])} style="padding:2px 6px; font-size:10px; height:24px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171;">
               삭제
             </button>
           </div>
@@ -5445,8 +5478,8 @@ function openInlineScrapMemo(bookId, scrapId) {
   box.innerHTML = `
     <textarea class="scrap-inline-memo-input" id="inline-memo-input-${scrapId}" placeholder="이 문장을 읽고 든 생각이나 감상을 기록해보세요..." rows="2">${esc(currentMemo)}</textarea>
     <div class="scrap-inline-memo-actions">
-      <button type="button" class="btn btn-ghost btn-sm" onclick="cancelInlineScrapMemo('${scrapId}')" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">취소</button>
-      <button type="button" class="btn btn-sm" onclick="saveInlineScrapMemo('${bookId}', '${scrapId}')" style="padding:2px 10px; font-size:11px; height:24px; border-radius:4px; background:var(--violet); color:#fff; border:none; cursor:pointer;">저장</button>
+      <button type="button" class="btn btn-ghost btn-sm" ${libraryEventAttrs('cancelInlineScrapMemo', [scrapId])} style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">취소</button>
+      <button type="button" class="btn btn-sm" ${libraryEventAttrs('saveInlineScrapMemo', [bookId, scrapId])} style="padding:2px 10px; font-size:11px; height:24px; border-radius:4px; background:var(--violet); color:#fff; border:none; cursor:pointer;">저장</button>
     </div>
   `;
 
@@ -7946,7 +7979,7 @@ function filterProfileBookPicker() {
     const coverUrl = b.cover || '';
     const hasCover = coverUrl && !coverUrl.includes('data:image/svg');
     return `
-      <div class="profile-picker-item" onclick="selectRepBookForSlot(${currentEditingRepSlot}, '${esc(b.id)}')">
+      <div class="profile-picker-item" ${libraryEventAttrs('selectRepBookForSlot', [currentEditingRepSlot, b.id])}>
         ${hasCover
           ? `<img src="${esc(coverUrl)}" class="profile-picker-thumb" referrerpolicy="no-referrer" alt="" onerror="this.style.display='none';">`
           : `<div class="profile-picker-thumb" style="display:flex; align-items:center; justify-content:center; background:rgba(140,98,57,0.1); font-size:9px; color:var(--text-400);">8ook</div>`
@@ -8617,7 +8650,9 @@ function handleScrapCoverError(img) {
   const ph = document.createElement('div');
   ph.className = 'scrap-card-cover-placeholder';
   ph.textContent = '8ook';
-  if (img.onclick) ph.onclick = img.onclick;
+  for (const attr of ['data-library-click', 'data-library-args']) {
+    if (img.hasAttribute(attr)) ph.setAttribute(attr, img.getAttribute(attr));
+  }
   img.replaceWith(ph);
 }
 
