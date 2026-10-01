@@ -583,10 +583,17 @@ function _startBarcodeScanLoop() {
             try {
               const cropCanvas = _getCroppedCanvas(video);
               if (cropCanvas) {
-                const res = await sharedZXingReaderInstance.decodeFromCanvas(cropCanvas);
-                if (res && res.text) {
-                  detected = { code: res.text };
+                let res = null;
+                if (typeof sharedZXingReaderInstance.decodeFromCanvas === 'function') {
+                  res = await sharedZXingReaderInstance.decodeFromCanvas(cropCanvas);
+                } else if (typeof sharedZXingReaderInstance.decodeFromImageElement === 'function') {
+                  const img = new Image();
+                  img.src = cropCanvas.toDataURL('image/png');
+                  await img.decode();
+                  res = await sharedZXingReaderInstance.decodeFromImageElement(img);
                 }
+                const text = res && (typeof res.getText === 'function' ? res.getText() : res.text);
+                if (text) detected = { code: text };
               }
             } catch (err) {
               if (frameCounter === 2 || frameCounter % 60 === 0) console.warn('[8ook barcode] legacy frame error', err);
