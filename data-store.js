@@ -105,40 +105,64 @@ async function loadData() {
       dbSupportsSpineCover = true;
     }
 
-    // Migration: If Supabase is empty but we have local guest books, upload them to Supabase
+    // One-time legacy guest-library merge into the signed-in Supabase library.
+    // Supabase is the canonical source. Existing remote records win on duplicates.
     const guestBooksStr = localStorage.getItem('rj_books');
     let guestBooks = [];
     if (guestBooksStr) {
       try { guestBooks = JSON.parse(guestBooksStr); } catch (e) { }
     }
-    const userGuestBooks = guestBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
+    const legacyGuestBooks = guestBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
 
-    if (remoteBooks.length === 0 && userGuestBooks.length > 0) {
-      const booksToUpload = userGuestBooks.map(b => {
-        return { ...b, id: uid(), user_id: currentUser.id };
-      });
-      const payloadToUpload = booksToUpload.map(b => sanitizeBookForSupabase(b));
-      let { error: syncError } = await supabaseClient
-        .from('books')
-        .upsert(payloadToUpload, { onConflict: 'id' });
-      if (syncError && handleSupabaseSchemaError(syncError)) {
-        const safePayload = booksToUpload.map(b => sanitizeBookForSupabase(b));
-        const res = await supabaseClient
+    const normalizeBookText = (value) => String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    const getBookIsbn = (book) => String(book?.isbn13 || book?.isbn || '').replace(/[^0-9Xx]/g, '').toUpperCase();
+    const getBookIdentity = (book) => {
+      const isbn = getBookIsbn(book);
+      if (isbn) return `isbn:${isbn}`;
+      return `title-author:${normalizeBookText(book?.title)}|${normalizeBookText(book?.author)}`;
+    };
+
+    if (legacyGuestBooks.length > 0) {
+      const existingKeys = new Set(remoteBooks.map(getBookIdentity));
+      const legacyToUpload = [];
+      for (const legacyBook of legacyGuestBooks) {
+        const identity = getBookIdentity(legacyBook);
+        if (!identity || identity === 'title-author:|') continue;
+        if (existingKeys.has(identity)) continue;
+        existingKeys.add(identity);
+        legacyToUpload.push({
+          ...legacyBook,
+          id: uid(),
+          user_id: currentUser.id
+        });
+      }
+
+      if (legacyToUpload.length > 0) {
+        const payloadToUpload = legacyToUpload.map(b => sanitizeBookForSupabase(b));
+        let { error: syncError } = await supabaseClient
           .from('books')
-          .upsert(safePayload, { onConflict: 'id' });
-        syncError = res.error;
-      }
-      if (!syncError) {
-        books = booksToUpload;
-        toast('기존 로컬 책장 데이터를 Supabase에 동기화했습니다.');
-        try { localStorage.removeItem('rj_books'); } catch (e) { }
+          .upsert(payloadToUpload, { onConflict: 'id' });
+        if (syncError && handleSupabaseSchemaError(syncError)) {
+          const safePayload = legacyToUpload.map(b => sanitizeBookForSupabase(b));
+          const res = await supabaseClient
+            .from('books')
+            .upsert(safePayload, { onConflict: 'id' });
+          syncError = res.error;
+        }
+        if (syncError) {
+          console.error('Failed to merge legacy guest books into Supabase:', syncError);
+        } else {
+          remoteBooks.push(...legacyToUpload);
+          try { localStorage.removeItem('rj_books'); } catch (e) { }
+          toast(`기존 가져오기 데이터 ${legacyToUpload.length}권을 내 책장에 통합했습니다.`, 3000);
+        }
       } else {
-        console.error('Failed to sync local books to Supabase:', syncError);
-        books = remoteBooks;
+        // Everything in the legacy store already exists in Supabase.
+        try { localStorage.removeItem('rj_books'); } catch (e) { }
       }
-    } else {
-      books = remoteBooks;
     }
+
+    books = remoteBooks;
 
     // 로그인 계정인 경우 가이드북 정리
     if (currentUser) {
