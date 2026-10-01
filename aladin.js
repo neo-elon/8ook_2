@@ -115,7 +115,6 @@ function runAladinLookUpJsonp(isbn, key, results, isBarcodeScan = false) {
     delete window[cbName];
     script.remove();
     const data = (typeof arg1 === 'boolean' || typeof arg1 === 'number') ? arg2 : arg1;
-    console.info('[8ook aladin] ISBN lookup response', { isbn, hasData: !!data, itemCount: data && Array.isArray(data.item) ? data.item.length : 0, data });
     if (data && data.item && data.item.length > 0) {
       handleAladinResults(data.item, isBarcodeScan, isbn);
     } else {
@@ -530,7 +529,6 @@ function applyAladinItemByIndex(index) {
 }
 
 function applyAladinItem(item) {
-  console.info('[8ook aladin] applying item', item);
   if (item.title) {
     const titleParts = splitBookTitle(item.title);
     document.getElementById('bk-title').value = titleParts.main;
