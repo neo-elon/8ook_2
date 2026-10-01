@@ -44,31 +44,12 @@ function isNeoUser(user) {
 }
 
 function saveData() {
+  // Supabase is the only source of truth for personal libraries.
   markGalleryDirty();
-  try {
-    if (currentUser) {
-      // Supabase is the single source of truth for signed-in libraries.
-      // Existing rj_books_<uid> values are retained only as a legacy emergency fallback;
-      // do not keep writing a second copy that can drift from the server.
-    } else {
-      // Logged-out mode is read-only and shows only the built-in guide.
-    }
-  } catch (e) { }
 }
 
 async function loadData() {
   loadCommunityCommentsFromStorage();
-  let localBooks = [];
-  try {
-    const key = currentUser ? `rj_books_${currentUser.id}` : 'rj_books';
-    const d = localStorage.getItem(key);
-    if (d) localBooks = JSON.parse(d);
-  } catch (e) { }
-
-  // 1. 로컬 저장소에서 가이드북, 좋아요 레코드 등 제외
-  localBooks = localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
-
-
   if (!supabaseClient || !currentUser) {
     // Logged-out/guest view is intentionally isolated from any previously
     // imported or cached library data. Show only the built-in user guide.
@@ -104,63 +85,6 @@ async function loadData() {
       dbSupportsSpineCover = true;
     }
 
-    // One-time legacy guest-library merge into the signed-in Supabase library.
-    // Supabase is the canonical source. Existing remote records win on duplicates.
-    const guestBooksStr = localStorage.getItem('rj_books');
-    let guestBooks = [];
-    if (guestBooksStr) {
-      try { guestBooks = JSON.parse(guestBooksStr); } catch (e) { }
-    }
-    const legacyGuestBooks = guestBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
-
-    const normalizeBookText = (value) => String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
-    const getBookIsbn = (book) => String(book?.isbn13 || book?.isbn || '').replace(/[^0-9Xx]/g, '').toUpperCase();
-    const getBookIdentity = (book) => {
-      const isbn = getBookIsbn(book);
-      if (isbn) return `isbn:${isbn}`;
-      return `title-author:${normalizeBookText(book?.title)}|${normalizeBookText(book?.author)}`;
-    };
-
-    if (legacyGuestBooks.length > 0) {
-      const existingKeys = new Set(remoteBooks.map(getBookIdentity));
-      const legacyToUpload = [];
-      for (const legacyBook of legacyGuestBooks) {
-        const identity = getBookIdentity(legacyBook);
-        if (!identity || identity === 'title-author:|') continue;
-        if (existingKeys.has(identity)) continue;
-        existingKeys.add(identity);
-        legacyToUpload.push({
-          ...legacyBook,
-          id: uid(),
-          user_id: currentUser.id
-        });
-      }
-
-      if (legacyToUpload.length > 0) {
-        const payloadToUpload = legacyToUpload.map(b => sanitizeBookForSupabase(b));
-        let { error: syncError } = await supabaseClient
-          .from('books')
-          .upsert(payloadToUpload, { onConflict: 'id' });
-        if (syncError && handleSupabaseSchemaError(syncError)) {
-          const safePayload = legacyToUpload.map(b => sanitizeBookForSupabase(b));
-          const res = await supabaseClient
-            .from('books')
-            .upsert(safePayload, { onConflict: 'id' });
-          syncError = res.error;
-        }
-        if (syncError) {
-          console.error('Failed to merge legacy guest books into Supabase:', syncError);
-        } else {
-          remoteBooks.push(...legacyToUpload);
-          try { localStorage.removeItem('rj_books'); } catch (e) { }
-          toast(`기존 가져오기 데이터 ${legacyToUpload.length}권을 내 책장에 통합했습니다.`, 3000);
-        }
-      } else {
-        // Everything in the legacy store already exists in Supabase.
-        try { localStorage.removeItem('rj_books'); } catch (e) { }
-      }
-    }
-
     books = remoteBooks;
 
     // 로그인 계정인 경우 가이드북 정리
@@ -176,49 +100,6 @@ async function loadData() {
         }
       } else {
         books = books.filter(b => !isGuideBook(b));
-      }
-    }
-
-    // 1회성 마이그레이션: 임시 계정(f2432e6e) 잔여 도서를 현재 계정으로 병합 후 삭제
-    if (isNeoUser(currentUser) && supabaseClient) {
-      const TEMP_UID = 'f2432e6e-0481-4e8e-a516-213bd12434f9';
-      const migrationDone = localStorage.getItem('_db_migration_temp_done_v2');
-      if (!migrationDone) {
-        try {
-          const { data: tempBooks } = await supabaseClient.from('books').select('*').eq('user_id', TEMP_UID);
-          if (tempBooks && tempBooks.length > 0) {
-            const existingTitles = new Set(books.map(b => (b.title || '').trim().toLowerCase()));
-            for (const tb of tempBooks) {
-              const tNorm = (tb.title || '').trim().toLowerCase();
-              if (!existingTitles.has(tNorm)) {
-                // 고유 도서: 현재 계정으로 이관
-                const { error: upErr } = await supabaseClient.from('books').update({ user_id: currentUser.id }).eq('id', tb.id).eq('user_id', TEMP_UID);
-                if (!upErr) {
-                  tb.user_id = currentUser.id;
-                  books.push(tb);
-                  existingTitles.add(tNorm);
-                  console.log('[Migration] Transferred:', tb.title);
-                }
-              } else {
-                // 중복 도서: 삭제
-                await supabaseClient.from('books').delete().eq('id', tb.id).eq('user_id', TEMP_UID);
-                console.log('[Migration] Deleted duplicate:', tb.title);
-              }
-            }
-            // null user_id 고아 레코드 정리
-            const { data: orphans } = await supabaseClient.from('books').select('id').is('user_id', null);
-            if (orphans && orphans.length > 0) {
-              for (const o of orphans) {
-                await supabaseClient.from('books').delete().eq('id', o.id).is('user_id', null);
-              }
-              console.log('[Migration] Cleaned', orphans.length, 'orphan records');
-            }
-            toast('서재 계정 통합 완료!', 2500);
-          }
-          localStorage.setItem('_db_migration_temp_done_v2', '1');
-        } catch (migErr) {
-          console.warn('[Migration] Error:', migErr);
-        }
       }
     }
 
