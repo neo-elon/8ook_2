@@ -8654,7 +8654,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
       <div class="comm-book-meta">
         ${keywordsHtml}
         <div class="comm-book-meta-right">
-          <button type="button" class="comm-book-comment-btn${hasComments ? ' active' : ''}" id="comm-cmt-toggle-btn-${esc(bid)}" onclick="toggleBookCommentsSection('${esc(bid)}', event)" title="${hasComments ? '말풍선 댓글 작성하기' : '말풍선 댓글 보기 및 작성'}">
+          <button type="button" class="comm-book-comment-btn${hasComments ? ' active' : ''}" id="comm-cmt-toggle-btn-${esc(bid)}" onclick="toggleBookCommentsSection('${esc(bid)}', event)" title="${hasComments ? '댓글 작성하기' : '댓글 보기 및 작성'}">
             <span class="comm-comment-icon">💬</span> <span id="comm-cmt-cnt-${esc(bid)}">${commentCount}</span>
           </button>
           <button type="button" class="comm-book-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(bid)}" onclick="toggleCommunityBookLike('${esc(bid)}', this, event)" title="좋아요">
@@ -8668,7 +8668,7 @@ function buildCommunityBookCardHtml(b, storedBookLikes, myId) {
         </div>
         <div class="comm-comment-form">
           <div class="comm-comment-input-box">
-            <input type="text" class="comm-comment-input" id="comm-cmt-input-${esc(bid)}" placeholder="말풍선 댓글 남기기..." maxlength="200" onkeydown="handleCommentKeyDown(event, '${esc(bid)}')" />
+            <input type="text" class="comm-comment-input" id="comm-cmt-input-${esc(bid)}" placeholder="댓글 남기기..." maxlength="200" onkeydown="handleCommentKeyDown(event, '${esc(bid)}')" />
             <button type="button" class="comm-comment-submit-btn" onclick="submitBookComment('${esc(bid)}')" title="댓글 등록">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
@@ -9514,7 +9514,7 @@ function getBookComments(bookId) {
 
 function renderCommentsListHtml(bookId, comments) {
   if (!comments || comments.length === 0) {
-    return `<div class="comm-comment-empty-hint">💭 첫 번째 말풍선 댓글을 남겨보세요!</div>`;
+    return `<div class="comm-comment-empty-hint">첫 번째 댓글을 남겨보세요.</div>`;
   }
   const myId = getClientLikeId();
   const currentNick = getUserNickname();
@@ -9720,7 +9720,7 @@ async function submitBookComment(bookId) {
 
   input.value = '';
   updateBookCommentsUI(strId);
-  toast('말풍선 댓글이 등록되었습니다 💬');
+  toast('댓글이 등록되었습니다.');
 
   broadcastCommentUpdate('add', newCmt);
 

@@ -3840,45 +3840,48 @@
       border-radius: 4px;
     }
 
-    /* 말풍선 아이템 */
+    /* 미니멀 텍스트 댓글 아이템 */
     .comm-comment-item {
       display: flex;
       flex-direction: column;
-      gap: 2.5px;
-      animation: bubblePop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      gap: 3px;
+      padding: 5px 0 6px;
+      border-bottom: 1px solid rgba(140, 98, 57, 0.08);
     }
-    @keyframes bubblePop {
-      0% {
-        opacity: 0;
-        transform: translateY(3px) scale(0.98);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+    .comm-comment-item:last-child {
+      border-bottom: none;
+      padding-bottom: 2px;
+    }
+    body.dark-mode .comm-comment-item {
+      border-bottom-color: rgba(255, 255, 255, 0.07);
     }
 
     .comm-comment-meta-row {
       display: flex;
       align-items: center;
       gap: 5px;
-      font-size: 10.5px;
-      line-height: 1.2;
+      font-size: 11px;
+      line-height: 1.25;
     }
     .comm-comment-author {
-      font-weight: 700;
-      color: var(--text-200);
+      font-weight: 600;
+      color: var(--text-100);
       display: inline-flex;
       align-items: center;
       gap: 1px;
       font-size: 11px;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .comm-comment-author:hover {
+      color: var(--violet);
     }
     .comm-comment-author .comm-user-at {
-      color: var(--lavender);
+      color: var(--lavender, #8c6239);
       font-size: 10px;
     }
     .comm-comment-time {
-      font-size: 9.5px;
+      font-size: 10px;
       color: var(--text-400);
     }
     .comm-reply-toggle-btn {
@@ -3895,7 +3898,6 @@
     .comm-reply-toggle-btn:hover {
       color: var(--terracotta);
       background: rgba(140, 98, 57, 0.08);
-      text-decoration: underline;
     }
     .comm-comment-delete-btn {
       margin-left: auto;
@@ -3906,7 +3908,7 @@
       cursor: pointer;
       padding: 0 3px;
       line-height: 1;
-      opacity: 0.6;
+      opacity: 0.5;
       transition: opacity 0.15s, color 0.15s;
     }
     .comm-comment-delete-btn:hover {
@@ -3914,86 +3916,44 @@
       color: #ef4444;
     }
 
-    /* 실제 말풍선 박스 (Speech Bubble) */
+    /* 미니멀 텍스트형 댓글 본문 (말풍선 박스 제거) */
     .comm-comment-bubble {
-      position: relative;
-      background: rgba(140, 98, 57, 0.05);
-      border: 1px solid rgba(140, 98, 57, 0.16);
-      border-radius: 4px 12px 12px 12px; /* 좌상단 꼬리표 포인트 */
-      padding: 7px 10px;
       font-size: 12px;
-      line-height: 1.45;
-      color: var(--text-100);
+      line-height: 1.5;
+      color: var(--text-200);
       word-break: break-word;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      padding: 1px 0 2px;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
     }
-    .comm-comment-bubble::before {
-      content: '';
-      position: absolute;
-      top: -5px;
-      left: 7px;
-      width: 0;
-      height: 0;
-      border-left: 4px solid transparent;
-      border-right: 4px solid transparent;
-      border-bottom: 5px solid rgba(140, 98, 57, 0.18);
-    }
+    .comm-comment-bubble::before,
     .comm-comment-bubble::after {
-      content: '';
-      position: absolute;
-      top: -3.5px;
-      left: 8px;
-      width: 0;
-      height: 0;
-      border-left: 3px solid transparent;
-      border-right: 3px solid transparent;
-      border-bottom: 4px solid var(--bg-surface, #ffffff);
+      display: none !important;
     }
 
-    body.dark-mode .comm-comment-bubble {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.12);
-    }
-    body.dark-mode .comm-comment-bubble::before {
-      border-bottom-color: rgba(255, 255, 255, 0.14);
-    }
-    body.dark-mode .comm-comment-bubble::after {
-      border-bottom-color: #242220;
-    }
-
-    /* 내가 작성한 말풍선 */
-    .comm-comment-item.my-comment > .comm-comment-bubble {
-      background: rgba(140, 98, 57, 0.09);
-      border-color: rgba(140, 98, 57, 0.28);
-    }
-    body.dark-mode .comm-comment-item.my-comment > .comm-comment-bubble {
-      background: rgba(184, 154, 122, 0.12);
-      border-color: rgba(184, 154, 122, 0.3);
-    }
-
-    /* ── 대댓글 (Replies Thread) ── */
+    /* ── 미니멀 대댓글 (Replies Thread) ── */
     .comm-replies-thread {
-      margin-left: 20px; /* 원본 댓글과 확연히 구분되는 들여쓰기 */
-      padding-left: 10px;
-      border-left: 2px solid rgba(140, 98, 57, 0.22);
+      margin-left: 10px;
+      padding-left: 8px;
+      border-left: 1.5px solid var(--border);
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      margin-top: 5px;
+      gap: 5px;
+      margin-top: 3px;
     }
     body.dark-mode .comm-replies-thread {
-      border-left-color: rgba(255, 255, 255, 0.18);
+      border-left-color: rgba(255, 255, 255, 0.15);
     }
     .comm-reply-item {
       display: flex;
       flex-direction: column;
       gap: 2px;
-      animation: bubblePop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .comm-reply-branch {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--terracotta, #b85d38);
+      font-size: 11px;
+      color: var(--text-400);
       line-height: 1;
       display: inline-flex;
       align-items: center;
@@ -4001,33 +3961,22 @@
     }
     .comm-reply-bubble {
       font-size: 11.5px;
-      padding: 6px 10px;
-      background: rgba(140, 98, 57, 0.045);
-      border: 1px solid rgba(140, 98, 57, 0.14);
-      border-radius: 8px;
-      box-shadow: none;
+      line-height: 1.5;
+      color: var(--text-300);
+      padding: 1px 0;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
     }
-    /* 대댓글은 상단 꼬리표를 제거하여 원본 댓글과 깔끔하게 계층 구분 */
     .comm-reply-bubble::before,
     .comm-reply-bubble::after {
       display: none !important;
     }
-    body.dark-mode .comm-reply-bubble {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255, 255, 255, 0.1);
-    }
-    .comm-reply-item.my-comment .comm-reply-bubble {
-      background: rgba(140, 98, 57, 0.08);
-      border-color: rgba(140, 98, 57, 0.25);
-    }
-    body.dark-mode .comm-reply-item.my-comment .comm-reply-bubble {
-      background: rgba(184, 154, 122, 0.1);
-      border-color: rgba(184, 154, 122, 0.25);
-    }
 
     /* 인라인 대댓글 작성 폼 */
     .comm-reply-form {
-      margin-left: 20px; /* 대댓글 목록과 일치하는 들여쓰기 */
+      margin-left: 10px; /* 대댓글 목록과 일치하는 들여쓰기 */
       margin-top: 5px;
       animation: bubblePop 0.18s ease-out;
     }
