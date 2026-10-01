@@ -234,17 +234,16 @@ async function loadData() {
     initCommunityCommentsChannel();
     preheatSpineCache();
   } catch (e) {
-    console.error('Supabase load error, using local storage backup:', e);
-    books = (currentUser ? localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b)) : localBooks.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b)));
-    books.forEach(b => cleanBookScraps(b));
-    ensureUserGuideBook();
-    saveData();
+    console.error('Supabase load error:', e);
+    // Signed-in libraries use Supabase as the sole source of truth.
+    // Never revive stale rj_books_<uid> data after a server/load failure.
+    books = [];
+    toast('서재 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.', 3500);
     bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
     initCommunityLikesChannel();
     fetchCommunityComments();
     initCommunityCommentsChannel();
-    preheatSpineCache();
   }
 }
 function showDbSetupModal() {
