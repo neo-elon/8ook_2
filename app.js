@@ -3467,10 +3467,4 @@ function searchAladinByQuery(query) {
 /* ==============================================
    EXPORT TO GOOGLE SHEETS (CSV)
 ============================================== */
-// Legacy static dataset import has been retired.
-// NEO_BOOKS_131 remains available to the community view as read-only seed data,
-// but it must never write into a signed-in user's personal Supabase library.
-window.syncNeoBooks = async function() {
-  console.warn('syncNeoBooks is retired: personal libraries use Supabase only.');
-  toast('기존 데이터 가져오기는 종료되었습니다. 현재 서재는 Supabase와 자동 동기화됩니다.', 3000);
-};
+
