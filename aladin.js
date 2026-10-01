@@ -98,6 +98,7 @@ function runAladinLookUpJsonp(isbn, key, results, isBarcodeScan = false) {
     itemIdType: 'ISBN13',
     ItemId: isbn,
     output: 'JS',
+    Version: '20131101',
     Cover: 'Big',
     OptResult: 'subInfo',
     callback: cbName
@@ -121,6 +122,7 @@ function runAladinLookUpJsonp(isbn, key, results, isBarcodeScan = false) {
         itemIdType: 'ISBN',
         ItemId: isbn,
         output: 'JS',
+        Version: '20131101',
         Cover: 'Big',
         OptResult: 'subInfo',
         callback: cbName10
@@ -139,6 +141,7 @@ function runAladinLookUpJsonp(isbn, key, results, isBarcodeScan = false) {
           start: '1',
           SearchTarget: 'Book',
           output: 'JS',
+          Version: '20131101',
           Cover: 'Big',
           OptResult: 'subInfo',
           callback: cbNameKw
@@ -190,10 +193,11 @@ function runAladinLookUpJsonp(isbn, key, results, isBarcodeScan = false) {
   setTimeout(() => {
     if (window[cbName]) {
       delete window[cbName];
-      script.remove();
-      results.innerHTML = `<div class="search-empty">응답 시간 초과</div>`;
+      if (script.isConnected) script.remove();
+      console.warn('[8ook aladin] ISBN lookup timed out', isbn);
+      results.innerHTML = `<div class="search-empty">도서 정보 조회가 지연되고 있습니다. ISBN: ${esc(isbn)}<br><button type="button" class="btn btn-ghost btn-xs" style="margin-top:6px;" onclick="searchAladinByIsbn('${esc(isbn)}')">다시 검색</button></div>`;
     }
-  }, 10000);
+  }, 8000);
 
   document.body.appendChild(script);
 }
