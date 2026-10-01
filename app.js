@@ -1297,7 +1297,10 @@ function createBookCardElement(book, i, isSpineMode) {
       ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="" loading="lazy" decoding="async" onload="adjustSpineCardWidth(this)" onerror="handleRealSpineError(this)">`
       : '';
 
-    const showFallbackClass = (shouldRenderRealSpine && isKnownOk) ? '' : ' show-fallback';
+    // When a real spine image is available but its status is not cached yet,
+    // keep the fallback hidden while the image resolves. Showing the fallback
+    // here causes a visible "default spine -> real image" flash on first load.
+    const showFallbackClass = shouldRenderRealSpine ? '' : ' show-fallback';
 
     card.innerHTML = `
       <div class="spine-3d-wrapper">
