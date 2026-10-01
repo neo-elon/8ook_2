@@ -51,8 +51,8 @@ function saveData() {
       const userBooks = books.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
       localStorage.setItem(`rj_books_${currentUser.id}`, JSON.stringify(userBooks));
     } else {
-      const guestBooks = books.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
-      localStorage.setItem('rj_books', JSON.stringify(guestBooks));
+      // Logged-out mode is read-only and shows only the built-in guide.
+      // Do not create a separate guest library; signed-in Supabase is the SSOT.
     }
   } catch (e) { }
 }
