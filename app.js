@@ -170,6 +170,33 @@ let chartMode = 'month';
 let statsPeriod = 'all';
 let editingScrapId = null;
 let currentGalleryFilter = null;
+let isGalleryDirty = true;
+let savedGalleryScrollTop = 0;
+
+function markGalleryDirty() {
+  isGalleryDirty = true;
+}
+
+function clearGalleryFilter() {
+  currentGalleryFilter = null;
+  savedGalleryScrollTop = 0;
+  markGalleryDirty();
+  renderGallery();
+}
+
+function setGalleryFilter(tag) {
+  currentGalleryFilter = tag ? tag.replace(/^#/, '').trim() : null;
+  savedGalleryScrollTop = 0;
+  markGalleryDirty();
+  renderGallery();
+}
+
+function saveCurrentGalleryScroll() {
+  const scrollEl = document.getElementById('gallery-scroll');
+  if (scrollEl && scrollEl.scrollTop > 0) {
+    savedGalleryScrollTop = scrollEl.scrollTop;
+  }
+}
 
 // Community State
 let remoteCommunityBooks = [];
@@ -238,6 +265,7 @@ function isNeoUser(user) {
 }
 
 function saveData() {
+  markGalleryDirty();
   try {
     if (currentUser) {
       // 로그인 사용자 로컬 저장소 (가이드북/좋아요/댓글/프로필 레코드 제외)
@@ -401,6 +429,7 @@ async function loadData() {
     bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
     initCommunityLikesChannel();
+    preheatSpineCache();
   } catch (e) {
     console.error('Supabase load error, using local storage backup:', e);
     books = (currentUser ? localBooks.filter(b => !isGuideBook(b) && !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b)) : localBooks.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b)));
@@ -410,6 +439,7 @@ async function loadData() {
     bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
     initCommunityLikesChannel();
+    preheatSpineCache();
   }
 }
 function showDbSetupModal() {
@@ -598,14 +628,20 @@ function getSpineWidth(pages) {
 function adjustSpineCardWidth(img) {
   if (!img || !img.naturalWidth || !img.naturalHeight) return;
   const card = img.closest('.book-card.spine-mode');
-  if (!card) return;
   const h = 351; // 1.3배 세로 높이
   // 알라딘에서 실제 불러온 원본 이미지의 가로/세로 비율 100% 그대로 적용
   const ratio = img.naturalWidth / img.naturalHeight;
   let w = Math.round(h * ratio);
   if (w < 16) w = 16;
-  card.style.width = w + 'px';
-  card.style.setProperty('--spine-w', w + 'px');
+  if (card) {
+    card.style.width = w + 'px';
+    card.style.setProperty('--spine-w', w + 'px');
+  }
+  const src = img.getAttribute('src') || img.src;
+  if (src && !src.startsWith('data:')) {
+    spineImgStatusCache[src] = { status: 'ok', width: w };
+    scheduleSaveSpineStatusCache();
+  }
 }
 
 function getGalleryViewMode() {
@@ -712,6 +748,69 @@ function scheduleSaveSpineCache() {
       localStorage.setItem(SPINE_COVER_CACHE_KEY, JSON.stringify(spineCoverThemeCache));
     } catch (e) { }
   }, 800);
+}
+
+// Persistent cache for spine image availability & measured width
+// Format: { [url]: { status: 'ok' | 'fail', width?: number } }
+const SPINE_IMG_STATUS_CACHE_KEY = 'rj_spine_img_status_cache_v2';
+let spineImgStatusCache = {};
+try {
+  const savedStatus = localStorage.getItem(SPINE_IMG_STATUS_CACHE_KEY);
+  if (savedStatus) spineImgStatusCache = JSON.parse(savedStatus);
+} catch (e) {
+  spineImgStatusCache = {};
+}
+
+let _saveSpineStatusTimer = null;
+function scheduleSaveSpineStatusCache() {
+  if (_saveSpineStatusTimer) clearTimeout(_saveSpineStatusTimer);
+  _saveSpineStatusTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(SPINE_IMG_STATUS_CACHE_KEY, JSON.stringify(spineImgStatusCache));
+    } catch (e) { }
+  }, 1000);
+}
+
+function preheatSpineCache() {
+  if (!Array.isArray(books) || books.length === 0) return;
+  const toCheck = [];
+  for (let i = 0; i < books.length; i++) {
+    const b = books[i];
+    if (isGuideBook(b)) continue;
+    const url = b.spineCover || b.spine || getSpineImageUrl(b.cover);
+    if (url && !url.startsWith('data:') && !spineImgStatusCache[url]) {
+      toCheck.push(url);
+    }
+  }
+  if (toCheck.length === 0) return;
+
+  let idx = 0;
+  function checkNext() {
+    if (idx >= toCheck.length) return;
+    const batch = toCheck.slice(idx, idx + 4);
+    idx += 4;
+    batch.forEach(url => {
+      if (spineImgStatusCache[url]) return;
+      const testImg = new Image();
+      testImg.onload = () => {
+        if (testImg.naturalWidth && testImg.naturalHeight) {
+          const ratio = testImg.naturalWidth / testImg.naturalHeight;
+          const w = Math.max(16, Math.round(351 * ratio));
+          spineImgStatusCache[url] = { status: 'ok', width: w };
+        } else {
+          spineImgStatusCache[url] = { status: 'fail' };
+        }
+        scheduleSaveSpineStatusCache();
+      };
+      testImg.onerror = () => {
+        spineImgStatusCache[url] = { status: 'fail' };
+        scheduleSaveSpineStatusCache();
+      };
+      testImg.src = url;
+    });
+    setTimeout(checkNext, 250);
+  }
+  setTimeout(checkNext, 800);
 }
 
 function rgbToHsl(r, g, b) {
@@ -944,6 +1043,8 @@ function setGalleryViewMode(mode) {
   galleryViewMode = mode;
   try { localStorage.setItem('rj_gallery_view_mode', mode); } catch (e) { }
   updateViewModeButtons();
+  savedGalleryScrollTop = 0;
+  markGalleryDirty();
   renderGallery();
 }
 
@@ -1004,6 +1105,7 @@ function getShelfTotalPages(booksList) {
 }
 
 function renderGallery() {
+  isGalleryDirty = false;
 
   const grid = document.getElementById('gallery-grid');
   const empty = document.getElementById('gallery-empty');
@@ -1831,7 +1933,7 @@ function createBookCardElement(book, i, isSpineMode) {
 
   let imgPart = '';
   if (book.cover) {
-    imgPart = `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}" data-title="${esc(book.title)}" crossorigin="anonymous" onerror="handleCoverError(this)">`;
+    imgPart = `<img src="${esc(getSafeImageUrl(book.cover))}" alt="${esc(book.title)}" data-title="${esc(book.title)}" loading="lazy" decoding="async" onerror="handleCoverError(this)">`;
   } else {
     imgPart = `<div class="book-card-placeholder">
       <span class="placeholder-title">${esc(book.title)}</span>
@@ -1859,7 +1961,13 @@ function createBookCardElement(book, i, isSpineMode) {
   }
 
   if (isSpineMode) {
-    const spineW = isGuideCard ? 240 : getSpineWidth(book.pages);
+    const spineImgUrl = isGuideCard ? '' : (book.spineCover || book.spine || getSpineImageUrl(book.cover));
+    const cachedSpine = (spineImgUrl && !spineImgUrl.startsWith('data:')) ? spineImgStatusCache[spineImgUrl] : null;
+
+    let spineW = isGuideCard ? 240 : getSpineWidth(book.pages);
+    if (cachedSpine && cachedSpine.status === 'ok' && cachedSpine.width) {
+      spineW = cachedSpine.width;
+    }
     card.style.width = spineW + 'px';
     card.style.setProperty('--spine-w', spineW + 'px');
     if (isGuideCard) {
@@ -1875,17 +1983,20 @@ function createBookCardElement(book, i, isSpineMode) {
       titleStyleExtra = 'font-size: 13.5px; letter-spacing: 1.2px;';
     }
 
-    const spineImgUrl = book.spineCover || book.spine || getSpineImageUrl(book.cover);
+    const shouldRenderRealSpine = Boolean(spineImgUrl && (!cachedSpine || cachedSpine.status !== 'fail'));
+    const isKnownOk = Boolean(cachedSpine && cachedSpine.status === 'ok');
 
-    const realSpineTag = spineImgUrl
-      ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="" onload="adjustSpineCardWidth(this)" onerror="handleRealSpineError(this)">`
+    const realSpineTag = shouldRenderRealSpine
+      ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="" loading="lazy" decoding="async" onload="adjustSpineCardWidth(this)" onerror="handleRealSpineError(this)">`
       : '';
+
+    const showFallbackClass = (shouldRenderRealSpine && isKnownOk) ? '' : ' show-fallback';
 
     card.innerHTML = `
       <div class="spine-3d-wrapper">
         <div class="spine-face">
           ${realSpineTag}
-          <div class="spine-custom-view${spineImgUrl ? '' : ' show-fallback'}${theme.isLight ? ' spine-light-paper' : ''}" style="background: ${theme.bg};">
+          <div class="spine-custom-view${showFallbackClass}${theme.isLight ? ' spine-light-paper' : ''}" style="background: ${theme.bg};">
             <div class="spine-paperback-crease"></div>
 
             <div class="spine-paperback-header">
@@ -2203,6 +2314,7 @@ function showDetail(id, direction = null, pushHistory = true) {
     </div>
   `;
 
+  saveCurrentGalleryScroll();
   document.body.classList.add('page-detail');
   document.getElementById('view-gallery').style.display = 'none';
   document.getElementById('view-stats').classList.remove('show');
@@ -2354,7 +2466,18 @@ function showGallery(pushHistory = true) {
     }
   }
 
-  renderGallery();
+  const grid = document.getElementById('gallery-grid');
+  if (isGalleryDirty || !grid || grid.children.length === 0) {
+    renderGallery();
+  } else {
+    updateViewModeButtons();
+    const scrollEl = document.getElementById('gallery-scroll');
+    if (scrollEl && savedGalleryScrollTop > 0) {
+      requestAnimationFrame(() => {
+        scrollEl.scrollTop = savedGalleryScrollTop;
+      });
+    }
+  }
 }
 
 function handleGallerySearch() {
@@ -2363,6 +2486,8 @@ function handleGallerySearch() {
   if (clearBtn) {
     clearBtn.style.display = input && input.value ? 'block' : 'none';
   }
+  savedGalleryScrollTop = 0;
+  markGalleryDirty();
   renderGallery();
 }
 
@@ -2374,10 +2499,13 @@ function clearGallerySearch() {
     input.focus();
   }
   if (clearBtn) clearBtn.style.display = 'none';
+  savedGalleryScrollTop = 0;
+  markGalleryDirty();
   renderGallery();
 }
 
 function showStats(pushHistory = true) {
+  saveCurrentGalleryScroll();
   document.body.classList.remove('page-detail');
   closeAppMenu();
   document.getElementById('view-gallery').style.display = 'none';
@@ -4928,7 +5056,7 @@ async function doDeleteScrap(bookId, scrapId) {
    SCRAPS ARCHIVE & SEARCH VIEW
 ============================================== */
 function showScraps(filterTag = null, searchQuery = '', pushHistory = true) {
-
+  saveCurrentGalleryScroll();
   document.body.classList.remove('page-detail');
   closeAppMenu();
   document.getElementById('view-gallery').style.display = 'none';
@@ -6709,6 +6837,7 @@ loadTagLearningModel();
   renderGallery();
   updateSidebar();
   syncNicknameUI();
+  preheatSpineCache();
 
   // Initialize browser history state for seamless Back/Forward button navigation
   if (typeof window !== 'undefined' && window.history && window.history.replaceState && !window.history.state) {
@@ -8182,6 +8311,7 @@ function getAllCommunityBooks() {
 }
 
 async function showCommunity(pushHistory = true) {
+  saveCurrentGalleryScroll();
   document.body.classList.remove('page-detail');
   closeAppMenu();
   document.getElementById('view-gallery').style.display = 'none';
@@ -8412,6 +8542,11 @@ function handleSpinePrevError(img) {
 
 function handleRealSpineError(img) {
   if (!img) return;
+  const src = img.getAttribute('src') || img.src;
+  if (src && !src.startsWith('data:')) {
+    spineImgStatusCache[src] = { status: 'fail' };
+    scheduleSaveSpineStatusCache();
+  }
   img.onerror = null;
   img.classList.add('hide-real');
   img.style.display = 'none';

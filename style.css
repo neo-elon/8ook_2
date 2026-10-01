@@ -1404,7 +1404,7 @@
     .spine-custom-view {
       position: absolute;
       inset: 0;
-      display: none;
+      display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
