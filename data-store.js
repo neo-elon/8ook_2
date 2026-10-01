@@ -71,14 +71,12 @@ async function loadData() {
 
 
   if (!supabaseClient || !currentUser) {
-    books = localBooks;
-    // 게스트 모드: 로컬 서재가 비어있는 최초 방문자일 때만 기본 정적 데이터셋 로드
-    if (books.length === 0 && typeof window !== 'undefined' && Array.isArray(window.NEO_BOOKS_131) && window.NEO_BOOKS_131.length > 0) {
-      books = JSON.parse(JSON.stringify(window.NEO_BOOKS_131));
-    }
-    books.forEach(b => cleanBookScraps(b));
+    // Logged-out/guest view is intentionally isolated from any previously
+    // imported or cached library data. Show only the built-in user guide.
+    // Do not delete localStorage here: legacy guest data may still be needed
+    // for migration after the user signs in.
+    books = [];
     ensureUserGuideBook();
-    saveData();
     bootstrapTagLearningFromLibrary();
     fetchCommunityLikes();
     initCommunityLikesChannel();
