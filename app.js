@@ -3279,7 +3279,6 @@ function getCommunityItemOwnerNickname(item, source = '') {
                  (ownerId === 'user_owner_neo') ||
                  (currentUser && item.user_id && (String(item.user_id) === String(currentUser.id) || String(item.user_id) === 'f2432e6e-0481-4e8e-a516-213bd12434f9' || String(item.user_id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216')) ||
                  (currentUser && currentUser.id && ownerId === ('user_' + currentUser.id)) ||
-                 (currentUser && isNeoUser(currentUser) && (ownerId === 'user_owner_neo' || effSource === 'neo_dataset')) ||
                  (item.id && Array.isArray(books) && books.some(b => String(b.id) === String(item.id)));
 
   if (isMine) {
@@ -3294,8 +3293,8 @@ function getCommunityItemOwnerNickname(item, source = '') {
     return { nickname: customNick, isMe: false };
   }
 
-  // 큐레이터 (Neo의 데이터셋/도서) -> curator_neo 대신 di31om으로 완전 통합
-  if (ownerId === 'user_owner_neo' || effSource === 'neo_dataset' || String(item.user_id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216' || String(item.user_id) === 'f2432e6e-0481-4e8e-a516-213bd12434f9') {
+  // Neo account records use the account nickname.
+  if (ownerId === 'user_owner_neo' || String(item.user_id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216' || String(item.user_id) === 'f2432e6e-0481-4e8e-a516-213bd12434f9') {
     const isNeo = currentUser && isNeoUser(currentUser);
     return { nickname: isNeo ? getUserNickname() : 'di31om', isMe: !!isNeo };
   }
