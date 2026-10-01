@@ -162,7 +162,7 @@ let editingBookId = null;
 let currentRating = 0;
 let currentScrapBookId = null;
 let calDate = new Date();
-let gridMin = window.innerWidth <= 640 ? 90 : 170;
+let gridMin = window.innerWidth <= 640 ? 140 : 170;
 let zoomTimer = null;
 let sidebarOpen = false;
 let isDarkTheme = false;
@@ -207,8 +207,8 @@ let communityCommentsMap = new Map(); // bookId -> [ { id, bookId, userId, nickn
 let commCommentsChannel = null;
 let localCommentBroadcast = null;
 let currentCommunityTab = 'books';
-let communityBooksLimit = 9;
-let communityPopularBooksLimit = 9;
+let communityBooksLimit = 10;
+let communityPopularBooksLimit = 10;
 let isCommunityBooksLoading = false;
 let isCommunityPopularLoading = false;
 let communityBooksObserver = null;
@@ -8368,9 +8368,9 @@ async function showCommunity(pushHistory = true) {
     }
   }
 
-  // 커뮤니티 도서 초기 9권 설정 및 무한 스크롤 리스너 준비
-  communityBooksLimit = 9;
-  communityPopularBooksLimit = 9;
+  // 커뮤니티 도서 초기 10권(2열 5줄) 설정 및 무한 스크롤 리스너 준비
+  communityBooksLimit = 10;
+  communityPopularBooksLimit = 10;
   initCommunityScroll();
 
   // 먼저 로컬/기존 캐시로 즉시 렌더링
@@ -8700,9 +8700,8 @@ function updateCommunityBooksTrigger(currentCount, totalCount) {
 }
 
 function getCommunityColumnCount() {
-  if (window.innerWidth <= 580) return 1;
-  if (window.innerWidth <= 900) return 2;
-  return 3;
+  if (window.innerWidth <= 768) return 1;
+  return 2;
 }
 
 // 카드의 텍스트 길이 및 내용에 따른 추정 높이 계산
