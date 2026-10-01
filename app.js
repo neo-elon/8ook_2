@@ -10641,7 +10641,12 @@ function exportToGoogleSheetsCSV() {
 
   const escapeCSVField = (field) => {
     if (field === null || field === undefined) return '""';
-    const str = String(field).replace(/"/g, '""');
+    let str = String(field);
+    // Keep spreadsheet formulas inert, including after leading whitespace/control characters.
+    if (/^[\s\u0000-\u001F]*[=+\-@]|^[\t\r\n]/.test(str)) {
+      str = "'" + str;
+    }
+    str = str.replace(/"/g, '""');
     return `"${str}"`;
   };
 
