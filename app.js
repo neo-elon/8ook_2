@@ -3472,34 +3472,57 @@ window.syncNeoBooks = async function() {
     toast('NEO_BOOKS_131 데이터셋을 찾을 수 없습니다.');
     return;
   }
+
+  const normalizeBookText = (value) => String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const getBookIsbn = (book) => String(book?.isbn13 || book?.isbn || '').replace(/[^0-9Xx]/g, '').toUpperCase();
+  const getBookIdentity = (book) => {
+    const isbn = getBookIsbn(book);
+    if (isbn) return `isbn:${isbn}`;
+    return `title-author:${normalizeBookText(book?.title)}|${normalizeBookText(book?.author)}`;
+  };
+
   let spineUpdated = 0;
   const toUpsertMap = new Map();
+  const existingKeys = new Set();
+
+  books.forEach(book => {
+    if (!isGuideBook(book) && !isLikeRecord(book) && !isCommentRecord(book) && !isProfileRecord(book)) {
+      const identity = getBookIdentity(book);
+      if (identity !== 'title-author:|') existingKeys.add(identity);
+    }
+  });
+
+  const missing = [];
   window.NEO_BOOKS_131.forEach(nb => {
-    const eb = books.find(b => b.id === nb.id) || books.find(b => b.title && b.title.trim().toLowerCase() === nb.title.trim().toLowerCase() && (b.date || '').substring(0, 4) === (nb.date || '').substring(0, 4));
+    const identity = getBookIdentity(nb);
+    if (!identity || identity === 'title-author:|') return;
+
+    const eb = books.find(b => getBookIdentity(b) === identity);
     if (eb) {
       if (nb.spineCover && eb.spineCover !== nb.spineCover) {
         eb.spineCover = nb.spineCover;
         spineUpdated++;
         if (eb.id) toUpsertMap.set(eb.id, eb);
       }
+      return;
     }
-  });
 
-  const existingKeys = new Set(books.map(b => `${(b.date || '').substring(0, 7)}_${(b.title || '').trim().toLowerCase()}`));
-  const missing = window.NEO_BOOKS_131.filter(b => {
-    const k = `${(b.date || '').substring(0, 7)}_${(b.title || '').trim().toLowerCase()}`;
-    return !existingKeys.has(k);
+    // Also dedupe repeated rows inside the import dataset itself.
+    if (existingKeys.has(identity)) return;
+    existingKeys.add(identity);
+    missing.push(nb);
   });
 
   if (missing.length > 0) {
     const newItems = missing.map(b => ({
       ...b,
+      // Imported source IDs are not used as database identity. A fresh ID avoids
+      // accidental collision while ISBN/title+author controls logical duplicates.
+      id: uid(),
       user_id: currentUser ? currentUser.id : undefined
     }));
     newItems.forEach(b => {
-      if (!books.some(existing => existing.id === b.id)) {
-        books.push(b);
-      }
+      books.push(b);
       if (b.id) toUpsertMap.set(b.id, b);
     });
     books.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
@@ -3517,5 +3540,6 @@ window.syncNeoBooks = async function() {
     }
   }
 
-  toast(`책등 이미지 ${spineUpdated}건 업데이트 및 서재 동기화 완료!`, 3500);
+  const addedText = missing.length > 0 ? ` · 새 책 ${missing.length}권 추가` : ' · 새 책 없음';
+  toast(`책등 이미지 ${spineUpdated}건 업데이트${addedText}`, 3500);
 };
