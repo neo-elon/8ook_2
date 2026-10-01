@@ -534,6 +534,38 @@ function fmtDate(s) {
   return `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}.`;
 }
 
+function parseBookDateTimestamp(val) {
+  if (!val) return 0;
+  if (typeof val === 'number') return val;
+  const str = String(val).trim();
+  // 1. Match YYYY, MM, DD (handles "2024. 3. 5.", "2024-03-05", "2024/3/5", etc.)
+  const m = str.match(/(\d{4})[^\d]+(\d{1,2})[^\d]+(\d{1,2})/);
+  if (m) {
+    const y = parseInt(m[1], 10);
+    const mo = parseInt(m[2], 10) - 1;
+    const d = parseInt(m[3], 10);
+    const dt = new Date(y, mo, d);
+    if (!isNaN(dt.getTime())) return dt.getTime();
+  }
+  // 2. Year and Month only: "2024. 3" or "2024-03"
+  const ym = str.match(/(\d{4})[^\d]+(\d{1,2})/);
+  if (ym) {
+    const y = parseInt(ym[1], 10);
+    const mo = parseInt(ym[2], 10) - 1;
+    const dt = new Date(y, mo, 1);
+    if (!isNaN(dt.getTime())) return dt.getTime();
+  }
+  // 3. Year only: "2024"
+  const yOnly = str.match(/^(\d{4})$/);
+  if (yOnly) {
+    const dt = new Date(parseInt(yOnly[1], 10), 0, 1);
+    if (!isNaN(dt.getTime())) return dt.getTime();
+  }
+  // 4. Fallback to standard Date parse
+  const t = new Date(str).getTime();
+  return isNaN(t) ? 0 : t;
+}
+
 function starsHtml(n, size) {
   let h = '';
   for (let i = 1; i <= 5; i++) {
@@ -5239,18 +5271,18 @@ function renderScrapsArchive() {
   if (currentScrapSortOrder === 'random') {
     filtered.sort((a, b) => getScrapRandomOrder(a.scrap.id) - getScrapRandomOrder(b.scrap.id));
   } else {
-    // 기본 정렬: 도서 완독일(book.date) 최신순 (내림차순)
+    // 기본 정렬: 도서 완독일(book.date) 최신순 (내림차순 타임스탬프 비교)
     filtered.sort((a, b) => {
-      const dateA = (a.book && a.book.date) ? a.book.date.trim() : '';
-      const dateB = (b.book && b.book.date) ? b.book.date.trim() : '';
+      const timeA = parseBookDateTimestamp(a.book && a.book.date);
+      const timeB = parseBookDateTimestamp(b.book && b.book.date);
 
       // 완독일이 있는 책이 없는 책보다 우선
-      if (dateA && !dateB) return -1;
-      if (!dateA && dateB) return 1;
+      if (timeA > 0 && timeB === 0) return -1;
+      if (timeA === 0 && timeB > 0) return 1;
 
       // 둘 다 완독일이 있으면 최신 완독일 우선 (내림차순)
-      if (dateA !== dateB) {
-        return dateB.localeCompare(dateA);
+      if (timeA !== timeB) {
+        return timeB - timeA;
       }
 
       // 완독일이 같거나 둘 다 없는 경우:
@@ -5261,15 +5293,15 @@ function renderScrapsArchive() {
         if (!isNaN(pageA) && !isNaN(pageB) && pageA !== pageB) {
           return pageA - pageB;
         }
-        const timeA = a.scrap.at || a.scrap.created_at || '';
-        const timeB = b.scrap.at || b.scrap.created_at || '';
-        if (timeA !== timeB) return timeB.localeCompare(timeA);
+        const tA = parseBookDateTimestamp(a.scrap.at || a.scrap.created_at);
+        const tB = parseBookDateTimestamp(b.scrap.at || b.scrap.created_at);
+        if (tA !== tB) return tB - tA;
       }
 
       // 2) 서로 다른 책인 경우 책 제목 가나다순
       const titleA = (a.book && a.book.title) || '';
       const titleB = (b.book && b.book.title) || '';
-      if (titleA !== titleB) return titleA.localeCompare(titleB);
+      if (titleA !== titleB) return titleA.localeCompare(titleB, 'ko');
 
       return String(a.scrap.id || '').localeCompare(String(b.scrap.id || ''));
     });
@@ -8053,12 +8085,7 @@ function formatTimeAgo(dateStr) {
 }
 
 function getSafeTimestamp(val) {
-  if (!val) return 0;
-  if (typeof val === 'number') return val;
-  const str = String(val).trim().replace(/\./g, '-');
-  const dStr = /^\d{4}-\d{2}-\d{2}$/.test(str) ? str + 'T00:00:00' : str;
-  const t = new Date(dStr).getTime();
-  return isNaN(t) ? 0 : t;
+  return parseBookDateTimestamp(val);
 }
 
 function getClientLikeId() {
@@ -9895,15 +9922,18 @@ function getCommunityScrapsList() {
     if (b.scraps && b.scraps.length) {
       const bTitleParts = splitBookTitle(b);
       const bMainTitle = bTitleParts.main || b.title;
+      const bDateTimestamp = parseBookDateTimestamp(b.date);
       b.scraps.forEach(s => {
         if (!s.text || !s.text.trim()) return;
         if (s.memo && s.memo.includes('노션 완독책장')) return;
         if (s.text && (s.text.includes('blog.naver.com/zzine315') || s.text.includes('zzine315'))) return;
         const scrapTime = s.created_at || s.at || b.created_at || b.date;
-        const rawTime = getSafeTimestamp(scrapTime);
+        const rawTime = parseBookDateTimestamp(scrapTime);
         userScraps.push({
           id: 'us_' + (s.id || uid()),
           bookId: b.id,
+          bookDateTimestamp: bDateTimestamp,
+          bookDate: b.date || '',
           text: s.text,
           bookTitle: bMainTitle,
           author: b.author || '',
@@ -9924,8 +9954,15 @@ function getCommunityScrapsList() {
     }
   });
 
-  // 문장 자체의 등록 시각(rawTime) 기준으로 모든 유저에게 완벽히 동일한 최신순(내림차순) 정렬!
-  userScraps.sort((a, b) => b.rawTime - a.rawTime);
+  // 도서 완독일(bookDateTimestamp) 최신순(내림차순) 정렬!
+  userScraps.sort((a, b) => {
+    if (a.bookDateTimestamp > 0 && b.bookDateTimestamp === 0) return -1;
+    if (a.bookDateTimestamp === 0 && b.bookDateTimestamp > 0) return 1;
+    if (a.bookDateTimestamp !== b.bookDateTimestamp) {
+      return b.bookDateTimestamp - a.bookDateTimestamp;
+    }
+    return (b.rawTime || 0) - (a.rawTime || 0);
+  });
 
   // 더미 데이터 병합을 완전히 제거하고 실제 독서가의 문장만 반환
   return userScraps;
@@ -9997,7 +10034,7 @@ function renderCommunityScraps() {
           <div class="comm-scrap-meta">
             <div class="comm-scrap-user-bar">
               <span class="comm-scrap-owner-wrap" onclick="openUserProfileCard('${esc(ownerNick)}', '${esc(s.user_id || s._ownerId || '')}', event)" style="cursor: pointer;" title="${esc(ownerNick)}님의 프로필 보기"><span class="comm-user-at">@</span><span class="comm-user-name">${esc(ownerNick)}</span>${isMe ? '<span class="comm-my-badge">나</span>' : ''}</span>
-              ${s.time ? `<span class="comm-scrap-time">• ${esc(s.time)}</span>` : ''}
+              ${s.bookDate ? `<span class="comm-scrap-time" title="도서 완독일: ${fmtDate(s.bookDate)}">• 완독 ${fmtDate(s.bookDate)}</span>` : (s.time ? `<span class="comm-scrap-time">• ${esc(s.time)}</span>` : '')}
             </div>
             <div class="comm-scrap-title" ${clickDetail}>${esc(mainTitle)}</div>
             <div class="comm-scrap-sub">
