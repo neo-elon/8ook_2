@@ -147,7 +147,7 @@ drop policy if exists "Allow individual update" on books;
 drop policy if exists "Allow individual delete" on books;
 
 -- 모든 사용자(커뮤니티)가 도서를 조회할 수 있도록 SELECT 정책 허용 (수정/삭제/등록은 본인만)
-create policy "Allow public read" on books for select using (true);
+create policy "Allow public read" on books for select using (user_id = auth.uid() OR is_public IS TRUE);
 create policy "Allow individual insert" on books for insert with check (auth.uid() = user_id);
 create policy "Allow individual update" on books for update using (auth.uid() = user_id);
 create policy "Allow individual delete" on books for delete using (auth.uid() = user_id);`;
