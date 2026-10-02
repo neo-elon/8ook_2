@@ -528,6 +528,51 @@ function applyAladinItemByIndex(index) {
   }
 }
 
+let yes24SpineRequestSeq = 0;
+
+async function fetchYes24SpineForAladinItem(item) {
+  if (!item || !supabaseClient || !supabaseClient.functions || typeof supabaseClient.functions.invoke !== 'function') {
+    return;
+  }
+
+  const isbn13 = String(item.isbn13 || '').replace(/[^0-9]/g, '');
+  const title = String(item.title || '').trim();
+  if (!isbn13 && !title) return;
+
+  const requestSeq = ++yes24SpineRequestSeq;
+  const fallbackSpine = item.cover ? getSpineImageUrl(item.cover) : '';
+
+  try {
+    const { data, error } = await supabaseClient.functions.invoke('yes24-spine', {
+      body: isbn13.length === 13 ? { isbn13 } : { title }
+    });
+
+    if (requestSeq !== yes24SpineRequestSeq) return;
+
+    if (error || !data || data.ok !== true || data.found !== true) {
+      return;
+    }
+
+    const returnedIsbn = String(data.book?.isbn13 || '').replace(/[^0-9]/g, '');
+    if (isbn13.length === 13 && returnedIsbn && returnedIsbn !== isbn13) {
+      console.warn('[8ook yes24] ISBN mismatch; keeping Aladin spine', { isbn13, returnedIsbn });
+      return;
+    }
+
+    const sideCover = getSafeImageUrl(data.book?.sideCover || '');
+    if (!sideCover) return;
+
+    modalSpineCover = sideCover;
+    setSpinePrev(sideCover);
+  } catch (error) {
+    console.warn('[8ook yes24] spine lookup failed; keeping Aladin spine', error);
+    if (!modalSpineCover && fallbackSpine) {
+      modalSpineCover = fallbackSpine;
+      setSpinePrev(fallbackSpine);
+    }
+  }
+}
+
 function applyAladinItem(item) {
   if (item.title) {
     const titleParts = splitBookTitle(item.title);
@@ -575,6 +620,10 @@ function applyAladinItem(item) {
 
   hideSearchResults();
   toast('도서 정보가 적용되었습니다');
+
+  // A fresh Aladin selection is the only automatic trigger for YES24 spine lookup.
+  // Existing saved/manual spineCover values are therefore never overwritten merely by opening an edit modal.
+  fetchYes24SpineForAladinItem(item);
 
   const identifier = item.itemId || item.isbn13 || item.isbn;
   if (identifier && !cleanPages) {
