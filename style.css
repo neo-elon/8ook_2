@@ -475,7 +475,7 @@
       background: var(--glass);
       border: 1px solid var(--border);
       cursor: pointer;
-      display: flex;
+      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -1389,7 +1389,12 @@
       border-radius: 2px 2px 0 0 !important;
       z-index: 1;
       display: block !important;
-      transition: opacity 0.2s;
+      opacity: 0;
+      transition: opacity 0.12s ease-out;
+    }
+    .book-card.spine-mode .spine-real-img.is-ready,
+    img.spine-real-img.is-ready {
+      opacity: 1;
     }
     .book-card.spine-mode .spine-real-img.hide-real,
     img.spine-real-img.hide-real,
