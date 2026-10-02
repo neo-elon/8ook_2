@@ -90,6 +90,12 @@ loadTagLearningModel();
   syncNicknameUI();
   preheatSpineCache();
 
+  // One-time migration for books that predate YES24 spine enrichment.
+  // New books continue to use the normal Aladin -> YES24 selection flow.
+  if (currentUser && typeof backfillYes24SpinesOnce === 'function') {
+    setTimeout(() => backfillYes24SpinesOnce(), 1200);
+  }
+
   // Initialize browser history state for seamless Back/Forward button navigation
   if (typeof window !== 'undefined' && window.history && window.history.replaceState && !window.history.state) {
     window.history.replaceState({ view: 'gallery' }, '', window.location.hash || '#');
