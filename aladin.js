@@ -530,6 +530,23 @@ function applyAladinItemByIndex(index) {
 
 let yes24SpineRequestSeq = 0;
 
+function validateYes24SpineImage(url) {
+  return new Promise((resolve) => {
+    if (!url) { resolve(false); return; }
+    const img = new Image();
+    const timer = setTimeout(() => { img.onload = img.onerror = null; resolve(false); }, 6000);
+    img.onload = () => {
+      clearTimeout(timer);
+      if (!img.naturalWidth || !img.naturalHeight) { resolve(false); return; }
+      // YES24 returns a generic "image preparing" placeholder at the SIDE URL too.
+      // A real spine is narrow/tall; the placeholder is cover-like and much wider.
+      resolve((img.naturalWidth / img.naturalHeight) <= 0.45);
+    };
+    img.onerror = () => { clearTimeout(timer); resolve(false); };
+    img.src = url;
+  });
+}
+
 async function fetchYes24SpineForAladinItem(item) {
   if (!item || !supabaseClient || !supabaseClient.functions || typeof supabaseClient.functions.invoke !== 'function') {
     return;
@@ -561,6 +578,13 @@ async function fetchYes24SpineForAladinItem(item) {
 
     const sideCover = getSafeImageUrl(data.book?.sideCover || '');
     if (!sideCover) return;
+
+    const isUsableSpine = await validateYes24SpineImage(sideCover);
+    if (requestSeq !== yes24SpineRequestSeq) return;
+    if (!isUsableSpine) {
+      console.info('[8ook yes24] placeholder/non-spine image rejected; keeping Aladin spine');
+      return;
+    }
 
     modalSpineCover = sideCover;
     setSpinePrev(sideCover);
