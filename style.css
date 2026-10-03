@@ -6732,3 +6732,44 @@ body.dark-mode .profile-stat-box {
     max-width: 560px;
   }
 }
+
+
+/* Reading stats final spacing pass */
+@media (min-width: 641px) {
+  .stats-wrap {
+    gap: 24px;
+  }
+  .stats-top-row {
+    gap: 27px !important;
+  }
+  .stats-top-row > div:first-child > div:first-child .sec-title-wrap {
+    justify-content: flex-start !important;
+    gap: 18px;
+  }
+  .stats-top-row > div:first-child > div:first-child .stats-filter-btns {
+    margin-left: 0;
+  }
+  .stats-top-row > div:first-child > div:last-child .sec-title-wrap {
+    justify-content: flex-start !important;
+    gap: 18px;
+  }
+  .stats-top-row > div:first-child > div:last-child .chart-toggle-btns {
+    margin-left: 0;
+  }
+  .stat-card {
+    padding-top: 10px;
+    padding-bottom: 15px;
+  }
+  .bar-chart {
+    height: 158px;
+  }
+}
+
+@media (max-width: 640px) {
+  .stats-wrap {
+    gap: 25px;
+  }
+  .stats-top-row {
+    gap: 28px !important;
+  }
+}
