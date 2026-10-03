@@ -6670,3 +6670,65 @@ body.dark-mode .profile-stat-box {
     max-width: none;
   }
 }
+
+
+/* Reading stats readability tuning — iPad / desktop */
+@media (min-width: 641px) {
+  .stats-wrap {
+    max-width: 880px;
+    gap: 30px;
+  }
+  #random-quote-card {
+    padding-left: 16px;
+  }
+  .quote-content {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  .stats-top-row {
+    gap: 34px !important;
+  }
+  .sec-title-wrap {
+    min-height: 32px !important;
+    margin-bottom: 8px !important;
+  }
+  .stats-filter-btns .btn,
+  .chart-toggle-btns .btn {
+    min-height: 32px;
+    padding: 5px 10px !important;
+    font-size: 11px !important;
+  }
+  .stat-card {
+    padding: 14px 12px 18px 0;
+  }
+  .stat-card + .stat-card {
+    padding-left: 22px;
+  }
+  .stat-num,
+  .stat-num.compact,
+  .stat-num.extra-compact {
+    min-height: 46px;
+    font-size: clamp(34px, 4vw, 46px);
+    letter-spacing: -1.7px;
+  }
+  .stat-label {
+    font-size: 11px;
+  }
+  .bar-chart {
+    height: 170px;
+    gap: 7px;
+    padding-top: 12px;
+  }
+  .bar-col {
+    width: min(56%, 30px);
+  }
+  .bar-group > span {
+    font-size: 10px !important;
+  }
+  .bar-lbl {
+    font-size: 9px;
+  }
+  .mini-cal {
+    max-width: 560px;
+  }
+}
