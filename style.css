@@ -1974,7 +1974,36 @@
       display:-webkit-box;
       -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
     }
-    .ov-stars { font-size:12px; margin-top:4px; letter-spacing:1px; }
+    .ov-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 18px;
+      margin-top: 4px;
+      line-height: 1;
+    }
+    .ov-stars {
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      line-height: 1;
+      letter-spacing: 1px;
+      margin: 0;
+    }
+    .ov-stars-empty { min-width: 1px; }
+    .ov-completion-date {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      font-size: 10px;
+      line-height: 1;
+      font-weight: 500;
+      letter-spacing: 0.15px;
+      color: rgba(255,255,255,.88);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
     .ov-tap-guide {
       display: none;
       font-size: 10px;
