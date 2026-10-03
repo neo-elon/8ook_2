@@ -283,6 +283,22 @@ function getSafeImageUrl(url) {
 }
 
 
+function formatCompletionDate(dateValue) {
+  if (!dateValue) return '';
+  const raw = String(dateValue).trim();
+  const match = raw.match(/^(\d{4})[-./](\d{1,2})[-./](\d{1,2})/);
+  if (!match) return raw;
+  return `${match[1]}.${match[2].padStart(2, '0')}.${match[3].padStart(2, '0')}`;
+}
+
+function coverMetaHtml(book) {
+  const rating = book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : '<div class="ov-stars ov-stars-empty"></div>';
+  const completionDate = formatCompletionDate(book.date);
+  const date = completionDate ? `<div class="ov-completion-date">${esc(completionDate)}</div>` : '';
+  return `<div class="ov-meta-row">${rating}${date}</div>`;
+}
+
+
 function starsHtml(n, size) {
   let h = '';
   for (let i = 1; i <= 5; i++) {
@@ -1366,7 +1382,7 @@ function createBookCardElement(book, i, isSpineMode) {
             </div>
             <div class="ov-author">${esc(book.author || '')}</div>
             ${sentence}
-            ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
+            ${coverMetaHtml(book)}
             ${isGuideCard ? '<div class="ov-tap-guide" style="opacity:1;">클릭하여 이용 가이드 읽기 ➔</div>' : ''}
           </div>
         </div>
@@ -1473,7 +1489,7 @@ function createBookCardElement(book, i, isSpineMode) {
         </div>
         <div class="ov-author">${esc(book.author || '')}</div>
         ${sentence}
-        ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
+        ${coverMetaHtml(book)}
         <div class="ov-tap-guide">${isGuideCard ? '클릭하여 이용 가이드 읽기 ➔' : '한 번 더 탭하면 서평으로 이동 →'}</div>
       </div>
     `;
