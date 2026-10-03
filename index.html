@@ -23,7 +23,7 @@
   <!-- Header -->
   <header id="app-header">
     <div class="header-left" style="display:flex; align-items:center; gap:10px;">
-      <span class="header-logo" onclick="showGallery()">8ook.</span>
+      <button type="button" class="header-logo" onclick="showGallery(true)" aria-label="내 서재로 이동">8ook.</button>
       <button id="back-btn" onclick="handleBackNavigation()" style="margin-left: 2px;">
         <span class="btn-text">← 책장</span>
       </button>
@@ -978,7 +978,7 @@
   <script src="barcode.js?v=20261001_cleanup_v1" defer></script>
   <script src="aladin.js?v=20261003_yes24_backfill_v1" defer></script>
   <script src="scraps.js?v=20261001_refactor_v1" defer></script>
-  <script src="library-detail.js?v=20261003_delete_handler_v1" defer></script>
+  <script src="library-detail.js?v=20261003_logo_nav_v1" defer></script>
   <script src="app.js?v=20261003_cover_date_v1" defer></script>
   <script src="community.js?v=20261002_legacy_cleanup_v1" defer></script>
   <script src="data-store.js?v=20261002_legacy_cleanup_v1" defer></script>
