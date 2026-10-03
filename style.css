@@ -6554,3 +6554,119 @@ body.dark-mode .profile-stat-box {
     min-height: 32px;
   }
 }
+
+
+/* Reading stats editorial layout — second pass */
+.stats-wrap {
+  max-width: 960px;
+}
+.stats-top-row {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 44px !important;
+}
+.stats-top-row > div {
+  min-width: 0 !important;
+  width: 100%;
+}
+.stats-top-row > div:first-child {
+  display: contents !important;
+}
+.stats-top-row > div:first-child > div:first-child {
+  order: 1;
+}
+.stats-top-row > div:first-child > div:last-child {
+  order: 2;
+}
+.stats-top-row > div:last-child {
+  order: 3;
+}
+.stats-grid {
+  border-top: 0;
+  border-bottom: 1px solid var(--border);
+}
+.stat-card {
+  padding: 20px 18px 22px 0;
+  text-align: left;
+}
+.stat-card + .stat-card {
+  border-left: 0;
+  padding-left: 28px;
+}
+.stat-num,
+.stat-num.compact,
+.stat-num.extra-compact {
+  justify-content: flex-start;
+  min-height: 54px;
+  font-size: clamp(38px, 5vw, 58px);
+  font-weight: 450;
+  letter-spacing: -2.4px;
+}
+.stat-label {
+  margin-top: 7px;
+  font-size: 11px;
+}
+.bar-chart {
+  height: 220px;
+  gap: 10px;
+  padding-top: 18px;
+}
+.bar-col {
+  width: min(58%, 34px);
+}
+.bar-lbl {
+  font-size: 9px;
+}
+.mini-cal {
+  max-width: 620px;
+}
+.cal-d {
+  min-height: 42px;
+  font-size: 11px;
+}
+.cal-d.has-book {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+}
+
+@media (max-width: 640px) {
+  .stats-top-row {
+    gap: 34px !important;
+  }
+  .stats-top-row > div + div {
+    margin-top: 0;
+  }
+  .sec-title-wrap {
+    margin-bottom: 10px !important;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .stat-card {
+    padding: 16px 6px 18px 0;
+  }
+  .stat-card + .stat-card {
+    padding-left: 12px;
+  }
+  .stat-num,
+  .stat-num.compact,
+  .stat-num.extra-compact {
+    min-height: 40px;
+    font-size: clamp(28px, 9vw, 38px);
+    letter-spacing: -1.5px;
+  }
+  .stat-label {
+    font-size: 9px;
+  }
+  .bar-chart {
+    height: 180px;
+    gap: 3px;
+  }
+  .bar-col {
+    width: min(60%, 24px);
+  }
+  .mini-cal {
+    max-width: none;
+  }
+}
