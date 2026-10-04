@@ -373,12 +373,32 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       curX += w + gap;
     });
 
-    // 7. PNG 다운로드 실행
-    canvas.toBlob(blob => {
+    // 7. PNG 저장/공유
+    // iOS/iPadOS Safari는 blob URL + <a download>를 무시하는 경우가 있어
+    // Web Share API가 가능하면 파일 공유 시트를 열어 "이미지 저장"을 사용할 수 있게 한다.
+    canvas.toBlob(async blob => {
       if (!blob) {
         toast('이미지 변환에 실패했습니다.');
         return;
       }
+
+      const file = new File([blob], `${filename}.png`, { type: 'image/png' });
+      const isMobileApple = /iPad|iPhone|iPod/.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+      if (isMobileApple && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `${titleText} 책장 이미지`
+          });
+          return;
+        } catch (err) {
+          if (err && err.name === 'AbortError') return;
+          console.warn('Shelf image share failed; falling back to download.', err);
+        }
+      }
+
       const blobUrl = URL.createObjectURL(blob);
       const downloadLink = document.createElement('a');
       downloadLink.href = blobUrl;
@@ -386,7 +406,7 @@ async function generateShelfImage(targetBooks, shelfTitle, subtitle, filename) {
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
-      URL.revokeObjectURL(blobUrl);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
       toast(`${titleText} 책장 이미지가 저장되었습니다!`);
     }, 'image/png');
 
