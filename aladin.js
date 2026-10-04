@@ -640,21 +640,47 @@ function applyAladinItemByIndex(index) {
 
 let yes24SpineRequestSeq = 0;
 
-function validateYes24SpineImage(url) {
+function getSpineImageQuality(url) {
   return new Promise((resolve) => {
-    if (!url) { resolve(false); return; }
+    if (!url) { resolve(null); return; }
     const img = new Image();
-    const timer = setTimeout(() => { img.onload = img.onerror = null; resolve(false); }, 6000);
+    const timer = setTimeout(() => { img.onload = img.onerror = null; resolve(null); }, 6000);
     img.onload = () => {
       clearTimeout(timer);
-      if (!img.naturalWidth || !img.naturalHeight) { resolve(false); return; }
-      // YES24 returns a generic "image preparing" placeholder at the SIDE URL too.
-      // A real spine is narrow/tall; the placeholder is cover-like and much wider.
-      resolve((img.naturalWidth / img.naturalHeight) <= 0.45);
+      if (!img.naturalWidth || !img.naturalHeight) { resolve(null); return; }
+      const ratio = img.naturalWidth / img.naturalHeight;
+      resolve({
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+        ratio,
+        pixels: img.naturalWidth * img.naturalHeight
+      });
     };
-    img.onerror = () => { clearTimeout(timer); resolve(false); };
+    img.onerror = () => { clearTimeout(timer); resolve(null); };
     img.src = url;
   });
+}
+
+async function shouldPreferYes24Spine(yes24Url, currentUrl) {
+  const [yes24, current] = await Promise.all([
+    getSpineImageQuality(yes24Url),
+    getSpineImageQuality(currentUrl)
+  ]);
+
+  // Reject YES24 placeholders/non-spine images.
+  if (!yes24 || yes24.ratio > 0.45) return false;
+
+  // If the existing Aladin spine cannot be measured, a valid YES24 spine is an improvement.
+  if (!current || current.ratio > 0.45) return true;
+
+  // Compare the dimensions that matter when a narrow spine is enlarged.
+  // YES24 replaces the current image only when it has a meaningful resolution advantage.
+  const yes24ShortEdge = Math.min(yes24.width, yes24.height);
+  const currentShortEdge = Math.min(current.width, current.height);
+  const shortEdgeGain = yes24ShortEdge / Math.max(1, currentShortEdge);
+  const pixelGain = yes24.pixels / Math.max(1, current.pixels);
+
+  return shortEdgeGain >= 1.15 || pixelGain >= 1.35;
 }
 
 async function fetchYes24SpineForAladinItem(item) {
@@ -689,10 +715,10 @@ async function fetchYes24SpineForAladinItem(item) {
     const sideCover = getSafeImageUrl(data.book?.sideCover || '');
     if (!sideCover) return;
 
-    const isUsableSpine = await validateYes24SpineImage(sideCover);
+    const shouldUseYes24 = await shouldPreferYes24Spine(sideCover, fallbackSpine);
     if (requestSeq !== yes24SpineRequestSeq) return;
-    if (!isUsableSpine) {
-      console.info('[8ook yes24] placeholder/non-spine image rejected; keeping Aladin spine');
+    if (!shouldUseYes24) {
+      console.info('[8ook yes24] existing Aladin spine is equal or better; keeping it');
       return;
     }
 
