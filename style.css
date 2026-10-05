@@ -6910,3 +6910,41 @@ body.dark-mode .profile-stat-box {
     font-weight: 650;
   }
 }
+
+
+/* Random quote — stronger editorial quotation treatment */
+.quote-content {
+  font-size: 19px;
+  line-height: 1.75;
+  font-style: italic;
+}
+
+.quote-source {
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.6;
+}
+
+@media (min-width: 900px) {
+  .quote-content {
+    font-size: 19px;
+    line-height: 1.75;
+    font-style: italic;
+  }
+
+  .quote-source {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .quote-content {
+    font-size: 16px;
+    line-height: 1.75;
+    font-style: italic;
+  }
+
+  .quote-source {
+    font-size: 11px;
+  }
+}
