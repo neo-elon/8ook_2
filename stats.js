@@ -55,6 +55,7 @@ function showRandomQuote() {
   const card = document.getElementById('random-quote-card');
   const textEl = document.getElementById('random-quote-text');
   const bookEl = document.getElementById('random-quote-book');
+  const coverEl = document.getElementById('random-quote-cover');
 
   // Collect all scraps
   const allScraps = [];
@@ -66,7 +67,8 @@ function showRandomQuote() {
           text: s.text,
           page: s.page,
           bookTitle: book.title,
-          bookAuthor: book.author
+          bookAuthor: book.author,
+          bookCover: book.cover || ''
         });
       });
     }
@@ -90,6 +92,18 @@ function showRandomQuote() {
     if (quote.bookAuthor) sourceText += ` (${quote.bookAuthor})`;
     if (quote.page) sourceText += `, p.${quote.page}`;
     bookEl.textContent = sourceText;
+
+    if (coverEl) {
+      if (quote.bookCover) {
+        coverEl.src = quote.bookCover;
+        coverEl.alt = quote.bookTitle ? `${quote.bookTitle} 표지` : '책 표지';
+        coverEl.hidden = false;
+      } else {
+        coverEl.removeAttribute('src');
+        coverEl.alt = '';
+        coverEl.hidden = true;
+      }
+    }
 
     card.classList.remove('refresh-anim');
   }, 180);
