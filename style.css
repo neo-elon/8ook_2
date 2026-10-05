@@ -6966,3 +6966,12 @@ body.dark-mode .profile-stat-box {
     border-radius: 8px;
   }
 }
+
+
+/* Random quote — use the full card width */
+#random-quote-card .quote-content,
+#random-quote-card .quote-source {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
