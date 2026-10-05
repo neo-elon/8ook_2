@@ -6829,3 +6829,33 @@ body.dark-mode .profile-stat-box {
     max-width: none;
   }
 }
+
+
+/* Reading calendar — today uses the exact same circle geometry as completed dates */
+.cal-d.today {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  justify-self: center;
+  border-radius: 50%;
+  outline: none;
+  border: 1px solid var(--text-300);
+  box-sizing: border-box;
+}
+
+.cal-d.has-book.today {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  justify-self: center;
+  border-radius: 50%;
+}
+
+@media (max-width: 640px) {
+  .cal-d.today,
+  .cal-d.has-book.today {
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
+  }
+}
