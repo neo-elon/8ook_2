@@ -49,15 +49,18 @@ function saveData() {
 }
 
 
-const NEO_REVIEW_SCRAP_CLEANUP_KEY = '8ook_neo_review_scraps_cleaned_v2';
-const NEO_REVIEW_URL_PREFIX = 'https://blog.naver.com/neo_elon/';
+const NEO_REVIEW_SCRAP_CLEANUP_KEY = '8ook_neo_review_scraps_cleaned_v3';
+const NEO_REVIEW_URL_PREFIXES = [
+  'https://blog.naver.com/neo_elon/',
+  'https://blog.naver.com/checknfeel/'
+];
 
 function isNeoReviewLinkScrap(scrap) {
   if (!scrap) return false;
   const values = typeof scrap === 'string'
     ? [scrap]
     : [scrap.text, scrap.memo, scrap.url, scrap.link].filter(v => typeof v === 'string');
-  return values.some(value => value.includes(NEO_REVIEW_URL_PREFIX));
+  return values.some(value => NEO_REVIEW_URL_PREFIXES.some(prefix => value.includes(prefix)));
 }
 
 async function cleanupNeoReviewLinkScrapsOnce() {
