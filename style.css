@@ -6888,3 +6888,25 @@ body.dark-mode .profile-stat-box {
     align-content: space-between;
   }
 }
+
+
+/* Reading calendar — improve desktop legibility */
+@media (min-width: 900px) {
+  .cal-month-lbl {
+    font-size: 15px;
+  }
+
+  .cal-dn {
+    font-size: 11px;
+  }
+
+  .cal-d {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .cal-d.has-book {
+    font-size: 13px;
+    font-weight: 650;
+  }
+}
