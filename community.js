@@ -12,12 +12,7 @@ async function fetchRemoteCommunityBooks() {
       .order('created_at', { ascending: false })
       .limit(1000);
     if (!error && Array.isArray(data)) {
-      remoteCommunityBooks = data.map(b => {
-        if (b.user_id === 'f2432e6e-0481-4e8e-a516-213bd12434f9') {
-          return { ...b, user_id: '1df9f1ae-d5bf-4076-bd1d-b3f32916b216' };
-        }
-        return b;
-      });
+      remoteCommunityBooks = data;
       renderCommunityBooks();
       renderCommunityPopularBooks();
       renderCommunityScraps();
@@ -41,36 +36,20 @@ function resolveCommunityBookOwner(b, source) {
   if (!b) return 'unknown_user';
   if (b._ownerId) return b._ownerId;
 
-  // 1. 도서 객체에 저장된 user_id 및 Gmail(thejs2050) 확인
   const uid = b.user_id ? String(b.user_id) : '';
-  const email = (b.user_email || (b.user && b.user.email) || '').toLowerCase();
-  if (uid === '7396cf84-8b75-4617-a050-5ed974fcbe02' || email.includes('thejs2050')) return 'user_owner_oha';
-  if (uid === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216' || uid === 'f2432e6e-0481-4e8e-a516-213bd12434f9') return 'user_owner_neo';
   if (uid) return 'user_' + uid;
 
-  // 2. 도서 ID 패턴(고유 UUID 포함 여부) 확인
-  const bid = b.id ? String(b.id) : '';
-  if (bid.includes('7396cf84-8b75-4617-a050-5ed974fcbe02') || bid.includes('7396cf84')) return 'user_owner_oha';
-  if (bid.includes('1df9f1ae-d5bf-4076-bd1d-b3f32916b216') || bid.includes('1df9f1ae') || bid.startsWith('mqds3vy')) return 'user_owner_neo';
-
-  // Identify the current user for in-memory library books.
   const effSource = source || b._source || '';
   if (effSource === 'local') {
-    if (currentUser) {
-      if (isOhaUser(currentUser)) {
-        return 'user_owner_oha';
-      }
-      if (currentUser.id === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') {
-        return 'user_owner_neo';
-      }
-      if (currentUser.id) return 'user_' + currentUser.id;
-    }
+    if (currentUser && currentUser.id) return 'user_' + currentUser.id;
     return 'user_local';
   }
 
+  const email = (b.user_email || (b.user && b.user.email) || '').toLowerCase();
   if (email) return 'user_email_' + email.trim();
   if (b.owner) return 'user_owner_' + String(b.owner).trim();
 
+  const bid = b.id ? String(b.id) : '';
   return 'remote_user_' + (bid || 'anon');
 }
 
@@ -1244,37 +1223,7 @@ async function toggleCommunityBookLike(id, btnEl, event) {
 /* ==============================================
    COMMUNITY BOOK COMMENTS (말풍선 댓글)
 ============================================== */
-const DEFAULT_COMMUNITY_COMMENTS = {
-  'neo_2025_001': [
-    {
-      id: 'cmt_seed_1',
-      bookId: 'neo_2025_001',
-      userId: 'user_owner_oha',
-      nickname: 'oha',
-      text: '완독 축하드려요! 저도 이 책 읽어보고 싶었는데 평점과 한 줄 평 보고 바로 장바구니에 담았습니다 :)',
-      createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString()
-    },
-    {
-      id: 'cmt_seed_reply_1',
-      bookId: 'neo_2025_001',
-      parentId: 'cmt_seed_1',
-      userId: 'user_owner_neo',
-      nickname: 'neo_elon',
-      text: '감사합니다 @oha님! 읽으시면 분명 마음에 드실 거예요.',
-      createdAt: new Date(Date.now() - 1000 * 60 * 20).toISOString()
-    }
-  ],
-  'neo_2025_002': [
-    {
-      id: 'cmt_seed_2',
-      bookId: 'neo_2025_002',
-      userId: 'user_owner_neo',
-      nickname: 'neo_elon',
-      text: '생각할 거리가 정말 많은 책이었습니다. 꼭 읽어보시길 추천해요!',
-      createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString()
-    }
-  ]
-};
+const DEFAULT_COMMUNITY_COMMENTS = {};
 
 function loadCommunityCommentsFromStorage() {
   try {
@@ -2091,6 +2040,9 @@ function renderCommunityScraps() {
           <div class="comm-scrap-actions">
             <button class="comm-scrap-btn" ${communityEventAttrs('copyCommunityQuote', [s.text || '', mainTitle || '', s.author || '', s.page || ''], 'onclick')} title="문장 복사">
               복사
+            </button>
+            <button class="comm-scrap-btn" ${communityEventAttrs('downloadScrapShareImage', [s.text || '', mainTitle || '', s.author || '', s.page || '', s.memo || '', s.tags || []], 'onclick')} title="SNS용 1:1 이미지 다운로드">
+              이미지
             </button>
             <button type="button" class="comm-scrap-like-btn${isLiked ? ' liked' : ''}" data-target-id="${esc(sid)}" ${communityEventAttrs('toggleCommunityLike', [sid], 'onclick')} title="좋아요">
               <span class="comm-heart-icon">♥</span> <span class="like-count">${currentLikes}</span>

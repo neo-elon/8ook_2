@@ -448,6 +448,9 @@ function renderScrapsArchive() {
             <button class="btn btn-ghost btn-sm" ${libraryEventAttrs('copyScrapQuoteText', [scrap.text || '', bookMainTitle || '', book.author || ''])} title="문장 복사" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px;">
               복사
             </button>
+            <button class="btn btn-ghost btn-sm" ${libraryEventAttrs('downloadScrapShareImage', [scrap.text || '', bookMainTitle || '', book.author || '', scrap.page || '', scrap.memo || '', tags])} title="SNS용 1:1 이미지 다운로드" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px; color:var(--violet);">
+              이미지
+            </button>
             <button class="btn btn-ghost btn-sm" ${libraryEventAttrs('openInlineScrapMemo', [book.id,scrap.id])} title="이 문장에 내 생각 추가" style="padding:2px 8px; font-size:11px; height:24px; border-radius:4px; color:var(--violet);">
               ${scrap.memo ? '내 생각 수정' : '내 생각 추가'}
             </button>

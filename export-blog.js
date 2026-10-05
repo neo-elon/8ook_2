@@ -132,6 +132,165 @@ function generateBlogCover(coverUrl) {
   });
 }
 
+function wrapCanvasText(ctx, text, maxWidth) {
+  const words = String(text || '').replace(/\s+/g, ' ').trim().split(' ');
+  const lines = [];
+  let line = '';
+
+  words.forEach(word => {
+    const testLine = line ? `${line} ${word}` : word;
+    if (ctx.measureText(testLine).width <= maxWidth) {
+      line = testLine;
+      return;
+    }
+    if (line) lines.push(line);
+
+    if (ctx.measureText(word).width <= maxWidth) {
+      line = word;
+      return;
+    }
+
+    let chunk = '';
+    Array.from(word).forEach(ch => {
+      const testChunk = chunk + ch;
+      if (ctx.measureText(testChunk).width > maxWidth && chunk) {
+        lines.push(chunk);
+        chunk = ch;
+      } else {
+        chunk = testChunk;
+      }
+    });
+    line = chunk;
+  });
+
+  if (line) lines.push(line);
+  return lines;
+}
+
+function drawScrapShareCanvas({ text, bookTitle, author, page, memo, tags }) {
+  const size = 1080;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  ctx.fillStyle = '#fbf7ef';
+  ctx.fillRect(0, 0, size, size);
+
+  const gradient = ctx.createLinearGradient(0, 0, size, size);
+  gradient.addColorStop(0, 'rgba(140, 98, 57, 0.18)');
+  gradient.addColorStop(0.55, 'rgba(212, 175, 55, 0.08)');
+  gradient.addColorStop(1, 'rgba(92, 72, 56, 0.14)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, size, size);
+
+  ctx.strokeStyle = 'rgba(140, 98, 57, 0.35)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(54, 54, size - 108, size - 108);
+
+  ctx.fillStyle = '#8c6239';
+  ctx.font = '700 34px "Noto Sans KR", sans-serif';
+  ctx.textBaseline = 'top';
+  ctx.fillText('8ook.', 92, 88);
+
+  const quoteText = String(text || '').trim();
+  let fontSize = 52;
+  let quoteLines = [];
+  const maxQuoteWidth = 830;
+  do {
+    ctx.font = `700 ${fontSize}px "Noto Serif KR", "Noto Sans KR", serif`;
+    quoteLines = wrapCanvasText(ctx, quoteText, maxQuoteWidth);
+    if (quoteLines.length <= 9) break;
+    fontSize -= 4;
+  } while (fontSize >= 36);
+
+  const lineHeight = Math.round(fontSize * 1.55);
+  const quoteBlockHeight = quoteLines.length * lineHeight;
+  let y = Math.max(220, Math.round((size - quoteBlockHeight) / 2) - 30);
+
+  ctx.fillStyle = 'rgba(140, 98, 57, 0.42)';
+  ctx.font = '700 84px "Playfair Display", serif';
+  ctx.fillText('“', 90, y - 56);
+
+  ctx.fillStyle = '#2f2923';
+  ctx.font = `700 ${fontSize}px "Noto Serif KR", "Noto Sans KR", serif`;
+  quoteLines.forEach(line => {
+    ctx.fillText(line, 125, y);
+    y += lineHeight;
+  });
+
+  y += 36;
+  const metaParts = [];
+  if (bookTitle) metaParts.push(`《${bookTitle}》`);
+  if (author) metaParts.push(author);
+  if (page) metaParts.push(`p.${page}`);
+  const meta = metaParts.join(' · ');
+  if (meta) {
+    ctx.fillStyle = '#6f5842';
+    ctx.font = '500 30px "Noto Sans KR", sans-serif';
+    wrapCanvasText(ctx, `— ${meta}`, 830).slice(0, 2).forEach(line => {
+      ctx.fillText(line, 125, y);
+      y += 42;
+    });
+  }
+
+  if (memo) {
+    y += 18;
+    ctx.fillStyle = 'rgba(47, 41, 35, 0.72)';
+    ctx.font = '400 26px "Noto Sans KR", sans-serif';
+    wrapCanvasText(ctx, String(memo).trim(), 830).slice(0, 3).forEach(line => {
+      ctx.fillText(line, 125, y);
+      y += 36;
+    });
+  }
+
+  const cleanTags = Array.isArray(tags) ? tags.map(t => String(t).replace(/^#/, '').trim()).filter(Boolean) : [];
+  if (cleanTags.length) {
+    ctx.fillStyle = '#8c6239';
+    ctx.font = '600 24px "Noto Sans KR", sans-serif';
+    const tagText = cleanTags.slice(0, 5).map(t => `#${t}`).join('  ');
+    ctx.fillText(tagText, 92, size - 128);
+  }
+
+  ctx.fillStyle = 'rgba(47, 41, 35, 0.45)';
+  ctx.font = '500 22px "Noto Sans KR", sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('나만의 독서기록', size - 92, size - 128);
+  ctx.textAlign = 'left';
+
+  return canvas;
+}
+
+function downloadScrapShareImage(text, bookTitle, author, page = '', memo = '', tags = []) {
+  if (!text || !String(text).trim()) {
+    toast('이미지로 만들 문장이 없습니다.');
+    return;
+  }
+
+  const canvas = drawScrapShareCanvas({ text, bookTitle, author, page, memo, tags });
+  if (!canvas) {
+    toast('이미지 생성에 실패했습니다.');
+    return;
+  }
+
+  canvas.toBlob(blob => {
+    if (!blob) {
+      toast('이미지 생성에 실패했습니다.');
+      return;
+    }
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const safeTitle = (bookTitle || 'scrap').replace(/[/\\?%*:|"<>]/g, '_').slice(0, 40);
+    link.href = blobUrl;
+    link.download = `${safeTitle}_문장카드.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(blobUrl);
+    toast('SNS용 문장 이미지를 다운로드했습니다.');
+  }, 'image/png');
+}
 async function copyBlogCoverImage(bookId) {
   let book = books.find(b => b.id === bookId);
   if (!book && bookId === '8ook_user_guide') {

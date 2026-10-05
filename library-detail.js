@@ -153,6 +153,7 @@ function handleLibraryDelegatedClick(event) {
     copyScrapQuoteText: args => copyScrapQuoteText(...args),
     doDeleteBook: args => doDeleteBook(...args),
     doDeleteScrap: args => doDeleteScrap(...args),
+    downloadScrapShareImage: args => downloadScrapShareImage(...args),
     editScrap: args => editScrap(...args),
     filterScrapsByTag: args => filterScrapsByTag(...args),
     openEditModal: args => openEditModal(...args),
@@ -200,6 +201,7 @@ function buildScrapsHtml(book) {
         ${sPage ? `<span class="scrap-page">p.${esc(sPage)}</span>` : ''}
         <div class="scrap-actions" style="margin-left:auto; display:flex; gap:6px;">
           <button class="btn btn-ghost btn-sm" ${libraryEventAttrs('copyScrapQuoteText', [sText, book.title || '', book.author || ''])} style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;" title="문장 복사">복사</button>
+          <button class="btn btn-ghost btn-sm" ${libraryEventAttrs('downloadScrapShareImage', [sText, book.title || '', book.author || '', sPage || '', sMemo || '', tags])} style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1; color:var(--violet);" title="SNS용 1:1 이미지 다운로드">이미지</button>
           ${isGuide ? '' : `
           <button class="btn btn-ghost btn-sm" ${libraryEventAttrs('editScrap', [book.id,sId])} style="padding:2px 6px; font-size:10px; border-radius:4px; height:22px; line-height:1;">수정</button>
           <button class="btn btn-danger btn-sm" ${libraryEventAttrs('doDeleteScrap', [book.id,sId])} style="padding:2px 6px; font-size:10px; border-radius:4px; background:rgba(239,68,68,.08); border:none; color:#f87171; height:22px; line-height:1;">삭제</button>

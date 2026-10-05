@@ -2546,9 +2546,6 @@ function generateDefaultNickname() {
 // 구글 계정 고유의 결정적 6자리 기본 닉네임 생성
 function getDefaultNicknameForUser(user) {
   if (!user) return generateDefaultNickname();
-  if (isOhaUser(user)) return hashStringToNickname('user_owner_oha');
-  // Neo 사용자 또는 사용자가 설정했던 닉네임 di31om 유지
-  if (user.id === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216') return 'di31om';
   return hashStringToNickname('user_' + user.id);
 }
 
@@ -2558,7 +2555,6 @@ function getUserNickname() {
     // 1-1. Supabase 클라우드 auth user_metadata에 저장된 변경 닉네임 최우선 적용
     if (currentUser.user_metadata && currentUser.user_metadata.nickname) {
       let cloudNick = String(currentUser.user_metadata.nickname).trim().toLowerCase();
-      if (cloudNick === 'curator_neo') cloudNick = 'di31om';
       if (cloudNick) {
         try { localStorage.setItem(`rj_user_nickname_${currentUser.id}`, cloudNick); } catch (e) {}
         return cloudNick;
@@ -2570,18 +2566,16 @@ function getUserNickname() {
       let accountNick = localStorage.getItem(`rj_user_nickname_${currentUser.id}`);
       if (accountNick && accountNick.trim()) {
         accountNick = accountNick.trim().toLowerCase();
-        if (accountNick === 'curator_neo') accountNick = 'di31om';
         return accountNick;
       }
     } catch (e) {}
 
-    // 1-3. 기존 기기에서 설정했던 레거시 닉네임 중 유저가 직접 수정한 닉네임(di31om 등) 마이그레이션
+    // 1-3. 기존 기기에서 설정했던 레거시 닉네임 중 사용자가 직접 수정한 닉네임 마이그레이션
     try {
       const legacyNick = localStorage.getItem('rj_user_nickname');
       if (legacyNick && legacyNick.trim()) {
         let clean = legacyNick.trim().toLowerCase();
-        if (clean === 'curator_neo') clean = 'di31om';
-        if (clean === 'di31om' || (getNicknameChangeCount() > 0 && !clean.match(/^[a-z0-9]{6}$/))) {
+        if (getNicknameChangeCount() > 0 && !clean.match(/^[a-z0-9]{6}$/)) {
           localStorage.setItem(`rj_user_nickname_${currentUser.id}`, clean);
           return clean;
         }
@@ -3029,6 +3023,7 @@ function handleCommunityDelegatedEvent(event) {
     handleReplyKeyDown: args => handleReplyKeyDown(event, ...args),
     submitBookReply: args => submitBookReply(...args),
     copyCommunityQuote: args => copyCommunityQuote(...args),
+    downloadScrapShareImage: args => downloadScrapShareImage(...args),
     toggleCommunityLike: args => toggleCommunityLike(...args, element, event),
   };
   const action = element.getAttribute(`data-community-${event.type}`);
@@ -3281,8 +3276,7 @@ function getCommunityItemOwnerNickname(item, source = '') {
   // 내가 작성한 도서인지 판별
   const isMine = (effSource === 'local') ||
                  (ownerId === 'user_local') ||
-                 (ownerId === 'user_owner_neo') ||
-                 (currentUser && item.user_id && (String(item.user_id) === String(currentUser.id) || String(item.user_id) === 'f2432e6e-0481-4e8e-a516-213bd12434f9' || String(item.user_id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216')) ||
+                 (currentUser && item.user_id && String(item.user_id) === String(currentUser.id)) ||
                  (currentUser && currentUser.id && ownerId === ('user_' + currentUser.id)) ||
                  (item.id && Array.isArray(books) && books.some(b => String(b.id) === String(item.id)));
 
@@ -3292,16 +3286,7 @@ function getCommunityItemOwnerNickname(item, source = '') {
 
   if (item.nickname && typeof item.nickname === 'string' && item.nickname.trim()) {
     const customNick = item.nickname.trim().toLowerCase();
-    if (customNick === 'curator_neo') {
-      return { nickname: 'di31om', isMe: false };
-    }
     return { nickname: customNick, isMe: false };
-  }
-
-  // Neo account records use the account nickname.
-  if (ownerId === 'user_owner_neo' || String(item.user_id) === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216' || String(item.user_id) === 'f2432e6e-0481-4e8e-a516-213bd12434f9') {
-    const isNeo = currentUser && isNeoUser(currentUser);
-    return { nickname: isNeo ? getUserNickname() : 'di31om', isMe: !!isNeo };
   }
 
   // 그 외: '독서가 1인당 1닉네임' 완전 일치를 위해 오직 정규화된 ownerId만을 시드로 사용!

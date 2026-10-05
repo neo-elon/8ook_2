@@ -25,23 +25,6 @@ function isGuideBook(book) {
     (typeof book.author === 'string' && book.author.includes('8ook 제작팀'));
 }
 
-function isOhaUser(user) {
-  if (!user) return false;
-  const uid = user.id ? String(user.id) : '';
-  const email = (user.email || '').toLowerCase();
-  return uid === '7396cf84-8b75-4617-a050-5ed974fcbe02' || email.includes('thejs2050');
-}
-
-function isNeoUser(user) {
-  if (!user) return false;
-  const uid = user.id ? String(user.id) : '';
-  const email = (user.email || '').toLowerCase();
-  return uid === '1df9f1ae-d5bf-4076-bd1d-b3f32916b216' ||
-    uid === 'f2432e6e-0481-4e8e-a516-213bd12434f9' ||
-    email.includes('parkyangkyu') ||
-    email.includes('neo_elon') ||
-    email.includes('neo');
-}
 
 function saveData() {
   // Supabase is the only source of truth for personal libraries.
