@@ -6948,3 +6948,21 @@ body.dark-mode .profile-stat-box {
     font-size: 11px;
   }
 }
+
+
+/* Random quote — subtle standalone card */
+#random-quote-card {
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 22px 26px;
+  box-shadow: 0 4px 18px rgba(50, 40, 30, 0.035);
+}
+
+@media (max-width: 640px) {
+  #random-quote-card {
+    padding: 18px 18px;
+    border-radius: 8px;
+  }
+}
