@@ -6975,3 +6975,45 @@ body.dark-mode .profile-stat-box {
   max-width: none;
   box-sizing: border-box;
 }
+
+
+/* Random quote — source book cover */
+#random-quote-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
+}
+
+#random-quote-card.hidden {
+  display: none;
+}
+
+.quote-cover {
+  flex: 0 0 auto;
+  width: 78px;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 3px;
+  box-shadow: 0 4px 12px rgba(50, 40, 30, 0.10);
+}
+
+.quote-cover[hidden] {
+  display: none;
+}
+
+.quote-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  #random-quote-card {
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .quote-cover {
+    width: 54px;
+  }
+}
