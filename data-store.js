@@ -31,6 +31,7 @@ function saveData() {
   markGalleryDirty();
 }
 
+
 async function loadData() {
   loadCommunityCommentsFromStorage();
   if (!supabaseClient || !currentUser) {

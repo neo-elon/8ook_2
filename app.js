@@ -283,6 +283,22 @@ function getSafeImageUrl(url) {
 }
 
 
+function formatCompletionDate(dateValue) {
+  if (!dateValue) return '';
+  const raw = String(dateValue).trim();
+  const match = raw.match(/^(\d{4})[-./](\d{1,2})[-./](\d{1,2})/);
+  if (!match) return raw;
+  return `${match[1]}.${match[2].padStart(2, '0')}.${match[3].padStart(2, '0')}`;
+}
+
+function coverMetaHtml(book) {
+  const rating = book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : '<div class="ov-stars ov-stars-empty"></div>';
+  const completionDate = formatCompletionDate(book.date);
+  const date = completionDate ? `<div class="ov-completion-date">${esc(completionDate)}</div>` : '';
+  return `<div class="ov-meta-row">${rating}${date}</div>`;
+}
+
+
 function starsHtml(n, size) {
   let h = '';
   for (let i = 1; i <= 5; i++) {
@@ -373,15 +389,36 @@ function adjustSpineCardWidth(img) {
   if (!img || !img.naturalWidth || !img.naturalHeight) return;
   const card = img.closest('.book-card.spine-mode');
   const h = 351; // 1.3배 세로 높이
-  // 알라딘에서 실제 불러온 원본 이미지의 가로/세로 비율 100% 그대로 적용
   const ratio = img.naturalWidth / img.naturalHeight;
+  const src = img.getAttribute('src') || img.src;
+
+  // YES24 SIDE URLs also return a wide generic "image preparing" placeholder.
+  // Reject cover-like images and fall back to the Aladin spine (or generated spine).
+  if (src && src.includes('image.yes24.com/') && src.includes('/SIDE/') && ratio > 0.45) {
+    spineImgStatusCache[src] = { status: 'fail' };
+    scheduleSaveSpineStatusCache();
+
+    const bookId = card ? card.getAttribute('data-id') : '';
+    const book = Array.isArray(books) ? books.find(b => String(b.id) === String(bookId)) : null;
+    const aladinFallback = book ? getSpineImageUrl(book.cover) : '';
+    if (aladinFallback && aladinFallback !== src) {
+      img.src = aladinFallback;
+      return;
+    }
+
+    img.style.display = 'none';
+    const fallback = card ? card.querySelector('.spine-custom-view') : null;
+    if (fallback) fallback.classList.add('show-fallback');
+    return;
+  }
+
+  // 실제 불러온 원본 이미지의 가로/세로 비율 100% 그대로 적용
   let w = Math.round(h * ratio);
   if (w < 16) w = 16;
   if (card) {
     card.style.width = w + 'px';
     card.style.setProperty('--spine-w', w + 'px');
   }
-  const src = img.getAttribute('src') || img.src;
   if (src && !src.startsWith('data:')) {
     spineImgStatusCache[src] = { status: 'ok', width: w };
     scheduleSaveSpineStatusCache();
@@ -496,8 +533,13 @@ function preheatSpineCache() {
       testImg.onload = () => {
         if (testImg.naturalWidth && testImg.naturalHeight) {
           const ratio = testImg.naturalWidth / testImg.naturalHeight;
-          const w = Math.max(16, Math.round(351 * ratio));
-          spineImgStatusCache[url] = { status: 'ok', width: w };
+          const isYes24Side = url.includes('image.yes24.com/') && url.includes('/SIDE/');
+          if (isYes24Side && ratio > 0.45) {
+            spineImgStatusCache[url] = { status: 'fail' };
+          } else {
+            const w = Math.max(16, Math.round(351 * ratio));
+            spineImgStatusCache[url] = { status: 'ok', width: w };
+          }
         } else {
           spineImgStatusCache[url] = { status: 'fail' };
         }
@@ -1292,12 +1334,15 @@ function createBookCardElement(book, i, isSpineMode) {
 
     const shouldRenderRealSpine = Boolean(spineImgUrl && (!cachedSpine || cachedSpine.status !== 'fail'));
     const isKnownOk = Boolean(cachedSpine && cachedSpine.status === 'ok');
+    const isResolvingRealSpine = Boolean(shouldRenderRealSpine && !isKnownOk);
 
     const realSpineTag = shouldRenderRealSpine
-      ? `<img class="spine-real-img" src="${esc(spineImgUrl)}" alt="" loading="lazy" decoding="async" onload="adjustSpineCardWidth(this)" onerror="handleRealSpineError(this)">`
+      ? `<img class="spine-real-img${isKnownOk ? ' is-ready' : ''}" src="${esc(spineImgUrl)}" alt="" loading="eager" decoding="async" onload="this.classList.add('is-ready'); adjustSpineCardWidth(this)" onerror="handleRealSpineError(this)">`
       : '';
 
-    const showFallbackClass = (shouldRenderRealSpine && isKnownOk) ? '' : ' show-fallback';
+    // If a real spine is expected, render an empty slot until the image is ready.
+    // Only books with no usable real spine should show the generated fallback.
+    const showFallbackClass = shouldRenderRealSpine ? '' : ' show-fallback';
 
     card.innerHTML = `
       <div class="spine-3d-wrapper">
@@ -1337,7 +1382,7 @@ function createBookCardElement(book, i, isSpineMode) {
             </div>
             <div class="ov-author">${esc(book.author || '')}</div>
             ${sentence}
-            ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
+            ${coverMetaHtml(book)}
             ${isGuideCard ? '<div class="ov-tap-guide" style="opacity:1;">클릭하여 이용 가이드 읽기 ➔</div>' : ''}
           </div>
         </div>
@@ -1444,7 +1489,7 @@ function createBookCardElement(book, i, isSpineMode) {
         </div>
         <div class="ov-author">${esc(book.author || '')}</div>
         ${sentence}
-        ${book.rating ? `<div class="ov-stars">${starsPlain(book.rating)}</div>` : ''}
+        ${coverMetaHtml(book)}
         <div class="ov-tap-guide">${isGuideCard ? '클릭하여 이용 가이드 읽기 ➔' : '한 번 더 탭하면 서평으로 이동 →'}</div>
       </div>
     `;

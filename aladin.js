@@ -70,6 +70,116 @@ function fetchAladinCover(title, author) {
   });
 }
 
+function normalizeBackfillText(value) {
+  return String(value || '').toLowerCase().replace(/\s+/g, '').replace(/[^\p{L}\p{N}]/gu, '');
+}
+
+function lookupAladinItemForBackfill(book) {
+  return new Promise((resolve) => {
+    const key = getApiKey();
+    const cbName = '_aladinCb_backfill_' + (++aladinCallbackCounter);
+    const script = document.createElement('script');
+    const params = new URLSearchParams({
+      ttbkey: key,
+      Query: book.title || '',
+      QueryType: 'Title',
+      MaxResults: '10',
+      start: '1',
+      SearchTarget: 'Book',
+      output: 'JS',
+      Version: '20131101',
+      Cover: 'Big',
+      OptResult: 'subInfo',
+      Sort: 'Accuracy',
+      callback: cbName
+    });
+    let settled = false;
+    const finish = (value) => {
+      if (settled) return;
+      settled = true;
+      try { delete window[cbName]; } catch (_) {}
+      script.remove();
+      resolve(value || null);
+    };
+    window[cbName] = function (arg1, arg2) {
+      const data = (typeof arg1 === 'boolean' || typeof arg1 === 'number') ? arg2 : arg1;
+      const items = Array.isArray(data?.item) ? data.item : [];
+      const wantedTitle = normalizeBackfillText(book.title);
+      const wantedAuthor = normalizeBackfillText(book.author);
+      const candidates = items.filter(it => {
+        const title = normalizeBackfillText(decodeHtml(it.title || ''));
+        const author = normalizeBackfillText(decodeHtml(it.author || ''));
+        const titleMatch = title === wantedTitle || title.startsWith(wantedTitle) || wantedTitle.startsWith(title);
+        const authorMatch = !wantedAuthor || !author || author.includes(wantedAuthor) || wantedAuthor.includes(author);
+        return titleMatch && authorMatch;
+      });
+      if (candidates.length !== 1) { finish(null); return; }
+      const it = candidates[0];
+      const isbn13 = String(it.isbn13 || '').replace(/[^0-9]/g, '');
+      if (isbn13.length !== 13) { finish(null); return; }
+      finish({ isbn13, title: decodeHtml(it.title || ''), cover: (it.cover || '').replace('/coversum/', '/cover500/').replace('/cover200/', '/cover500/') });
+    };
+    script.onerror = () => finish(null);
+    setTimeout(() => finish(null), 7000);
+    script.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${params}`;
+    document.body.appendChild(script);
+  });
+}
+
+async function backfillYes24SpinesOnce() {
+  const markerKey = 'rj_yes24_spine_backfill_v1';
+  try { if (localStorage.getItem(markerKey) === 'done') return; } catch (_) {}
+  if (!Array.isArray(books) || books.length === 0 || !supabaseClient?.functions?.invoke) return;
+
+  const context = await getBookWriteContext();
+  if (!context) return;
+  const { client, user } = context;
+
+  // One-time migration only: never overwrite a stored/manual/real spine.
+  const candidates = books.filter(book => {
+    if (!book || isGuideBook(book) || book.user_id !== user.id) return false;
+    if (book.spineCover || book.spine) return false;
+    return Boolean(book.cover);
+  });
+
+  let updated = 0;
+  for (const book of candidates) {
+    const aladinItem = await lookupAladinItemForBackfill(book);
+    if (!aladinItem) continue;
+    try {
+      const { data, error } = await supabaseClient.functions.invoke('yes24-spine', {
+        body: { isbn13: aladinItem.isbn13 }
+      });
+      if (error || data?.ok !== true || data?.found !== true) continue;
+      const returnedIsbn = String(data.book?.isbn13 || '').replace(/[^0-9]/g, '');
+      if (returnedIsbn && returnedIsbn !== aladinItem.isbn13) continue;
+      const sideCover = getSafeImageUrl(data.book?.sideCover || '');
+      if (!sideCover || !(await validateYes24SpineImage(sideCover))) continue;
+
+      const { error: updateError } = await client.from('books')
+        .update({ spineCover: sideCover })
+        .eq('id', book.id)
+        .eq('user_id', user.id)
+        .is('spineCover', null);
+      if (updateError) {
+        console.warn('[8ook yes24 backfill] update failed', book.id, updateError);
+        continue;
+      }
+      book.spineCover = sideCover;
+      updated++;
+    } catch (error) {
+      console.warn('[8ook yes24 backfill] skipped', book.id, error);
+    }
+    await new Promise(resolve => setTimeout(resolve, 120));
+  }
+
+  try { localStorage.setItem(markerKey, 'done'); } catch (_) {}
+  if (updated > 0) {
+    renderGallery();
+    toast(`YES24 실제 책등 이미지 ${updated}권을 기존 서재에 적용했습니다`);
+  }
+}
+
 function searchAladin() {
   const query = document.getElementById('bk-title').value.trim();
   if (!query) { toast('도서 제목을 입력해주세요'); return; }
@@ -528,6 +638,101 @@ function applyAladinItemByIndex(index) {
   }
 }
 
+let yes24SpineRequestSeq = 0;
+
+function getSpineImageQuality(url) {
+  return new Promise((resolve) => {
+    if (!url) { resolve(null); return; }
+    const img = new Image();
+    const timer = setTimeout(() => { img.onload = img.onerror = null; resolve(null); }, 6000);
+    img.onload = () => {
+      clearTimeout(timer);
+      if (!img.naturalWidth || !img.naturalHeight) { resolve(null); return; }
+      const ratio = img.naturalWidth / img.naturalHeight;
+      resolve({
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+        ratio,
+        pixels: img.naturalWidth * img.naturalHeight
+      });
+    };
+    img.onerror = () => { clearTimeout(timer); resolve(null); };
+    img.src = url;
+  });
+}
+
+async function shouldPreferYes24Spine(yes24Url, currentUrl) {
+  const [yes24, current] = await Promise.all([
+    getSpineImageQuality(yes24Url),
+    getSpineImageQuality(currentUrl)
+  ]);
+
+  // Reject YES24 placeholders/non-spine images.
+  if (!yes24 || yes24.ratio > 0.45) return false;
+
+  // If the existing Aladin spine cannot be measured, a valid YES24 spine is an improvement.
+  if (!current || current.ratio > 0.45) return true;
+
+  // Compare the dimensions that matter when a narrow spine is enlarged.
+  // YES24 replaces the current image only when it has a meaningful resolution advantage.
+  const yes24ShortEdge = Math.min(yes24.width, yes24.height);
+  const currentShortEdge = Math.min(current.width, current.height);
+  const shortEdgeGain = yes24ShortEdge / Math.max(1, currentShortEdge);
+  const pixelGain = yes24.pixels / Math.max(1, current.pixels);
+
+  return shortEdgeGain >= 1.15 || pixelGain >= 1.35;
+}
+
+async function fetchYes24SpineForAladinItem(item) {
+  if (!item || !supabaseClient || !supabaseClient.functions || typeof supabaseClient.functions.invoke !== 'function') {
+    return;
+  }
+
+  const isbn13 = String(item.isbn13 || '').replace(/[^0-9]/g, '');
+  const title = String(item.title || '').trim();
+  if (!isbn13 && !title) return;
+
+  const requestSeq = ++yes24SpineRequestSeq;
+  const fallbackSpine = item.cover ? getSpineImageUrl(item.cover) : '';
+
+  try {
+    const { data, error } = await supabaseClient.functions.invoke('yes24-spine', {
+      body: isbn13.length === 13 ? { isbn13 } : { title }
+    });
+
+    if (requestSeq !== yes24SpineRequestSeq) return;
+
+    if (error || !data || data.ok !== true || data.found !== true) {
+      return;
+    }
+
+    const returnedIsbn = String(data.book?.isbn13 || '').replace(/[^0-9]/g, '');
+    if (isbn13.length === 13 && returnedIsbn && returnedIsbn !== isbn13) {
+      console.warn('[8ook yes24] ISBN mismatch; keeping Aladin spine', { isbn13, returnedIsbn });
+      return;
+    }
+
+    const sideCover = getSafeImageUrl(data.book?.sideCover || '');
+    if (!sideCover) return;
+
+    const shouldUseYes24 = await shouldPreferYes24Spine(sideCover, fallbackSpine);
+    if (requestSeq !== yes24SpineRequestSeq) return;
+    if (!shouldUseYes24) {
+      console.info('[8ook yes24] existing Aladin spine is equal or better; keeping it');
+      return;
+    }
+
+    modalSpineCover = sideCover;
+    setSpinePrev(sideCover);
+  } catch (error) {
+    console.warn('[8ook yes24] spine lookup failed; keeping Aladin spine', error);
+    if (!modalSpineCover && fallbackSpine) {
+      modalSpineCover = fallbackSpine;
+      setSpinePrev(fallbackSpine);
+    }
+  }
+}
+
 function applyAladinItem(item) {
   if (item.title) {
     const titleParts = splitBookTitle(item.title);
@@ -575,6 +780,10 @@ function applyAladinItem(item) {
 
   hideSearchResults();
   toast('도서 정보가 적용되었습니다');
+
+  // A fresh Aladin selection is the only automatic trigger for YES24 spine lookup.
+  // Existing saved/manual spineCover values are therefore never overwritten merely by opening an edit modal.
+  fetchYes24SpineForAladinItem(item);
 
   const identifier = item.itemId || item.isbn13 || item.isbn;
   if (identifier && !cleanPages) {

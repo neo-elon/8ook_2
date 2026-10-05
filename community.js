@@ -150,15 +150,19 @@ async function showCommunity(pushHistory = true) {
   communityPopularBooksLimit = 10;
   initCommunityScroll();
 
-  // 먼저 로컬/기존 캐시로 즉시 렌더링
+  // 북클럽 첫 화면은 원격 도서까지 준비한 뒤 렌더링한다.
+  // 로컬 도서를 먼저 그리면 원격 도서가 도착할 때 카드가 끼어들며
+  // 완독일순으로 재배치되는 시각적 점프가 발생한다.
+  await fetchRemoteCommunityBooks();
+
+  // 도서 목록은 로컬 + 원격 데이터를 합친 상태에서 처음부터 완독일순으로 표시한다.
   renderCommunityBooks();
   renderCommunityPopularBooks();
   renderCommunityScraps();
   switchCommunityTab(currentCommunityTab);
 
-  // 최신 Supabase 원격 도서, 좋아요 및 말풍선 댓글 데이터 비동기 페치 및 동기화 렌더링
+  // 좋아요/댓글/프로필은 도서 첫 렌더링을 막지 않고 병렬로 동기화한다.
   await Promise.all([
-    fetchRemoteCommunityBooks(),
     fetchCommunityLikes(),
     fetchCommunityComments(),
     fetchCommunityProfiles()
