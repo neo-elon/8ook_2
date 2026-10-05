@@ -48,6 +48,59 @@ function saveData() {
   markGalleryDirty();
 }
 
+
+const NEO_REVIEW_SCRAP_CLEANUP_KEY = '8ook_neo_review_scraps_cleaned_v1';
+const NEO_REVIEW_URL_PREFIX = 'https://blog.naver.com/neo_elon/';
+
+function isNeoReviewLinkScrap(scrap) {
+  if (!scrap) return false;
+  const values = typeof scrap === 'string'
+    ? [scrap]
+    : [scrap.text, scrap.memo, scrap.url, scrap.link].filter(v => typeof v === 'string');
+  return values.some(value => value.trim().startsWith(NEO_REVIEW_URL_PREFIX));
+}
+
+async function cleanupNeoReviewLinkScrapsOnce() {
+  if (!supabaseClient || !currentUser || !currentUser.id || !isNeoUser(currentUser)) return;
+
+  const storageKey = NEO_REVIEW_SCRAP_CLEANUP_KEY + '_' + currentUser.id;
+  try {
+    if (localStorage.getItem(storageKey) === 'done') return;
+  } catch (e) {}
+
+  const { data, error } = await supabaseClient
+    .from('books')
+    .select('id,scraps')
+    .eq('user_id', currentUser.id);
+
+  if (error) throw error;
+
+  let removedCount = 0;
+  let changedBooks = 0;
+
+  for (const book of (data || [])) {
+    if (!Array.isArray(book.scraps) || !book.scraps.length) continue;
+    const cleanedScraps = book.scraps.filter(scrap => !isNeoReviewLinkScrap(scrap));
+    const removedFromBook = book.scraps.length - cleanedScraps.length;
+    if (!removedFromBook) continue;
+
+    const { error: updateError } = await supabaseClient
+      .from('books')
+      .update({ scraps: cleanedScraps })
+      .eq('id', book.id)
+      .eq('user_id', currentUser.id);
+
+    if (updateError) throw updateError;
+    removedCount += removedFromBook;
+    changedBooks++;
+  }
+
+  try { localStorage.setItem(storageKey, 'done'); } catch (e) {}
+  if (removedCount > 0) {
+    console.log(`Removed ${removedCount} neo_elon review-link scraps from ${changedBooks} books.`);
+  }
+}
+
 async function loadData() {
   loadCommunityCommentsFromStorage();
   if (!supabaseClient || !currentUser) {
@@ -77,7 +130,17 @@ async function loadData() {
       throw error;
     }
 
-    const rawRemoteBooks = data || [];
+    await cleanupNeoReviewLinkScrapsOnce();
+
+    // Reload after the one-time cleanup so the in-memory library matches Supabase.
+    const { data: refreshedData, error: refreshedError } = await supabaseClient
+      .from('books')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+    if (refreshedError) throw refreshedError;
+
+    const rawRemoteBooks = refreshedData || [];
     const remoteBooks = rawRemoteBooks.filter(b => !isLikeRecord(b) && !isCommentRecord(b) && !isProfileRecord(b));
     if (remoteBooks.length > 0 && 'spineCover' in remoteBooks[0]) {
       dbSupportsSpineCover = true;
