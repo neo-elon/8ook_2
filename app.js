@@ -960,8 +960,9 @@ function renderGallery() {
   const sortedBooks = [...displayBooks].sort((a, b) => {
     if (isGuideBook(a)) return -1;
     if (isGuideBook(b)) return 1;
-    if (!a.date) return 1;
-    if (!b.date) return -1;
+    if (!a.date && !b.date) return 0;
+    if (!a.date) return -1;
+    if (!b.date) return 1;
     return new Date(b.date) - new Date(a.date);
   });
 
@@ -2023,8 +2024,9 @@ function navigateToAdjacentBook(direction) {
 
   // Sort the books copy exactly like the gallery view
   const sorted = [...books].sort((a, b) => {
-    if (!a.date) return 1;
-    if (!b.date) return -1;
+    if (!a.date && !b.date) return 0;
+    if (!a.date) return -1;
+    if (!b.date) return 1;
     return new Date(b.date) - new Date(a.date);
   });
 
