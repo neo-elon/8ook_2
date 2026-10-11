@@ -1027,7 +1027,7 @@ function renderGallery() {
         yearSection.className = 'shelf-year-section';
 
         const booksInYear = yearGroups[yKey];
-        const yearLabel = yKey !== '기타' ? `${yKey}년` : '완독일 미정';
+        const yearLabel = yKey !== '기타' ? `${yKey}년` : '읽는 중(완독일 미정)';
         const yearPages = getShelfTotalPages(booksInYear);
         yearSection.setAttribute('data-label', yearLabel);
         yearSection.setAttribute('data-ym', yKey);
@@ -1109,7 +1109,7 @@ function renderGallery() {
       monthSection.className = 'shelf-year-section';
 
       const booksInMonth = monthGroups[ymKey];
-      let monthLabel = '완독일 미정';
+      let monthLabel = '읽는 중(완독일 미정)';
       if (ymKey !== '기타') {
         const parts = ymKey.split('-');
         monthLabel = `${parts[0]}년 ${parseInt(parts[1], 10)}월`;
