@@ -1015,8 +1015,8 @@ function renderGallery() {
       });
 
       const yearKeys = Object.keys(yearGroups).sort((a, b) => {
-        if (a === '기타') return 1;
-        if (b === '기타') return -1;
+        if (a === '기타') return -1;
+        if (b === '기타') return 1;
         return b.localeCompare(a);
       });
 
@@ -1097,8 +1097,8 @@ function renderGallery() {
     });
 
     const monthKeys = Object.keys(monthGroups).sort((a, b) => {
-      if (a === '기타') return 1;
-      if (b === '기타') return -1;
+      if (a === '기타') return -1;
+      if (b === '기타') return 1;
       return b.localeCompare(a);
     });
 
