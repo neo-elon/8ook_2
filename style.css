@@ -7017,3 +7017,9 @@ body.dark-mode .profile-stat-box {
     width: 54px;
   }
 }
+
+
+/* Personal sentence punctuation shortcuts */
+.sentence-symbol-tools { display:flex; gap:8px; margin-top:8px; }
+.sentence-symbol-btn { border:1px solid var(--border); background:transparent; color:var(--text); border-radius:6px; padding:5px 12px; font:inherit; font-size:14px; cursor:pointer; }
+.sentence-symbol-btn:hover { background:var(--bg-100, #f3f1ed); }
