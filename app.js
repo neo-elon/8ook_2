@@ -3499,3 +3499,18 @@ function searchAladinByQuery(query) {
   document.getElementById('bk-title').value = query;
   searchAladin();
 }
+
+
+// Insert paired corner brackets around the selection in the personal sentence field.
+function insertSentenceSymbol(open, close) {
+  const field = document.getElementById('bk-sentence');
+  if (!field) return;
+  const start = field.selectionStart ?? field.value.length;
+  const end = field.selectionEnd ?? start;
+  const selected = field.value.slice(start, end);
+  field.setRangeText(open + selected + close, start, end, 'end');
+  const cursor = start + open.length + selected.length;
+  field.setSelectionRange(cursor, cursor);
+  field.focus();
+  field.dispatchEvent(new Event('input', { bubbles: true }));
+}
