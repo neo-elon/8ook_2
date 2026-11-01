@@ -7108,3 +7108,39 @@ body.dark-mode .profile-stat-box {
   .stats-grid .stat-num.compact,
   .stats-grid .stat-num.extra-compact { font-size: 25px; }
 }
+
+
+/* Calendar refinement: cover-only dates and red plus marker */
+.cal-d.has-cover:not(.cover-missing) .cal-date-label { display: none; }
+.cal-d.has-cover:not(.cover-missing) {
+  justify-content: center;
+}
+.cal-d.has-cover .cal-book-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: max(0px, calc(50% - 30px));
+  bottom: 2px;
+  width: 19px;
+  height: 19px;
+  min-width: 19px;
+  padding: 0;
+  border-radius: 50%;
+  background: #d63838;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 1px 4px rgba(0,0,0,.18);
+  z-index: 1;
+}
+@media (max-width: 640px) {
+  .cal-d.has-cover .cal-book-count {
+    right: max(0px, calc(50% - 25px));
+    width: 17px;
+    height: 17px;
+    min-width: 17px;
+    font-size: 14px;
+  }
+}
