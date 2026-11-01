@@ -342,7 +342,15 @@ async function searchBookProviders(query, sort = 'Accuracy', isbnSearch = false)
   });
   try {
     const data = await requestBookJson('https://openlibrary.org/search.json?' + olParams);
-    const items = (data.docs || []).map(normalizeOpenLibraryBook).filter(x => x.title);
+    const items = (data.docs || []).map(doc => {
+      const item = normalizeOpenLibraryBook(doc);
+      if (isbnSearch && (doc.isbn || []).includes(query)) {
+        if (query.length === 13) item.isbn13 = query;
+        else item.isbn = query;
+        item.itemId = query;
+      }
+      return item;
+    }).filter(x => x.title);
     if (items.length) return items;
   } catch (error) {
     console.warn('[8ook books] Open Library unavailable', error);
@@ -488,7 +496,6 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
       <div class="search-results-count">검색 결과 <span>${items.length}</span>권</div>
       <div class="search-sort-chips">
         <button type="button" class="sort-chip ${currentAladinSort === 'Accuracy' ? 'active' : ''}" data-sort="Accuracy" onclick="changeAladinSort('Accuracy')">정확도순</button>
-        <button type="button" class="sort-chip ${currentAladinSort === 'SalesPoint' ? 'active' : ''}" data-sort="SalesPoint" onclick="changeAladinSort('SalesPoint')">인기순</button>
         <button type="button" class="sort-chip ${currentAladinSort === 'PublishTime' ? 'active' : ''}" data-sort="PublishTime" onclick="changeAladinSort('PublishTime')">최신순</button>
       </div>
       <button type="button" class="search-results-close" onclick="hideSearchResults()" title="닫기" aria-label="닫기">×</button>
