@@ -24,13 +24,6 @@ function updateSidebar() {
   const pages = filteredBooks.reduce((s, b) => s + (b.pages || 0), 0);
   const scraps = filteredBooks.reduce((s, b) => s + ((b.scraps || []).length), 0);
 
-  const formatStatNum = (n) => {
-    if (n >= 10000) {
-      return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
-    }
-    return n.toLocaleString();
-  };
-
   const setStatEl = (id, val) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -44,8 +37,8 @@ function updateSidebar() {
   };
 
   setStatEl('stat-books', total.toLocaleString());
-  setStatEl('stat-pages', formatStatNum(pages));
-  setStatEl('stat-scraps', formatStatNum(scraps));
+  setStatEl('stat-pages', pages.toLocaleString());
+  setStatEl('stat-scraps', scraps.toLocaleString());
 
   renderChart();
   renderCal();
