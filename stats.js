@@ -259,14 +259,39 @@ function renderCal() {
     el.textContent = d;
 
     if (dayMap[d]) {
-      el.classList.add('has-book');
-      el.title = dayMap[d].map(b => b.title).join(', ');
       const booksOnDay = dayMap[d];
-      el.addEventListener('click', () => {
-        if (booksOnDay.length >= 1) {
-          showDetail(booksOnDay[0].id);
-        }
-      });
+      el.classList.add('has-book', 'has-cover');
+      el.title = booksOnDay.map(b => b.title).join(', ');
+      el.textContent = '';
+
+      const dateLabel = document.createElement('span');
+      dateLabel.className = 'cal-date-label';
+      dateLabel.textContent = d;
+      el.appendChild(dateLabel);
+
+      const firstWithCover = booksOnDay.find(b => b.cover);
+      if (firstWithCover) {
+        const cover = document.createElement('img');
+        cover.className = 'cal-book-cover';
+        cover.src = firstWithCover.cover;
+        cover.alt = firstWithCover.title || '완독한 책';
+        cover.loading = 'lazy';
+        cover.onerror = () => {
+          cover.remove();
+          el.classList.add('cover-missing');
+        };
+        el.appendChild(cover);
+      } else {
+        el.classList.add('cover-missing');
+      }
+
+      if (booksOnDay.length > 1) {
+        const count = document.createElement('span');
+        count.className = 'cal-book-count';
+        count.textContent = '+' + (booksOnDay.length - 1);
+        el.appendChild(count);
+      }
+      el.addEventListener('click', () => showDetail(booksOnDay[0].id));
     }
 
     if (today.getFullYear() === y && today.getMonth() === m && today.getDate() === d) {
