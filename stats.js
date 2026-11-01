@@ -281,7 +281,9 @@ function renderCal() {
       if (booksOnDay.length > 1) {
         const count = document.createElement('span');
         count.className = 'cal-book-count';
-        count.textContent = '+' + (booksOnDay.length - 1);
+        count.textContent = '+';
+        count.title = `같은 날 ${booksOnDay.length}권 완독`;
+        count.setAttribute('aria-label', count.title);
         el.appendChild(count);
       }
       el.addEventListener('click', () => showDetail(booksOnDay[0].id));
