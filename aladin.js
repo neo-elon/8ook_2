@@ -204,118 +204,23 @@ function searchAladinByIsbn(isbn) {
   runAladinLookUpJsonp(isbn, key, results, true);
 }
 
-function runAladinLookUpJsonp(isbn, key, results, isBarcodeScan = false) {
-  const cbName = '_aladinCb_lookup_' + (++aladinCallbackCounter);
-  const script = document.createElement('script');
-
-  const params = new URLSearchParams({
-    ttbkey: key,
-    itemIdType: 'ISBN13',
-    ItemId: isbn,
-    output: 'JS',
-    Version: '20131101',
-    Cover: 'Big',
-    OptResult: 'subInfo',
-    callback: cbName
-  });
-
-  script.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?${params}`;
-
-  window[cbName] = function (arg1, arg2) {
-    delete window[cbName];
-    script.remove();
-    const data = (typeof arg1 === 'boolean' || typeof arg1 === 'number') ? arg2 : arg1;
-    if (data && data.item && data.item.length > 0) {
-      handleAladinResults(data.item, isBarcodeScan, isbn);
+async function runAladinLookUpJsonp(isbn, key, results, isBarcodeScan = false) {
+  const requestId = ++bookSearchRequestId;
+  try {
+    const items = await searchBookProviders(isbn, 'Accuracy', true);
+    if (requestId !== bookSearchRequestId) return;
+    const exact = items.filter(item => String(item.isbn13) === String(isbn) || String(item.isbn) === String(isbn));
+    if (exact.length) {
+      handleAladinResults(exact, isBarcodeScan, isbn);
     } else {
-      // Step 2: Try 10-digit ISBN ItemLookUp
-      const cbName10 = '_aladinCb_lookup10_' + (++aladinCallbackCounter);
-      const script10 = document.createElement('script');
-      const params10 = new URLSearchParams({
-        ttbkey: key,
-        itemIdType: 'ISBN',
-        ItemId: isbn,
-        output: 'JS',
-        Version: '20131101',
-        Cover: 'Big',
-        OptResult: 'subInfo',
-        callback: cbName10
-      });
-      script10.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?${params10}`;
-
-      const tryKeywordFallback = () => {
-        // Step 3: Fallback to ItemSearch with Keyword=ISBN (captures books indexed by keyword)
-        const cbNameKw = '_aladinCb_lookupKw_' + (++aladinCallbackCounter);
-        const scriptKw = document.createElement('script');
-        const paramsKw = new URLSearchParams({
-          ttbkey: key,
-          Query: isbn,
-          QueryType: 'Keyword',
-          MaxResults: '12',
-          start: '1',
-          SearchTarget: 'Book',
-          output: 'JS',
-          Version: '20131101',
-          Cover: 'Big',
-          OptResult: 'subInfo',
-          callback: cbNameKw
-        });
-        scriptKw.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${paramsKw}`;
-        window[cbNameKw] = function (kw1, kw2) {
-          delete window[cbNameKw];
-          scriptKw.remove();
-          const kwData = (typeof kw1 === 'boolean' || typeof kw1 === 'number') ? kw2 : kw1;
-          if (kwData && kwData.item && kwData.item.length > 0) {
-            handleAladinResults(kwData.item, isBarcodeScan, isbn);
-          } else {
-            results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${esc(isbn)})<br><span style="font-size:12px; opacity:0.8; margin-top:6px; display:inline-block;">도서 제목이나 저자명으로 직접 검색해 보세요.</span></div>`;
-          }
-        };
-        scriptKw.onerror = function () {
-          delete window[cbNameKw];
-          scriptKw.remove();
-          results.innerHTML = `<div class="search-empty">바코드로 도서를 찾을 수 없습니다. (ISBN: ${esc(isbn)})</div>`;
-        };
-        document.body.appendChild(scriptKw);
-      };
-
-      window[cbName10] = function (tArg1, tArg2) {
-        delete window[cbName10];
-        script10.remove();
-        const data10 = (typeof tArg1 === 'boolean' || typeof tArg1 === 'number') ? tArg2 : tArg1;
-        if (data10 && data10.item && data10.item.length > 0) {
-          handleAladinResults(data10.item, isBarcodeScan, isbn);
-        } else {
-          tryKeywordFallback();
-        }
-      };
-      script10.onerror = function () {
-        delete window[cbName10];
-        script10.remove();
-        tryKeywordFallback();
-      };
-      document.body.appendChild(script10);
+      results.innerHTML = '<div class="search-empty">ISBN과 일치하는 도서를 찾지 못했습니다. 제목으로 검색해보세요.</div>';
     }
-  };
-
-  script.onerror = function () {
-    delete window[cbName];
-    script.remove();
-    results.innerHTML = `<div class="search-empty">검색 실패 — 도서 검색 상태를 확인해주세요.</div>`;
-  };
-
-  setTimeout(() => {
-    if (window[cbName]) {
-      delete window[cbName];
-      if (script.isConnected) script.remove();
-      console.warn('[8ook aladin] ISBN lookup timed out', isbn);
-      results.innerHTML = `<div class="search-empty">도서 정보 조회가 지연되고 있습니다. ISBN: ${esc(isbn)}<br><button type="button" class="btn btn-ghost btn-xs" style="margin-top:6px;" onclick="searchAladinByIsbn('${esc(isbn)}')">다시 검색</button></div>`;
-    }
-  }, 8000);
-
-  document.body.appendChild(script);
+  } catch (error) {
+    if (requestId !== bookSearchRequestId) return;
+    console.error('[8ook books] ISBN lookup failed', error);
+    results.innerHTML = '<div class="search-empty">도서 조회에 실패했습니다. 잠시 후 다시 시도해주세요.</div>';
+  }
 }
-
 
 async function handleCameraScan(input) {
   const file = input.files[0];
@@ -417,82 +322,93 @@ function changeAladinSort(newSort) {
   }
 }
 
-function runAladinJsonp(query, key, results, sort = currentAladinSort || 'Accuracy') {
+// Search providers: Open Library first, Google Books as a fallback.
+// Keep the existing result UI and form mapping through handleAladinResults().
+let bookSearchRequestId = 0;
+async function requestBookJson(url) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 9000);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) throw new Error('Book API HTTP ' + response.status);
+    return await response.json();
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function normalizeOpenLibraryBook(doc) {
+  const isbn13 = (doc.isbn || []).find(v => /^97[89]\\d{10}$/.test(String(v))) || '';
+  const isbn = (doc.isbn || []).find(v => /^\\d{9}[\\dX]$/.test(String(v))) || '';
+  const cover = doc.cover_i
+    ? 'https://covers.openlibrary.org/b/id/' + doc.cover_i + '-L.jpg'
+    : (isbn13 ? 'https://covers.openlibrary.org/b/isbn/' + isbn13 + '-L.jpg?default=false' : '');
+  return {
+    title: doc.title || '',
+    author: (doc.author_name || []).join(', '),
+    publisher: (doc.publisher || [])[0] || '',
+    pubDate: doc.first_publish_year ? String(doc.first_publish_year) : '',
+    pages: doc.number_of_pages_median || '',
+    cover, isbn, isbn13,
+    itemId: isbn13 || isbn || ''
+  };
+}
+
+function normalizeGoogleBook(entry) {
+  const info = entry.volumeInfo || {};
+  const identifiers = info.industryIdentifiers || [];
+  const isbn13 = identifiers.find(x => x.type === 'ISBN_13')?.identifier || '';
+  const isbn = identifiers.find(x => x.type === 'ISBN_10')?.identifier || '';
+  const images = info.imageLinks || {};
+  const cover = (images.thumbnail || images.smallThumbnail || '').replace(/^http:/, 'https:');
+  return {
+    title: info.title || '',
+    author: (info.authors || []).join(', '),
+    publisher: info.publisher || '',
+    pubDate: info.publishedDate || '',
+    pages: info.pageCount || '',
+    cover, isbn, isbn13, itemId: isbn13 || isbn || ''
+  };
+}
+
+async function searchBookProviders(query, sort = 'Accuracy', isbnSearch = false) {
+  const olParams = new URLSearchParams({
+    [isbnSearch ? 'isbn' : 'q']: query,
+    limit: isbnSearch ? '10' : '25',
+    fields: 'key,title,author_name,publisher,first_publish_year,number_of_pages_median,cover_i,isbn'
+  });
+  if (sort === 'PublishTime') olParams.set('sort', 'new');
+  // Open Library has no equivalent to Aladin sales rankings.
+  const googleParams = new URLSearchParams({
+    q: query, maxResults: isbnSearch ? '10' : '25',
+    printType: 'books',
+    orderBy: sort === 'PublishTime' ? 'newest' : 'relevance'
+  });
+  try {
+    const data = await requestBookJson('https://openlibrary.org/search.json?' + olParams);
+    const items = (data.docs || []).map(normalizeOpenLibraryBook).filter(x => x.title);
+    if (items.length) return items;
+  } catch (error) {
+    console.warn('[8ook books] Open Library unavailable', error);
+  }
+  // Google Books plain-text query also handles ISBN; no field prefixes required.
+  const data = await requestBookJson('https://www.googleapis.com/books/v1/volumes?' + googleParams);
+  return (data.items || []).map(normalizeGoogleBook).filter(x => x.title);
+}
+
+async function runAladinJsonp(query, key, results, sort = currentAladinSort || 'Accuracy') {
   currentAladinQuery = query;
   currentAladinSort = sort;
-  const cbName = '_aladinCb_' + (++aladinCallbackCounter);
-  const script = document.createElement('script');
-
-  const params = new URLSearchParams({
-    ttbkey: key,
-    Query: query,
-    QueryType: 'Keyword',
-    MaxResults: '25',
-    start: '1',
-    SearchTarget: 'Book',
-    output: 'JS',
-    Cover: 'Big',
-    OptResult: 'subInfo',
-    Sort: sort,
-    callback: cbName
-  });
-
-  script.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${params}`;
-
-  window[cbName] = function (arg1, arg2) {
-    delete window[cbName];
-    script.remove();
-    const data = (typeof arg1 === 'boolean' || typeof arg1 === 'number') ? arg2 : arg1;
-    if (data && data.item && data.item.length > 0) {
-      handleAladinResults(data);
-    } else {
-      // Fallback: try QueryType=Title
-      const cbNameTitle = '_aladinCb_title_' + (++aladinCallbackCounter);
-      const scriptTitle = document.createElement('script');
-      const paramsTitle = new URLSearchParams({
-        ttbkey: key,
-        Query: query,
-        QueryType: 'Title',
-        MaxResults: '25',
-        start: '1',
-        SearchTarget: 'Book',
-        output: 'JS',
-        Cover: 'Big',
-        OptResult: 'subInfo',
-        Sort: sort,
-        callback: cbNameTitle
-      });
-      scriptTitle.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${paramsTitle}`;
-      window[cbNameTitle] = function (tArg1, tArg2) {
-        delete window[cbNameTitle];
-        scriptTitle.remove();
-        const dataTitle = (typeof tArg1 === 'boolean' || typeof tArg1 === 'number') ? tArg2 : tArg1;
-        handleAladinResults(dataTitle);
-      };
-      scriptTitle.onerror = function () {
-        delete window[cbNameTitle];
-        scriptTitle.remove();
-        results.innerHTML = `<div class="search-empty">검색 결과가 없거나 네트워크 오류가 발생했습니다. <button type="button" class="btn btn-ghost btn-xs" style="margin-top:6px;" onclick="hideSearchResults()">닫기</button></div>`;
-      };
-      document.body.appendChild(scriptTitle);
-    }
-  };
-
-  script.onerror = function () {
-    delete window[cbName];
-    script.remove();
-    results.innerHTML = `<div class="search-empty">검색 실패 — 네트워크 상태를 확인해주세요. <button type="button" class="btn btn-ghost btn-xs" style="margin-top:6px;" onclick="hideSearchResults()">닫기</button></div>`;
-  };
-
-  setTimeout(() => {
-    if (window[cbName]) {
-      delete window[cbName];
-      script.remove();
-      results.innerHTML = `<div class="search-empty">응답 시간 초과 <button type="button" class="btn btn-ghost btn-xs" style="margin-top:6px;" onclick="hideSearchResults()">닫기</button></div>`;
-    }
-  }, 10000);
-
-  document.body.appendChild(script);
+  const requestId = ++bookSearchRequestId;
+  try {
+    const items = await searchBookProviders(query, sort);
+    if (requestId !== bookSearchRequestId) return;
+    handleAladinResults(items);
+  } catch (error) {
+    if (requestId !== bookSearchRequestId) return;
+    console.error('[8ook books] Search failed', error);
+    results.innerHTML = '<div class="search-empty">도서 검색 서비스에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.</div>';
+  }
 }
 
 function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
