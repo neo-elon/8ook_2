@@ -334,30 +334,47 @@ async function searchBookProviders(query, sort = 'Accuracy', isbnSearch = false)
     fields: 'key,title,author_name,publisher,first_publish_year,number_of_pages_median,cover_i,isbn'
   });
   if (sort === 'PublishTime') olParams.set('sort', 'new');
-  // Open Library has no equivalent to Aladin sales rankings.
+
   const googleParams = new URLSearchParams({
-    q: query, maxResults: isbnSearch ? '10' : '25',
+    q: isbnSearch ? 'isbn:' + query : query,
+    maxResults: isbnSearch ? '10' : '25',
     printType: 'books',
     orderBy: sort === 'PublishTime' ? 'newest' : 'relevance'
   });
-  try {
-    const data = await requestBookJson('https://openlibrary.org/search.json?' + olParams);
-    const items = (data.docs || []).map(doc => {
-      const item = normalizeOpenLibraryBook(doc);
-      if (isbnSearch && (doc.isbn || []).includes(query)) {
-        if (query.length === 13) item.isbn13 = query;
-        else item.isbn = query;
-        item.itemId = query;
-      }
-      return item;
-    }).filter(x => x.title);
-    if (items.length) return items;
-  } catch (error) {
-    console.warn('[8ook books] Open Library unavailable', error);
+  const errors = [];
+  const providers = [
+    async () => {
+      const data = await requestBookJson('https://openlibrary.org/search.json?' + olParams);
+      return (data.docs || []).map(doc => {
+        const item = normalizeOpenLibraryBook(doc);
+        if (isbnSearch && (doc.isbn || []).includes(query)) {
+          if (query.length === 13) item.isbn13 = query;
+          else item.isbn = query;
+          item.itemId = query;
+        }
+        return item;
+      }).filter(item => item.title);
+    },
+    async () => {
+      const data = await requestBookJson('https://www.googleapis.com/books/v1/volumes?' + googleParams);
+      return (data.items || []).map(normalizeGoogleBook).filter(item => item.title);
+    }
+  ];
+
+  for (const provider of providers) {
+    try {
+      const items = await provider();
+      if (items.length) return items;
+    } catch (error) {
+      errors.push(error);
+      console.warn('[8ook books] Provider unavailable', error);
+    }
   }
-  // Google Books plain-text query also handles ISBN; no field prefixes required.
-  const data = await requestBookJson('https://www.googleapis.com/books/v1/volumes?' + googleParams);
-  return (data.items || []).map(normalizeGoogleBook).filter(x => x.title);
+  // No provider returned books. Avoid turning rate limits into a false "no results".
+  if (errors.length === providers.length) {
+    throw new Error('도서 검색 제공처에 일시적으로 연결할 수 없습니다.');
+  }
+  return [];
 }
 
 async function runAladinJsonp(query, key, results, sort = currentAladinSort || 'Accuracy') {
