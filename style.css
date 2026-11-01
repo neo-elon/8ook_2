@@ -7059,3 +7059,52 @@ body.dark-mode .profile-stat-box {
   .cal-d.has-cover, .cal-d.has-cover.today { min-height: 62px; }
   .cal-book-cover { width: min(100%, 34px); height: 43px; }
 }
+
+
+/* Reading totals — three stacked editorial rows, full values */
+.stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.stats-grid .stat-card,
+.stats-grid .stat-card + .stat-card {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+  overflow: visible;
+}
+.stats-grid .stat-card + .stat-card { border-top: 1px solid var(--border); }
+.stats-grid .stat-label { margin: 0; font-size: 12px; letter-spacing: 0; flex: 0 0 auto; }
+.stats-grid .stat-num,
+.stats-grid .stat-num.compact,
+.stats-grid .stat-num.extra-compact {
+  justify-content: flex-end;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  font-size: clamp(23px, 4vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -0.7px;
+  font-weight: 500;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  .stats-grid .stat-card,
+  .stats-grid .stat-card + .stat-card { padding: 11px 0; }
+  .stats-grid .stat-num,
+  .stats-grid .stat-num.compact,
+  .stats-grid .stat-num.extra-compact { font-size: 25px; }
+}
