@@ -7025,3 +7025,37 @@ body.dark-mode .profile-stat-box {
 .sentence-symbol-tools { display:inline-flex; align-items:center; gap:12px; }
 .sentence-symbol-btn { border:0; background:none; padding:0; color:var(--text-300); font:inherit; font-size:13px; line-height:1.4; cursor:pointer; }
 .sentence-symbol-btn:hover, .sentence-symbol-btn:focus-visible { color:var(--text); text-decoration:underline; }
+
+
+/* Completion calendar — book covers instead of completion circles */
+.cal-grid { gap: 4px 2px; }
+.cal-d.has-cover,
+.cal-d.has-cover.today {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: auto;
+  min-height: 70px;
+  padding: 2px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-300);
+  outline: none;
+  overflow: visible;
+}
+.cal-d.has-cover:hover { background: transparent; }
+.cal-d.has-cover .cal-date-label { display: block; line-height: 18px; font-size: 11px; font-weight: 500; }
+.cal-d.has-cover.today .cal-date-label { color: var(--text-100); font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.cal-book-cover { display: block; width: min(100%, 42px); height: 52px; object-fit: cover; border-radius: 2px; box-shadow: 0 2px 5px rgba(0,0,0,.15); }
+.cal-book-count { position: absolute; right: 0; bottom: 0; background: var(--text-100); color: var(--bg); font-size: 9px; line-height: 15px; min-width: 17px; padding: 0 2px; border-radius: 8px; }
+.cal-d.has-cover.cover-missing { justify-content: flex-start; }
+.cal-d.has-cover.cover-missing .cal-date-label { border-bottom: 2px solid var(--text-300); }
+@media (max-width: 640px) {
+  .cal-d.has-cover, .cal-d.has-cover.today { min-height: 62px; }
+  .cal-book-cover { width: min(100%, 34px); height: 43px; }
+}
