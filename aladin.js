@@ -14,60 +14,14 @@ function hideSearchResults() {
   r.innerHTML = '';
 }
 
-function fetchAladinCover(title, author) {
-  return new Promise((resolve) => {
-    const key = getApiKey();
-    let query = title.trim();
-    const colonIdx = query.indexOf(':');
-    if (colonIdx !== -1) query = query.substring(0, colonIdx).trim();
-    const parenIdx = query.indexOf('(');
-    if (parenIdx !== -1) query = query.substring(0, parenIdx).trim();
-
-    if (author) {
-      const cleanAuthor = author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '').trim();
-      query += ' ' + cleanAuthor;
-    }
-
-    const cbName = '_aladinCb_cover_' + (++aladinCallbackCounter);
-    const script = document.createElement('script');
-    const params = new URLSearchParams({
-      ttbkey: key,
-      Query: query,
-      QueryType: 'Keyword',
-      MaxResults: '1',
-      start: '1',
-      SearchTarget: 'Book',
-      output: 'JS',
-      Cover: 'Big',
-      Sort: 'Accuracy',
-      callback: cbName
-    });
-
-    let done = false;
-    const cleanup = () => {
-      if (!done) {
-        done = true;
-        delete window[cbName];
-        script.remove();
-      }
-    };
-
-    window[cbName] = function (arg1, arg2) {
-      const data = (typeof arg1 === 'boolean' || typeof arg1 === 'number') ? arg2 : arg1;
-      cleanup();
-      if (data && data.item && data.item.length > 0 && data.item[0].cover) {
-        let cover = (data.item[0].cover || '').replace('/coversum/', '/cover500/').replace('/cover200/', '/cover500/');
-        resolve(cover);
-      } else {
-        resolve(null);
-      }
-    };
-
-    script.onerror = () => { cleanup(); resolve(null); };
-    setTimeout(() => { cleanup(); resolve(null); }, 6000);
-    script.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?${params}`;
-    document.body.appendChild(script);
-  });
+async function fetchAladinCover(title, author) {
+  try {
+    const items = await searchBookProviders([title, author].filter(Boolean).join(' '));
+    return items.find(item => item.cover)?.cover || null;
+  } catch (error) {
+    console.warn('[8ook books] Cover lookup failed', error);
+    return null;
+  }
 }
 
 function normalizeBackfillText(value) {
@@ -127,6 +81,8 @@ function lookupAladinItemForBackfill(book) {
 }
 
 async function backfillYes24SpinesOnce() {
+  // Legacy Aladin-based migration disabled.
+  return;
   const markerKey = 'rj_yes24_spine_backfill_v1';
   try { if (localStorage.getItem(markerKey) === 'done') return; } catch (_) {}
   if (!Array.isArray(books) || books.length === 0 || !supabaseClient?.functions?.invoke) return;
@@ -338,8 +294,8 @@ async function requestBookJson(url) {
 }
 
 function normalizeOpenLibraryBook(doc) {
-  const isbn13 = (doc.isbn || []).find(v => /^97[89]\\d{10}$/.test(String(v))) || '';
-  const isbn = (doc.isbn || []).find(v => /^\\d{9}[\\dX]$/.test(String(v))) || '';
+  const isbn13 = (doc.isbn || []).find(v => /^97[89]\d{10}$/.test(String(v))) || '';
+  const isbn = (doc.isbn || []).find(v => /^\d{9}[\dX]$/.test(String(v))) || '';
   const cover = doc.cover_i
     ? 'https://covers.openlibrary.org/b/id/' + doc.cover_i + '-L.jpg'
     : (isbn13 ? 'https://covers.openlibrary.org/b/isbn/' + isbn13 + '-L.jpg?default=false' : '');
@@ -707,55 +663,18 @@ function applyAladinItem(item) {
   }
 }
 
-function fetchDetailedPages(itemId) {
-  const key = getApiKey();
-
-  let itemIdType = 'ItemId';
-  const cleanId = String(itemId).trim();
-  if (cleanId.length === 13 && (cleanId.startsWith('978') || cleanId.startsWith('979'))) {
-    itemIdType = 'ISBN13';
-  } else if (cleanId.length === 10) {
-    itemIdType = 'ISBN';
+async function fetchDetailedPages(itemId) {
+  const isbn = String(itemId || '').trim();
+  if (!/^(?:97[89]\d{10}|\d{9}[\dX])$/.test(isbn)) return;
+  try {
+    const items = await searchBookProviders(isbn, 'Accuracy', true);
+    const match = items.find(item => item.isbn13 === isbn || item.isbn === isbn);
+    const field = document.getElementById('bk-pages');
+    if (field && !field.value && match?.pages) field.value = String(match.pages);
+  } catch (error) {
+    console.warn('[8ook books] Page lookup failed', error);
   }
-
-  const updatePageField = (pages) => {
-    if (pages) {
-      const cleanPages = String(pages).replace(/[^0-9]/g, '');
-      document.getElementById('bk-pages').value = cleanPages;
-      toast('페이지 수 정보를 불러왔습니다 (' + cleanPages + 'p)');
-    }
-  };
-
-  const cbName = '_aladinCb_lookup_' + Date.now();
-  const script = document.createElement('script');
-  const params = new URLSearchParams({
-    ttbkey: key,
-    itemIdType: itemIdType,
-    ItemId: cleanId,
-    output: 'JS',
-    Version: '20131101',
-    OptResult: 'subInfo',
-    callback: cbName
-  });
-  script.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?${params}`;
-  window[cbName] = function (data) {
-    delete window[cbName];
-    script.remove();
-    if (data && data.item && data.item[0]) {
-      const item = data.item[0];
-      const pages = (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) ||
-        (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
-        item.itemPage || item.itempage || '';
-      updatePageField(pages);
-    }
-  };
-  script.onerror = function () {
-    delete window[cbName];
-    script.remove();
-  };
-  document.body.appendChild(script);
 }
-
 
 /* ==============================================
    SCRAP MODAL & HASHTAGS ARCHIVE
