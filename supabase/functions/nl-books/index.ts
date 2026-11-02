@@ -8,6 +8,18 @@ const cors = {
 };
 const endpoint = "https://www.nl.go.kr/NL/search/openApi/search.do";
 const value = (v: unknown): string => typeof v === "string" ? v : (v == null ? "" : String(v));
+function cleanText(input: unknown): string {
+  return value(input)
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\\s+/g, " ")
+    .trim();
+}
 function records(payload: any): any[] {
   if (Array.isArray(payload?.result)) return payload.result;
   const root = payload?.result ?? payload?.response ?? payload;
@@ -86,9 +98,9 @@ serve(async (request) => {
       const isbn13 = matches.find((s: string) => s.length === 13) ?? "";
       const isbn = matches.find((s: string) => s.length === 10) ?? "";
       return {
-        title: value(item.titleInfo ?? item.title_info ?? item.title),
-        author: value(item.authorInfo ?? item.author_info ?? item.author),
-        publisher: value(item.pubInfo ?? item.pub_info ?? item.publisher),
+        title: cleanText(item.titleInfo ?? item.title_info ?? item.title),
+        author: cleanText(item.authorInfo ?? item.author_info ?? item.author),
+        publisher: cleanText(item.pubInfo ?? item.pub_info ?? item.publisher),
         pubDate: value(item.pubYearInfo ?? item.pub_year_info ?? item.pub_year),
         pages: "",
         cover: /^https:\/\//i.test(value(item.imageUrl)) ? value(item.imageUrl) : "",
@@ -96,7 +108,14 @@ serve(async (request) => {
         itemId: value(item.controlNo ?? item.control_no ?? item.id ?? isbn13 ?? isbn),
       };
     }).filter((item: any) => item.title && (!isbnSearch || item.isbn13 === query || item.isbn === query));
-    return Response.json({ items, ...(diagnostics ? { diagnostics } : {}) }, { headers: cors });
+    const seen = new Set<string>();
+    const uniqueItems = items.filter((item: any) => {
+      const key = [item.isbn13 || item.isbn, item.title.toLowerCase(), item.author.toLowerCase(), item.publisher.toLowerCase()].join("|");
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    return Response.json({ items: uniqueItems, ...(diagnostics ? { diagnostics } : {}) }, { headers: cors });
   } catch (error) {
     console.error("NL books search failed", error);
     return Response.json({ error: "National Library search unavailable" }, { status: 502, headers: cors });
