@@ -11,10 +11,11 @@ serve(async (req) => {
     const query = str(body?.query).trim().slice(0,120);
     const isbnSearch = body?.isbnSearch === true;
     if (!query || (isbnSearch && !/^(?:97[89][0-9]{10}|[0-9]{9}[0-9X])$/i.test(query))) return Response.json({error:"Invalid query"},{status:400,headers:cors});
-    const url = new URL(isbnSearch ? "https://apis.yes24.com/v1/goods/itemDetail" : "https://apis.yes24.com/v1/goods/itemList");
+    const detailLookup = isbnSearch && query.length === 13;
+    const url = new URL(detailLookup ? "https://apis.yes24.com/v1/goods/itemDetail" : "https://apis.yes24.com/v1/goods/itemList");
     url.searchParams.set("query",query);
     url.searchParams.set("detail","Y");
-    if (isbnSearch) url.searchParams.set("searchType","ISBN13");
+    if (detailLookup) url.searchParams.set("searchType","ISBN13");
     else {
       url.searchParams.set("category","BOOK");
       url.searchParams.set("page","1");
@@ -37,7 +38,7 @@ serve(async (req) => {
       sideCover:str(v.sideCover).startsWith("https://") ? v.sideCover : "",
       isbn:str(v.isbn10), isbn13:str(v.isbn13), itemId:str(v.itemId),
       source:"YES24", sourceUrl:str(v.link)
-    })).filter((v:any)=>v.title && (!isbnSearch || v.isbn13 === query));
+    })).filter((v:any)=>v.title && (!isbnSearch || v.isbn13 === query || v.isbn === query));
     return Response.json({items},{headers:cors});
   } catch (error) {
     console.error("YES24 search failed",error instanceof Error ? error.message : "unknown");
