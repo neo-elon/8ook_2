@@ -32,7 +32,7 @@ serve(async (req) => {
     if (payload?.success !== true) throw Error("YES24 response failure");
     const raw = Array.isArray(payload?.data?.items) ? payload.data.items : [];
     const items = raw.filter((v:any)=>v && v.adultYn !== "Y").map((v:any)=>({
-      title:str(v.title), author:str(v.author), publisher:str(v.publisher),
+      title:str(v.title), subtitle:str(v.subtitle ?? v.subTitle), author:str(v.author), publisher:str(v.publisher),
       pubDate:str(v.publishDate), pages: Number(v.pages)>0 ? Number(v.pages) : "",
       cover:str(v.cover).startsWith("https://") ? v.cover : "",
       sideCover:str(v.sideCover).startsWith("https://") ? v.sideCover : "",
