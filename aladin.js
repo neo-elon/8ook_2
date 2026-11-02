@@ -507,9 +507,12 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
     const pages = item.pages || '';
     const pubDate = item.pubDate || '';
 
+    const safeCover = getSafeImageUrl(cover);
+    const coverHtml = safeCover
+      ? `<img src="${esc(safeCover)}" alt="" onerror="this.outerHTML='<span class=&quot;search-item-cover-empty&quot; aria-hidden=&quot;true&quot;>책</span>'">`
+      : '<span class="search-item-cover-empty" aria-hidden="true">책</span>';
     listHtml += `<div class="search-item" onclick="applyAladinItemByIndex(${index})">
-      <img src="${esc(getSafeImageUrl(cover))}" alt=""
-        onerror="this.style.background='var(--bg-card)';this.style.opacity='.3'">
+      ${coverHtml}
       <div class="search-item-info">
         <div class="search-item-title">${esc(title)}</div>
         <div class="search-item-author">${esc(author)}</div>
