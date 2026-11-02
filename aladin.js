@@ -463,20 +463,19 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
     });
   }
 
-  // Smart re-ranking when sorting by Accuracy
+  // Prefer exact titles and their numbered volumes over unrelated keyword matches.
   if (currentAladinSort === 'Accuracy' && currentAladinQuery && items.length > 0 && !autoApplySingle) {
-    const qClean = currentAladinQuery.toLowerCase().replace(/\s+/g, '');
-    items.sort((a, b) => {
-      const tA = (a.title || '').toLowerCase().replace(/\s+/g, '');
-      const tB = (b.title || '').toLowerCase().replace(/\s+/g, '');
-      const score = (t) => {
-        if (t === qClean) return 0;
-        if (t.startsWith(qClean)) return 1;
-        if (t.includes(qClean)) return 2;
-        return 3;
-      };
-      return score(tA) - score(tB);
-    });
+    const norm = (v) => String(v || '').toLowerCase().replace(/\s+/g, '').replace(/[^\p{L}\p{N}]/gu, '');
+    const q = norm(currentAladinQuery);
+    const rank = (item) => {
+      const title = norm(item.title);
+      if (title === q) return 0;
+      if (title.startsWith(q) && /^\d{1,3}$/.test(title.slice(q.length))) return 1;
+      if (title.startsWith(q)) return 2;
+      if (title.includes(q)) return 3;
+      return 4;
+    };
+    items.sort((a, b) => rank(a) - rank(b));
   }
 
   aladinSearchResults = items;
@@ -665,7 +664,8 @@ function applyAladinItem(item) {
     document.getElementById('bk-author').value = cleanAuthor;
   }
 
-  let cleanPages = item.pages ? String(item.pages).replace(/[^0-9]/g, '') : '';
+  let cleanPages = String(item.pages ?? '').replace(/[^0-9]/g, '');
+  if (!Number.isFinite(Number(cleanPages)) || Number(cleanPages) <= 0) cleanPages = '';
   if (cleanPages) {
     document.getElementById('bk-pages').value = cleanPages;
   } else {
@@ -704,7 +704,7 @@ function applyAladinItem(item) {
   // Existing saved/manual spineCover values are therefore never overwritten merely by opening an edit modal.
   fetchYes24SpineForAladinItem(item);
 
-  const identifier = item.itemId || item.isbn13 || item.isbn;
+  const identifier = item.isbn13 || item.isbn || item.itemId;
   if (identifier && !cleanPages) {
     fetchDetailedPages(identifier);
   }
