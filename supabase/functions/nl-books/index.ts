@@ -9,6 +9,7 @@ const cors = {
 const endpoint = "https://www.nl.go.kr/NL/search/openApi/search.do";
 const value = (v: unknown): string => typeof v === "string" ? v : (v == null ? "" : String(v));
 function records(payload: any): any[] {
+  if (Array.isArray(payload?.result)) return payload.result;
   const root = payload?.result ?? payload?.response ?? payload;
   const candidate = root?.items?.item ?? root?.items ?? root?.item ?? root?.list ?? root?.data ?? root?.searchResult?.item ?? root?.searchResult?.list ?? root?.result;
   if (Array.isArray(candidate)) return candidate;
@@ -80,19 +81,19 @@ serve(async (request) => {
       total: value(data?.total ?? data?.result?.total ?? data?.response?.total),
     } : undefined;
     const items = extracted.map((item: any) => {
-      const isbnText = value(item.isbn ?? item.isbn_info);
+      const isbnText = value(item.isbn ?? item.isbnInfo ?? item.isbn_info);
       const matches = isbnText.match(/97[89][0-9]{10}|[0-9]{9}[0-9X]/gi) ?? [];
       const isbn13 = matches.find((s: string) => s.length === 13) ?? "";
       const isbn = matches.find((s: string) => s.length === 10) ?? "";
       return {
-        title: value(item.title_info ?? item.title),
-        author: value(item.author_info ?? item.author),
-        publisher: value(item.pub_info ?? item.publisher),
-        pubDate: value(item.pub_year_info ?? item.pub_year),
+        title: value(item.titleInfo ?? item.title_info ?? item.title),
+        author: value(item.authorInfo ?? item.author_info ?? item.author),
+        publisher: value(item.pubInfo ?? item.pub_info ?? item.publisher),
+        pubDate: value(item.pubYearInfo ?? item.pub_year_info ?? item.pub_year),
         pages: "",
-        cover: "",
+        cover: /^https:\/\//i.test(value(item.imageUrl)) ? value(item.imageUrl) : "",
         isbn, isbn13,
-        itemId: value(item.control_no ?? item.id ?? isbn13 ?? isbn),
+        itemId: value(item.controlNo ?? item.control_no ?? item.id ?? isbn13 ?? isbn),
       };
     }).filter((item: any) => item.title && (!isbnSearch || item.isbn13 === query || item.isbn === query));
     return Response.json({ items, ...(diagnostics ? { diagnostics } : {}) }, { headers: cors });
