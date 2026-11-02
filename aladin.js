@@ -296,9 +296,11 @@ async function requestBookJson(url) {
 function normalizeOpenLibraryBook(doc) {
   const isbn13 = (doc.isbn || []).find(v => /^97[89]\d{10}$/.test(String(v))) || '';
   const isbn = (doc.isbn || []).find(v => /^\d{9}[\dX]$/.test(String(v))) || '';
+  // Only request cover IDs explicitly present in Open Library's search response.
+  // Guessing an ISBN cover URL creates many 404s for books with no uploaded cover.
   const cover = doc.cover_i
     ? 'https://covers.openlibrary.org/b/id/' + doc.cover_i + '-L.jpg'
-    : (isbn13 ? 'https://covers.openlibrary.org/b/isbn/' + isbn13 + '-L.jpg?default=false' : '');
+    : '';
   return {
     title: doc.title || '',
     author: (doc.author_name || []).join(', '),
