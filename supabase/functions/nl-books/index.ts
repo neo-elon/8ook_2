@@ -19,6 +19,16 @@ function records(payload: any): any[] {
   }
   return candidate && typeof candidate === "object" && (candidate.title_info || candidate.title) ? [candidate] : [];
 }
+// Diagnostic metadata only: no API keys, request URLs or book records.
+function describeShape(input: any, depth = 0): any {
+  if (depth > 3 || input == null) return null;
+  if (Array.isArray(input)) return { kind: "array", count: input.length, first: input.length ? describeShape(input[0], depth + 1) : null };
+  if (typeof input !== "object") return { kind: typeof input };
+  const keys = Object.keys(input).slice(0, 30);
+  return { kind: "object", keys, children: Object.fromEntries(keys
+    .filter(k => input[k] && typeof input[k] === "object")
+    .slice(0, 8).map(k => [k, describeShape(input[k], depth + 1)])) };
+}
 serve(async (request) => {
   if (request.method === "OPTIONS") return new Response(null, { headers: cors });
   if (request.method !== "POST") return Response.json({ error: "Method not allowed" }, { status: 405, headers: cors });
@@ -62,7 +72,14 @@ serve(async (request) => {
     if (code && /^(000|010|011|012|013|014|015|021|101)$/.test(code)) {
       throw new Error("NL API error " + code);
     }
-    const items = records(data).map((item: any) => {
+    const extracted = records(data);
+    const diagnostics = body?.debug === true ? {
+      shape: describeShape(data),
+      extractedCount: extracted.length,
+      mappedFields: extracted[0] && typeof extracted[0] === "object" ? Object.keys(extracted[0]).slice(0, 35) : [],
+      total: value(data?.total ?? data?.result?.total ?? data?.response?.total),
+    } : undefined;
+    const items = extracted.map((item: any) => {
       const isbnText = value(item.isbn ?? item.isbn_info);
       const matches = isbnText.match(/97[89][0-9]{10}|[0-9]{9}[0-9X]/gi) ?? [];
       const isbn13 = matches.find((s: string) => s.length === 13) ?? "";
@@ -78,7 +95,7 @@ serve(async (request) => {
         itemId: value(item.control_no ?? item.id ?? isbn13 ?? isbn),
       };
     }).filter((item: any) => item.title && (!isbnSearch || item.isbn13 === query || item.isbn === query));
-    return Response.json({ items }, { headers: cors });
+    return Response.json({ items, ...(diagnostics ? { diagnostics } : {}) }, { headers: cors });
   } catch (error) {
     console.error("NL books search failed", error);
     return Response.json({ error: "National Library search unavailable" }, { status: 502, headers: cors });
