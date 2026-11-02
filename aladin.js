@@ -327,6 +327,15 @@ function normalizeGoogleBook(entry) {
   };
 }
 
+async function searchNationalLibraryBooks(query, sort, isbnSearch) {
+  if (!supabaseClient?.functions?.invoke) throw new Error('Supabase is unavailable');
+  const { data, error } = await supabaseClient.functions.invoke('nl-books', {
+    body: { query, sort, isbnSearch }
+  });
+  if (error || !Array.isArray(data?.items)) throw (error || new Error('Invalid library response'));
+  return data.items;
+}
+
 async function searchBookProviders(query, sort = 'Accuracy', isbnSearch = false) {
   const olParams = new URLSearchParams({
     [isbnSearch ? 'isbn' : 'q']: query,
@@ -343,6 +352,7 @@ async function searchBookProviders(query, sort = 'Accuracy', isbnSearch = false)
   });
   const errors = [];
   const providers = [
+    async () => searchNationalLibraryBooks(query, sort, isbnSearch),
     async () => {
       const data = await requestBookJson('https://openlibrary.org/search.json?' + olParams);
       return (data.docs || []).map(doc => {
