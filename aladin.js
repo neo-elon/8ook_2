@@ -422,7 +422,7 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
       let pagesVal = (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) ||
         (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
         (item.bookinfo ? (item.bookinfo.itemPage || item.bookinfo.itempage) : null) ||
-        item.itemPage || item.itempage || '';
+        item.pages || item.itemPage || item.itempage || '';
       let pages = pagesVal ? String(pagesVal).replace(/[^0-9]/g, '') : '';
       let author = item.author || '';
       let cleanAuthor = author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '');
@@ -444,7 +444,7 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
       let pagesVal = (item.subInfo ? (item.subInfo.itemPage || item.subInfo.itempage) : null) ||
         (item.subinfo ? (item.subinfo.itemPage || item.subinfo.itempage) : null) ||
         (item.bookinfo ? (item.bookinfo.itemPage || item.bookinfo.itempage) : null) ||
-        item.itemPage || item.itempage || '';
+        item.pages || item.itemPage || item.itempage || '';
       let pages = pagesVal ? String(pagesVal).replace(/[^0-9]/g, '') : '';
       let author = item.author || '';
       let cleanAuthor = author.replace(/\s*\((지은이|옮긴이|역자|저자|글|그림|편저|지음)\)/g, '');
