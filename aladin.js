@@ -429,6 +429,7 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
       let cover = (item.cover || '').replace('/coversum/', '/cover500/').replace('/cover200/', '/cover500/');
       return {
         title: decodeHtml(item.title || ''),
+        subtitle: decodeHtml(item.subtitle || item.subTitle || ''),
         author: decodeHtml(cleanAuthor),
         cover: cover,
         publisher: decodeHtml(item.publisher || ''),
@@ -451,6 +452,7 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
       let cover = (item.cover || '').replace('/coversum/', '/cover500/').replace('/cover200/', '/cover500/');
       return {
         title: decodeHtml(item.title || ''),
+        subtitle: decodeHtml(item.subtitle || item.subTitle || ''),
         author: decodeHtml(cleanAuthor),
         cover: cover,
         publisher: decodeHtml(item.publisher || ''),
@@ -654,9 +656,10 @@ async function fetchYes24SpineForAladinItem(item) {
 function applyAladinItem(item) {
   if (item.title) {
     const titleParts = splitBookTitle(item.title);
+    const explicitSubtitle = String(item.subtitle || '').trim();
     document.getElementById('bk-title').value = titleParts.main;
     const subEl = document.getElementById('bk-subtitle');
-    if (subEl) subEl.value = titleParts.sub;
+    if (subEl) subEl.value = explicitSubtitle || titleParts.sub || '';
   }
 
   if (item.author) {
