@@ -281,12 +281,18 @@ function changeAladinSort(newSort) {
 // Search providers: Open Library first, Google Books as a fallback.
 // Keep the existing result UI and form mapping through handleAladinResults().
 let bookSearchRequestId = 0;
+// Cache repeated catalog queries and briefly pause Google after a rate-limit response.
+const bookCatalogCache = new Map();
+let googleBooksBlockedUntil = 0;
 async function requestBookJson(url) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 9000);
   try {
     const response = await fetch(url, { signal: controller.signal });
-    if (!response.ok) throw new Error('Book API HTTP ' + response.status);
+    if (!response.ok) {
+      if (response.status === 429 && url.includes('googleapis.com/books/')) googleBooksBlockedUntil = Date.now() + 30 * 60 * 1000;
+      throw new Error('Book API HTTP ' + response.status);
+    }
     return await response.json();
   } finally {
     clearTimeout(timeout);
@@ -348,6 +354,9 @@ async function searchYes24Books(query, sort, isbnSearch) {
 }
 
 async function searchBookProviders(query, sort = 'Accuracy', isbnSearch = false) {
+  const cacheKey = JSON.stringify([query.trim().toLowerCase(), sort, isbnSearch]);
+  const cached = bookCatalogCache.get(cacheKey);
+  if (cached && Date.now() - cached.at < 15 * 60 * 1000) return cached.items;
   const olParams = new URLSearchParams({
     [isbnSearch ? 'isbn' : 'q']: query,
     limit: isbnSearch ? '10' : '25',
@@ -378,6 +387,7 @@ async function searchBookProviders(query, sort = 'Accuracy', isbnSearch = false)
       }).filter(item => item.title);
     },
     google: async () => {
+      if (Date.now() < googleBooksBlockedUntil) return [];
       const data = await requestBookJson('https://www.googleapis.com/books/v1/volumes?' + googleParams);
       return (data.items || []).map(normalizeGoogleBook).filter(item => item.title);
     }
@@ -385,13 +395,17 @@ async function searchBookProviders(query, sort = 'Accuracy', isbnSearch = false)
   // Foreign-language queries must not stop at the National Library's sparse records.
   // Prefer the international catalogs, and keep the original Korean search path intact.
   const order = isForeign
-    ? ['google', 'openLibrary', 'yes24', 'nl']
+    ? ['openLibrary', 'google', 'yes24', 'nl']
     : ['yes24', 'nl', 'openLibrary', 'google'];
   let failures = 0;
   for (const name of order) {
     try {
       const items = await providers[name]();
-      if (items.length) return items;
+      if (items.length) {
+        bookCatalogCache.set(cacheKey, { items, at: Date.now() });
+        if (bookCatalogCache.size > 80) bookCatalogCache.delete(bookCatalogCache.keys().next().value);
+        return items;
+      }
     } catch (error) {
       failures++;
       console.warn('[8ook books] Provider unavailable (' + name + ')', error);
