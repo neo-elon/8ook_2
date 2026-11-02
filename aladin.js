@@ -359,11 +359,11 @@ async function searchBookProviders(query, sort = 'Accuracy', isbnSearch = false)
     printType: 'books',
     orderBy: sort === 'PublishTime' ? 'newest' : 'relevance'
   });
-  const errors = [];
-  const providers = [
-    async () => searchYes24Books(query, sort, isbnSearch),
-    async () => searchNationalLibraryBooks(query, sort, isbnSearch),
-    async () => {
+  const isForeign = !isbnSearch && /[A-Za-z]{2,}/.test(query) && !/[가-힣]/.test(query);
+  const providers = {
+    yes24: async () => searchYes24Books(query, sort, isbnSearch),
+    nl: async () => searchNationalLibraryBooks(query, sort, isbnSearch),
+    openLibrary: async () => {
       const data = await requestBookJson('https://openlibrary.org/search.json?' + olParams);
       return (data.docs || []).map(doc => {
         const item = normalizeOpenLibraryBook(doc);
@@ -375,23 +375,27 @@ async function searchBookProviders(query, sort = 'Accuracy', isbnSearch = false)
         return item;
       }).filter(item => item.title);
     },
-    async () => {
+    google: async () => {
       const data = await requestBookJson('https://www.googleapis.com/books/v1/volumes?' + googleParams);
       return (data.items || []).map(normalizeGoogleBook).filter(item => item.title);
     }
-  ];
-
-  for (const provider of providers) {
+  };
+  // Foreign-language queries must not stop at the National Library's sparse records.
+  // Prefer the international catalogs, and keep the original Korean search path intact.
+  const order = isForeign
+    ? ['google', 'openLibrary', 'yes24', 'nl']
+    : ['yes24', 'nl', 'openLibrary', 'google'];
+  let failures = 0;
+  for (const name of order) {
     try {
-      const items = await provider();
+      const items = await providers[name]();
       if (items.length) return items;
     } catch (error) {
-      errors.push(error);
-      console.warn('[8ook books] Provider unavailable', error);
+      failures++;
+      console.warn('[8ook books] Provider unavailable (' + name + ')', error);
     }
   }
-  // No provider returned books. Avoid turning rate limits into a false "no results".
-  if (errors.length === providers.length) {
+  if (failures === order.length) {
     throw new Error('도서 검색 제공처에 일시적으로 연결할 수 없습니다.');
   }
   return [];
