@@ -452,6 +452,7 @@ function handleAladinResults(data, autoApplySingle = false, searchedIsbn = '') {
         subtitle: decodeHtml(item.subtitle || item.subTitle || ''),
         author: decodeHtml(cleanAuthor),
         cover: cover,
+        sideCover: item.sideCover || '',
         publisher: decodeHtml(item.publisher || ''),
         pubDate: item.pubDate || '',
         pages: pages,
@@ -624,53 +625,16 @@ async function shouldPreferYes24Spine(yes24Url, currentUrl) {
 }
 
 async function fetchYes24SpineForAladinItem(item) {
-  if (!item || !supabaseClient || !supabaseClient.functions || typeof supabaseClient.functions.invoke !== 'function') {
-    return;
-  }
-
-  const isbn13 = String(item.isbn13 || '').replace(/[^0-9]/g, '');
-  const title = String(item.title || '').trim();
-  if (!isbn13 && !title) return;
-
+  // The yes24-books search response already includes sideCover.
+  // Avoid calling the separate, unavailable yes24-spine Edge Function.
+  const sideCover = getSafeImageUrl(item?.sideCover || '');
+  if (!sideCover) return;
   const requestSeq = ++yes24SpineRequestSeq;
   const fallbackSpine = item.cover ? getSpineImageUrl(item.cover) : '';
-
-  try {
-    const { data, error } = await supabaseClient.functions.invoke('yes24-spine', {
-      body: isbn13.length === 13 ? { isbn13 } : { title }
-    });
-
-    if (requestSeq !== yes24SpineRequestSeq) return;
-
-    if (error || !data || data.ok !== true || data.found !== true) {
-      return;
-    }
-
-    const returnedIsbn = String(data.book?.isbn13 || '').replace(/[^0-9]/g, '');
-    if (isbn13.length === 13 && returnedIsbn && returnedIsbn !== isbn13) {
-      console.warn('[8ook yes24] ISBN mismatch; keeping Aladin spine', { isbn13, returnedIsbn });
-      return;
-    }
-
-    const sideCover = getSafeImageUrl(data.book?.sideCover || '');
-    if (!sideCover) return;
-
-    const shouldUseYes24 = await shouldPreferYes24Spine(sideCover, fallbackSpine);
-    if (requestSeq !== yes24SpineRequestSeq) return;
-    if (!shouldUseYes24) {
-      console.info('[8ook yes24] existing Aladin spine is equal or better; keeping it');
-      return;
-    }
-
-    modalSpineCover = sideCover;
-    setSpinePrev(sideCover);
-  } catch (error) {
-    console.warn('[8ook yes24] spine lookup failed; keeping Aladin spine', error);
-    if (!modalSpineCover && fallbackSpine) {
-      modalSpineCover = fallbackSpine;
-      setSpinePrev(fallbackSpine);
-    }
-  }
+  const shouldUse = await shouldPreferYes24Spine(sideCover, fallbackSpine);
+  if (requestSeq !== yes24SpineRequestSeq || !shouldUse) return;
+  modalSpineCover = sideCover;
+  setSpinePrev(sideCover);
 }
 
 function applyAladinItem(item) {
