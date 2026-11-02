@@ -7175,3 +7175,6 @@ body.dark-mode .profile-stat-box {
   }
   .cal-d.has-cover .cal-book-count { right: -3px; bottom: -3px; }
 }
+
+/* Book search: quiet placeholder when an API has no cover image */
+.search-item-cover-empty { display:flex; align-items:center; justify-content:center; flex:0 0 38px; width:38px; height:55px; border:1px solid var(--border, #e4e1dc); border-radius:2px; background:var(--bg-card, #f5f3ef); color:var(--text-muted, #aaa); font-size:11px; }
